@@ -12,4 +12,7 @@
     <string name="device_state">设备状态</string>
     <string name="normal_problem">常见问题</string>
     <string name="about_us">关乎我们</string>
+    <string name="open">开</string>
+    <string name="close">关</string>
+    <string name="add_home">创建新家</string>
 </resources>

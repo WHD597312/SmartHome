@@ -9,14 +9,15 @@ import java.util.ArrayList;
 public class GroupEntry {
     private String header;
     private String footer;
+    private int color;
     private ArrayList<ChildEntry> childern;
 
     public GroupEntry() {
     }
 
-    public GroupEntry(String header, String footer, ArrayList<ChildEntry> childern) {
+    public GroupEntry(String header, int color, ArrayList<ChildEntry> childern) {
         this.header = header;
-        this.footer = footer;
+        this.color = color;
         this.childern = childern;
     }
 
@@ -42,5 +43,13 @@ public class GroupEntry {
 
     public void setChildern(ArrayList<ChildEntry> childern) {
         this.childern = childern;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
     }
 }

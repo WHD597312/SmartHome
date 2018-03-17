@@ -22,6 +22,7 @@ public class GroupModel {
      */
     public static boolean isOpenAll=false;
     private static int[] imgs={R.drawable.switch_close,R.drawable.switch_open};
+    private static int[]colors={R.color.color_white,R.color.color_orange};
     public static ArrayList<GroupEntry> getGroups(int groupCount, int childrenCount) {
         ArrayList<GroupEntry> groups = new ArrayList<>();
         for (int i = 0; i < groupCount; i++) {
@@ -34,8 +35,8 @@ public class GroupModel {
                 }
 
             }
-            groups.add(new GroupEntry("第" + (i + 1) + "组头部",
-                    "第" + (i + 1) + "组尾部", children));
+            groups.add(new GroupEntry("第" + (i + 1) + "组头部",colors[0], children));
+
         }
         return groups;
     }
