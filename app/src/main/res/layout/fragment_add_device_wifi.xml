@@ -1,0 +1,33 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/color_white"
+    android:layout_marginLeft="@dimen/dp_50"
+    android:layout_marginRight="@dimen/dp_50"
+    >
+
+        <EditText
+            android:id="@+id/et_ssid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_1"
+            android:background="@color/color_dark_gray"
+            />
+        <EditText
+            android:id="@+id/et_pswd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+        <Button
+            android:id="@+id/btn_match"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="开始配置"
+            android:background="@drawable/selector_btn_match"
+            />
+</LinearLayout>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ToggleView">
+        <attr name="toggle_text" format="string"/>
+        <attr name="toggle_txt_size" format="dimension"/>
+        <attr name="toggle_txt_state" format="boolean"/>
+    </declare-styleable>
+    <declare-styleable name="XCRoundProgressBar">
+        <attr name="roundColor" format="color"/>
+        <attr name="roundProgressColor" format="color"/>
+        <attr name="roundWidth" format="dimension"></attr>
+        <attr name="innerRoundColor" format="color" />
+        <attr name="textColor" format="color" />
+        <attr name="textSize" format="dimension" />
+        <attr name="max" format="integer"></attr>
+        <attr name="textIsDisplayable" format="boolean"></attr>
+        <attr name="style">
+            <enum name="STROKE" value="0"></enum>
+            <enum name="FILL" value="1"></enum>
+        </attr>
+    </declare-styleable>
+    <declare-styleable name="CircleSeekBar">
+        <attr name="wheel_max_process" format="integer" />
+        <attr name="wheel_cur_process" format="integer" />
+        <attr name="wheel_reached_color" format="color" />
+        <attr name="wheel_reached_width" format="dimension" />
+        <attr name="wheel_reached_has_corner_round" format="boolean"/>
+        <attr name="wheel_unreached_color" format="color" />
+        <attr name="wheel_unreached_width" format="dimension" />
+        <attr name="wheel_pointer_color" format="color" />
+        <attr name="wheel_pointer_radius" format="dimension" />
+        <attr name="wheel_has_pointer_shadow" format="boolean" />
+        <attr name="wheel_has_wheel_shadow" format="boolean" />
+        <attr name="wheel_pointer_shadow_radius" format="dimension" />
+        <attr name="wheel_shadow_radius" format="dimension" />
+        <attr name="wheel_has_cache" format="boolean" />
+        <attr name="wheel_can_touch" format="boolean" />
+        <attr name="wheel_scroll_only_one_circle" format="boolean" />
+        <attr name="pointcolor" format="color"/>
+        <attr name="numsize" format="integer"/>
+        <attr name="numcolor" format="color"/>
+    </declare-styleable>
+  </resources>

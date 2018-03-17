@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <ImageView
+            android:id="@+id/img_function"
+            android:layout_width="@dimen/dp_60"
+            android:layout_height="@dimen/dp_60"
+            android:src="@drawable/example"
+            android:scaleType="centerInside"
+            />
+
+        <TextView
+            android:id="@+id/tv_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/img_function"
+            android:layout_alignTop="@+id/img_function"
+            android:layout_alignBottom="@+id/img_function"
+            android:gravity="center_vertical"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:text="TextView" />
+
+        <TextView
+            android:id="@+id/tv_indicate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:text=">"
+            android:textSize="25sp"
+            android:layout_marginRight="@dimen/dp_5"
+            />
+
+    </RelativeLayout>
+</android.support.constraint.ConstraintLayout>

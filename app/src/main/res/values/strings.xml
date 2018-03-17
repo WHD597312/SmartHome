@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">SmartHome</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="blank"> </string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ensure">确定</string>
+    <string name="main_set">主控制设置</string>
+    <string name="share_device">分享设备</string>
+    <string name="clock_setting">时钟设置</string>
+    <string name="device_state">设备状态</string>
+    <string name="normal_problem">常见问题</string>
+    <string name="about_us">关乎我们</string>
+</resources>

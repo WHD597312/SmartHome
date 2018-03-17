@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Cricle_slide">
+        <attr name="max_progress" format="integer"></attr>
+        <attr name="cur_progress" format="integer"></attr>
+        <attr name="cur_progress2" format="integer"></attr>
+        <attr name="bottom_color" format="color"></attr>
+        <attr name="circle_color" format="color"></attr>
+        <attr name="slide_color" format="color"></attr>
+        <attr name="Ring_Width" format="dimension"></attr>
+    </declare-styleable>
+</resources>
