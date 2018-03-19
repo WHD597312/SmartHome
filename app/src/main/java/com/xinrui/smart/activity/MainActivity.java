@@ -1,10 +1,10 @@
 package com.xinrui.smart.activity;
 
 import android.app.ActionBar;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.tv_live) TextView tv_live;//实景
     @BindView(R.id.listview) ListView listview;
     private FragmentManager fragmentManager;//碎片管理者
-    private FragmentTransaction fragmentTransaction;//碎片事务
     private DeviceFragment deviceFragment;//设备碎片
     private int[] colors={R.color.color_blue,R.color.color_dark_gray};
     @Override
@@ -56,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
-        fragmentManager=getFragmentManager();
-        fragmentTransaction=fragmentManager.beginTransaction();//开启碎片事务
+        fragmentManager=getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction= fragmentManager.beginTransaction();//开启碎片事务
         deviceFragment=new DeviceFragment();
         fragmentTransaction.replace(R.id.layout_body,deviceFragment);
         fragmentTransaction.commit();
@@ -105,7 +104,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this,"dfsaf",Toast.LENGTH_LONG).show();
                 break;
             case R.id.tv_device:
-                fragmentManager.beginTransaction().replace(R.id.layout_body,deviceFragment).commit();
+                FragmentTransaction fragmentTransaction3=fragmentManager.beginTransaction();//开启碎片事务
+                fragmentTransaction3.replace(R.id.layout_body,new DeviceFragment());
+                fragmentTransaction3.commit();
                 tv_device.setTextColor(getResources().getColor(R.color.color_black));
                 tv_smart.setTextColor(getResources().getColor(R.color.color_gray2));
                 tv_live.setTextColor(getResources().getColor(R.color.color_gray2));
@@ -119,8 +120,8 @@ public class MainActivity extends AppCompatActivity {
                 tv_live.setTextColor(getResources().getColor(R.color.color_gray2));
                 break;
             case R.id.tv_live:
-                android.support.v4.app.FragmentManager fragmentManager=getSupportFragmentManager();
-                android.support.v4.app.FragmentTransaction transaction=fragmentManager.beginTransaction();
+
+                FragmentTransaction transaction=fragmentManager.beginTransaction();
                 transaction.replace(R.id.layout_body,new LiveFragment());
                 transaction.commit();
                 tv_device.setTextColor(getResources().getColor(R.color.color_gray2));
