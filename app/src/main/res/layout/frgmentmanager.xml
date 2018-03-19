@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:layout_marginTop="10dp"
+    android:orientation="horizontal">
+    <fragment
+        android:id="@+id/frag1"
+        android:name="com.example.win7.smarthome.Fragments.Btn1_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </fragment>
+    <fragment
+        android:id="@+id/frag2"
+        android:name="com.example.win7.smarthome.Fragments.Btn2_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </fragment>
+    <fragment
+        android:id="@+id/frag3"
+        android:name="com.example.win7.smarthome.Fragments.Btn3_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </fragment>
+    <fragment
+        android:id="@+id/frag4"
+        android:name="com.example.win7.smarthome.Fragments.Btn4_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </fragment>
+
+</LinearLayout>

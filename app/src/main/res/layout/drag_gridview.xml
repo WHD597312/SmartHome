@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <com.example.win7.smarthome.View.DragGridView
+        android:id="@+id/dragGridView"
+        android:listSelector="@android:color/transparent"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:cacheColorHint="@android:color/transparent"
+        android:verticalSpacing="0dip"
+        android:horizontalSpacing="0dip"
+        android:stretchMode="columnWidth"
+        android:gravity="center"
+        android:numColumns="2"
+
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        >
+    </com.example.win7.smarthome.View.DragGridView>
+</RelativeLayout>

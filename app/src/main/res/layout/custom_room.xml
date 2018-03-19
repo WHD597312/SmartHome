@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <include layout="@layout/custom_house_title"></include>
+    <View
+        android:layout_marginBottom="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="@color/Line" />
+    <GridView
+        android:id="@+id/customRooms"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:verticalSpacing="0dp"
+        android:horizontalSpacing="0dp"
+        android:gravity="center"
+        android:numColumns="4">
+    </GridView>
+    <LinearLayout
+        android:layout_gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="5dp"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+            <Button
+                android:id="@+id/merge"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/addroom_sure"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:text="@string/merge"/>
+            <Button
+                android:id="@+id/resolution"
+                android:layout_width="80dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/addroom_sure"
+                android:text="@string/resolution"/>
+            <Button
+                android:id="@+id/sure"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/addroom_sure"
+                android:text="@string/sure"/>
+            <Button
+                android:id="@+id/delete"
+                android:layout_width="80dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/addroom_sure"
+                android:text="@string/delete"/>
+        </LinearLayout>
+        </LinearLayout>
+
+</LinearLayout>

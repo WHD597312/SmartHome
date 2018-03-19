@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.FunctionAdapter;
 import com.xinrui.smart.fragment.DeviceFragment;
+import com.xinrui.smart.fragment.LiveFragment;
 import com.xinrui.smart.fragment.SmartFragment;
 import com.xinrui.smart.pojo.Function;
 
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.tv_exit) TextView tv_exit;//退出
     @BindView(R.id.tv_device) TextView tv_device;//设备
     @BindView(R.id.tv_smart) TextView tv_smart;//智能
-    @BindView(R.id.tv_live) TextView tv_live;
+    @BindView(R.id.tv_live) TextView tv_live;//实景
     @BindView(R.id.listview) ListView listview;
     private FragmentManager fragmentManager;//碎片管理者
     private FragmentTransaction fragmentTransaction;//碎片事务
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         FunctionAdapter adapter=new FunctionAdapter(this,functions);
         listview.setAdapter(adapter);
     }
-    @OnClick({R.id.tv_exit,R.id.tv_device,R.id.tv_smart})
+    @OnClick({R.id.tv_exit,R.id.tv_device,R.id.tv_smart,R.id.tv_live})
     public void onClick(View view){
         switch (view.getId()){
             case R.id.tv_exit:
@@ -116,6 +117,15 @@ public class MainActivity extends AppCompatActivity {
                 tv_device.setTextColor(getResources().getColor(R.color.color_gray2));
                 tv_smart.setTextColor(getResources().getColor(R.color.color_black));
                 tv_live.setTextColor(getResources().getColor(R.color.color_gray2));
+                break;
+            case R.id.tv_live:
+                android.support.v4.app.FragmentManager fragmentManager=getSupportFragmentManager();
+                android.support.v4.app.FragmentTransaction transaction=fragmentManager.beginTransaction();
+                transaction.replace(R.id.layout_body,new LiveFragment());
+                transaction.commit();
+                tv_device.setTextColor(getResources().getColor(R.color.color_gray2));
+                tv_smart.setTextColor(getResources().getColor(R.color.color_gray2));
+                tv_live.setTextColor(getResources().getColor(R.color.color_black));
                 break;
         }
     }
