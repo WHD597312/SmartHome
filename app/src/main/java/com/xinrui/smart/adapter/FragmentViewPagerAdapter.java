@@ -15,6 +15,7 @@ import java.util.List;
  * 将FragmentPagerAdapter 替换成FragmentStatePagerAdapter，因为前者只要加载过，
  * fragment中的视图就一直在内存中，在这个过程中无论你怎么刷新，清除都是无用的，直至程序退出； 后者可以满足我们的需求。
  */
+
 public class FragmentViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private List<Fragment> fragments;

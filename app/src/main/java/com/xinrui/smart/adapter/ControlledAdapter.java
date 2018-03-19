@@ -24,6 +24,8 @@ public class ControlledAdapter extends BaseAdapter {
     private Context context;
     private List<Controlled> list;
 
+
+
     public ControlledAdapter(Context context, List<Controlled> list) {
         this.context = context;
         this.list = list;

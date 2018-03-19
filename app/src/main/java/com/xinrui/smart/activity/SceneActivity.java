@@ -77,6 +77,8 @@ public class SceneActivity extends AppCompatActivity {
                 break;
             case R.id.new_btn:
 
+
+
                 break;
             case R.id.add_room:
                 Intent add_room = new Intent(this, AddRoomActivity.class);

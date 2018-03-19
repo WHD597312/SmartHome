@@ -31,6 +31,8 @@ public class CustomAdapter extends MyBaseAdapter {
 
     Room room = new Room();
 
+
+
     private LayoutInflater layoutInflater;
 
     private Context context;

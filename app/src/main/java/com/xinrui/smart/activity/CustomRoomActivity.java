@@ -64,6 +64,8 @@ public class CustomRoomActivity extends AppCompatActivity {
 
 
 
+
+
     /**
      * 点击gridview一个item变色，再次点击还原
      * @param position

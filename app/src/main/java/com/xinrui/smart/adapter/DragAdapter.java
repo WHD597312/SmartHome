@@ -25,6 +25,8 @@ public class DragAdapter extends BaseAdapter implements DragGridBaseAdapter {
     private int mHindePosition = -1;
 
 
+
+
     public DragAdapter(Context context, List<HashMap<String, Object>> list) {
         this.list = list;
         mInflater = LayoutInflater.from(context);
