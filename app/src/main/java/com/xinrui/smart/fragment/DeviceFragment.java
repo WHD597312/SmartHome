@@ -216,29 +216,12 @@ public class DeviceFragment extends Fragment {
 
 
 
-    @OnClick({R.id.btn_add_residence, R.id.btn_add_device, R.id.btn_open_all, R.id.btn_close_all})
+    @OnClick({R.id.btn_add_residence})
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_add_residence:
                 buildDialog();
                 break;
-            case R.id.btn_add_device:
-                Intent intent=new Intent(getActivity(), AddDeviceActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.btn_open_all:
-                GroupModel.isOpenAll=true;
-                groups= GroupModel.getGroups(10,5);
-                adapter=new NoFooterAdapter(getActivity(),groups);
-                rv_list.setAdapter(adapter);
-                break;
-            case R.id.btn_close_all:
-                GroupModel.isOpenAll=false;
-                groups= GroupModel.getGroups(10,5);
-                adapter=new NoFooterAdapter(getActivity(),groups);
-                rv_list.setAdapter(adapter);
-                break;
-
         }
     }
     private void buildDialog(){

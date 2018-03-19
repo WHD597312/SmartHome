@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/dp_30"
-    android:background="#259B24"
-    android:orientation="vertical">
+    android:layout_height="@dimen/dp_45"
+    android:background="@drawable/shape_header"
+    android:orientation="vertical"
+    android:layout_marginTop="@dimen/dp_10"
+    >
 
     <TextView
         android:id="@+id/tv_header"
@@ -11,10 +13,34 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/dp_5"
-        android:paddingTop="@dimen/dp_3"
-        android:textSize="@dimen/sp_16"
+        android:layout_centerVertical="true"
+        android:textSize="@dimen/sp_18"
+        android:paddingLeft="@dimen/dp_10"
         android:text="dafdfaf"
         />
+    <TextView
+        android:id="@+id/tv_close"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/dp_15"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:text="@string/close"
+        android:gravity="center"
+        android:textSize="@dimen/sp_14"
+        android:textColor="@color/holo_orange_dark"
+        />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/tv_open"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/tv_close"
+        android:text="@string/open"
+        android:layout_centerVertical="true"
+        android:textSize="@dimen/sp_14"
+        android:gravity="center"
+        android:textColor="@color/color_white"
+        />
+</RelativeLayout>

@@ -9,7 +9,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="3"
+            android:layout_weight="9"
             android:orientation="vertical"
             >
             <com.xinrui.smart.view_custom.SwipeRecyclerView
@@ -25,67 +25,20 @@
             android:layout_weight="1"
             android:orientation="vertical"
             >
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_3"
-                android:background="@color/color_dark_gray"></View>
+
             <Button
                 android:id="@+id/btn_add_residence"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="点击添加住所"
-                android:paddingLeft="@dimen/dp_10"
+                android:text="@string/add_home"
+                android:paddingLeft="@dimen/dp_180"
                 android:drawableLeft="@drawable/add"
-                android:background="@drawable/selector_button_common"
-                android:gravity="start|center_vertical"
+                android:background="@drawable/shape_white_button"
+                android:gravity="center_vertical"
+                android:textColor="@color/holo_orange_light"
                 android:layout_marginLeft="@dimen/dp_2"
                 android:layout_marginRight="@dimen/dp_2"
                 />
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_3"
-                android:background="@color/color_dark_gray"></View>
-            <Button
-                android:id="@+id/btn_add_device"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="点击添加设备"
-                android:drawableLeft="@drawable/add"
-                android:background="@drawable/selector_button_common"
-                android:paddingLeft="@dimen/dp_10"
-                android:gravity="start|center_vertical"
-                android:layout_marginLeft="@dimen/dp_2"
-                android:layout_marginRight="@dimen/dp_2"
-                />
+
         </LinearLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-
-                >
-                <Button
-                    android:id="@+id/btn_open_all"
-                    android:layout_width="@dimen/dp_100"
-                    android:layout_height="@dimen/dp_35"
-                    android:text="一键打开"
-                    android:layout_toLeftOf="@+id/btn_close_all"
-                    android:layout_alignBottom="@+id/btn_close_all"
-                    android:background="@drawable/selector_button_common"
-                    android:layout_marginRight="@dimen/dp_2"
-                    />
-                <Button
-                    android:id="@+id/btn_close_all"
-                    android:layout_width="@dimen/dp_100"
-                    android:layout_height="@dimen/dp_35"
-                    android:text="一键关闭"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginBottom="@dimen/dp_30"
-                    android:background="@drawable/selector_button_common"
-                    android:layout_marginRight="@dimen/dp_5"
-                    />
-            </RelativeLayout>
 </LinearLayout>

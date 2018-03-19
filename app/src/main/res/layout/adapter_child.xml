@@ -60,7 +60,6 @@
             android:textColor="#ffffff"
             android:background="@color/color_blue"
             />
-
         <Button
             android:id="@+id/btn_delete"
             android:layout_width="@dimen/dp_60"
