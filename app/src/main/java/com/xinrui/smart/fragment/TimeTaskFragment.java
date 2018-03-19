@@ -9,7 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.xinrui.smart.R;
+import com.xinrui.smart.view_custom.CircleSeekBar;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
@@ -18,6 +20,7 @@ public class TimeTaskFragment extends Fragment {
     View view;
     Unbinder unbinder;
     TimeTaskCall timeTaskCall;
+    @BindView(R.id.seekbar) CircleSeekBar seekbar;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {

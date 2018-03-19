@@ -145,7 +145,7 @@ public class CircleSeekBar extends View {
 
         mCurProcess = a.getInt(R.styleable.CircleSeekBar_wheel_cur_process, 0);
         if (mCurProcess > mMaxProcess) mCurProcess = mMaxProcess;
-        mReachedColor = a.getColor(R.styleable.CircleSeekBar_wheel_reached_color, getColor(R.color.def_reached_color));
+        mReachedColor = a.getColor(R.styleable.CircleSeekBar_wheel_reached_color, getColor(R.color.color_orange));
         mUnreachedColor = a.getColor(R.styleable.CircleSeekBar_wheel_unreached_color,
                 getColor(R.color.def_wheel_color));
         mUnreachedWidth = a.getDimension(R.styleable.CircleSeekBar_wheel_unreached_width,
@@ -155,7 +155,7 @@ public class CircleSeekBar extends View {
         mPointerColor = a.getColor(R.styleable.CircleSeekBar_wheel_pointer_color, getColor(R.color.def_pointer_color));
         mPointerRadius = a.getDimension(R.styleable.CircleSeekBar_wheel_pointer_radius, mReachedWidth / 2);
         isHasWheelShadow = a.getBoolean(R.styleable.CircleSeekBar_wheel_has_wheel_shadow, false);
-        mPointColor=a.getColor(R.styleable.CircleSeekBar_pointcolor, Color.BLACK);
+        mPointColor=a.getColor(R.styleable.CircleSeekBar_pointcolor, Color.WHITE);
 
         mNumColor=a.getColor(R.styleable.CircleSeekBar_numcolor, Color.BLACK);
         mNumSize=a.getInt(R.styleable.CircleSeekBar_numsize,14);
@@ -253,8 +253,8 @@ public class CircleSeekBar extends View {
         mPaint.setAntiAlias(true);//去除边缘锯齿，优化绘制效果
         mPaint.setColor(mPointColor);
         canvas.save();//保存当前的状态
-        for (int i = 0; i < 60; i++) {//总共60个点  所以绘制60次  //绘制一圈的小黑点
-            if (i % 5 == 0) {
+        for (int i = 0; i < 24; i++) {//总共60个点  所以绘制60次  //绘制一圈的小黑点
+            if (i % 2 == 0) {
                 canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),
                         getPaddingTop() + mUnreachedWidth+ TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, getResources().getDisplayMetrics()),
                         centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),
@@ -276,14 +276,14 @@ public class CircleSeekBar extends View {
                     TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics()));
         }
         mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14, getResources().getDisplayMetrics()));
-        String[] strs = new String[]{"24", "2", "4", "6", "8", "10", "12", "14", "16", "18", "20", "22"};//绘制数字1-12  (数字角度不对  可以进行相关的处理)
+        String[] strs = new String[]{"24", "4", "8", "12", "16", "20"};//绘制数字1-12  (数字角度不对  可以进行相关的处理)
         Rect rect = new Rect();
         canvas.save();
-        for (int i = 0; i < 12; i++) {//绘制12次  每次旋转30度
+        for (int i = 0; i < 6; i++) {//绘制12次  每次旋转30度
             mPaint.getTextBounds(strs[i], 0, strs[i].length(), rect);
             canvas.drawText(strs[i], centerX - rect.width() / 2,
                     getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 18, getResources().getDisplayMetrics()) + rect.height(), mPaint);
-            canvas.rotate(30, centerX, centerY);
+            canvas.rotate(60, centerX, centerY);
         }
         canvas.restore();
     }

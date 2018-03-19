@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.layout_body,new SmartFragment());
                 fragmentTransaction.commit();
+
                 tv_device.setTextColor(getResources().getColor(R.color.color_gray2));
                 tv_smart.setTextColor(getResources().getColor(R.color.color_black));
                 tv_live.setTextColor(getResources().getColor(R.color.color_gray2));
