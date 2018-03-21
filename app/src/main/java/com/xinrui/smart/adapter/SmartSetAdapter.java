@@ -29,7 +29,7 @@ public class SmartSetAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return 4;
     }
 
     @Override
@@ -45,8 +45,8 @@ public class SmartSetAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder=null;
-        int[] imgs={R.drawable.example, R.drawable.example};
-        String[] str={"主控制设置","受控机设置","外置温度传感设置"};
+        int[] imgs={R.drawable.example, R.drawable.example,R.drawable.example};
+        String[] str={"主控制设置","受控机设置","外置传感器"};
         switch (position){
             case 0:
                 convertView= View.inflate(context, R.layout.smartset,null);
@@ -55,15 +55,20 @@ public class SmartSetAdapter extends BaseAdapter {
                 viewHolder.tv_smart.setText(str[0]);
                 break;
             case 1:
-                convertView= View.inflate(context, R.layout.smartset,null);
+                convertView= View.inflate(context, R.layout.smartset2,null);
                 viewHolder=new ViewHolder(convertView);
                 viewHolder.image_smart.setImageResource(imgs[1]);
                 viewHolder.tv_smart.setText(str[1]);
                 break;
             case 2:
-                convertView= View.inflate(context, R.layout.smartset2,null);
-                ViewHolder2 viewHolder2=new ViewHolder2(convertView);
+                convertView=View.inflate(context,R.layout.layout_view,null);
+                convertView.setMinimumHeight(50);
+                break;
+            case 3:
+                convertView= View.inflate(context, R.layout.smartset3,null);
+                ViewHolder viewHolder2=new ViewHolder(convertView);
                 viewHolder2.tv_smart.setText(str[2]);
+                viewHolder2.image_smart.setImageResource(imgs[2]);
                 break;
 
         }

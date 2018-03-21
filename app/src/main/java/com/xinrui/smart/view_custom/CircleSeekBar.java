@@ -147,13 +147,13 @@ public class CircleSeekBar extends View {
         if (mCurProcess > mMaxProcess) mCurProcess = mMaxProcess;
         mReachedColor = a.getColor(R.styleable.CircleSeekBar_wheel_reached_color, getColor(R.color.color_orange));
         mUnreachedColor = a.getColor(R.styleable.CircleSeekBar_wheel_unreached_color,
-                getColor(R.color.def_wheel_color));
+                getColor(R.color.color_blank2));
         mUnreachedWidth = a.getDimension(R.styleable.CircleSeekBar_wheel_unreached_width,
                 getDimen(R.dimen.def_wheel_width));
         isHasReachedCornerRound = a.getBoolean(R.styleable.CircleSeekBar_wheel_reached_has_corner_round, true);
         mReachedWidth = a.getDimension(R.styleable.CircleSeekBar_wheel_reached_width, mUnreachedWidth);
         mPointerColor = a.getColor(R.styleable.CircleSeekBar_wheel_pointer_color, getColor(R.color.def_pointer_color));
-        mPointerRadius = a.getDimension(R.styleable.CircleSeekBar_wheel_pointer_radius, mReachedWidth / 2);
+        mPointerRadius = a.getDimension(R.styleable.CircleSeekBar_wheel_pointer_radius, mUnreachedWidth / 2);
         isHasWheelShadow = a.getBoolean(R.styleable.CircleSeekBar_wheel_has_wheel_shadow, false);
         mPointColor=a.getColor(R.styleable.CircleSeekBar_pointcolor, Color.WHITE);
 
@@ -241,23 +241,37 @@ public class CircleSeekBar extends View {
             }
             canvas.drawBitmap(mCacheBitmap, 0, 0, null);
         } else {
+            mWheelPaint.setColor(getResources().getColor(R.color.color_blank3));
             canvas.drawCircle(centerX, centerY, wheelRadius, mWheelPaint);
         }
 
         //画选中区域
-        canvas.drawArc(new RectF(left, top, right, bottom), -90, (float) mCurAngle, false, mReachedPaint);
+        canvas.drawArc(new RectF(left, top, right, bottom), -90, (float) -60, false, mReachedPaint);
+        canvas.drawArc(new RectF(left, top, right, bottom), 0, (float) 30, false, mReachedPaint);
 
         //画锚点
-        canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
+//        canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
+//
+//
+//
+//        mPaint.setAntiAlias(true);//去除边缘锯齿，优化绘制效果
+//        mPaint.setColor(mPointColor);
+
+
+
 
         mPaint.setAntiAlias(true);//去除边缘锯齿，优化绘制效果
-        mPaint.setColor(mPointColor);
+        mPaint.setColor(getResources().getColor(R.color.color_blank2));
         canvas.save();//保存当前的状态
-        for (int i = 0; i < 24; i++) {//总共60个点  所以绘制60次  //绘制一圈的小黑点
+
+
+        for (int i = 0; i < 24; i++) {//总共24个点  所以绘制24次  //绘制一圈的小黑点
             if (i % 2 == 0) {
+
                 canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),
                         getPaddingTop() + mUnreachedWidth+ TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, getResources().getDisplayMetrics()),
                         centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),
+
                         getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, getResources().getDisplayMetrics()), mPaint);
             } else {
                 canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
@@ -265,7 +279,7 @@ public class CircleSeekBar extends View {
                        centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
                         getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics()), mPaint);
             }
-            canvas.rotate(6, centerX, centerY);//360度  绘制60次   每次旋转6度
+            canvas.rotate(15, centerX, centerY);//360度  绘制60次   每次旋转6度
         }
         if (mNumColor == 0) {
             mPaint.setColor(Color.BLACK);

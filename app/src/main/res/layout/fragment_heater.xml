@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#312728"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.xinrui.smart.view_custom.SemicircleBar
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            app:wheel_pointer_radius="10dp"
+            app:wheel_reached_width="20dp"
+            app:wheel_unreached_width="25dp"
+            android:layout_centerInParent="true"
+            app:wheel_max_process="24"
+            />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="@dimen/dp_80"
+            android:layout_height="@dimen/dp_80"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/img_switch"
+            android:scaleType="centerInside"
+            />
+
+        <ImageView
+            android:id="@+id/img_circle"
+            android:layout_width="@dimen/dp_200"
+            android:layout_height="@dimen/dp_200"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/img_circle2"
+            android:scaleType="centerInside"
+            />
+
+    </RelativeLayout>
+
+</LinearLayout>

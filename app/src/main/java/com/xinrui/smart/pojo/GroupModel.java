@@ -21,7 +21,7 @@ public class GroupModel {
      * @return
      */
     public static boolean isOpenAll=false;
-    private static int[] imgs={R.drawable.switch_close,R.drawable.switch_open};
+    static int[] imgs={R.mipmap.image_unswitch, R.mipmap.image_switch};
     private static int[]colors={R.color.color_white,R.color.color_orange};
     public static ArrayList<GroupEntry> getGroups(int groupCount, int childrenCount) {
         ArrayList<GroupEntry> groups = new ArrayList<>();

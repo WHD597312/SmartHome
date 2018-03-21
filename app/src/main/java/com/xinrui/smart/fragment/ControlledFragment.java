@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.ControlledAdapter;
@@ -23,14 +24,21 @@ import butterknife.Unbinder;
  * Created by win7 on 2018/3/14.
  */
 
+/**
+ * 受控机
+ */
 public class ControlledFragment extends Fragment {
 
     View view;
     Unbinder unbinder;
     @BindView(R.id.lv_homes)
     ListView lv_homes;
+    @BindView(R.id.tv_home) TextView tv_home;//受控机头部
+    @BindView(R.id.view) View view2;//受控机尾部
+    @BindView(R.id.textView) TextView textView;//受控机提示用户
     private List<Controlled> controlleds;
-    private ControlledAdapter adapter;
+    private ControlledAdapter adapter;//受控机适配器
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -55,6 +63,10 @@ public class ControlledFragment extends Fragment {
         controlleds=getControlleds();
         adapter=new ControlledAdapter(getActivity(),controlleds);
         lv_homes.setAdapter(adapter);
+        tv_home.setBackgroundResource(R.drawable.shape_header);
+        view2.setBackgroundResource(R.drawable.shape_footer);
+        textView.setText("选中的主控制设备不出现在受控制设备中");
+        textView.setPadding(60,0,0,0);
     }
 
     /**

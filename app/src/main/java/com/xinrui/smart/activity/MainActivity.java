@@ -23,6 +23,7 @@ import com.xinrui.smart.adapter.FunctionAdapter;
 import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.fragment.LiveFragment;
 import com.xinrui.smart.fragment.SmartFragment;
+import com.xinrui.smart.fragment.SmartFragmentManager;
 import com.xinrui.smart.pojo.Function;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
+
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
 
@@ -44,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.listview) ListView listview;
     private FragmentManager fragmentManager;//碎片管理者
     private DeviceFragment deviceFragment;//设备碎片
+    @BindView(R.id.device_view) View device_view;//设备页
+    @BindView(R.id.smart_view) View smart_view;//智能页
+    @BindView(R.id.live_view) View live_view;//实景页
     private int[] colors={R.color.color_blue,R.color.color_dark_gray};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,18 +58,18 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+
         drawer.setDrawerListener(toggle);
         toggle.syncState();
+        toggle.setDrawerIndicatorEnabled(false);//修改DrawerLayout侧滑菜单图标
         fragmentManager=getSupportFragmentManager();
         FragmentTransaction fragmentTransaction= fragmentManager.beginTransaction();//开启碎片事务
         deviceFragment=new DeviceFragment();
         fragmentTransaction.replace(R.id.layout_body,deviceFragment);
         fragmentTransaction.commit();
-
+        device_view.setVisibility(View.VISIBLE);
         function();
-        tv_device.setTextColor(getResources().getColor(R.color.color_black));
-        tv_smart.setTextColor(getResources().getColor(R.color.color_gray2));
-        tv_live.setTextColor(getResources().getColor(R.color.color_gray2));
+
     }
 
     @Override
@@ -107,27 +112,26 @@ public class MainActivity extends AppCompatActivity {
                 FragmentTransaction fragmentTransaction3=fragmentManager.beginTransaction();//开启碎片事务
                 fragmentTransaction3.replace(R.id.layout_body,new DeviceFragment());
                 fragmentTransaction3.commit();
-                tv_device.setTextColor(getResources().getColor(R.color.color_black));
-                tv_smart.setTextColor(getResources().getColor(R.color.color_gray2));
-                tv_live.setTextColor(getResources().getColor(R.color.color_gray2));
+                device_view.setVisibility(View.VISIBLE);
+                smart_view.setVisibility(View.GONE);
+                live_view.setVisibility(View.GONE);
                 break;
             case R.id.tv_smart:
                 FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.layout_body,new SmartFragment());
+                fragmentTransaction.replace(R.id.layout_body,new SmartFragmentManager());
                 fragmentTransaction.commit();
-
-                tv_device.setTextColor(getResources().getColor(R.color.color_gray2));
-                tv_smart.setTextColor(getResources().getColor(R.color.color_black));
-                tv_live.setTextColor(getResources().getColor(R.color.color_gray2));
+                device_view.setVisibility(View.GONE);
+                smart_view.setVisibility(View.VISIBLE);
+                live_view.setVisibility(View.GONE);
                 break;
             case R.id.tv_live:
 
                 FragmentTransaction transaction=fragmentManager.beginTransaction();
                 transaction.replace(R.id.layout_body,new LiveFragment());
                 transaction.commit();
-                tv_device.setTextColor(getResources().getColor(R.color.color_gray2));
-                tv_smart.setTextColor(getResources().getColor(R.color.color_gray2));
-                tv_live.setTextColor(getResources().getColor(R.color.color_black));
+                device_view.setVisibility(View.GONE);
+                smart_view.setVisibility(View.GONE);
+                live_view.setVisibility(View.VISIBLE);
                 break;
         }
     }

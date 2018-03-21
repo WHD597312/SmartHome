@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.ETSControlAdapter;
@@ -28,8 +29,12 @@ public class ETSControlFragment extends Fragment {
     Unbinder unbinder;
     @BindView(R.id.lv_homes)
     ListView lv_homes;
-    private List<ETSControl> mainControls;//主控机数量
-    private ETSControlAdapter adapter;
+    @BindView(R.id.tv_home) TextView tv_home;//外置传感器头部
+    @BindView(R.id.view) View view2;//传感器尾部
+    @BindView(R.id.textView) TextView textView;//外置传感器提示
+    private List<ETSControl> mainControls;//外置传感器数量
+    private ETSControlAdapter adapter;//外置传感器适配器
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -44,6 +49,10 @@ public class ETSControlFragment extends Fragment {
         mainControls=getETSControls();
         adapter=new ETSControlAdapter(getActivity(),mainControls);
         lv_homes.setAdapter(adapter);
+        tv_home.setBackgroundResource(R.drawable.shape_header_blue);
+        view2.setBackgroundResource(R.drawable.shape_footer);
+        textView.setText("外置传感器设备只能单选");
+        textView.setPadding(140,0,0,0);
     }
     private List<ETSControl> getETSControls(){
         List<ETSControl> mainControls=new ArrayList<>();

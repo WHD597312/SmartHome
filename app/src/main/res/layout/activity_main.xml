@@ -16,12 +16,15 @@
         android:fitsSystemWindows="true"
         android:orientation="horizontal"
         >
+
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme"/>
+            app:popupTheme="@style/AppTheme"
+            app:navigationIcon="@mipmap/img_menu"
+            />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,39 +36,88 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:gravity="center_horizontal"
-                android:layout_marginLeft="@dimen/dp_20"
                 android:orientation="horizontal"
                 >
-                <TextView
-                    android:id="@+id/tv_device"
+                <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="设备"
-                    android:textSize="@dimen/sp_20"
-                    />
-                <TextView
-                    android:id="@+id/tv_smart"
+                    android:orientation="vertical"
+                    >
+                    <TextView
+                        android:id="@+id/tv_device"
+                        android:layout_width="@dimen/dp_50"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="设备"
+                        android:textSize="@dimen/sp_20"
+                        android:textColor="@color/white"
+                        />
+                    <View
+                        android:id="@+id/device_view"
+                        android:layout_width="@dimen/dp_50"
+                        android:layout_height="@dimen/dp_5"
+                        android:background="@color/color_orange"
+                        android:visibility="gone"
+                        android:layout_below="@+id/tv_device"
+                        android:layout_alignLeft="@+id/tv_device"
+                        android:layout_alignRight="@id/tv_device"
+                        />
+                </RelativeLayout>
+                <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="智能"
-                    android:layout_toRightOf="@+id/tv_device"
-                    android:textSize="@dimen/sp_20"
-                    android:layout_marginLeft="@dimen/dp_5"
-                    android:layout_alignTop="@+id/tv_device"
-                    />
-                <TextView
-                    android:id="@+id/tv_live"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    >
+                    <TextView
+                        android:id="@+id/tv_smart"
+                        android:layout_width="@dimen/dp_50"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="智能"
+                        android:textSize="@dimen/sp_20"
+                        android:layout_marginLeft="@dimen/dp_5"
+                        android:textColor="@color/white"
+                        />
+                    <View
+                        android:id="@+id/smart_view"
+                        android:layout_width="@dimen/dp_50"
+                        android:layout_height="@dimen/dp_5"
+                        android:background="@color/color_orange"
+                        android:visibility="gone"
+                        android:layout_below="@+id/tv_smart"
+                        android:layout_alignLeft="@+id/tv_smart"
+                        android:layout_alignRight="@+id/tv_smart"
+                        />
+                </RelativeLayout>
+                <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="实景"
-                    android:layout_toRightOf="@+id/tv_smart"
-                    android:textSize="@dimen/sp_20"
-                    android:layout_marginLeft="@dimen/dp_5"
-                    android:layout_alignTop="@+id/tv_device"
-                    />
+                    android:orientation="vertical"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    >
+                    <TextView
+                        android:id="@+id/tv_live"
+                        android:layout_width="@dimen/dp_50"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="实景"
+                        android:textSize="@dimen/sp_20"
+                        android:layout_marginLeft="@dimen/dp_5"
+                        android:textColor="@color/white"
+                        />
+                    <View
+                        android:id="@+id/live_view"
+                        android:layout_width="@dimen/dp_50"
+                        android:layout_height="@dimen/dp_5"
+                        android:background="@color/color_orange"
+                        android:visibility="gone"
+                        android:layout_below="@+id/tv_live"
+                        android:layout_alignLeft="@+id/tv_live"
+                        android:layout_alignRight="@+id/tv_live"
+                        />
+                </RelativeLayout>
+
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/layout_body"

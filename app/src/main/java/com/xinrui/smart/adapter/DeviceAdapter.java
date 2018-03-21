@@ -2,7 +2,6 @@ package com.xinrui.smart.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
@@ -23,7 +22,7 @@ import java.util.ArrayList;
  * Created by win7 on 2018/3/12.
  */
 
-public class GroupedListAdapter extends GroupedRecyclerViewAdapter{
+public class DeviceAdapter extends GroupedRecyclerViewAdapter{
     private Context context;
     private ArrayList<GroupEntry> groups;
     private ImageView image_switch;
@@ -34,11 +33,11 @@ public class GroupedListAdapter extends GroupedRecyclerViewAdapter{
     TextView tv_device_child;
     ChildEntry entry;
 
-    int[] imgs={R.drawable.switch_close, R.drawable.switch_open};
+    int[] imgs={R.mipmap.image_unswitch, R.mipmap.image_switch};
 
 
     int []colors={R.color.color_white,R.color.color_orange};
-    public GroupedListAdapter(Context context, ArrayList<GroupEntry> groups) {
+    public DeviceAdapter(Context context, ArrayList<GroupEntry> groups) {
         super(context);
         this.context=context;
         this.groups = groups;
@@ -92,7 +91,7 @@ public class GroupedListAdapter extends GroupedRecyclerViewAdapter{
      */
     @Override
     public int getHeaderLayout(int viewType) {
-        return R.layout.adapter_header;
+        return R.layout.device_adapter_header;
     }
 
     /**
@@ -102,7 +101,7 @@ public class GroupedListAdapter extends GroupedRecyclerViewAdapter{
      */
     @Override
     public int getFooterLayout(int viewType) {
-        return R.layout.adapter_footer;
+        return R.layout.device_adapter_footer;
     }
 
     /**
@@ -112,7 +111,7 @@ public class GroupedListAdapter extends GroupedRecyclerViewAdapter{
      */
     @Override
     public int getChildLayout(int viewType) {
-        return R.layout.adapter_child;
+        return R.layout.device_adapter_child;
     }
 
     /**

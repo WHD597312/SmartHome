@@ -14,7 +14,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:src="@drawable/add"
+        android:src="@mipmap/img_add"
         android:scaleType="centerInside"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"

@@ -24,6 +24,8 @@
     <color name="red_normal">#FF0000</color>
     <color name="red_pressed">#FF6666</color>
     <color name="color_orange">#fc7b00</color>
+    <color name="color_blank2">#2f292b</color>
+    <color name="color_blank3">#3c3731</color>
     <color name="color_circle">#f2f2f2</color>
     <color name="def_wheel_color">#4E4988</color>
     <color name="def_reached_color">#FFD844</color>
@@ -35,4 +37,5 @@
     <color name="top_title_background">#d9d9d9</color>
     <color name="floor_button">#8BC34A</color>
     <color name="Line">#BBBBBB</color>
+    <color name="color_black3">#312728</color>
 </resources>

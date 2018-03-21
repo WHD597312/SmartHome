@@ -3,7 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@color/color_white"
+    >
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -11,8 +13,8 @@
         >
         <ImageView
             android:id="@+id/image_smart"
-            android:layout_width="@dimen/dp_45"
-            android:layout_height="@dimen/dp_45"
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
             android:src="@drawable/example"
             android:scaleType="centerInside"
             />
@@ -36,6 +38,13 @@
             android:layout_centerVertical="true"
             android:src="@drawable/right_arrow"
             android:scaleType="centerInside"
+            />
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_2"
+            android:layout_below="@+id/image_smart"
+            android:background="@color/color_gray2"
             />
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>

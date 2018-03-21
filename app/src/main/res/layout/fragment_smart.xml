@@ -1,113 +1,155 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".smart.fragment.SmartFragment">
-
+    >
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_45"
+            android:layout_height="@dimen/dp_60"
             android:orientation="horizontal"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:layout_marginRight="@dimen/dp_5"
+            android:layout_marginTop="@dimen/dp_10"
             >
             <TextView
                 android:id="@+id/tv_home"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="XX房"
-                android:background="#259B24"
-                android:gravity="center"
+                android:text="我的家.慈溪市"
+                android:padding="@dimen/dp_10"
+                android:background="@drawable/shape_header"
+                android:gravity="center_vertical"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginLeft="@dimen/dp_5"
+                android:layout_marginRight="@dimen/dp_5"
                 android:textColor="@color/color_white"
-                />
-            <TextView
-                android:id="@+id/tv_home2"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="XX房"
-                android:textColor="#259B24"
-                android:gravity="center"
-                android:background="@color/color_white"
-                />
-            <TextView
-                android:id="@+id/tv_home3"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="XX房"
-                android:gravity="center"
-                android:background="@color/color_white"
-                android:textColor="#259B24"
+                android:textSize="@dimen/sp_16"
                 />
         </LinearLayout>
        <LinearLayout
            android:layout_width="match_parent"
            android:layout_height="match_parent"
            android:orientation="vertical"
-           android:background="@drawable/shape_smarthome"
+           android:background="@drawable/shape_footer2"
+           android:layout_marginLeft="@dimen/dp_5"
+           android:layout_marginRight="@dimen/dp_5"
            >
            <ListView
                android:id="@+id/smart_set"
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
-               android:divider="#D8DBD5"
-               android:dividerHeight="@dimen/dp_2"
-               android:layout_marginLeft="@dimen/dp_10"
-               android:layout_marginRight="@dimen/dp_10"
+               android:divider="@color/color_white"
+               android:layout_marginLeft="@dimen/dp_5"
+               android:layout_marginRight="@dimen/dp_5"
                />
            <RelativeLayout
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
-               android:layout_marginLeft="@dimen/dp_10"
-               android:layout_marginRight="@dimen/dp_10"
-               android:background="@color/color_white"
-               >
+               android:layout_marginLeft="@dimen/dp_5"
+               android:layout_marginRight="@dimen/dp_5"
+               android:background="#42413f">
+
+               <ImageView
+                   android:id="@+id/img_temp"
+                   android:layout_width="@dimen/dp_80"
+                   android:layout_height="@dimen/dp_80"
+                   android:layout_alignParentLeft="true"
+                   android:layout_alignParentStart="true"
+                   android:layout_alignParentTop="true"
+                   android:layout_marginLeft="27dp"
+                   android:layout_marginStart="27dp"
+                   android:scaleType="centerInside"
+                   android:src="@mipmap/img_temp" />
                <TextView
-                   android:id="@+id/tv_current"
+                   android:id="@+id/tv_temp"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:layout_marginTop="@dimen/dp_10"
-                   android:text="当前"
-                   android:textColor="@color/color_black"
-                   android:textSize="@dimen/sp_18"
-                   android:layout_marginLeft="@dimen/dp_10"
-                   />
+                   android:layout_above="@+id/image_temp"
+                   android:layout_marginBottom="19dp"
+                   android:layout_toEndOf="@+id/img_temp"
+                   android:layout_toRightOf="@+id/img_temp"
+                   android:text="25℃"
+                   android:textColor="@color/color_white"
+                   android:textSize="@dimen/sp_18" />
+               <ImageView
+                   android:id="@+id/img_hum"
+                   android:layout_width="@dimen/dp_80"
+                   android:layout_height="@dimen/dp_80"
+                   android:layout_alignLeft="@+id/image_hum"
+                   android:layout_alignParentTop="true"
+                   android:layout_alignStart="@+id/image_hum"
+                   android:scaleType="centerInside"
+                   android:src="@mipmap/img_hum" />
+               <ImageView
+                   android:id="@+id/image_hum"
+                   android:layout_width="@dimen/dp_70"
+                   android:layout_height="@dimen/dp_70"
+                   android:layout_alignParentEnd="true"
+                   android:layout_alignParentRight="true"
+                   android:layout_below="@+id/tv_temp"
+                   android:layout_marginEnd="59dp"
+                   android:layout_marginRight="59dp"
+                   android:scaleType="centerInside"
+                   android:src="@mipmap/img_hum_circle" />
+
+               <ImageView
+                   android:id="@+id/image_temp"
+                   android:layout_width="@dimen/dp_80"
+                   android:layout_height="@dimen/dp_80"
+                   android:layout_alignLeft="@+id/img_temp"
+                   android:layout_alignStart="@+id/img_temp"
+                   android:layout_below="@+id/img_temp"
+                   android:layout_marginLeft="35dp"
+                   android:layout_marginStart="35dp"
+                   android:scaleType="centerInside"
+                   android:src="@mipmap/img_temp_circle" />
 
                <TextView
-                   android:id="@+id/tv_tem_hum"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_toRightOf="@+id/tv_current"
-                   android:layout_below="@+id/tv_current"
-                   android:textSize="@dimen/sp_18"
-                   android:textColor="@color/color_black"
-                   android:text="温度25℃       湿度50%" />
+                   android:id="@+id/tv_cur_temp"
+                   android:layout_width="@dimen/dp_80"
+                   android:layout_height="@dimen/dp_80"
+                   android:layout_alignLeft="@+id/image_temp"
+                   android:layout_alignStart="@+id/image_temp"
+                   android:layout_below="@+id/img_temp"
+                   android:gravity="center"
+                   android:text="25℃"
+                   android:textColor="@color/color_white" />
+
                <TextView
+                   android:id="@+id/tv_hum"
+                   android:layout_width="@dimen/dp_70"
+                   android:layout_height="@dimen/dp_70"
+                   android:layout_alignLeft="@+id/img_hum"
+                   android:layout_alignStart="@+id/img_hum"
+                   android:layout_below="@+id/img_hum"
+                   android:gravity="center"
+                   android:text="50%"
+                   android:textColor="@color/white"
+                   />
+               <TextView
+                   android:layout_marginTop="@dimen/dp_5"
                    android:id="@+id/tv_set"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:layout_alignLeft="@+id/tv_current"
-                   android:layout_below="@+id/tv_tem_hum"
-                   android:layout_marginTop="@dimen/dp_15"
-                   android:textSize="@dimen/sp_18"
-                   android:textColor="@color/color_black"
-                   android:text="设定" />
-               <TextView
-                   android:id="@+id/tv_set_hum"
-                   android:layout_width="wrap_content"
+                   android:layout_below="@+id/image_temp"
+                   android:text="设定"
+                   android:textColor="@color/color_orange"
+                   android:layout_alignLeft="@id/img_temp"
+                   android:textSize="@dimen/sp_16"
+                   android:layout_centerVertical="true"
+                   />
+               <SeekBar
+                   android:layout_marginTop="@dimen/dp_10"
+                   android:id="@+id/seekBar"
+                   android:layout_width="match_parent"
                    android:layout_height="wrap_content"
+                   android:layout_below="@+id/image_temp"
                    android:layout_toRightOf="@+id/tv_set"
-                   android:layout_below="@+id/tv_set"
-                   android:textSize="@dimen/sp_18"
-                   android:text="温度25℃ "
-                   android:textColor="@color/color_black"
-                   android:layout_marginBottom="@dimen/dp_20"
+                   android:layout_centerVertical="true"
+                   android:layout_alignParentRight="true"
                    />
            </RelativeLayout>
-           <View
-               android:layout_width="match_parent"
-               android:layout_height="@dimen/dp_5"
-               android:background="@color/color_dark_green"/>
        </LinearLayout>
 </LinearLayout>

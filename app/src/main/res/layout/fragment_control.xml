@@ -1,12 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <ListView
-        android:id="@+id/lv_homes"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#33302b"
+    >
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:divider="@color/color_gray2"
-        android:dividerHeight="@dimen/dp_1"
-        />
-</android.support.constraint.ConstraintLayout>
+        android:layout_marginRight="@dimen/dp_5"
+        android:layout_marginLeft="@dimen/dp_5"
+        android:layout_marginBottom="@dimen/dp_30"
+        >
+        <TextView
+            android:id="@+id/tv_home"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_50"
+            android:text="我的家.慈溪市"
+            android:background="@drawable/shape_main_control_header"
+            android:textSize="@dimen/sp_16"
+            android:textColor="@color/white"
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/dp_20"
+            android:layout_marginTop="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_3"
+            android:layout_marginLeft="@dimen/dp_2"
+            />
+
+        <ListView
+            android:id="@+id/lv_homes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@color/color_gray2"
+            android:dividerHeight="@dimen/dp_1"
+            android:layout_below="@+id/tv_home"
+            android:layout_marginRight="@dimen/dp_3"
+            android:layout_marginLeft="@dimen/dp_2"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_50"
+            android:id="@+id/view"
+            android:background="@drawable/shape_main_control_footer"
+            android:layout_below="@+id/lv_homes"
+            android:layout_marginRight="@dimen/dp_3"
+            android:layout_marginLeft="@dimen/dp_2"
+            />
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_30"
+            android:layout_below="@+id/view"
+            android:layout_centerHorizontal="true"
+            android:text="主控制设备智能单选"
+            android:textColor="@color/color_gray2"
+            android:textSize="@dimen/sp_16"
+            android:drawableLeft="@mipmap/img_alert"
+            android:paddingLeft="@dimen/dp_120"
+            />
+
+        <Button
+            android:id="@+id/btn_ensure"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/ensure"
+            android:textColor="@color/color_orange"
+            android:textSize="@dimen/sp_16"
+            android:gravity="center"
+            android:background="@drawable/shape_white_button"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_5"
+            />
+    </RelativeLayout>
+</LinearLayout>

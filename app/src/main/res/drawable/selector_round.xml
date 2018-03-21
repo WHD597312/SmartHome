@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-             android:drawable="@drawable/round_blue"
+             android:drawable="@mipmap/img_selected"
              android:state_checked="true"/>
          <item
-             android:drawable="@drawable/round_white"
+             android:drawable="@mipmap/img_unselected"
              android:state_checked="false"/>
          <item
-             android:drawable="@drawable/round_white"/>
+             android:drawable="@mipmap/img_unselected"/>
 </selector>

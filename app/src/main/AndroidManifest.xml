@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.xinrui.smart">
 
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,11 +11,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
+        <activity
+            android:name=".activity.MainActivity"
             android:label=""
             android:launchMode="singleTop"
-            >
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,10 +28,16 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.MainControlActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activity.DeviceListActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            ></activity>
+            android:label=""
+            />
+        <activity
+            android:name=".activity.DeviceListActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".activity.SmartFrgmentActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label=""
+            />
     </application>
 
 </manifest>

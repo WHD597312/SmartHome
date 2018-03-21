@@ -1,12 +1,16 @@
 package com.xinrui.smart.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -15,6 +19,7 @@ import com.xinrui.smart.activity.MainControlActivity;
 import com.xinrui.smart.adapter.SmartSetAdapter;
 import com.xinrui.smart.pojo.SmartSet;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -28,14 +33,11 @@ public class SmartFragment extends Fragment {
     View view;
     @BindView(R.id.tv_home)
     TextView tv_home;
-    @BindView(R.id.tv_home2)
-    TextView tv_home2;
-    @BindView(R.id.tv_home3)
-    TextView tv_home3;
+
     @BindView(R.id.smart_set)
     ListView smart_set;
     private List<SmartSet> list;
-    private SmartSetAdapter adapter;
+    private SmartSetAdapter adapter;//智能适配器
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,7 +74,5 @@ public class SmartFragment extends Fragment {
             unbinder.unbind();
         }
     }
-
-
 
 }

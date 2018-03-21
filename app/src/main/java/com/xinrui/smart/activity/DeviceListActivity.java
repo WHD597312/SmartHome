@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.xinrui.smart.R;
 import com.xinrui.smart.fragment.ClockSettingFragment;
+import com.xinrui.smart.fragment.HeaterFragment;
 import com.xinrui.smart.fragment.ShareDeviceFragment;
 import com.xinrui.smart.fragment.TimeTaskFragment;
 
@@ -47,6 +48,7 @@ public class DeviceListActivity extends AppCompatActivity implements
     @OnClick({R.id.img_back, R.id.btn_share_device, R.id.btn_clock_setting, R.id.btn_time_task})
     public void onClick(View view){
         switch (view.getId()){
+
             case R.id.img_back:
                 finish();
                 break;
@@ -70,6 +72,7 @@ public class DeviceListActivity extends AppCompatActivity implements
                 fragmentTransaction3.commit();
                 btn_share_device.setTextColor(getResources().getColor(R.color.color_black));
                 btn_clock_setting.setTextColor(getResources().getColor(R.color.color_black));
+                tv_name.setText("定时任务");
                 break;
         }
     }
@@ -83,13 +86,9 @@ public class DeviceListActivity extends AppCompatActivity implements
 
         fragmentManager=getFragmentManager();
         FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.linearout,new ShareDeviceFragment());
+        fragmentTransaction.replace(R.id.linearout,new HeaterFragment());
         fragmentTransaction.commit();
-
     }
-
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -98,9 +97,6 @@ public class DeviceListActivity extends AppCompatActivity implements
             unbinder.unbind();
         }
     }
-
-
-
     @Override
     public void isShareDevice(boolean shareDevice) {
         if (shareDevice){

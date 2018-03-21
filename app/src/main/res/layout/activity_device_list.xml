@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_black"
-    tools:context=".smart.activity.DeviceListActivity">
+    android:background="@color/color_blank2"
+    >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -91,7 +91,7 @@
                     android:id="@+id/btn_time_task"
                     android:layout_width="@dimen/dp_120"
                     android:layout_height="@dimen/dp_40"
-                    android:text="@string/clock_setting"
+                    android:text="@string/time_task"
                     android:background="@drawable/shape_white_button"
                     android:layout_toRightOf="@+id/btn_clock_setting"
                     android:layout_centerVertical="true"

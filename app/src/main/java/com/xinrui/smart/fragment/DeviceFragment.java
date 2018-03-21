@@ -1,7 +1,6 @@
 package com.xinrui.smart.fragment;
 
 import android.app.Service;
-import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -12,22 +11,13 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.PopupWindow;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.donkingliang.groupedadapter.adapter.GroupedRecyclerViewAdapter;
-import com.donkingliang.groupedadapter.holder.BaseViewHolder;
 import com.xinrui.smart.R;
-import com.xinrui.smart.activity.AddDeviceActivity;
-import com.xinrui.smart.activity.DeviceListActivity;
-import com.xinrui.smart.adapter.NoFooterAdapter;
+import com.xinrui.smart.adapter.DeviceAdapter;
 import com.xinrui.smart.pojo.GroupEntry;
 import com.xinrui.smart.pojo.GroupModel;
 import com.xinrui.smart.view_custom.DeviceHomeDialog;
@@ -54,10 +44,9 @@ public class DeviceFragment extends Fragment {
     @BindView(R.id.rv_list) SwipeRecyclerView rv_list;
 
     ArrayList<GroupEntry> groups;
-    NoFooterAdapter adapter;
+    DeviceAdapter adapter;
     private ItemTouchHelper itemTouchHelper;
-    private int group=0;
-    private int child=0;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -79,7 +68,7 @@ public class DeviceFragment extends Fragment {
         rv_list.setLayoutManager(new LinearLayoutManager(getActivity()));
         rv_list.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
         groups= GroupModel.getGroups(10,5);
-        adapter=new NoFooterAdapter(getActivity(),groups);
+        adapter=new DeviceAdapter(getActivity(),groups);
         rv_list.setAdapter(adapter);
 
         rv_list.addOnItemTouchListener(new OnRecyclerItemClickListener(rv_list) {

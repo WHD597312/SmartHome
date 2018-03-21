@@ -40,4 +40,11 @@
         <attr name="numsize" format="integer"/>
         <attr name="numcolor" format="color"/>
     </declare-styleable>
+    <declare-styleable name="SemicircleBar">
+        <attr name="semicircle_max_precess" format="integer"/>
+        <attr name="semicircle_cur_processs" format="integer"/>
+        <attr name="semicircle_inner_color" format="color"/>
+        <attr name="semicircle_inner_width" format="dimension"/>
+        
+    </declare-styleable>
   </resources>

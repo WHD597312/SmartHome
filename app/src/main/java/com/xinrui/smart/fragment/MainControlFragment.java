@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.xinrui.smart.R;
@@ -30,7 +31,7 @@ public class MainControlFragment extends Fragment {
     @BindView(R.id.lv_homes)
     ListView lv_homes;
     private List<MainControl> mainControls;//主控机数量
-    private MainControlAdapter adapter;
+    private MainControlAdapter adapter;//主控制设置适配器
     public int runing=0;
     @Nullable
     @Override
@@ -40,13 +41,22 @@ public class MainControlFragment extends Fragment {
         return view;
     }
 
+
     @Override
     public void onStart() {
         super.onStart();
         mainControls=getMainControls();
         adapter=new MainControlAdapter(getActivity(),mainControls);
         lv_homes.setAdapter(adapter);
+
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
+
     private List<MainControl> getMainControls(){
         List<MainControl> mainControls=new ArrayList<>();
         for (int i=0;i<5;i++){

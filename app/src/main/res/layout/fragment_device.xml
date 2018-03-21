@@ -4,19 +4,22 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="@color/color_dark_gray"
+    android:background="#33302b"
     >
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="9"
             android:orientation="vertical"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:layout_marginRight="@dimen/dp_5"
             >
             <com.xinrui.smart.view_custom.SwipeRecyclerView
                 android:id="@+id/rv_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/color_white"
+                android:background="#33302b"
+                android:layout_marginRight="@dimen/dp_5"
                 />
         </LinearLayout>
         <LinearLayout
@@ -24,6 +27,9 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:layout_marginRight="@dimen/dp_5"
+            android:layout_marginBottom="@dimen/dp_5"
             >
 
             <Button
@@ -31,14 +37,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/add_home"
-                android:paddingLeft="@dimen/dp_180"
-                android:drawableLeft="@drawable/add"
                 android:background="@drawable/shape_white_button"
-                android:gravity="center_vertical"
+                android:gravity="center"
                 android:textColor="@color/holo_orange_light"
-                android:layout_marginLeft="@dimen/dp_2"
-                android:layout_marginRight="@dimen/dp_2"
+                android:textSize="@dimen/sp_20"
                 />
-
         </LinearLayout>
 </LinearLayout>
