@@ -44,7 +44,7 @@ public class TimeTaskFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        timeTaskCall.isTimeTask(true);
+//
     }
 
     @OnClick({R.id.tv_open,R.id.tv_close})
@@ -129,6 +129,7 @@ public class TimeTaskFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         timeTaskCall= (TimeTaskCall) getActivity();
+        timeTaskCall.isTimeTask(true);
 
     }
     public interface TimeTaskCall{

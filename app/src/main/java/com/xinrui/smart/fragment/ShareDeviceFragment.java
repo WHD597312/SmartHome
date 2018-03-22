@@ -32,7 +32,7 @@ public class ShareDeviceFragment extends Fragment {
     public void onStart() {
         super.onStart();
         isruning=true;
-        callBackValue.isShareDevice(true);
+
     }
 
     @Override
@@ -48,6 +48,7 @@ public class ShareDeviceFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         callBackValue= (ShareDeviceBackValue) getActivity();
+        callBackValue.isShareDevice(true);
     }
 
     @Override

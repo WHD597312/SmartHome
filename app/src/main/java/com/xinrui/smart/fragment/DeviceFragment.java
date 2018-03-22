@@ -11,6 +11,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ import com.xinrui.smart.view_custom.SwipeRecyclerView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -51,6 +53,7 @@ public class DeviceFragment extends Fragment {
     private ItemTouchHelper itemTouchHelper;
 
     private DeviceHomeDaoImpl deviceHomeDao;
+    private List list;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -65,6 +68,7 @@ public class DeviceFragment extends Fragment {
             unbinder.unbind();
         }
     }
+    private int group;
     @Override
     public void onStart() {
         super.onStart();
@@ -80,10 +84,6 @@ public class DeviceFragment extends Fragment {
         rv_list.addOnItemTouchListener(new OnRecyclerItemClickListener(rv_list) {
             @Override
             public void onItemClick(RecyclerView.ViewHolder viewHolder) {
-//                TextView tv_device_child= (TextView) viewHolder.itemView.findViewById(R.id.tv_device_child);
-//                Button btn_delete= (Button) viewHolder.itemView.findViewById(R.id.btn_delete);
-//                Button btn_editor= (Button) viewHolder.itemView.findViewById(R.id.btn_editor);
-//                ImageView image_switch= (ImageView) viewHolder.itemView.findViewById(R.id.image_switch);
 
             }
             @Override
@@ -94,16 +94,22 @@ public class DeviceFragment extends Fragment {
                     //获取系统震动服务
                     Vibrator vib = (Vibrator) getActivity().getSystemService(Service.VIBRATOR_SERVICE);//震动70毫秒
                     vib.vibrate(70);
-
                 }
             }
         });
         itemTouchHelper=new ItemTouchHelper(new ItemTouchHelper.Callback() {
+
+            /**
+             * 是否处理滑动事件 以及拖拽和滑动的方向 如果是列表类型的RecyclerView的只存在UP和DOWN，如果是网格类RecyclerView则还应该多有LEFT和RIGHT
+             * @param recyclerView
+             * @param viewHolder
+             * @return
+             */
             @Override
             public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
                     final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN |
-                            ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+                           ItemTouchHelper.RIGHT;
                     final int swipeFlags = 0;
                     return makeMovementFlags(dragFlags, swipeFlags);
                 } else {
@@ -114,36 +120,42 @@ public class DeviceFragment extends Fragment {
                 }
             }
 
+
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
                 //得到当拖拽的viewHolder的Position
                 int fromPosition = viewHolder.getAdapterPosition();
+                Log.d("fromPosition","fromPosition："+fromPosition);
                 //拿到当前拖拽到的item的viewHolder
                 int toPosition = target.getAdapterPosition();
+                Log.d("toPosition","toPosition："+toPosition);
                 int count=0;
                 int childFrom=0;
                 int childTo=0;
-                int group=0;
                 for(int i=0;i<groups.size();i++){
-                    group=i;
+                    if (count==toPosition){
+                        Log.d("count","count："+count);
+                        break;
+                    }
                     count++;
+                    group=i;
+                    Log.d("group","group："+group);
+
+                    Log.d("count","count："+count);
                     for (int j=0;j<groups.get(i).getChildern().size();j++){
                         if (count==fromPosition){
                             childFrom=j;
-                            count++;
-                            continue;
+                            Log.d("count","count："+count);
                         }
                         if (count==toPosition){
                             childTo=j;
+                            Log.d("count","count："+count);
                             break;
                         }
                         count++;
                     }
-                    if (count==toPosition){
-                        break;
-                    }
                 }
-                if (fromPosition < toPosition) {
+                if (fromPosition <toPosition) {
                     for(int i=childFrom;i<childTo;i++){
                         Collections.swap(groups.get(group).getChildern(),i,i+1);
                     }
@@ -152,15 +164,17 @@ public class DeviceFragment extends Fragment {
                         Collections.swap(groups.get(group).getChildern(), i, i - 1);
                     }
                 }
-               adapter.notifyItemMoved(fromPosition, toPosition);
+                adapter.notifyItemMoved(fromPosition,toPosition);
+//                adapter.changeGroup(group);
                 return true;
             }
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-
+//                int position = viewHolder.getAdapterPosition();
+//                myAdapter.notifyItemRemoved(position);
+//                datas.remove(position);
             }
-
             /**
              * 重写拖拽可用
              * @return
@@ -191,17 +205,9 @@ public class DeviceFragment extends Fragment {
             @Override
             public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 super.clearView(recyclerView, viewHolder);
-                viewHolder.itemView.setBackgroundColor(0);
-            }
+                viewHolder.itemView.setBackgroundColor(Color.WHITE);
+//                adapter.notifyDataSetChanged();
 
-            @Override
-            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-
-                //仅对侧滑状态下的效果做出改变
-                if (actionState ==ItemTouchHelper.ACTION_STATE_SWIPE){
-
-                }else
-                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
         });
         itemTouchHelper.attachToRecyclerView(rv_list);
