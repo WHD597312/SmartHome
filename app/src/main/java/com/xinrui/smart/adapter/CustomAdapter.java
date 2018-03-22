@@ -4,6 +4,7 @@ package com.xinrui.smart.adapter;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,11 +28,9 @@ import java.util.List;
  */
 
 public class CustomAdapter extends MyBaseAdapter {
-    final int itemLength = 20;
+    final int itemLength = 32;
 
-    Room room = new Room();
-
-
+    List<Room> list = new ArrayList<>();
 
     private LayoutInflater layoutInflater;
 
@@ -45,23 +44,15 @@ public class CustomAdapter extends MyBaseAdapter {
     public CustomAdapter(Context context) {
         this.context = context;
         layoutInflater = LayoutInflater.from(context);
-        for (int i = 0; i < itemLength; i++) {
-            clickedList[i] = 0;
-        }
     }
-    Room r1 = new Room();
-    Room r2 = new Room();
-    Room r3 = new Room();
-
-    public CustomAdapter(List<Room> list) {
-        super(list);
-        for (int i = 0; i < 20; i++) {
-            list.add(0,r1);
-        }
+    public CustomAdapter(Context context,List<Room> list) {
+        this.context = context;
+        layoutInflater = LayoutInflater.from(context);
+        this.list = list;
     }
     @Override
     public int getCount() {
-        return 20;
+        return itemLength;
     }
 
     @Override
@@ -75,14 +66,12 @@ public class CustomAdapter extends MyBaseAdapter {
     }
 
 
-     View view;
-
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolde viewHolde;
-
-        if(convertView == null){
+        View view;
+        if(null == convertView){
             viewHolde = new ViewHolde();
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.customroom_item,null);
             viewHolde.customroom_text = (TextView) view.findViewById(R.id.cusromroom_text);
@@ -92,35 +81,13 @@ public class CustomAdapter extends MyBaseAdapter {
             view = convertView;
             viewHolde = (ViewHolde) convertView.getTag();
         }
-
-
-//        final int colors[] = {Color.BLUE,Color.TRANSPARENT};
-//        int color=colors[0];
-//        colors[0]=colors[1];
-//        colors[1]=color;
-//        view.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                view.setBackgroundColor(colors[0]);
-//            }
-//        });
-
-
-//        if(clickTemp == position){
-//            if(clickedList[position]==0 ) {
-//                view.setBackgroundColor(Color.BLUE);
-//                clickedList[position] = 1;
-//            }else{
-//                view.setBackgroundColor(Color.TRANSPARENT);
-//                clickedList[position]=0;
-//
-//            }
-//        }
-
-        viewHolde.customroom_text.setText("卧室");
+        viewHolde.customroom_text.setText("");
+        int width = parent.getWidth()/4;
+        int height = width;
+        viewHolde.customroom_text.setWidth(width);
+        viewHolde.customroom_text.setHeight(height);
         return view;
     }
-
 
     class ViewHolde{
         private TextView customroom_text;
@@ -140,5 +107,7 @@ public class CustomAdapter extends MyBaseAdapter {
             this.customroom_text = customroom_text;
         }
     }
+
+
 
 }

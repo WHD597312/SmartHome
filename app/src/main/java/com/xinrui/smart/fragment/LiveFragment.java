@@ -202,7 +202,7 @@ public class LiveFragment extends Fragment {
 //        fragmentslist.add(default_fragment);
 
         fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
-                getActivity().getSupportFragmentManager(),fragmentslist);
+                getChildFragmentManager(),fragmentslist);
 
         viewPager.setAdapter(fragmentViewPagerAdapter);
         //viewPager滑动监听
@@ -256,8 +256,8 @@ public class LiveFragment extends Fragment {
                 method_new_btn();
                 break;
             case R.id.add_room:
-                Intent intent = new Intent(getActivity(), AddRoomActivity.class);
-                startActivity(intent);
+                Intent add_room = new Intent(getActivity(), AddRoomActivity.class);
+                startActivity(add_room);
                 break;
             case R.id.custom_house_type:
                 Intent custom_house_type = new Intent(getActivity(), CustomRoomActivity.class);

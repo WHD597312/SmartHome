@@ -3,7 +3,7 @@
     android:id="@+id/title"
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="60dp"
-    android:background="@color/top_title_background"
+    android:background="@color/custom_house_background"
     android:orientation="horizontal">
         <ImageButton
             android:id="@+id/return_button"
@@ -17,6 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
+            android:textColor="@color/white"
             android:textSize="20sp"
             android:text="@string/addRoom"/>
 

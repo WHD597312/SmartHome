@@ -1,18 +1,15 @@
 package com.xinrui.smart.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.telecom.Call;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CursorAdapter;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,10 +17,12 @@ import android.widget.Toast;
 
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.CustomAdapter;
+import com.xinrui.smart.fragment.LiveFragment;
 import com.xinrui.smart.pojo.Room;
+import com.xinrui.smart.view_custom.MyGridView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -31,6 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnItemClick;
+import butterknife.OnItemLongClick;
 
 /**
  * Created by win7 on 2018/3/12.
@@ -42,7 +42,7 @@ public class CustomRoomActivity extends AppCompatActivity {
     @BindView(R.id.title_text)
     TextView titleText;
     @BindView(R.id.customRooms)
-    GridView customRooms;
+    MyGridView customRooms;
     @BindView(R.id.merge)
     Button merge;
     @BindView(R.id.resolution)
@@ -55,92 +55,166 @@ public class CustomRoomActivity extends AppCompatActivity {
     CustomAdapter customAdapter;
 
 
-    int clickTemp = 0;
+    int clickTemp = 0; //点击item
 
-    boolean isselected = true;
+    int longTemp = 0;//长按item
 
-   int data[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19};
-   List list = new ArrayList();
+    int blinkTemp = 0;//闪烁item
 
+    boolean ismerge = false; //是否合并
 
+    boolean isblinked = false; //是否闪烁
 
+    int rooms = 32;//初始房间数
 
+    boolean isresolution = false;
+
+    Vibrator vibrator;
+
+    int clickedList[] = new int[rooms];//这个数组用来存放item的点击状态
+
+    int blinkList[] = new int[rooms];//这个数组用来存放item的闪烁状态
+
+    List<Room> roomlist = new ArrayList();
+
+    Room room = new Room();
+
+    List<Integer> list_color = new ArrayList();//点击变色的item
+
+    List<Integer> list_state = new ArrayList();//合并后的item
+
+    List<List<Integer>> list_resolution = new ArrayList<>();//合并的房间
+
+    List<Integer> list_blink = new ArrayList<>();//闪烁的item
+
+    List<Integer> list_no_blink = new ArrayList<>();//未闪烁的item
+
+    int colors[] = {R.drawable.merge_room,R.drawable.merge_room1,R.drawable.merge_room2,R.drawable.merge_room3,R.drawable.merge_room4,
+                    R.drawable.merge_room5,R.drawable.merge_room6,R.drawable.merge_room7};
 
     /**
      * 点击gridview一个item变色，再次点击还原
      * @param position
      */
-
-
-
-    int colors[] = {Color.BLUE,Color.TRANSPARENT};
-    int clicked=0;
-    int color = 0;
-
     @OnItemClick(R.id.customRooms) void onItemClick(View view,int position) {
-
-//        }
-//        customRooms.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Toast.makeText(getApplicationContext(),"jaq1",Toast.LENGTH_LONG).show();
-//        setSeclection(position);
-//        if (clickTemp == position){
-//            if (!isselected) {
-//                view.setBackgroundColor(Color.BLUE);
-//                isselected = true;
-//            } else {
-//                view.setBackgroundColor(Color.TRANSPARENT);
-//                isselected = false;
-//            }
-//    }
-//            }
-//        });
-//        customAdapter.getView(position,null,null).setBackgroundColor(Color.BLUE);
-//        customAdapter.setSeclection(position);
-
-        view.setBackgroundColor(Color.BLUE);
+        setSeclection(position);
+        if(list_state.contains(position)){
+//            room_blink(position);
+        }else{
+                click_items(position,view);
+            }
         customAdapter.notifyDataSetChanged();
     }
 
-
-    public void setSeclection(int posiTion) {
-        clickTemp = posiTion;
+    /**
+     * 合并之后长按闪烁，再次长按取消闪烁，闪烁中点击拆分删除房间
+     * @param position
+     * @return
+     */
+    @OnItemLongClick(R.id.customRooms)
+        boolean gridviewItemLongClick(int position) {
+        setLongSeclection(position);
+        if(list_state.contains(position)){
+            //震动300毫秒
+            vibrator.vibrate(300);
+            room_blink(position);
+        }
+        customAdapter.notifyDataSetChanged();
+        return true;
     }
+
+    /**
+     * 识别当前被点击的item
+     * @param postion
+     */
+    public void setSeclection(int postion) {
+        clickTemp = postion;
+    }
+
+    /**
+     * 识别当前被点击的item
+     * @param postion
+     */
+    public void setLongSeclection(int postion) {
+        longTemp = postion;
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.custom_room);
         ButterKnife.bind(this);
 
-
         //初始化数据
         initRooms();
 
 
     }
-    Room r = new Room();
 
     private void initRooms() {
+//        for (int i = 0; i < 20; i++) {
+//            roomlist.add(null);
+//        }
+        vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         titleText.setText("自定义户型");
-        list.add(r);
-        customAdapter = new CustomAdapter(this);
+        reset_list_no_blink();
+        customAdapter = new CustomAdapter(this,roomlist);
         customRooms.setAdapter(customAdapter);
         customAdapter.notifyDataSetChanged();
     }
-
-
 
     @OnClick({R.id.return_button,R.id.merge, R.id.resolution, R.id.sure, R.id.delete})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.return_button:
-
+            Intent return_button = new Intent(this, LiveFragment.class);
+            startActivity(return_button);
             case R.id.merge:
+                if(list_color.size() == 0){
+
+                }else {
+                    AlertDialog.Builder dialog2 = new AlertDialog.Builder(this);
+                    dialog2.setMessage("确认合并!");
+                    dialog2.setCancelable(false);
+                    dialog2.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            merge();
+                        }
+                    });
+                    dialog2.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+                    dialog2.show();
+                }
 
                 break;
             case R.id.resolution:
+                Toast.makeText(this,list_color+";"+list_state,Toast.LENGTH_LONG).show();
+
+                if(list_state.size()==0 || list_color.size()!=0){
+
+                }else if(isblinked&&blinkList[longTemp]==1){
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+                    dialog.setMessage("确认拆分!");
+                    dialog.setCancelable(false);
+                    dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            resolution(longTemp);
+                        }
+                    });
+                    dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+                    dialog.show();
+                }
                 break;
             case R.id.sure:
                 break;
@@ -148,4 +222,200 @@ public class CustomRoomActivity extends AppCompatActivity {
                 break;
         }
     }
+
+    //拆分
+    public void resolution(int postion){
+            for (int i = 0; i < rooms; i++) {
+                View view = customRooms.getChildAt(i);
+                view.setVisibility(View.VISIBLE);
+            }
+            for (int i = 0; i < list_resolution.size(); i++) {
+                for (int l = 0; l < list_resolution.get(i).size(); l++) {
+                    if (list_resolution.get(i).get(l).equals(postion)){
+                        for (int j = 0; j < list_resolution.get(i).size(); j++) {
+                            View view3 = customRooms.getChildAt(list_resolution.get(i).get(j));
+                            customRooms.stopFlick(view3);
+                            view3.findViewById(R.id.cusromroom_text).setBackgroundResource(R.drawable.addroom_no_sure);
+                        }
+
+                        for (int k = 0; k < list_resolution.get(i).size(); k++) {//拆分以后将每个clickedList[postion]置为0
+                            clickedList[list_resolution.get(i).get(k)]=0;
+                        }
+
+                        for (int j = 0; j < list_resolution.get(i).size(); j++) {
+                            list_state.remove(list_resolution.get(i).get(j));
+                        }
+                        for (int k = 0; k < list_blink.size(); k++) {//list_bink集合里的所有binkList[postion]=0
+                            blinkList[list_blink.get(k)] = 0;
+                        }
+                        list_resolution.remove(list_resolution.get(i));
+                        list_blink.clear();
+                        reset_list_no_blink();
+                        break;
+                    }
+                }
+            }
+    }
+    //合并
+    public void merge(){
+        final List<Integer> list_color1 = new ArrayList<>();//由于list_color对象固定，所以用list_color1替代list_color，每次合并new一个新的list_color1对象
+
+        Log.i("jjy",list_resolution+";"+list_color);
+        for (int i = 0; i < list_color.size(); i++) {
+            list_color1.add(list_color.get(i));
+        }
+        list_resolution.add(list_color1);
+        Log.i("jjy",list_resolution+";"+list_color);
+
+     boolean ismerge = true;
+        for (int i = 0; i < list_color.size(); i++) {
+            list_state.add(list_color.get(i));
+        }
+
+        Random random = new Random();
+        int a = random.nextInt(colors.length);
+
+        isrectangle(list_color1);
+
+        if(ismerge){
+            for (int i = 0; i < list_color.size(); i++) {
+                View view4 = customRooms.getChildAt(list_color.get(i));
+                view4.findViewById(R.id.cusromroom_text).setBackgroundResource(colors[a]);
+            }
+        }
+        customAdapter.notifyDataSetChanged();
+        list_color.clear();
+    }
+
+    /**
+     * List集合去重
+     * @param list
+     */
+    public  static   void  removeDuplicate(List list)   {
+        HashSet h  =   new  HashSet(list);
+        list.clear();
+        list.addAll(h);
+        System.out.println(list);
+    }
+
+    /**
+     * 房间闪烁
+     * @param postion
+     */
+    public void room_blink(int postion){
+        tag:for (int i = 0; i < list_resolution.size(); i++) {
+            for (int j = 0; j < list_resolution.get(i).size(); j++) {
+                if(list_resolution.get(i).contains(postion)){
+                    if (blinkList[postion] == 0) {
+                        for (int k = 0; k < list_resolution.get(i).size(); k++) {//选中的房间闪烁
+                            list_blink.add(list_resolution.get(i).get(k));//list_bink集合添加数据
+                            list_no_blink.removeAll(list_blink);
+                            removeDuplicate(list_blink);
+                            removeDuplicate(list_no_blink);
+                            Log.i("this",list_blink+""+list_no_blink);
+                            View view_start_blink = customRooms.getChildAt(list_resolution.get(i).get(k));
+                            customRooms.startFlick(view_start_blink);
+                        }
+                        for (int k = 0; k < list_no_blink.size(); k++) {//list_no_blink集合的item隐藏
+                            View view5 = customRooms.getChildAt(list_no_blink.get(k));
+                            view5.setVisibility(View.GONE);
+                        }
+                        isblinked = true;
+                        for (int k = 0; k < list_blink.size(); k++) {//list_bink集合里的所有binkList[postion]=1
+                            blinkList[list_blink.get(k)] = 1;
+                        }
+                        break tag;
+                    }else if(blinkList[postion] == 1){
+                        for (int k = 0; k < list_blink.size(); k++) {
+                            Log.i("this1",list_blink+""+list_no_blink);
+                            View view_stop_blink = customRooms.getChildAt(list_resolution.get(i).get(k));
+                            customRooms.stopFlick(view_stop_blink);
+                        }
+                        for (int l = 0; l < list_no_blink.size(); l++) {
+                            View view5 = customRooms.getChildAt(list_no_blink.get(l));
+                            view5.setVisibility(View.VISIBLE);
+                        }
+                        for (int k = 0; k < list_blink.size(); k++) {
+                            blinkList[list_blink.get(k)] = 0;
+                        }
+                        list_blink.clear();
+                        isblinked = false;
+                        reset_list_no_blink();
+                        break tag;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 点击item变色
+     * @param postion
+     * @param view
+     */
+    public void click_items(int postion, View view){
+        if(roomlist != null) {
+            if (clickedList[postion] == 0) {
+                list_color.add(postion);
+                view.findViewById(R.id.cusromroom_text).setBackgroundResource(R.drawable.addroom_sure);
+                clickedList[postion] = 1;
+            } else if(clickedList[postion] == 1){
+                for (int i = 0; i < list_color.size(); i++) {
+                    if(list_color.get(i) == postion)
+                        list_color.remove(i);
+                }
+                view.findViewById(R.id.cusromroom_text).setBackgroundResource(R.drawable.addroom_no_sure);
+                clickedList[postion] = 0;
+            }
+        }
+    }
+
+    //重置list_no_blink集合
+    public void reset_list_no_blink(){
+        for (int o = 0; o < rooms; o++) {
+            list_no_blink.add(o);
+        }
+    }
+
+    public void isrectangle(final List list_color1){
+        if(list_color.size() == 2){
+            for (int i = 0; i < list_color.size(); i++) {
+                for (int j = 0; j < list_color.size(); j++) {
+                    if(list_color.get(i) == list_color.get(j)+1){
+
+                    }else if(list_color.get(i) == list_color.get(j)+1){
+
+                    }else{
+                        for (int k = 0; k < list_color.size(); k++) {
+                            list_state.remove(list_state.size()-1);
+                        }
+                        customAdapter.notifyDataSetChanged();
+                       dialog(list_color1);
+                        for (int k = 0; k < list_color.size(); k++) {
+                            clickedList[list_color.get(k)]=0;//无法合并确定后将clickedList[postion]置为0
+                            Log.i("onClick1",list_color.get(k)+"");
+                            View view = customRooms.getChildAt(list_color.get(k));
+                            view.findViewById(R.id.cusromroom_text).setBackgroundResource(R.drawable.addroom_no_sure);
+                        }
+                        ismerge = false;
+                    }
+                }
+            }
+        }
+    }
+
+    public void dialog(final List list_color1){
+    AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+    dialog.setTitle("error");
+    dialog.setMessage("无法合并");
+    dialog.setCancelable(false);
+    dialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            list_resolution.remove(list_color1);
+        }
+    });
+    dialog.show();
+}
+
 }

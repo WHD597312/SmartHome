@@ -38,4 +38,6 @@
     <color name="floor_button">#8BC34A</color>
     <color name="Line">#BBBBBB</color>
     <color name="color_black3">#312728</color>
+    <color name="custom_house_background">#33302B</color>
+    <color name="customroom_clicked_background">#FF7640</color>
 </resources>

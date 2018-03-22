@@ -38,6 +38,12 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:label=""
             />
+        <activity android:name=".activity.CustomRoomActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label=""/>
+        <activity android:name=".activity.AddRoomActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label=""/>
     </application>
 
 </manifest>

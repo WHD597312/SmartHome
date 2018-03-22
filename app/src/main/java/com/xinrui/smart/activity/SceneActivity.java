@@ -1,4 +1,4 @@
-package com.example.win7.smarthome.Activity;
+package com.xinrui.smart.activity;
 
 import android.content.Intent;
 import android.os.Bundle;

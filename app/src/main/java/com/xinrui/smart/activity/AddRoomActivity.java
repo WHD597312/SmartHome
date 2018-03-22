@@ -22,6 +22,7 @@ import java.util.Random;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 /**
  * Created by win7 on 2018/3/10.
@@ -39,6 +40,8 @@ public class AddRoomActivity extends AppCompatActivity {
     @BindView(R.id.room_type_item)
     GridView roomTypeItem;
 
+    private Unbinder unbinder;
+
     private ArrayList<Room> roomList = new ArrayList<>();
     Room[] rooms = {
             new Room(R.drawable.bedroom, "卧室"), new Room(R.drawable.study, "书房"),
@@ -51,7 +54,7 @@ public class AddRoomActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_room);
-        ButterKnife.bind(this);
+        unbinder = ButterKnife.bind(this);
 
 
         //?????????
