@@ -44,12 +44,13 @@ public class DeviceListActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_device_list);
         unbinder=ButterKnife.bind(this);
     }
-
-    @OnClick({R.id.img_back, R.id.btn_share_device, R.id.btn_clock_setting, R.id.btn_time_task})
+    @OnClick({R.id.img_back, R.id.btn_share_device, R.id.btn_clock_setting, R.id.btn_time_task,R.id.image_home})
     public void onClick(View view){
         switch (view.getId()){
-
             case R.id.img_back:
+                finish();
+                break;
+            case R.id.image_home:
                 finish();
                 break;
             case R.id.btn_share_device:

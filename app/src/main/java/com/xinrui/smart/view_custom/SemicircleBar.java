@@ -215,7 +215,6 @@ public class SemicircleBar extends View {
             setLayerType(LAYER_TYPE_SOFTWARE, null);
         }
     }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int height = getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec);
@@ -260,7 +259,6 @@ public class SemicircleBar extends View {
         mPaint.setAntiAlias(true);//去除边缘锯齿，优化绘制效果
         mPaint.setColor(getResources().getColor(R.color.color_white));
         canvas.save();//保存当前的状态
-
 
         for (int i = 0; i < 120; i++) {//总共120个点  所以绘制60次  //绘制一圈的小黑点
             if (i > 105) {
@@ -328,15 +326,36 @@ public class SemicircleBar extends View {
 
 
         if (mCurAngle >= 0) {
-            if (mCurAngle>316){
-                return;
+            if (mCurAngle>=320){
+               if (mCurAngle>330 && mCurAngle<=360){
+                    mCurAngle=0;
+                    //画选中区域
+//                    canvas.drawArc(new RectF(left, top, right, bottom), 360, (float)0, false, mReachedPaint);
+                    double cos = -Math.cos(Math.toRadians(360));
+                    mWheelCurX = calcXLocationInWheel(360, cos);
+                    mWheelCurY = calcYLocationInWheel(cos);
+                    //画锚点
+
+                    canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
+                    canvas.save();
+                }else {
+                    mCurAngle=0;
+                    //画选中区域
+//                    canvas.drawArc(new RectF(left, top, right, bottom), 316, (float)0, false, mReachedPaint);
+                    double cos = -Math.cos(Math.toRadians(316));
+                    mWheelCurX = calcXLocationInWheel(316, cos);
+                    mWheelCurY = calcYLocationInWheel(cos);
+                    //画锚点
+                    canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
+                    canvas.save();
+                    return;
+                }
+
             }
             canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
             //画选中区域
             Log.d("dsads", mCurAngle + "");
             for (int i = 0; i < (mCurAngle) / 3; i++) {
-
-
                 if ((i - 1) % 20 == 0) {
 
                     mPaint.setColor(getResources().getColor(R.color.red_normal));
@@ -346,8 +365,6 @@ public class SemicircleBar extends View {
                             centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
 
                             getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics()), mPaint);
-
-
                 } else {
                     if (i == 0) {
                         mPaint.setColor(getResources().getColor(R.color.color_black3));
@@ -370,9 +387,8 @@ public class SemicircleBar extends View {
 
                 canvas.rotate(3, centerX, centerY);//360度  绘制120次   每次旋转6度
             }
-
+            canvas.save();
         }
-        canvas.save();
     }
     private void buildCache(float centerX, float centerY, float wheelRadius) {
         mCacheBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);

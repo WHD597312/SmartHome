@@ -36,6 +36,8 @@
         <attr name="wheel_has_cache" format="boolean" />
         <attr name="wheel_can_touch" format="boolean" />
         <attr name="wheel_scroll_only_one_circle" format="boolean" />
+        <attr name="wheel_start_angle" format="float"/>
+        <attr name="wheel_current_angle" format="float"/>
         <attr name="pointcolor" format="color"/>
         <attr name="numsize" format="integer"/>
         <attr name="numcolor" format="color"/>

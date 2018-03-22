@@ -19,9 +19,9 @@
             >
             <ImageView
                 android:id="@+id/img_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/back"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:src="@mipmap/image_back"
                 android:scaleType="centerInside"
                 android:layout_marginLeft="@dimen/dp_6"
                 android:layout_centerVertical="true"
@@ -35,16 +35,18 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerInParent="true"
                 android:textColor="@color/color_white"
-                android:text="办公室" />
+                android:text="办公室"
+                android:textSize="@dimen/sp_16"
+                />
 
             <ImageView
                 android:id="@+id/image_home"
-                android:layout_width="@dimen/dp_24"
-                android:layout_height="@dimen/dp_24"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/example"
+                android:src="@mipmap/image_home"
                 android:layout_marginRight="@dimen/dp_6"
                 />
         </RelativeLayout>
@@ -60,8 +62,8 @@
             android:layout_height="0dp"
             android:layout_weight="2"
             android:orientation="vertical"
-            android:layout_marginLeft="@dimen/dp_8"
-            android:layout_marginRight="@dimen/dp_5"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/dp_10"
             android:layout_marginTop="@dimen/dp_10"
             >
             <RelativeLayout

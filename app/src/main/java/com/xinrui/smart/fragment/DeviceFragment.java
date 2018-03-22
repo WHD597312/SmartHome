@@ -80,7 +80,6 @@ public class DeviceFragment extends Fragment {
 //                ImageView image_switch= (ImageView) viewHolder.itemView.findViewById(R.id.image_switch);
 
             }
-
             @Override
             public void onItemLongClick(RecyclerView.ViewHolder vh) {
                 //判断被拖拽的是否是前两个，如果不是则执行拖拽

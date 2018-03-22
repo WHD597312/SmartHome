@@ -14,11 +14,13 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.xinrui.smart.R;
+import com.xinrui.smart.fragment.TimeTaskFragment;
 
 /**
  * Created by gaopengfei on 15/11/15.
@@ -61,6 +63,8 @@ public class CircleSeekBar extends View {
     private boolean isHasReachedCornerRound;
     private int mPointerColor;
     private float mPointerRadius;
+    private float start_angle;
+    private float cur_angle;
 
     private double mCurAngle;
     private float mWheelCurX, mWheelCurY;
@@ -83,7 +87,8 @@ public class CircleSeekBar extends View {
 
     private Paint mPaint;
     private OnSeekBarChangeListener mChangListener;
-
+    public double[] angles={-90, -75, -60, -45,-30, -15, 0, 15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,250,265,270,285,300,315,330,345,360};
+    public double[] angles2={270,  285, 300, 315, 330,345,0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,250,265};
     public CircleSeekBar(Context context) {
         this(context, null);
     }
@@ -99,6 +104,7 @@ public class CircleSeekBar extends View {
         initPadding();
         initPaints();
         mPaint=new Paint();
+        Log.d("angles",angles.length+"");
     }
 
     private void initPaints() {
@@ -142,7 +148,6 @@ public class CircleSeekBar extends View {
     private void initAttrs(AttributeSet attrs, int defStyle) {
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.CircleSeekBar, defStyle, 0);
         mMaxProcess = a.getInt(R.styleable.CircleSeekBar_wheel_max_process, 100);
-
         mCurProcess = a.getInt(R.styleable.CircleSeekBar_wheel_cur_process, 0);
         if (mCurProcess > mMaxProcess) mCurProcess = mMaxProcess;
         mReachedColor = a.getColor(R.styleable.CircleSeekBar_wheel_reached_color, getColor(R.color.color_orange));
@@ -156,6 +161,9 @@ public class CircleSeekBar extends View {
         mPointerRadius = a.getDimension(R.styleable.CircleSeekBar_wheel_pointer_radius, mUnreachedWidth / 2);
         isHasWheelShadow = a.getBoolean(R.styleable.CircleSeekBar_wheel_has_wheel_shadow, false);
         mPointColor=a.getColor(R.styleable.CircleSeekBar_pointcolor, Color.WHITE);
+        start_angle=a.getFloat(R.styleable.CircleSeekBar_wheel_start_angle,0);
+        cur_angle=a.getFloat(R.styleable.CircleSeekBar_wheel_current_angle,0);
+
 
         mNumColor=a.getColor(R.styleable.CircleSeekBar_numcolor, Color.BLACK);
         mNumSize=a.getInt(R.styleable.CircleSeekBar_numsize,14);
@@ -245,23 +253,45 @@ public class CircleSeekBar extends View {
             canvas.drawCircle(centerX, centerY, wheelRadius, mWheelPaint);
         }
 
+//        //画选中区域
+//        canvas.drawArc(new RectF(left, top, right, bottom), -90, (float) -60, false, mReachedPaint);
+//        canvas.drawArc(new RectF(left, top, right, bottom), 0, (float) 30, false, mReachedPaint);
+
+        float startAngle= start_angle;
+        float endAngle=cur_angle;
+        if (startAngle>180){
+            startAngle=startAngle-360;
+        }
+        mCurAngle=endAngle-startAngle;
         //画选中区域
-        canvas.drawArc(new RectF(left, top, right, bottom), -90, (float) -60, false, mReachedPaint);
-        canvas.drawArc(new RectF(left, top, right, bottom), 0, (float) 30, false, mReachedPaint);
+        canvas.drawArc(new RectF(left, top, right, bottom), startAngle, (float) mCurAngle, false, mReachedPaint);
 
+        double cos = -Math.cos(Math.toRadians(startAngle+90));
+        mWheelCurX = calcXLocationInWheel((startAngle+90), cos);
+        mWheelCurY = calcYLocationInWheel(cos);
         //画锚点
-//        canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
-//
-//
-//
-//        mPaint.setAntiAlias(true);//去除边缘锯齿，优化绘制效果
-//        mPaint.setColor(mPointColor);
+        canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
 
+        canvas.save();
 
+        cos = -Math.cos(Math.toRadians(startAngle+mCurAngle+90));
+        mWheelCurX = calcXLocationInWheel((startAngle+mCurAngle+90), cos);
+        mWheelCurY = calcYLocationInWheel(cos);
+        //画锚点
+        canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
+        canvas.save();
 
+////        cos=Math.cos(0);
+////        Log.d("cos",cos+"");
+////        refershWheelCurPosition(cos);
+////        //画锚点
+////        canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
+////        canvas.save();
+//
+//        canvas.drawArc(new RectF(left, top, right, bottom), 0, (float) 90, false, mReachedPaint);
 
         mPaint.setAntiAlias(true);//去除边缘锯齿，优化绘制效果
-        mPaint.setColor(getResources().getColor(R.color.color_blank2));
+        mPaint.setColor(getResources().getColor(R.color.color_white));
         canvas.save();//保存当前的状态
 
 
@@ -290,14 +320,14 @@ public class CircleSeekBar extends View {
                     TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics()));
         }
         mPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14, getResources().getDisplayMetrics()));
-        String[] strs = new String[]{"24", "4", "8", "12", "16", "20"};//绘制数字1-12  (数字角度不对  可以进行相关的处理)
+        String[] strs = new String[]{"24","2","4","6", "8","10", "12","14", "16","18", "20","22"};//绘制数字1-12  (数字角度不对  可以进行相关的处理)
         Rect rect = new Rect();
         canvas.save();
-        for (int i = 0; i < 6; i++) {//绘制12次  每次旋转30度
+        for (int i = 0; i < 12; i++) {//绘制12次  每次旋转30度
             mPaint.getTextBounds(strs[i], 0, strs[i].length(), rect);
             canvas.drawText(strs[i], centerX - rect.width() / 2,
                     getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 18, getResources().getDisplayMetrics()) + rect.height(), mPaint);
-            canvas.rotate(60, centerX, centerY);
+            canvas.rotate(30, centerX, centerY);
         }
         canvas.restore();
     }
@@ -509,6 +539,28 @@ public class CircleSeekBar extends View {
         this.mReachedWidth = reachedWidth;
         mReachedPaint.setStrokeWidth(reachedWidth);
         mReachedEdgePaint.setStrokeWidth(reachedWidth);
+        invalidate();
+    }
+
+    public static double getRADIAN() {
+        return RADIAN;
+    }
+
+    public float getStart_angle() {
+        return start_angle;
+    }
+
+    public void setStart_angle(float start_angle) {
+        this.start_angle = start_angle;
+        invalidate();
+    }
+
+    public float getCur_angle() {
+        return cur_angle;
+    }
+
+    public void setCur_angle(float cur_angle) {
+        this.cur_angle = cur_angle;
         invalidate();
     }
 

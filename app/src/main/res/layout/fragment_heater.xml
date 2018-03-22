@@ -12,8 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <com.xinrui.smart.view_custom.SemicircleBar
-            android:layout_width="300dp"
-            android:layout_height="300dp"
+            android:layout_width="350dp"
+            android:layout_height="350dp"
             app:wheel_pointer_radius="10dp"
             app:wheel_reached_width="20dp"
             app:wheel_unreached_width="25dp"

@@ -130,7 +130,6 @@
             android:layout_below="@id/seekbar"
             android:layout_marginTop="@dimen/dp_15"/>
 
-
     </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
@@ -138,12 +137,13 @@
         <TextView
             android:id="@+id/tv_open"
             android:layout_width="@dimen/dp_40"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/dp_30"
             android:text="@string/open"
             android:layout_centerVertical="true"
-            android:textColor="@color/color_white"
+            android:textColor="@color/color_orange"
             android:gravity="center"
             android:layout_marginLeft="@dimen/dp_40"
+            android:background="@drawable/shape_btn_ensure_normal"
             />
 
         <TextView
@@ -161,15 +161,16 @@
         <TextView
             android:id="@+id/tv_close"
             android:layout_width="@dimen/dp_40"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/dp_30"
             android:layout_alignParentTop="true"
             android:layout_marginLeft="@dimen/dp_10"
             android:layout_toEndOf="@+id/tv_open_time"
             android:layout_toRightOf="@+id/tv_open_time"
             android:layout_centerVertical="true"
-            android:textColor="@color/color_white"
+            android:textColor="@color/color_orange"
             android:text="@string/close"
             android:gravity="center"
+            android:background="@drawable/shape_btn_ensure_normal"
             />
         <TextView
             android:id="@+id/tv_close_time"
@@ -218,7 +219,4 @@
             android:gravity="center"
             android:text="@string/add" />
     </RelativeLayout>
-
-
-
 </LinearLayout>
