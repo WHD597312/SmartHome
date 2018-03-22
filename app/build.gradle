@@ -1,5 +1,11 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
 
+greendao {
+    schemaVersion 1
+    daoPackage 'com.xinrui.database.dao'
+    targetGenDir 'src/main/java'
+}
 android {
     buildToolsVersion '26.0.2'
     compileSdkVersion 25
@@ -33,4 +39,6 @@ dependencies {
     compile 'com.github.donkingliang:GroupedRecyclerViewAdapter:1.2.0'
     compile 'com.loopeer.library:itemtouchhelperextension:1.0.0'
     compile 'com.yanzhenjie:recyclerview-swipe:1.0.3'
+    compile'org.greenrobot:greendao:3.1.0'
+    compile'org.greenrobot:greendao-generator:3.1.0'
 }

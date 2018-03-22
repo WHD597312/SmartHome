@@ -40,7 +40,19 @@ public class DeviceHomeDialog extends Dialog {
         ButterKnife.bind(this);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        name=et_name.getText().toString();
+    }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @OnClick({R.id.button_cancel, R.id.button_ensure})
     public void onClick(View view){

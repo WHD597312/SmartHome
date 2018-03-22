@@ -16,10 +16,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.xinrui.database.dao.daoimpl.DeviceHomeDaoImpl;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.DeviceAdapter;
+import com.xinrui.smart.pojo.DeviceHome;
 import com.xinrui.smart.pojo.GroupEntry;
 import com.xinrui.smart.pojo.GroupModel;
+import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.view_custom.DeviceHomeDialog;
 import com.xinrui.smart.view_custom.DividerItemDecoration;
 import com.xinrui.smart.view_custom.OnRecyclerItemClickListener;
@@ -47,6 +50,7 @@ public class DeviceFragment extends Fragment {
     DeviceAdapter adapter;
     private ItemTouchHelper itemTouchHelper;
 
+    private DeviceHomeDaoImpl deviceHomeDao;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -65,11 +69,13 @@ public class DeviceFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
+        deviceHomeDao=new DeviceHomeDaoImpl(getActivity());
         rv_list.setLayoutManager(new LinearLayoutManager(getActivity()));
         rv_list.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
         groups= GroupModel.getGroups(10,5);
         adapter=new DeviceAdapter(getActivity(),groups);
         rv_list.setAdapter(adapter);
+
 
         rv_list.addOnItemTouchListener(new OnRecyclerItemClickListener(rv_list) {
             @Override
@@ -224,7 +230,17 @@ public class DeviceFragment extends Fragment {
         dialog.setOnPositiveClickListener(new DeviceHomeDialog.OnPositiveClickListener() {
             @Override
             public void onPositiveClick() {
-                Toast.makeText(getActivity(),"确定", Toast.LENGTH_LONG).show();
+                String name=dialog.getName();
+                DeviceHome home=new DeviceHome();
+                home.setName(name);
+                boolean success=deviceHomeDao.insert(home);
+                if (success){
+                    Utils.showToast(getActivity(),"创建成功");
+                    dialog.dismiss();
+                }else {
+                    Utils.showToast(getActivity(),"创建失败");
+                    dialog.dismiss();
+                }
             }
         });
         dialog.show();
