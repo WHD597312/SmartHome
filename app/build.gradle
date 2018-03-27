@@ -46,3 +46,4 @@ dependencies {
     compile 'com.alibaba:fastjson:1.2.10'
     compile 'com.google.code.gson:gson:2.8.2'
 }
+
