@@ -118,7 +118,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         day=calendar.get(Calendar.DAY_OF_MONTH);
         hour=calendar.get(Calendar.HOUR_OF_DAY);
 
-        tv_clock.setText(year+"年"+month+"月"+day+"日"+hour);
+        tv_clock.setText(year+"年"+month+"月"+day+"日"+hour+"时");
         timePicker.setIs24HourView(true);
         datePicker.init(year, month, day, new DatePicker.OnDateChangedListener() {
             @Override
@@ -126,15 +126,16 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 year=mYear;
                 month=monthOfYear;
                 day=dayOfMonth;
+                tv_clock.setText(year+"年"+month+"月"+day+"日"+hour+"时");
             }
         });
         timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
                 hour=hourOfDay;
+                tv_clock.setText(year+"年"+month+"月"+day+"日"+hour+"时");
             }
         });
-        tv_clock.setText(year+"年"+(month+1)+"月"+day+"日"+hour);
 
     }
 
@@ -155,7 +156,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         }
     }
 
-
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         mPoistion=position;
@@ -166,8 +166,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 Toast.makeText(this,"我的委托",Toast.LENGTH_SHORT).show();
                 break;
             case 1:
-//               fragmentManager.beginTransaction().replace(R.id.linearout2,new ClockSetFragment()).commit();
-                Utils.showToast(DeviceListActivity.this,"sssss");
                 linearout2.setVisibility(View.VISIBLE);
                 gradView.setVisibility(View.GONE);
                 break;

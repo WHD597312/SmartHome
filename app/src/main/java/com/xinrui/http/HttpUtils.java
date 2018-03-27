@@ -5,20 +5,10 @@ import android.util.Log;
 
 import com.zhy.http.okhttp.OkHttpUtils;
 
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Map;
 
 import okhttp3.Call;
@@ -52,7 +42,7 @@ public class HttpUtils {
     public static String getOkHpptRequest(Map<String, Object> map) {
         String result=null;
         try{
-            String url="http://192.168.1.101:8080/risun-jg/";
+            String url="http://120.77.36.206:8082/warmer/v1.0/house/registerHouse";
             OkHttpClient client=new OkHttpClient();
             FormBody.Builder builder=new FormBody.Builder();
             if(map!=null || map.size()!=0){

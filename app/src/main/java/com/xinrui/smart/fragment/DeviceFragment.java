@@ -298,6 +298,8 @@ public class DeviceFragment extends Fragment {
                         public void run() {
                             super.run();
                             Map<String,Object> param=new HashMap<>();
+                            param.put("houseName","ssss");
+                            param.put("location","sss");
                             param.put("userId",3);
                             HttpUtils.getOkHpptRequest(param);
                         }
