@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/color_blank2"
+    android:orientation="vertical"
     >
-    <LinearLayout
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="@dimen/dp_50"
             android:gravity="center_vertical"
+            android:id="@+id/relative"
             >
             <ImageView
                 android:id="@+id/img_back"
-                android:layout_width="@dimen/dp_30"
-                android:layout_height="@dimen/dp_30"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="@dimen/dp_40"
                 android:src="@mipmap/image_back"
                 android:scaleType="centerInside"
                 android:layout_marginLeft="@dimen/dp_6"
                 android:layout_centerVertical="true"
                  />
-
             <TextView
                 android:id="@+id/tv_name"
                 android:layout_width="wrap_content"
@@ -36,111 +37,110 @@
                 android:layout_centerInParent="true"
                 android:textColor="@color/color_white"
                 android:text="办公室"
-                android:textSize="@dimen/sp_16"
+                android:textSize="@dimen/sp_20"
                 />
-
             <ImageView
                 android:id="@+id/image_home"
-                android:layout_width="@dimen/dp_30"
-                android:layout_height="@dimen/dp_30"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:scaleType="centerInside"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="@dimen/dp_40"
                 android:src="@mipmap/image_home"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
                 android:layout_marginRight="@dimen/dp_6"
                 />
         </RelativeLayout>
+
         <LinearLayout
             android:id="@+id/linearout"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_weight="9"
+            android:layout_below="@+id/relative"
             />
         <LinearLayout
+            android:id="@+id/linearout2"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/dp_10"
-            android:layout_marginTop="@dimen/dp_10"
+            android:background="@color/color_white"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
             >
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <Button
-                    android:id="@+id/btn_share_device"
-                    android:layout_width="@dimen/dp_120"
-                    android:layout_height="@dimen/dp_40"
-                    android:text="@string/share_device"
-                    android:background="@drawable/shape_white_button"
-                    android:layout_centerVertical="true"
-                    android:textColor="@color/color_black"
-                    />
-                <Button
-                    android:id="@+id/btn_clock_setting"
-                    android:layout_width="@dimen/dp_120"
-                    android:layout_height="@dimen/dp_40"
-                    android:text="@string/clock_setting"
-                    android:background="@drawable/shape_white_button"
-                    android:layout_toRightOf="@+id/btn_share_device"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="@dimen/dp_3"
-                    android:textColor="@color/color_black"
-                    />
-                <Button
-                    android:id="@+id/btn_time_task"
-                    android:layout_width="@dimen/dp_120"
-                    android:layout_height="@dimen/dp_40"
-                    android:text="@string/time_task"
-                    android:background="@drawable/shape_white_button"
-                    android:layout_toRightOf="@+id/btn_clock_setting"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="@dimen/dp_3"
-                    android:textColor="@color/color_black"
-                    />
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_3"
+                android:layout_height="match_parent"
+                android:layout_gravity="bottom"
+                android:layout_alignParentBottom="true"
                 >
+
                 <Button
-                    android:id="@+id/btn_device_state"
-                    android:layout_width="@dimen/dp_120"
-                    android:layout_height="@dimen/dp_40"
-                    android:text="@string/device_state"
-                    android:background="@drawable/shape_white_button"
-                    android:layout_centerVertical="true"
-                    android:textColor="@color/color_black"
-                    />
+                    android:id="@+id/btn_cancle"
+                    android:layout_width="@dimen/dp_50"
+                    android:layout_height="@dimen/dp_30"
+                    android:gravity="center"
+                    android:background="@drawable/button_normal"
+                    android:layout_marginTop="@dimen/dp_5"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    android:textColor="@color/black"
+                    android:text="@string/cancle" />
+
+                <TextView
+                    android:id="@+id/tv_clock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/btn_cancle"
+                    android:layout_alignTop="@+id/btn_cancle"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:text="@string/clock_set" />
+
                 <Button
-                    android:id="@+id/btn_normal_problem"
-                    android:layout_width="@dimen/dp_120"
-                    android:layout_height="@dimen/dp_40"
-                    android:text="@string/normal_problem"
-                    android:background="@drawable/shape_white_button"
-                    android:layout_toRightOf="@+id/btn_device_state"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="@dimen/dp_3"
+                    android:id="@+id/btn_ensure"
+                    android:layout_width="@dimen/dp_50"
+                    android:layout_height="@dimen/dp_30"
+                    android:layout_alignBottom="@+id/btn_cancle"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignTop="@+id/btn_cancle"
+                    android:gravity="center"
+                    android:background="@drawable/button_normal"
+                    android:layout_marginRight="@dimen/dp_10"
                     android:textColor="@color/color_black"
+                    android:text="@string/ensure" />
+
+                <DatePicker
+                    android:id="@+id/datePicker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/btn_cancle"
+                    android:layout_alignStart="@+id/btn_cancle"
+                    android:layout_below="@+id/btn_cancle"
+                    android:theme="@android:style/Theme.Holo.Light"
+                    android:calendarViewShown="false"
                     />
-                <Button
-                    android:id="@+id/btn_about_us"
-                    android:layout_width="@dimen/dp_120"
-                    android:layout_height="@dimen/dp_40"
-                    android:text="@string/about_us"
-                    android:background="@drawable/shape_white_button"
-                    android:layout_toRightOf="@+id/btn_normal_problem"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="@dimen/dp_3"
-                    android:textColor="@color/color_black"
-                    />
+
+                <TimePicker
+                    android:id="@+id/timePicker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignEnd="@+id/btn_ensure"
+                    android:layout_alignRight="@+id/btn_ensure"
+                    android:layout_below="@+id/btn_cancle"
+                    android:layout_toRightOf="@+id/datePicker"
+                    android:theme="@android:style/Theme.Holo.Light"
+                    android:timePickerMode="spinner" />
             </RelativeLayout>
         </LinearLayout>
-    </LinearLayout>
-
-
-
-</android.support.constraint.ConstraintLayout>
+        <GridView
+            android:id="@+id/gradView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:numColumns="3"
+            android:layout_marginLeft="@dimen/dp_20"
+            android:layout_marginRight="@dimen/dp_20"
+            android:verticalSpacing="@dimen/dp_2"
+            android:horizontalSpacing="@dimen/dp_2"
+            android:layout_alignParentBottom="true"
+            />
+    </RelativeLayout>
+</LinearLayout>

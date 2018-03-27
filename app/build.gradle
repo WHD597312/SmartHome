@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao'
 
 greendao {
-    schemaVersion 1
+    schemaVersion 3
     daoPackage 'com.xinrui.database.dao'
     targetGenDir 'src/main/java'
 }
 android {
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '27.0.3'
     compileSdkVersion 25
     defaultConfig {
         applicationId "com.xinrui.smart"
@@ -41,4 +41,8 @@ dependencies {
     compile 'com.yanzhenjie:recyclerview-swipe:1.0.3'
     compile'org.greenrobot:greendao:3.1.0'
     compile'org.greenrobot:greendao-generator:3.1.0'
+    compile 'com.zhy:okhttputils:2.0.0'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile 'com.alibaba:fastjson:1.2.10'
+    compile 'com.google.code.gson:gson:2.8.2'
 }

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="bottom"
+    android:layout_alignParentBottom="true"
+    >
+
+    <Button
+        android:id="@+id/btn_cancle"
+        android:layout_width="@dimen/dp_50"
+        android:layout_height="@dimen/dp_30"
+        android:gravity="center"
+        android:background="@drawable/button_normal"
+        android:layout_marginTop="@dimen/dp_5"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:textColor="@color/black"
+        android:text="@string/cancle" />
+
+    <TextView
+        android:id="@+id/tv_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/btn_cancle"
+        android:layout_alignTop="@+id/btn_cancle"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:text="@string/clock_set" />
+
+    <Button
+        android:id="@+id/btn_ensure"
+        android:layout_width="@dimen/dp_50"
+        android:layout_height="@dimen/dp_30"
+        android:layout_alignBottom="@+id/btn_cancle"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/btn_cancle"
+        android:gravity="center"
+        android:background="@drawable/button_normal"
+        android:layout_marginRight="@dimen/dp_10"
+        android:textColor="@color/color_black"
+        android:text="@string/ensure" />
+    <TimePicker
+        android:id="@+id/timePicker"
+        android:layout_width="@dimen/dp_100"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_cancle"
+        android:layout_centerHorizontal="true"
+        android:timePickerMode="spinner"
+        android:theme="@android:style/Theme.Holo.Light"
+        />
+</RelativeLayout>

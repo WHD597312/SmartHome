@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="@dimen/dp_40"
+    android:descendantFocusability="afterDescendants"
+    >
+
+    <TextView
+        android:id="@+id/tv_open"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/open"
+        android:textSize="@dimen/sp_16"
+        android:gravity="center"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_10"
+        android:layout_centerVertical="true"
+        />
+
+    <TextView
+        android:id="@+id/tv_open_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/tv_open"
+        android:layout_alignTop="@+id/tv_open"
+        android:layout_toEndOf="@+id/tv_open"
+        android:layout_toRightOf="@+id/tv_open"
+        android:layout_marginLeft="@dimen/dp_5"
+        android:text="2:00"
+        android:gravity="center"
+        android:layout_centerVertical="true"
+        android:textColor="@color/color_blue"
+        />
+
+    <TextView
+        android:id="@+id/tv_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/tv_open"
+        android:layout_alignTop="@+id/tv_open"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_toEndOf="@+id/tv_open_time"
+        android:layout_toRightOf="@+id/tv_open_time"
+        android:text="@string/close"
+        android:gravity="center"
+        android:layout_centerVertical="true"
+        />
+
+    <TextView
+        android:id="@+id/tv_close_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/tv_close"
+        android:layout_alignTop="@+id/tv_close"
+        android:layout_marginLeft="@dimen/dp_5"
+        android:layout_toEndOf="@+id/tv_close"
+        android:layout_toRightOf="@+id/tv_close"
+        android:text="2:00"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:textColor="@color/color_blue" />
+
+    <TextView
+        android:id="@+id/tv_temp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/tv_close_time"
+        android:layout_alignTop="@+id/tv_close_time"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_toEndOf="@+id/tv_close_time"
+        android:layout_toRightOf="@+id/tv_close_time"
+        android:text="@string/temp"
+        android:gravity="center"
+        android:layout_centerVertical="true"
+        />
+
+    <TextView
+        android:id="@+id/tv_temp_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/tv_temp"
+        android:layout_alignTop="@+id/tv_temp"
+        android:layout_marginLeft="@dimen/dp_5"
+        android:layout_marginStart="@dimen/dp_5"
+        android:layout_toEndOf="@+id/tv_temp"
+        android:layout_toRightOf="@+id/tv_temp"
+        android:text="5"
+        android:gravity="center"
+        android:layout_centerVertical="true"
+        android:textColor="@color/color_blue"
+        />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/tv_temp_num"
+        android:layout_alignTop="@+id/tv_temp_num"
+        android:layout_toEndOf="@+id/tv_temp_num"
+        android:layout_toRightOf="@+id/tv_temp_num"
+        android:gravity="center"
+        android:layout_centerVertical="true"
+        android:text="℃" />
+
+    <Button
+        android:id="@+id/btn_delete"
+        android:layout_width="@dimen/dp_60"
+        android:layout_height="@dimen/dp_30"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/dp_10"
+        android:background="@drawable/button_normal"
+        android:layout_centerVertical="true"
+        android:text="@string/delete" />
+</RelativeLayout>

@@ -11,12 +11,14 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.DeviceHomeDaoImpl;
+import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.DeviceAdapter;
 import com.xinrui.smart.pojo.DeviceHome;
@@ -30,6 +32,9 @@ import com.xinrui.smart.view_custom.SwipeRecyclerView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -51,6 +56,7 @@ public class DeviceFragment extends Fragment {
     private ItemTouchHelper itemTouchHelper;
 
     private DeviceHomeDaoImpl deviceHomeDao;
+    private List<Integer> list;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -65,6 +71,8 @@ public class DeviceFragment extends Fragment {
             unbinder.unbind();
         }
     }
+
+
     @Override
     public void onStart() {
         super.onStart();
@@ -73,37 +81,54 @@ public class DeviceFragment extends Fragment {
         rv_list.setLayoutManager(new LinearLayoutManager(getActivity()));
         rv_list.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
         groups= GroupModel.getGroups(10,5);
+
         adapter=new DeviceAdapter(getActivity(),groups);
         rv_list.setAdapter(adapter);
+
+        int count=0;
+        list=new ArrayList<Integer>();
+        for (int i=0;i<groups.size();i++){
+            list.add(count);
+            count++;
+            for (int j=0;j<groups.get(i).getChildern().size();j++){
+                count++;
+            }
+            list.add(count++);
+        }
 
 
         rv_list.addOnItemTouchListener(new OnRecyclerItemClickListener(rv_list) {
             @Override
             public void onItemClick(RecyclerView.ViewHolder viewHolder) {
-//                TextView tv_device_child= (TextView) viewHolder.itemView.findViewById(R.id.tv_device_child);
-//                Button btn_delete= (Button) viewHolder.itemView.findViewById(R.id.btn_delete);
-//                Button btn_editor= (Button) viewHolder.itemView.findViewById(R.id.btn_editor);
-//                ImageView image_switch= (ImageView) viewHolder.itemView.findViewById(R.id.image_switch);
 
             }
             @Override
             public void onItemLongClick(RecyclerView.ViewHolder vh) {
-                //判断被拖拽的是否是前两个，如果不是则执行拖拽
-                if (vh.getLayoutPosition() != 0 && vh.getLayoutPosition() != 1) {
-                    itemTouchHelper.startDrag(vh);
-                    //获取系统震动服务
-                    Vibrator vib = (Vibrator) getActivity().getSystemService(Service.VIBRATOR_SERVICE);//震动70毫秒
-                    vib.vibrate(70);
 
-                }
+                //判断被拖拽的是否是前两个，如果不是则执行拖拽
+                    Log.d("sss",vh.getLayoutPosition()+"");
+                    int position=vh.getLayoutPosition();
+
+                    boolean flag=list.contains(position);/**不能拖拽的item*/
+                    if (!flag){
+                        itemTouchHelper.startDrag(vh);
+                        //获取系统震动服务
+                        Vibrator vib = (Vibrator) getActivity().getSystemService(Service.VIBRATOR_SERVICE);//震动70毫秒
+                        vib.vibrate(70);
+                    }
             }
         });
         itemTouchHelper=new ItemTouchHelper(new ItemTouchHelper.Callback() {
+            /**
+             * 是否处理滑动事件 以及拖拽和滑动的方向 如果是列表类型的RecyclerView的只存在UP和DOWN，如果是网格类RecyclerView则还应该多有LEFT和RIGHT
+             * @param recyclerView
+             * @param viewHolder
+             * @return
+             */
             @Override
             public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
-                    final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN |
-                            ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+                    final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
                     final int swipeFlags = 0;
                     return makeMovementFlags(dragFlags, swipeFlags);
                 } else {
@@ -116,58 +141,99 @@ public class DeviceFragment extends Fragment {
 
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                //得到当拖拽的viewHolder的Position
                 int fromPosition = viewHolder.getAdapterPosition();
+                Log.d("fromPosition","fromPosition："+fromPosition);
                 //拿到当前拖拽到的item的viewHolder
                 int toPosition = target.getAdapterPosition();
+                Log.d("toPosition","toPosition："+toPosition);
                 int count=0;
                 int childFrom=0;
                 int childTo=0;
                 int group=0;
-                for(int i=0;i<groups.size();i++){
-                    group=i;
-                    count++;
-                    for (int j=0;j<groups.get(i).getChildern().size();j++){
-                        if (count==fromPosition){
-                            childFrom=j;
+
+
+                if (fromPosition<toPosition){
+                    for(int i=0;i<groups.size();i++){
+                        count++;/**从第一组的头部开始计数，技术是为了找到对应的组和组中移动的开始位置与结束位置*/
+                        Log.d("group","group："+group);
+                        Log.d("count","count："+count);
+                        for (int j=0;j<groups.get(i).getChildern().size();j++){
+                            if (count==fromPosition){/**当计数的位置与开始移动的位置相等*/
+                                childFrom=j;/**将这一组中对应的位置取出来*/
+                                Log.d("count","count："+count);
+                            }
+                            if (count==toPosition){/**当*/
+                                childTo=j;
+                                Log.d("count","count："+count);
+                                break;
+                            }
                             count++;
-                            continue;
                         }
                         if (count==toPosition){
-                            childTo=j;
+                            Log.d("count","count："+count);
+                            group=i;
                             break;
                         }
-                        count++;
-                    }
-                    if (count==toPosition){
-                        break;
+                        count++;/**每一组的组尾位置，当某一组中的所有子项全部遍历过后，就到了这一组的组尾*/
                     }
                 }
-                if (fromPosition < toPosition) {
-                    for(int i=childFrom;i<childTo;i++){
-                        Collections.swap(groups.get(group).getChildern(),i,i+1);
-                    }
-                } else {
-                    for (int i = childFrom; i > childTo; i--) {
-                        Collections.swap(groups.get(group).getChildern(), i, i - 1);
+                else if (fromPosition>toPosition){
+
+                    for(int i=0;i<groups.size();i++){
+                        count++;/**从第一组的头部开始计数，就是是为了找到对应的组和组中移动的开始位置与结束位置*/
+                        Log.d("group","group："+group);
+                        Log.d("count","count："+count);
+                        for (int j=0;j<groups.get(i).getChildern().size();j++){
+                            if (count==toPosition){/**当计数的位置与开始移动的位置相等*/
+                                childTo=j;/**将这一组中对应的位置取出来*/
+                                Log.d("count","count："+count);
+                            }
+                            if (count==fromPosition){
+                                childFrom=j;
+                                Log.d("count","count："+count);
+                                break;
+                            }
+                            count++;
+                        }
+                        if (count==fromPosition){
+                            Log.d("count","count："+count);
+                            group=i;
+                            break;
+                        }
+                        count++;/**每一组的组尾位置，当某一组中的所有子项全部遍历过后，就到了这一组的组尾*/
                     }
                 }
-               adapter.notifyItemMoved(fromPosition, toPosition);
+
+                if (!list.contains(toPosition)){
+                    if (fromPosition <toPosition) {
+                        for(int i=childFrom;i<childTo;i++){
+                            Collections.swap(groups.get(group).getChildern(),i,i+1);
+                        }
+                        adapter.notifyItemMoved(fromPosition,toPosition);
+
+                    } else {
+                        for (int i = childFrom; i > childTo; i--) {
+                            Collections.swap(groups.get(group).getChildern(), i, i - 1);
+                        }
+                        adapter.notifyItemMoved(fromPosition,toPosition);
+                    }
+                }
                 return true;
             }
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-
+//                int position = viewHolder.getAdapterPosition();
+//                myAdapter.notifyItemRemoved(position);
+//                datas.remove(position);
             }
-
             /**
              * 重写拖拽可用
              * @return
              */
             @Override
             public boolean isLongPressDragEnabled() {
-                return true;
+                    return false;
             }
             /**
              * 长按选中Item的时候开始调用
@@ -191,17 +257,8 @@ public class DeviceFragment extends Fragment {
             @Override
             public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 super.clearView(recyclerView, viewHolder);
-                viewHolder.itemView.setBackgroundColor(0);
-            }
+                viewHolder.itemView.setBackgroundColor(Color.WHITE);
 
-            @Override
-            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-
-                //仅对侧滑状态下的效果做出改变
-                if (actionState ==ItemTouchHelper.ACTION_STATE_SWIPE){
-
-                }else
-                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
         });
         itemTouchHelper.attachToRecyclerView(rv_list);
@@ -236,6 +293,15 @@ public class DeviceFragment extends Fragment {
                 boolean success=deviceHomeDao.insert(home);
                 if (success){
                     Utils.showToast(getActivity(),"创建成功");
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            super.run();
+                            Map<String,Object> param=new HashMap<>();
+                            param.put("userId",3);
+                            HttpUtils.getOkHpptRequest(param);
+                        }
+                    }.start();
                     dialog.dismiss();
                 }else {
                     Utils.showToast(getActivity(),"创建失败");

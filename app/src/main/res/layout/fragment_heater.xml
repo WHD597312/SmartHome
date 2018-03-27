@@ -9,15 +9,100 @@
     >
 
     <RelativeLayout
+        android:id="@+id/relative2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relative"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="@dimen/dp_5"
+        >
+        <TextView
+            android:id="@+id/tv_cur"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/current"
+            android:textColor="@color/color_gray2"
+            android:layout_marginLeft="@dimen/dp_60"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            />
+        <TextView
+            android:id="@+id/tv_cur_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_cur"
+            android:text="19℃"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_20"
+            android:gravity="center"
+            android:paddingBottom="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_10"
+            />
+        <TextView
+            android:id="@+id/tv_set"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/tv_cur_temp"
+            android:layout_centerVertical="true"
+            android:text="@string/set"
+            android:textColor="@color/color_gray2"
+            android:layout_marginLeft="@dimen/dp_30"
+            android:gravity="center"
+            />
+        <TextView
+            android:id="@+id/tv_set_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="19℃"
+            android:textColor="@color/color_orange"
+            android:textSize="@dimen/sp_20"
+            android:gravity="center"
+            android:paddingBottom="@dimen/dp_5"
+            android:layout_toRightOf="@+id/tv_set"
+            android:layout_marginLeft="@dimen/dp_10"
+            />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/relative3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relative2"
+        android:layout_centerVertical="true"
+        >
+        <ImageView
+            android:id="@+id/image_temp"
+            android:layout_width="@dimen/dp_30"
+            android:layout_height="@dimen/dp_40"
+            android:src="@mipmap/image_temp2"
+            android:scaleType="centerInside"
+            android:layout_marginLeft="@dimen/dp_60"
+            android:layout_centerVertical="true"
+            />
+
+        <TextView
+            android:id="@+id/tv_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/image_temp"
+            android:layout_toRightOf="@+id/image_temp"
+            android:text="保温模式"
+            android:textColor="@color/color_gray2"
+            android:textSize="@dimen/sp_16"
+            android:layout_marginLeft="@dimen/dp_5"
+            />
+    </RelativeLayout>
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <com.xinrui.smart.view_custom.SemicircleBar
-            android:layout_width="350dp"
-            android:layout_height="350dp"
+            android:layout_width="290dp"
+            android:layout_height="290dp"
+            android:layout_centerHorizontal="true"
             app:wheel_pointer_radius="10dp"
             app:wheel_reached_width="20dp"
-            app:wheel_unreached_width="25dp"
-            android:layout_centerInParent="true"
+            app:wheel_unreached_width="20dp"
             app:wheel_max_process="24"
             />
 
@@ -30,7 +115,6 @@
             android:src="@mipmap/img_switch"
             android:scaleType="centerInside"
             />
-
         <ImageView
             android:id="@+id/img_circle"
             android:layout_width="@dimen/dp_200"
@@ -40,7 +124,99 @@
             android:src="@mipmap/img_circle2"
             android:scaleType="centerInside"
             />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/relative4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearout"
+        android:layout_gravity="center"
+        android:gravity="center"
+        >
+        <TextView
+            android:id="@+id/tv_mode0"
+            android:layout_width="@dimen/dp_60"
+            android:layout_height="wrap_content"
+            android:text="模式一"
+            android:textColor="@color/white"
+            android:gravity="center"
+            />
+        <ImageView
+            android:id="@+id/image_mode"
+            android:layout_width="@dimen/dp_60"
+            android:layout_height="@dimen/dp_60"
+            android:src="@mipmap/image_temp3"
+            android:scaleType="centerInside"
+            android:layout_below="@+id/tv_mode0"
+            android:layout_centerVertical="true"
+            />
 
+        <ImageView
+            android:id="@+id/image_mode2"
+            android:layout_width="@dimen/dp_60"
+            android:layout_height="@dimen/dp_60"
+            android:layout_below="@+id/tv_mode0"
+            android:layout_toRightOf="@+id/image_mode"
+            android:src="@mipmap/image_temp3"
+            android:scaleType="centerInside"
+            android:layout_marginLeft="@dimen/dp_20"
+            android:background="@mipmap/img_temp_circle"
+            />
+
+        <TextView
+            android:id="@+id/tv_mode2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/image_mode2"
+            android:layout_alignRight="@+id/image_mode2"
+            android:layout_above="@+id/image_mode2"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:text="模式二"
+            />
+
+        <ImageView
+            android:id="@+id/image_mode3"
+            android:layout_width="@dimen/dp_60"
+            android:layout_height="@dimen/dp_60"
+            android:layout_toRightOf="@+id/image_mode2"
+            android:src="@mipmap/image_temp3"
+            android:scaleType="centerInside"
+            android:layout_marginLeft="@dimen/dp_20"
+            android:layout_below="@+id/tv_mode0"
+            />
+
+        <TextView
+            android:id="@+id/tv_mode3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/image_mode3"
+            android:layout_alignRight="@+id/image_mode3"
+            android:layout_above="@+id/image_mode3"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:text="模式三" />
+        <ImageView
+            android:id="@+id/image_mode4"
+            android:layout_width="@dimen/dp_60"
+            android:layout_height="@dimen/dp_60"
+            android:layout_toRightOf="@+id/image_mode3"
+            android:src="@mipmap/image_temp3"
+            android:scaleType="centerInside"
+            android:layout_marginLeft="@dimen/dp_20"
+            android:layout_below="@+id/tv_mode0"
+            />
+
+        <TextView
+            android:id="@+id/tv_mode4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/image_mode4"
+            android:layout_alignRight="@+id/image_mode4"
+            android:layout_above="@+id/image_mode4"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:text="模式四" />
     </RelativeLayout>
 
 </LinearLayout>
