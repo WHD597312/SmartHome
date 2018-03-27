@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.xinrui.smart">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
@@ -44,6 +45,10 @@
         <activity android:name=".activity.AddRoomActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:label=""/>
+        <activity android:name=".activity.TimeTaskActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label=""
+            />
     </application>
 
 </manifest>
