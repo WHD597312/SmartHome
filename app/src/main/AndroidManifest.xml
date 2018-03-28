@@ -53,7 +53,10 @@
             android:name=".activity.TimeTaskActivity"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activity.TempChartActivity"></activity>
+        <activity android:name=".activity.TempChartActivity"
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar"
+            />
     </application>
 
 </manifest>
