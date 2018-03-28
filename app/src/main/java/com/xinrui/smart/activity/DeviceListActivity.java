@@ -170,12 +170,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 gradView.setVisibility(View.GONE);
                 break;
             case 2:
-                Intent intent=new Intent(this,TimeTaskActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this,TimeTaskActivity.class));
 //                Toast.makeText(this,"我的订阅",Toast.LENGTH_SHORT).show();
                 break;
             case 3:
-                Toast.makeText(this,"我的评价",Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this,TempChartActivity.class));
                 break;
             case 4:
                 Toast.makeText(this,"我的推荐",Toast.LENGTH_SHORT).show();

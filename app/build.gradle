@@ -16,6 +16,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+
     }
     buildTypes {
         release {
@@ -24,7 +26,6 @@ android {
         }
     }
 }
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:support-v4:25.4.0'
@@ -39,12 +40,14 @@ dependencies {
     compile 'com.github.donkingliang:GroupedRecyclerViewAdapter:1.2.0'
     compile 'com.loopeer.library:itemtouchhelperextension:1.0.0'
     compile 'com.yanzhenjie:recyclerview-swipe:1.0.3'
-    compile'org.greenrobot:greendao:3.1.0'
-    compile'org.greenrobot:greendao-generator:3.1.0'
+    compile 'org.greenrobot:greendao:3.1.0'
+    compile 'org.greenrobot:greendao-generator:3.1.0'
     compile 'com.zhy:okhttputils:2.0.0'
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.alibaba:fastjson:1.2.10'
     compile 'com.google.code.gson:gson:2.8.2'
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
+
+
 
 }
-

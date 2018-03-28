@@ -3,6 +3,7 @@ package com.xinrui.http;
 import android.util.Log;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 
@@ -13,8 +14,10 @@ import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 
@@ -42,20 +45,22 @@ public class HttpUtils {
     public static String getOkHpptRequest(Map<String, Object> map) {
         String result=null;
         try{
+            String CONTENT_TYPE = "application/json";
+            String JSON_DATA = "{\"houseName\":\"1\",\"location\":\"sadf\",\"userId\":\"3\"}";
             String url="http://120.77.36.206:8082/warmer/v1.0/house/registerHouse";
-            OkHttpClient client=new OkHttpClient();
-            FormBody.Builder builder=new FormBody.Builder();
-            if(map!=null || map.size()!=0){
-                for (Map.Entry<String,Object> param:map.entrySet()){
-                    builder.addEncoded(param.getKey(),param.getValue()+"");
-                }
+            JSONObject jsonObject=new JSONObject();
+            for (Map.Entry<String,Object> param:map.entrySet()){
+                jsonObject.put(param.getKey(),param.getValue());
             }
+            RequestBody requestBody = RequestBody.create(MediaType.parse(CONTENT_TYPE), jsonObject.toJSONString());
 
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .build();
+            OkHttpClient okHttpClient=new OkHttpClient();
+            Response response=okHttpClient.newCall(request).execute();
 
-            FormBody body=builder.build();
-            Request request=new Request.Builder().url(url).post(body).build();
-            Call call=client.newCall(request);
-            Response response=call.execute();
             if(response.isSuccessful()){
                 result= response.body().string();
             }
