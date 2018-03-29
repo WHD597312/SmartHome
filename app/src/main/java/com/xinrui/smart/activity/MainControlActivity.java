@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.FunctionAdapter;
 import com.xinrui.smart.fragment.ControlledFragment;
@@ -42,6 +43,7 @@ public class MainControlActivity extends AppCompatActivity {
 
     @BindView(R.id.img_cancel) ImageView img_cancel;//返回键
     private FragmentManager fragmentManager;
+    MyApplication application;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +70,10 @@ public class MainControlActivity extends AppCompatActivity {
                 drawer.openDrawer(GravityCompat.START);
             }
         });
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
+        application.addActivity(this);
     }
 
     @Override

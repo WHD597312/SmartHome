@@ -55,6 +55,14 @@
     <string name="current">当前</string>
     <string name="set">设定</string>
     <string name="clock_set">时钟设置</string>
+    <string name="notifyTitle">提示</string>
+    <string name="notifyMsg">当前应用缺少必要权限。\n\n请点击\"设置\"-\"权限\"-打开所需权限></string>
+    <string name="battery_saving">低功耗模式</string>
+    <string name="device_sensors">仅设备模式</string>
+    <string name="hight_accuracy">高精度模式</string>
+    <string name="interval">定位周期(ms)</string>
+    <string name="location_once">单次定位</string>
+    <string name="gpsFirst">GPS优先</string>
 
 
 </resources>

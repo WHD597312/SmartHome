@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.FunctionAdapter;
 import com.xinrui.smart.fragment.DeviceFragment;
@@ -39,10 +40,16 @@ public class SmartFrgmentActivity extends AppCompatActivity {
     private FragmentManager fragmentManager;//碎片管理者
     private DeviceFragment deviceFragment;//设备碎片
     private int[] colors={R.color.color_blue,R.color.color_dark_gray};
+    MyApplication application;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_smart_manager);
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
+        application.addActivity(this);
+
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

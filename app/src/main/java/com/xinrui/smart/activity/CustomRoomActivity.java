@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.CustomAdapter;
 import com.xinrui.smart.fragment.LiveFragment;
@@ -38,6 +39,7 @@ import butterknife.OnItemLongClick;
  */
 
 public class CustomRoomActivity extends AppCompatActivity {
+
     @BindView(R.id.return_button)
     ImageButton returnButton;
     @BindView(R.id.title_text)
@@ -143,6 +145,7 @@ public class CustomRoomActivity extends AppCompatActivity {
         longTemp = postion;
     }
 
+    MyApplication application;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,7 +154,10 @@ public class CustomRoomActivity extends AppCompatActivity {
 
         //初始化数据
         initRooms();
-
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
+        application.addActivity(this);
 
     }
     public void initcolors(){

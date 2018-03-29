@@ -1,8 +1,18 @@
 package com.xinrui.smart.activity;
 
+import android.Manifest;
 import android.app.ActionBar;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -10,6 +20,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,6 +30,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.FunctionAdapter;
 import com.xinrui.smart.fragment.DeviceFragment;
@@ -27,8 +39,10 @@ import com.xinrui.smart.fragment.SmartFragment;
 import com.xinrui.smart.fragment.SmartFragmentManager;
 import com.xinrui.smart.pojo.Function;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,7 +50,7 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    MyApplication application;
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
 
@@ -63,6 +77,10 @@ public class MainActivity extends AppCompatActivity {
         //设置左上角的图标响应
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
+        application.addActivity(this);
 
 
         drawer.setDrawerListener(toggle);
@@ -92,9 +110,14 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
     }
 
+    private LocationManager locationManager;
+    private String provider;
     @Override
     protected void onResume() {
         super.onResume();
+
+
+
 
     }
 
@@ -121,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
     public void onClick(View view){
         switch (view.getId()){
             case R.id.tv_exit:
-                Toast.makeText(this,"dfsaf",Toast.LENGTH_LONG).show();
+                application.removeAllActivity();/**退出应用程序*/
                 break;
             case R.id.tv_device:
                 FragmentTransaction fragmentTransaction3=fragmentManager.beginTransaction();//开启碎片事务
@@ -151,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+ 
     @Override
     public void onBackPressed() {
         super.onBackPressed();

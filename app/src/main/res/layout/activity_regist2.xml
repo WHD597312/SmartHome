@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.RegistActivity"
+    android:background="#33302c"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_40"
+        android:background="#312728"
+        android:gravity="center_vertical"
+        >
+        <ImageView
+            android:id="@+id/image_back"
+            android:layout_width="@dimen/dp_35"
+            android:layout_height="@dimen/dp_35"
+            android:layout_alignParentTop="true"
+            android:src="@mipmap/image_back"
+            android:layout_centerVertical="true"
+            android:scaleType="centerInside"
+            />
+
+        <TextView
+            android:id="@+id/tv_regist_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/image_back"
+            android:layout_alignTop="@+id/image_back"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_18"
+            android:text="重置密码" />
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/et_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="120dp"
+        android:ems="10"
+        android:inputType="textPassword"
+        android:hint="输入密码"
+        android:textColorHint="@color/white"
+        android:textColor="@color/white"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:layout_marginRight="@dimen/dp_30"
+        android:gravity="center_vertical"
+        android:background="@null"
+        android:textSize="@dimen/sp_18"
+        />
+    <View
+        android:id="@+id/view1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/et_password"
+        android:background="@color/white"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:layout_marginRight="@dimen/dp_30"
+        android:layout_marginTop="@dimen/dp_5"
+        />
+
+    <EditText
+        android:id="@+id/et_repeat_pswd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/et_password"
+        android:layout_alignRight="@+id/et_password"
+        android:layout_below="@+id/view1"
+        android:layout_marginTop="@dimen/dp_20"
+        android:background="@null"
+        android:gravity="center_vertical"
+        android:inputType="textPassword"
+        android:hint="重复密码"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:textSize="@dimen/sp_18" />
+    <View
+        android:id="@+id/view2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/et_repeat_pswd"
+        android:background="@color/white"
+        android:layout_alignLeft="@+id/et_repeat_pswd"
+        android:layout_alignRight="@id/et_repeat_pswd"
+        android:layout_marginTop="@dimen/dp_5"
+        />
+
+
+    <Button
+        android:id="@+id/btn_finish"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignLeft="@+id/et_password"
+        android:layout_alignRight="@id/et_password"
+        android:layout_marginBottom="75dp"
+        android:text="完成"
+        android:textColor="@color/white"
+        android:background="@drawable/shape_btn_next"
+        />
+
+
+</RelativeLayout>

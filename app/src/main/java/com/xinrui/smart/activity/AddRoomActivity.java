@@ -12,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.RoomAdapter;
 import com.xinrui.smart.pojo.Room;
@@ -50,12 +51,16 @@ public class AddRoomActivity extends AppCompatActivity {
 
     private RoomAdapter roomAdapter;
 
+    MyApplication application;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_room);
         unbinder = ButterKnife.bind(this);
-
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
+        application.addActivity(this);
 
         //?????????
 

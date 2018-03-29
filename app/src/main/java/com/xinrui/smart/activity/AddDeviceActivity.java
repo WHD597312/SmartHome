@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.fragment.AddDeviceScanFragment;
 import com.xinrui.smart.fragment.AddDeviceWifiFragment;
@@ -19,6 +20,7 @@ import butterknife.OnClick;
 
 public class AddDeviceActivity extends AppCompatActivity {
 
+    MyApplication application;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.btn_wifi)
@@ -42,6 +44,10 @@ public class AddDeviceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_device);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
+        application.addActivity(this);
     }
 
     @Override

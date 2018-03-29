@@ -7,6 +7,7 @@ import android.view.View;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.xinrui.chart.LineChartManager;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import butterknife.Unbinder;
  * */
 public class TempChartActivity extends AppCompatActivity {
 
+    MyApplication application;
     private Unbinder unbinder;
     @BindView(R.id.line_chart) LineChart line_chart;
     @Override
@@ -28,6 +30,10 @@ public class TempChartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_temp_chart);
         unbinder=ButterKnife.bind(this);
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
+        application.addActivity(this);
     }
 
     @Override
