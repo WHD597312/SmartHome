@@ -49,6 +49,14 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:label=""
             />
+        <activity android:name=".activity.RoomTypesActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label=""
+        />
+        <activity android:name=".activity.AddEquipmentActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label=""
+            />
     </application>
 
 </manifest>

@@ -54,17 +54,13 @@ public class RoomAdapter extends MyBaseAdapter {
         return view;
     }
 
-    class ViewHolde {
+    class ViewHolde  {
         private ImageView roomImage;
         private TextView roomName;
 
         public ViewHolde() {
         }
 
-        public ViewHolde(ImageView roomImage, TextView roomName) {
-            this.roomImage = roomImage;
-            this.roomName = roomName;
-        }
 
         public ImageView getRoomImage() {
             return roomImage;

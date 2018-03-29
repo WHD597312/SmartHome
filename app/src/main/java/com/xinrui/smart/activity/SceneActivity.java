@@ -26,8 +26,6 @@ public class SceneActivity extends AppCompatActivity {
     ImageView menu;
     @BindView(R.id.new_btn)
     Button newFloor;
-    @BindView(R.id.add_room)
-    Button addRoom;
     @BindView(R.id.custom_house_type)
     Button customHouseType;
     @BindView(R.id.copy_and_paste)
@@ -54,7 +52,7 @@ public class SceneActivity extends AppCompatActivity {
 
     }
 
-    @OnClick({R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4, R.id.new_btn, R.id.add_room, R.id.custom_house_type, R.id.copy_and_paste, R.id.delete})
+    @OnClick({R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4, R.id.new_btn,R.id.custom_house_type, R.id.copy_and_paste, R.id.delete})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn1:
@@ -79,10 +77,6 @@ public class SceneActivity extends AppCompatActivity {
 
 
 
-                break;
-            case R.id.add_room:
-                Intent add_room = new Intent(this, AddRoomActivity.class);
-                startActivity(add_room);
                 break;
             case R.id.custom_house_type:
                 Intent custom_house_type = new Intent(this, CustomRoomActivity.class);

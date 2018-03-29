@@ -1,12 +1,14 @@
 package com.xinrui.smart.fragment;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.xinrui.smart.R;
-import com.xinrui.smart.activity.AddRoomActivity;
 import com.xinrui.smart.activity.CustomRoomActivity;
+import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.adapter.DragAdapter;
 import com.xinrui.smart.adapter.FragmentViewPagerAdapter;
 import com.xinrui.smart.pojo.Room;
@@ -37,8 +39,6 @@ import butterknife.Unbinder;
  */
 
 public class LiveFragment extends Fragment {
-    @BindView(R.id.add_room)
-    Button addRoom;
     @BindView(R.id.custom_house_type)
     Button customHouseType;
     @BindView(R.id.copy_and_paste)
@@ -185,7 +185,7 @@ public class LiveFragment extends Fragment {
         btn2.setVisibility(View.GONE);
         btn3.setVisibility(View.GONE);
         btn4.setVisibility(View.GONE);
-        btn1.setBackgroundColor(getResources().getColor(R.color.floor_button));
+        btn1.setBackgroundResource(R.drawable.new_floor_button_colour);
         btn1.setTextColor(getResources().getColor(R.color.white));
 
         viewPager = (ViewPager) view.findViewById(R.id.fragment_viewPager);
@@ -217,11 +217,11 @@ public class LiveFragment extends Fragment {
                 Button btns[] = {btn1,btn2,btn3,btn4};
                 for (int i = 0; i < fragmentslist.size(); i++) {
                     if(position == i){
-                        btns[i].setBackgroundColor(getResources().getColor(R.color.floor_button));
+                        btns[i].setBackgroundResource(R.drawable.new_floor_button_colour);
                         btns[i].setTextColor(getResources().getColor(R.color.white));
                     }else{
-                        btns[i].setBackgroundResource(R.drawable.floor_frame_colour);
-                        btns[i].setTextColor(getResources().getColor(R.color.floor_button));
+                        btns[i].setBackgroundResource(R.drawable.floor_button_colour);
+                        btns[i].setTextColor(Color.WHITE);
                     }
                 }
                 current_key = position+1;
@@ -237,7 +237,7 @@ public class LiveFragment extends Fragment {
 //        viewPager.setCurrentItem(0);
     }
 
-    @OnClick({R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4, R.id.new_btn, R.id.add_room, R.id.custom_house_type, R.id.copy_and_paste, R.id.delete})
+    @OnClick({R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4, R.id.new_btn, R.id.custom_house_type, R.id.copy_and_paste, R.id.delete})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn1:
@@ -255,13 +255,10 @@ public class LiveFragment extends Fragment {
             case R.id.new_btn:
                 method_new_btn();
                 break;
-            case R.id.add_room:
-                Intent add_room = new Intent(getActivity(), AddRoomActivity.class);
-                startActivity(add_room);
-                break;
             case R.id.custom_house_type:
                 Intent custom_house_type = new Intent(getActivity(), CustomRoomActivity.class);
-                startActivity(custom_house_type);
+                startActivityForResult(custom_house_type,1);
+
                 break;
             case R.id.copy_and_paste:
                 method_copy_paste_btn();
@@ -275,29 +272,29 @@ public class LiveFragment extends Fragment {
     //展示，删除，添加各层
     public void method_btn_1() {
         if (current_key == 2) {
-            btn1.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn1.setBackgroundResource(R.drawable.new_floor_button_colour);
             btn1.setTextColor(getResources().getColor(R.color.white));
-            btn2.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn2.setTextColor(getResources().getColor(R.color.floor_button));
+            btn2.setBackgroundResource(R.drawable.floor_button_colour);
+            btn2.setTextColor(Color.WHITE);
 //            fragmentTransaction = fragmentManager.beginTransaction();
 //            fragmentTransaction.replace(R.id.frag1, btn1_fragment);
 //            fragmentTransaction.commit();
 
             current_key = 1;
         } else if (current_key == 3) {
-            btn1.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn1.setBackgroundResource(R.drawable.new_floor_button_colour);
             btn1.setTextColor(getResources().getColor(R.color.white));
-            btn3.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn3.setTextColor(getResources().getColor(R.color.floor_button));
+            btn3.setBackgroundResource(R.drawable.floor_button_colour);
+            btn3.setTextColor(Color.WHITE);
 //            fragmentTransaction = fragmentManager.beginTransaction();
 //            fragmentTransaction.replace(R.id.frag1, btn1_fragment);
 //            fragmentTransaction.commit();
             current_key = 1;
         } else if (current_key == 4) {
-            btn1.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn1.setBackgroundResource(R.drawable.new_floor_button_colour);
             btn1.setTextColor(getResources().getColor(R.color.white));
-            btn4.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn4.setTextColor(getResources().getColor(R.color.floor_button));
+            btn4.setBackgroundResource(R.drawable.floor_button_colour);
+            btn4.setTextColor(Color.WHITE);
 //            fragmentTransaction = fragmentManager.beginTransaction();
 //            fragmentTransaction.replace(R.id.frag1, btn1_fragment);
 //            fragmentTransaction.commit();
@@ -309,28 +306,28 @@ public class LiveFragment extends Fragment {
 
     public void method_btn_2() {
         if (current_key == 3) {
-            btn2.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn2.setBackgroundResource(R.drawable.new_floor_button_colour);
             btn2.setTextColor(getResources().getColor(R.color.white));
-            btn3.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn3.setTextColor(getResources().getColor(R.color.floor_button));
+            btn3.setBackgroundResource(R.drawable.floor_button_colour);
+            btn3.setTextColor(Color.WHITE);
 //            fragmentTransaction = fragmentManager.beginTransaction();
 //            fragmentTransaction.replace(R.id.frag1, btn2_fragment);
 //            fragmentTransaction.commit();
             current_key = 2;
         } else if (current_key == 4) {
-            btn2.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn2.setBackgroundResource(R.drawable.new_floor_button_colour);
             btn2.setTextColor(getResources().getColor(R.color.white));
-            btn4.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn4.setTextColor(getResources().getColor(R.color.floor_button));
+            btn4.setBackgroundResource(R.drawable.floor_button_colour);
+            btn4.setTextColor(Color.WHITE);
 //            fragmentTransaction = fragmentManager.beginTransaction();
 //            fragmentTransaction.replace(R.id.frag1, btn2_fragment);
 //            fragmentTransaction.commit();
             current_key = 2;
         } else if (current_key == 1) {
-            btn2.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn2.setBackgroundResource(R.drawable.new_floor_button_colour);
             btn2.setTextColor(getResources().getColor(R.color.white));
-            btn1.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn1.setTextColor(getResources().getColor(R.color.floor_button));
+            btn1.setBackgroundResource(R.drawable.floor_button_colour);
+            btn1.setTextColor(Color.WHITE);
 //            fragmentTransaction = fragmentManager.beginTransaction();
 //            fragmentTransaction.replace(R.id.frag1, btn2_fragment);
 //            fragmentTransaction.commit();
@@ -342,28 +339,28 @@ public class LiveFragment extends Fragment {
 
     public void method_btn_3() {
         if (current_key == 4) {
-            btn3.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn3.setBackgroundResource(R.drawable.new_floor_button_colour);
             btn3.setTextColor(getResources().getColor(R.color.white));
-            btn4.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn4.setTextColor(getResources().getColor(R.color.floor_button));
+            btn4.setBackgroundResource(R.drawable.floor_button_colour);
+            btn4.setTextColor(Color.WHITE);
 //            fragmentTransaction = fragmentManager.beginTransaction();
 //            fragmentTransaction.replace(R.id.frag1, btn3_fragment);
 //            fragmentTransaction.commit();
             current_key = 3;
         } else if (current_key == 2) {
-            btn3.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn3.setBackgroundResource(R.drawable.new_floor_button_colour);
             btn3.setTextColor(getResources().getColor(R.color.white));
-            btn2.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn2.setTextColor(getResources().getColor(R.color.floor_button));
+            btn2.setBackgroundResource(R.drawable.floor_button_colour);
+            btn2.setTextColor(Color.WHITE);
 //            fragmentTransaction = fragmentManager.beginTransaction();
 //            fragmentTransaction.replace(R.id.frag1, btn3_fragment);
 //            fragmentTransaction.commit();
             current_key = 3;
         } else if (current_key == 1) {
-            btn3.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn3.setBackgroundResource(R.drawable.new_floor_button_colour);
             btn3.setTextColor(getResources().getColor(R.color.white));
-            btn1.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn1.setTextColor(getResources().getColor(R.color.floor_button));
+            btn1.setBackgroundResource(R.drawable.floor_button_colour);
+            btn1.setTextColor(Color.WHITE);
 //            fragmentTransaction = fragmentManager.beginTransaction();
 //            fragmentTransaction.replace(R.id.frag1, btn3_fragment);
 //            fragmentTransaction.commit();
@@ -375,28 +372,28 @@ public class LiveFragment extends Fragment {
 
     public void method_btn_4() {
         if (current_key == 1) {
-            btn4.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn4.setBackgroundColor(R.drawable.new_floor_button_colour);
             btn4.setTextColor(getResources().getColor(R.color.white));
-            btn1.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn1.setTextColor(getResources().getColor(R.color.floor_button));
+            btn1.setBackgroundResource(R.drawable.floor_button_colour);
+            btn1.setTextColor(Color.WHITE);
 //            fragmentTransaction = fragmentManager.beginTransaction();
 //            fragmentTransaction.replace(R.id.frag1, btn4_fragment);
 //            fragmentTransaction.commit();
             current_key = 4;
         } else if (current_key == 2) {
-            btn4.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn4.setBackgroundResource(R.drawable.new_floor_button_colour);
             btn4.setTextColor(getResources().getColor(R.color.white));
-            btn2.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn2.setTextColor(getResources().getColor(R.color.floor_button));
+            btn2.setBackgroundResource(R.drawable.floor_button_colour);
+            btn2.setTextColor(Color.WHITE);
 //            fragmentTransaction = fragmentManager.beginTransaction();
 //            fragmentTransaction.replace(R.id.frag1, btn4_fragment);
 //            fragmentTransaction.commit();
             current_key = 4;
         } else if (current_key == 3) {
-            btn4.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn4.setBackgroundResource(R.drawable.new_floor_button_colour);
             btn4.setTextColor(getResources().getColor(R.color.white));
-            btn3.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn3.setTextColor(getResources().getColor(R.color.floor_button));
+            btn3.setBackgroundResource(R.drawable.floor_button_colour);
+            btn3.setTextColor(Color.WHITE);
 //            fragmentTransaction = fragmentManager.beginTransaction();
 //            fragmentTransaction.replace(R.id.frag1, btn4_fragment);
 //            fragmentTransaction.commit();
@@ -416,9 +413,9 @@ public class LiveFragment extends Fragment {
             }else if (add_key == 1) {
                 if (current_key == 1) {
                     btn2.setVisibility(View.VISIBLE);
-                    btn1.setBackgroundResource(R.drawable.floor_frame_colour);//背景变为白色，文字变为绿色（表示非选中按钮）
-                    btn1.setTextColor(getResources().getColor(R.color.floor_button));
-                    btn2.setBackgroundColor(getResources().getColor(R.color.floor_button));//背景变为绿色，文字变为白色（表示当前选中按钮）
+                    btn1.setBackgroundResource(R.drawable.floor_button_colour);//背景变为白色，文字变为绿色（表示非选中按钮）
+                    btn1.setTextColor(Color.WHITE);
+                    btn2.setBackgroundResource(R.drawable.new_floor_button_colour);//背景变为绿色，文字变为白色（表示当前选中按钮）
                     btn2.setTextColor(getResources().getColor(R.color.white));
 //                    fragmentTransaction = fragmentManager.beginTransaction();
 //                    fragmentTransaction.replace(R.id.frag1, btn2_fragment);
@@ -430,9 +427,9 @@ public class LiveFragment extends Fragment {
             } else if (add_key == 2) {
                 if (current_key == 1) {
                     btn3.setVisibility(View.VISIBLE);
-                    btn2.setBackgroundResource(R.drawable.floor_frame_colour);
-                    btn2.setTextColor(getResources().getColor(R.color.floor_button));
-                    btn3.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                    btn2.setBackgroundResource(R.drawable.floor_button_colour);
+                    btn2.setTextColor(Color.WHITE);
+                    btn3.setBackgroundResource(R.drawable.new_floor_button_colour);
                     btn3.setTextColor(getResources().getColor(R.color.white));
 //                    fragmentTransaction = fragmentManager.beginTransaction();
 //                    fragmentTransaction.replace(R.id.frag1, btn3_fragment);
@@ -442,9 +439,9 @@ public class LiveFragment extends Fragment {
                     add_key++;
                 } else if (current_key == 2) {
                     btn3.setVisibility(View.VISIBLE);
-                    btn2.setBackgroundResource(R.drawable.floor_frame_colour);
-                    btn2.setTextColor(getResources().getColor(R.color.floor_button));
-                    btn3.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                    btn2.setBackgroundResource(R.drawable.floor_button_colour);
+                    btn2.setTextColor(Color.WHITE);
+                    btn3.setBackgroundResource(R.drawable.new_floor_button_colour);
                     btn3.setTextColor(getResources().getColor(R.color.white));
 //                    fragmentTransaction = fragmentManager.beginTransaction();
 //                    fragmentTransaction.replace(R.id.frag1, btn3_fragment);
@@ -456,9 +453,9 @@ public class LiveFragment extends Fragment {
             } else if (add_key == 3) {
                 if (current_key == 1) {
                     btn4.setVisibility(View.VISIBLE);
-                    btn1.setBackgroundResource(R.drawable.floor_frame_colour);
-                    btn1.setTextColor(getResources().getColor(R.color.floor_button));
-                    btn4.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                    btn1.setBackgroundResource(R.drawable.floor_button_colour);
+                    btn1.setTextColor(Color.WHITE);
+                    btn4.setBackgroundResource(R.drawable.new_floor_button_colour);
                     btn4.setTextColor(getResources().getColor(R.color.white));
 //                    fragmentTransaction = fragmentManager.beginTransaction();
 //                    fragmentTransaction.replace(R.id.frag1, btn4_fragment);
@@ -469,9 +466,9 @@ public class LiveFragment extends Fragment {
                     isestablied = true;
                 } else if (current_key == 2) {
                     btn4.setVisibility(View.VISIBLE);
-                    btn2.setBackgroundResource(R.drawable.floor_frame_colour);
-                    btn2.setTextColor(getResources().getColor(R.color.floor_button));
-                    btn3.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                    btn2.setBackgroundResource(R.drawable.floor_button_colour);
+                    btn2.setTextColor(Color.WHITE);
+                    btn3.setBackgroundResource(R.drawable.new_floor_button_colour);
                     btn3.setTextColor(getResources().getColor(R.color.white));
 //                    fragmentTransaction = fragmentManager.beginTransaction();
 //                    fragmentTransaction.replace(R.id.frag1, btn4_fragment);
@@ -482,9 +479,9 @@ public class LiveFragment extends Fragment {
                     isestablied = true;
                 } else if (current_key == 3) {
                     btn4.setVisibility(View.VISIBLE);
-                    btn3.setBackgroundResource(R.drawable.floor_frame_colour);
-                    btn3.setTextColor(getResources().getColor(R.color.floor_button));
-                    btn4.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                    btn3.setBackgroundResource(R.drawable.floor_button_colour);
+                    btn3.setTextColor(Color.WHITE);
+                    btn4.setBackgroundResource(R.drawable.new_floor_button_colour);
                     btn4.setTextColor(getResources().getColor(R.color.white));
 //                    fragmentTransaction = fragmentManager.beginTransaction();
 //                    fragmentTransaction.replace(R.id.frag1, btn4_fragment);
@@ -520,7 +517,7 @@ public class LiveFragment extends Fragment {
                 Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
             } else if (current_key == 2) {
                 btn2.setVisibility(View.GONE);
-                btn1.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                btn1.setBackgroundResource(R.drawable.new_floor_button_colour);
                 btn1.setTextColor(getResources().getColor(R.color.white));
 //                fragmentTransaction = fragmentManager.beginTransaction();
 //                fragmentTransaction.replace(R.id.frag1, btn1_fragment);
@@ -556,7 +553,7 @@ public class LiveFragment extends Fragment {
 
             } else if (current_key == 3) {
                 btn3.setVisibility(View.GONE);
-                btn2.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                btn2.setBackgroundResource(R.drawable.new_floor_button_colour);
                 btn2.setTextColor(getResources().getColor(R.color.white));
 //                fragmentTransaction = fragmentManager.beginTransaction();
 //                fragmentTransaction.replace(R.id.frag1, btn2_fragment);
@@ -603,7 +600,7 @@ public class LiveFragment extends Fragment {
 
             } else if (current_key == 4) {
                 btn4.setVisibility(View.GONE);
-                btn3.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                btn3.setBackgroundResource(R.drawable.new_floor_button_colour);
                 btn3.setTextColor(getResources().getColor(R.color.white));
 //                fragmentTransaction = fragmentManager.beginTransaction();
 //                fragmentTransaction.replace(R.id.frag1, btn3_fragment);
@@ -623,9 +620,9 @@ public class LiveFragment extends Fragment {
             Toast.makeText(getActivity(),"没有数据，无法复制，请创建",Toast.LENGTH_LONG).show();
         }else if (add_key == 1) {
             btn2.setVisibility(View.VISIBLE);
-            btn1.setBackgroundResource(R.drawable.floor_frame_colour);
-            btn1.setTextColor(getResources().getColor(R.color.floor_button));
-            btn2.setBackgroundColor(getResources().getColor(R.color.floor_button));
+            btn1.setBackgroundResource(R.drawable.floor_button_colour);
+            btn1.setTextColor(Color.WHITE);
+            btn2.setBackgroundResource(R.drawable.new_floor_button_colour);
             btn2.setTextColor(getResources().getColor(R.color.white));
 
             copyPage(postion_current);
@@ -636,9 +633,9 @@ public class LiveFragment extends Fragment {
         } else if (add_key == 2) {
             if (current_key == 1) {
                 btn3.setVisibility(View.VISIBLE);
-                btn1.setBackgroundResource(R.drawable.floor_frame_colour);
-                btn1.setTextColor(getResources().getColor(R.color.floor_button));
-                btn2.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                btn1.setBackgroundResource(R.drawable.floor_button_colour);
+                btn1.setTextColor(Color.WHITE);
+                btn2.setBackgroundResource(R.drawable.new_floor_button_colour);
                 btn2.setTextColor(getResources().getColor(R.color.white));
 //                fragmentTransaction = fragmentManager.beginTransaction();
 //                fragmentTransaction.replace(R.id.frag1, btn1_fragment);
@@ -649,9 +646,9 @@ public class LiveFragment extends Fragment {
                 add_key++;
             } else if (current_key == 2) {
                 btn3.setVisibility(View.VISIBLE);
-                btn2.setBackgroundResource(R.drawable.floor_frame_colour);
-                btn2.setTextColor(getResources().getColor(R.color.floor_button));
-                btn3.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                btn2.setBackgroundResource(R.drawable.floor_button_colour);
+                btn2.setTextColor(Color.WHITE);
+                btn3.setBackgroundResource(R.drawable.new_floor_button_colour);
                 btn3.setTextColor(getResources().getColor(R.color.white));
 //                fragmentTransaction = fragmentManager.beginTransaction();
 //                fragmentTransaction.replace(R.id.frag1, btn2_fragment);
@@ -664,9 +661,9 @@ public class LiveFragment extends Fragment {
         } else if (add_key == 3) {
             if (current_key == 1) {
                 btn4.setVisibility(View.VISIBLE);
-                btn1.setBackgroundResource(R.drawable.floor_frame_colour);
-                btn1.setTextColor(getResources().getColor(R.color.floor_button));
-                btn4.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                btn1.setBackgroundResource(R.drawable.floor_button_colour);
+                btn1.setTextColor(Color.WHITE);
+                btn4.setBackgroundResource(R.drawable.new_floor_button_colour);
                 btn4.setTextColor(getResources().getColor(R.color.white));
 //                fragmentTransaction = fragmentManager.beginTransaction();
 //                fragmentTransaction.replace(R.id.frag1, btn1_fragment);
@@ -677,9 +674,9 @@ public class LiveFragment extends Fragment {
                 add_key++;
             } else if (current_key == 2) {
                 btn4.setVisibility(View.VISIBLE);
-                btn2.setBackgroundResource(R.drawable.floor_frame_colour);
-                btn2.setTextColor(getResources().getColor(R.color.floor_button));
-                btn4.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                btn2.setBackgroundResource(R.drawable.floor_button_colour);
+                btn2.setTextColor(Color.WHITE);
+                btn4.setBackgroundResource(R.drawable.new_floor_button_colour);
                 btn4.setTextColor(getResources().getColor(R.color.white));
 //                fragmentTransaction = fragmentManager.beginTransaction();
 //                fragmentTransaction.replace(R.id.frag1, btn2_fragment);
@@ -691,9 +688,9 @@ public class LiveFragment extends Fragment {
                 add_key++;
             } else if (current_key == 3) {
                 btn4.setVisibility(View.VISIBLE);
-                btn3.setBackgroundResource(R.drawable.floor_frame_colour);
-                btn3.setTextColor(getResources().getColor(R.color.floor_button));
-                btn4.setBackgroundColor(getResources().getColor(R.color.floor_button));
+                btn3.setBackgroundResource(R.drawable.floor_button_colour);
+                btn3.setTextColor(Color.WHITE);
+                btn4.setBackgroundResource(R.drawable.new_floor_button_colour);
                 btn4.setTextColor(getResources().getColor(R.color.white));
 //                fragmentTransaction = fragmentManager.beginTransaction();
 //                fragmentTransaction.replace(R.id.frag1, btn3_fragment);
@@ -756,4 +753,17 @@ public class LiveFragment extends Fragment {
         fragmentViewPagerAdapter.notifyDataSetChanged();//通知UI更新
 
     }
+
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 1&& resultCode == 1){
+            MainActivity mainActivity = (MainActivity) getActivity();
+            mainActivity.goLiveFragment();
+            Log.i("view","as");
+        }
+    }
+
 }

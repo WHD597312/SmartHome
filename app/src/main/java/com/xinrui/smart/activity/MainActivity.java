@@ -23,7 +23,6 @@ import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.FunctionAdapter;
 import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.fragment.LiveFragment;
-import com.xinrui.smart.fragment.SmartFragment;
 import com.xinrui.smart.fragment.SmartFragmentManager;
 import com.xinrui.smart.pojo.Function;
 
@@ -87,6 +86,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void goLiveFragment(){
+         FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        LiveFragment liveFragment = new LiveFragment();
+        fragmentTransaction.replace(R.id.layout_body, liveFragment);
+        fragmentTransaction.commit();
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -140,7 +147,6 @@ public class MainActivity extends AppCompatActivity {
                 live_view.setVisibility(View.GONE);
                 break;
             case R.id.tv_live:
-
                 FragmentTransaction transaction=fragmentManager.beginTransaction();
                 transaction.replace(R.id.layout_body,new LiveFragment());
                 transaction.commit();
@@ -156,4 +162,6 @@ public class MainActivity extends AppCompatActivity {
         super.onBackPressed();
         finish();
     }
+
+
 }

@@ -37,7 +37,6 @@
     <string name="addRoom">添加房间</string>
     <string name="merge">合并</string>
     <string name="resolution">拆分</string>
-    <string name="sure">确定</string>
     <string name="cusromroom_text">卧室</string>
     <string name="Room">房间</string>
     <string name="scene">场景</string>
@@ -55,7 +54,10 @@
     <string name="current">当前</string>
     <string name="set">设定</string>
     <string name="clock_set">时钟设置</string>
-
+    <string name="todo">TODO</string>
+    <string name="rooms_type">房间类型</string>
+    <string name="sure">确定</string>
+    <string name="add_equipment">添加设备</string>
 
 
 </resources>

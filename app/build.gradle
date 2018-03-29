@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao'
 
 greendao {
-    schemaVersion 3
+    schemaVersion 19
     daoPackage 'com.xinrui.database.dao'
     targetGenDir 'src/main/java'
 }
@@ -45,6 +45,7 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.alibaba:fastjson:1.2.10'
     compile 'com.google.code.gson:gson:2.8.2'
-
+    compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'com.android.support:percent:25.2.0'
 }
 
