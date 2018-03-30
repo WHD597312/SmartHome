@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.xinrui.database.dao.daoimpl.RoomEntryDaoImpl;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.AddEquipmentActivity;
+import com.xinrui.smart.activity.RoomContentActivity;
 import com.xinrui.smart.activity.RoomTypesActivity;
 import com.xinrui.smart.pojo.Room;
 import com.xinrui.smart.pojo.RoomEntry;
@@ -202,7 +203,8 @@ public class Btn1_fragment extends Fragment {
         childView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(getActivity(), RoomContentActivity.class);
+                startActivity(intent);
             }
         });
     }

@@ -51,6 +51,10 @@ public class EquipmentAdapter extends RecyclerView.Adapter<EquipmentAdapter.View
                 notifyDataSetChanged();
                 //全选
 //                All();
+                //单选
+//                singlesel(position);
+                //反选
+//                neverall();
             }
         });
 
