@@ -199,6 +199,12 @@ public class Btn1_fragment extends Fragment {
                 startActivity(intent);
             }
         });
+        childView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
     }
 
     @Override
