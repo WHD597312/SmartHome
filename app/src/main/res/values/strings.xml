@@ -63,6 +63,8 @@
     <string name="interval">定位周期(ms)</string>
     <string name="location_once">单次定位</string>
     <string name="gpsFirst">GPS优先</string>
+    <string name="add_equipment">添加设备</string>
+    <string name="rooms_type">房间类型</string>
 
 
 </resources>

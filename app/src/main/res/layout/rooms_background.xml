@@ -17,8 +17,7 @@
                             android:layout_height="wrap_content"
                             android:src="@drawable/bedroom"
                             android:scaleType="fitCenter"
-                            android:visibility="invisible"
-                            android:contentDescription="@string/todo" />
+                            android:visibility="invisible" />
                         <!--<TextView-->
                         <!--android:id="@+id/empty_room_tv"-->
                         <!--android:layout_width="wrap_content"-->

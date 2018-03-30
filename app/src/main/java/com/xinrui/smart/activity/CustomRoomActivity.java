@@ -15,12 +15,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.xinrui.smart.MyApplication;
+import com.xinrui.database.dao.daoimpl.RoomEntryDaoImpl;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.CustomAdapter;
 import com.xinrui.smart.fragment.LiveFragment;
 import com.xinrui.smart.pojo.Room;
+import com.xinrui.smart.pojo.RoomEntry;
+import com.xinrui.smart.util.MessageEvent;
 import com.xinrui.smart.view_custom.MyGridView;
+
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +43,6 @@ import butterknife.OnItemLongClick;
  */
 
 public class CustomRoomActivity extends AppCompatActivity {
-
     @BindView(R.id.return_button)
     ImageButton returnButton;
     @BindView(R.id.title_text)
@@ -52,8 +55,8 @@ public class CustomRoomActivity extends AppCompatActivity {
     Button resolution;
     @BindView(R.id.sure)
     Button sure;
-    @BindView(R.id.delete)
-    Button delete;
+
+    RoomEntryDaoImpl roomEntryDao;
 
     CustomAdapter customAdapter;
 
@@ -64,11 +67,13 @@ public class CustomRoomActivity extends AppCompatActivity {
 
     int blinkTemp = 0;//闪烁item
 
-    boolean ismerge = false; //是否合并
+    boolean ismerge = true; //是否合并
 
     boolean isblinked = false; //是否闪烁
 
     int rooms = 32;//初始房间数
+
+    List<RoomEntry> roomEntries_list = new ArrayList<>();
 
     boolean isresolution = false;
 
@@ -92,8 +97,13 @@ public class CustomRoomActivity extends AppCompatActivity {
 
     List<Integer> list_no_blink = new ArrayList<>();//未闪烁的item
 
-    List<Integer> list_colors = new ArrayList();
+    List<Integer> list_colors_remove = new ArrayList();
 
+    List<Integer> list_colors_add = new ArrayList();
+
+
+
+    List<RoomEntry> roomEntries = new ArrayList<>();
 
     int colors[] = {R.drawable.merge_room,R.drawable.merge_room1,R.drawable.merge_room2,R.drawable.merge_room3,R.drawable.merge_room4,
                     R.drawable.merge_room5,R.drawable.merge_room6,R.drawable.merge_room7};
@@ -145,7 +155,6 @@ public class CustomRoomActivity extends AppCompatActivity {
         longTemp = postion;
     }
 
-    MyApplication application;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,21 +163,36 @@ public class CustomRoomActivity extends AppCompatActivity {
 
         //初始化数据
         initRooms();
-        if (application==null){
-            application= (MyApplication) getApplication();
-        }
-        application.addActivity(this);
 
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        roomEntryDao=new RoomEntryDaoImpl(this);
+
+    }
+
     public void initcolors(){
-        list_colors.add(R.drawable.merge_room);
-        list_colors.add(R.drawable.merge_room1);
-        list_colors.add(R.drawable.merge_room2);
-        list_colors.add(R.drawable.merge_room3);
-        list_colors.add(R.drawable.merge_room4);
-        list_colors.add(R.drawable.merge_room5);
-        list_colors.add(R.drawable.merge_room6);
-        list_colors.add(R.drawable.merge_room7);
+        list_colors_remove.add(R.drawable.merge_room);
+        list_colors_remove.add(R.drawable.merge_room1);
+        list_colors_remove.add(R.drawable.merge_room2);
+        list_colors_remove.add(R.drawable.merge_room3);
+        list_colors_remove.add(R.drawable.merge_room4);
+        list_colors_remove.add(R.drawable.merge_room5);
+        list_colors_remove.add(R.drawable.merge_room6);
+        list_colors_remove.add(R.drawable.merge_room7);
+        list_colors_remove.add(R.drawable.merge_room8);
+        list_colors_remove.add(R.drawable.merge_room9);
+        list_colors_remove.add(R.drawable.merge_room10);
+        list_colors_remove.add(R.drawable.merge_room11);
+        list_colors_remove.add(R.drawable.merge_room12);
+        list_colors_remove.add(R.drawable.merge_room13);
+        list_colors_remove.add(R.drawable.merge_room14);
+        list_colors_remove.add(R.drawable.merge_room15);
+        list_colors_remove.add(R.drawable.merge_room16);
+        list_colors_remove.add(R.drawable.merge_room17);
+        list_colors_remove.add(R.drawable.merge_room18);
     }
     private void initRooms() {
 //        for (int i = 0; i < 20; i++) {
@@ -183,14 +207,12 @@ public class CustomRoomActivity extends AppCompatActivity {
         initcolors();
     }
 
-
-
-    @OnClick({R.id.return_button,R.id.merge, R.id.resolution, R.id.sure, R.id.delete})
+    @OnClick({R.id.return_button,R.id.merge, R.id.resolution, R.id.sure})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.return_button:
-            Intent return_button = new Intent(this, LiveFragment.class);
-            startActivity(return_button);
+                setResult(1);
+                finish();
             case R.id.merge:
                 if(list_color.size() == 0){
 
@@ -239,8 +261,13 @@ public class CustomRoomActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.sure:
-                break;
-            case R.id.delete:
+//                roomEntryDao.insertAll(roomEntries_list);
+                List<RoomEntry> list=roomEntryDao.findAll();
+                roomEntryDao.deleteAll(list);
+                if (!roomEntries_list.isEmpty()){
+                    roomEntryDao.insertAll(roomEntries_list);
+                    finish();
+                }
                 break;
         }
     }
@@ -279,6 +306,9 @@ public class CustomRoomActivity extends AppCompatActivity {
             }
     }
     //合并
+    Random random = new Random();
+    int a = random.nextInt(colors.length);
+
     public void merge(){
          List<Integer> list_color1 = new ArrayList<>();//由于list_color对象固定，所以用list_color1替代list_color，每次合并new一个新的list_color1对象
 
@@ -289,23 +319,23 @@ public class CustomRoomActivity extends AppCompatActivity {
         list_resolution.add(list_color1);
         Log.i("jjy",list_resolution+";"+list_color);
 
-         boolean ismerge = true;
+
         for (int i = 0; i < list_color.size(); i++) {
             list_state.add(list_color.get(i));
         }
 
-        Random random = new Random();
-        int a = random.nextInt(colors.length);
-
         isrectangle(list_color,list_color1);
 
+
         if(ismerge){
+            Log.i("a3","sdaf"+ismerge);
             for (int i = 0; i < list_color.size(); i++) {
                 View view4 = customRooms.getChildAt(list_color.get(i));
-                view4.findViewById(R.id.cusromroom_text).setBackgroundResource(list_colors.get(a));
+                view4.findViewById(R.id.cusromroom_text).setBackgroundResource(list_colors_remove.get(a));
             }
-            list_colors.remove(a);
-            a = random.nextInt(list_colors.size());
+            a = random.nextInt(list_colors_remove.size());
+            merge_house();
+            ismerge = false;
         }
         customAdapter.notifyDataSetChanged();
         list_color.clear();
@@ -401,8 +431,9 @@ public class CustomRoomActivity extends AppCompatActivity {
         }
     }
 
+    //判断是否矩形
     public void isrectangle(List<Integer> list_color, List<Integer> list_color1){
-
+        ismerge = true;
         int max = Collections.max(list_color);
         int min = Collections.min(list_color);
         int y_max = (max%4)+1;
@@ -416,10 +447,29 @@ public class CustomRoomActivity extends AppCompatActivity {
 
         int sum = Math.abs(x)*Math.abs(y);
 
-        Log.i("sum",sum+";"+x+";"+y+";"+x_max+";"+x_min+";"+y_max+";"+y_min+";"+max+";"+min+";"+list_color.size());
         if(sum == list_color.size() && list_color.size()>1){
-
+            Log.i("a","sdf");
+            for (int i = 0; i < list_color.size(); i++) {
+                    if(list_color.contains(list_color.get(i)+1)|list_color.contains(list_color.get(i)-1)|
+                            list_color.contains(list_color.get(i)+4)|list_color.contains(list_color.get(i)-4)){
+                        Log.i("tt","sd");
+                    }else{
+                        dialog(list_color1);
+                        for (int k = 0; k < list_color.size(); k++) {
+                            View view4 = customRooms.getChildAt(list_color.get(k));
+                            view4.findViewById(R.id.cusromroom_text).setBackgroundResource(R.drawable.addroom_no_sure);
+                        }
+                        list_state.removeAll(list_color);
+                        for (int l = 0; l < list_color.size(); l++) {
+                            clickedList[list_color.get(l)] = 0;
+                        }
+                        Log.i("tt","sd");
+                        list_color.clear();
+                        ismerge = false;
+                    }
+            }
         }else if(list_color.size() < 2){
+            Log.i("a1","sdf");
             dialog(list_color1);
             for (int i = 0; i < list_color.size(); i++) {
                 View view4 = customRooms.getChildAt(list_color.get(i));
@@ -432,6 +482,7 @@ public class CustomRoomActivity extends AppCompatActivity {
             list_color.clear();
             ismerge = false;
         }else {
+            Log.i("a2","sdf");
             dialog(list_color1);
             for (int i = 0; i < list_color.size(); i++) {
                 View view4 = customRooms.getChildAt(list_color.get(i));
@@ -443,9 +494,9 @@ public class CustomRoomActivity extends AppCompatActivity {
             }
             list_color.clear();
             ismerge = false;
+            Log.i("us",list_color+""+ismerge);
             Log.i("us",list_color+"");
         }
-
     }
     public void dialog(final List list_color1){
     AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -461,5 +512,23 @@ public class CustomRoomActivity extends AppCompatActivity {
     dialog.show();
 
 }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    //把合并房间的对象放到数组
+    public void merge_house(){
+        View view = customRooms.getChildAt(Collections.min(list_color));
+        View view1 = customRooms.getChildAt(Collections.max(list_color));
+        int x =  view.getLeft();
+        int y =  view.getTop();
+        int width = view1.getRight()-view.getLeft();
+        int height = view1.getBottom()-view.getTop();
+        RoomEntry roomEntry = new RoomEntry(x,y,width,height);
+        roomEntries_list.add(roomEntry);
+    }
 
 }
