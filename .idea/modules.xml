@@ -2,7 +2,13 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/MyApplication/MyApplication.iml" filepath="$PROJECT_DIR$/MyApplication/MyApplication.iml" />
+      <module fileurl="file://$PROJECT_DIR$/QzsRecycleView/QzsRecycleView.iml" filepath="$PROJECT_DIR$/QzsRecycleView/QzsRecycleView.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RecycleViewWithHeader-master/RecycleViewWithHeader-master.iml" filepath="$PROJECT_DIR$/RecycleViewWithHeader-master/RecycleViewWithHeader-master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RecyclerViewSample-master/RecyclerViewSample-master.iml" filepath="$PROJECT_DIR$/RecyclerViewSample-master/RecyclerViewSample-master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ScrollImageLoadDemo/ScrollImageLoadDemo.iml" filepath="$PROJECT_DIR$/ScrollImageLoadDemo/ScrollImageLoadDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/SmartHome.iml" filepath="$PROJECT_DIR$/SmartHome.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TestFragment/TestFragment.iml" filepath="$PROJECT_DIR$/TestFragment/TestFragment.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

@@ -27,8 +27,8 @@
             android:layout_width="70dp"
             android:layout_height="40dp"
             android:layout_marginTop="7dp"
-            android:textColor="@color/floor_button"
-            android:background="@drawable/floor_frame_colour"
+            android:textColor="@color/white"
+            android:background="@drawable/floor_button_colour"
             app:layout_constraintStart_toEndOf="@+id/room"
             android:visibility="gone"
             app:layout_constraintTop_toTopOf="parent" />
@@ -38,8 +38,8 @@
             android:layout_height="40dp"
             android:layout_marginTop="7dp"
             android:layout_marginLeft="0dp"
-            android:textColor="@color/floor_button"
-            android:background="@drawable/floor_frame_colour"
+            android:textColor="@color/white"
+            android:background="@drawable/floor_button_colour"
             app:layout_constraintStart_toEndOf="@+id/room"
             app:layout_constraintTop_toTopOf="parent"
             android:visibility="gone"/>
@@ -49,9 +49,9 @@
             android:layout_height="40dp"
             android:layout_marginTop="7dp"
             android:layout_marginLeft="0dp"
-            android:textColor="@color/floor_button"
+            android:textColor="@color/white"
             android:text="@string/onefloor"
-            android:background="@drawable/floor_frame_colour"
+            android:background="@drawable/floor_button_colour"
             app:layout_constraintStart_toEndOf="@+id/room"
             app:layout_constraintTop_toTopOf="parent" />
         <Button
@@ -73,8 +73,8 @@
             android:layout_marginLeft="0dp"
             android:layout_marginTop="7dp"
             android:text="@string/new_construction"
-            android:textColor="@color/floor_button"
-            android:background="@drawable/floor_frame_colour"
+            android:textColor="@color/white"
+            android:background="@drawable/floor_button_colour"
             app:layout_constraintStart_toEndOf="@+id/button"
             app:layout_constraintTop_toTopOf="parent" />
     </LinearLayout>

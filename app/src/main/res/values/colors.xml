@@ -30,14 +30,15 @@
     <color name="def_wheel_color">#4E4988</color>
     <color name="def_reached_color">#FFD844</color>
     <color name="def_pointer_color">#FFFFFF</color>
-    <color name="central_background">#CED9C1</color>
+    <color name="central_background">#6F6F6E</color>
     <color name="read">#c00</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="top_title_background">#d9d9d9</color>
-    <color name="floor_button">#8BC34A</color>
     <color name="Line">#BBBBBB</color>
     <color name="color_black3">#312728</color>
     <color name="custom_house_background">#33302B</color>
     <color name="customroom_clicked_background">#FF7640</color>
+    <color name="new_floor_button">#D46C42</color>
+    <color name="custom_house_button_colir">#E59069</color>
 </resources>

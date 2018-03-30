@@ -29,4 +29,5 @@
     <style name="CheckBoxSyle" parent="@style/Widget.AppCompat.CompoundButton.CheckBox">
         <item name="android:button">@drawable/selector_round</item>
     </style>
+
 </resources>
