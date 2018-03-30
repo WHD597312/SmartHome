@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.AddRoomActivity;
 import com.xinrui.smart.activity.CustomRoomActivity;
@@ -44,11 +45,16 @@ public class SceneActivity extends AppCompatActivity {
     @BindView(R.id.btn4)
     Button btn4;
 
+    MyApplication application;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.scene);
         ButterKnife.bind(this);
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
+        application.addActivity(this);
 
     }
 

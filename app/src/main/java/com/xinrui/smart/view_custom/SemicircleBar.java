@@ -255,7 +255,6 @@ public class SemicircleBar extends View {
         //画锚点
 //        mPointerPaint.setColor(getResources().getColor(R.color.color_black3));
 
-
         mPaint.setAntiAlias(true);//去除边缘锯齿，优化绘制效果
         mPaint.setColor(getResources().getColor(R.color.color_white));
         canvas.save();//保存当前的状态
@@ -327,32 +326,32 @@ public class SemicircleBar extends View {
 
         if (mCurAngle >= 0) {
             if (mCurAngle>=320){
-               if (mCurAngle>330 && mCurAngle<=360){
-                    mCurAngle=0;
+               if (mCurAngle>=316 && mCurAngle<360){
+                    mCurAngle=316;
                     //画选中区域
 //                    canvas.drawArc(new RectF(left, top, right, bottom), 360, (float)0, false, mReachedPaint);
-                    double cos = -Math.cos(Math.toRadians(360));
-                    mWheelCurX = calcXLocationInWheel(360, cos);
-                    mWheelCurY = calcYLocationInWheel(cos);
-                    //画锚点
-
-                    canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
-                    canvas.save();
-                }else {
+//                    double cos = -Math.cos(Math.toRadians(360));
+//                    mWheelCurX = calcXLocationInWheel(360, cos);
+//                    mWheelCurY = calcYLocationInWheel(cos);
+//                    //画锚点
+//
+//                    canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
+//                    canvas.save();
+                }else if (mCurAngle==360){
                     mCurAngle=0;
                     //画选中区域
 //                    canvas.drawArc(new RectF(left, top, right, bottom), 316, (float)0, false, mReachedPaint);
-                    double cos = -Math.cos(Math.toRadians(316));
-                    mWheelCurX = calcXLocationInWheel(316, cos);
-                    mWheelCurY = calcYLocationInWheel(cos);
-                    //画锚点
-                    canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
-                    canvas.save();
+//                    double cos = -Math.cos(Math.toRadians(316));
+//                    mWheelCurX = calcXLocationInWheel(316, cos);
+//                    mWheelCurY = calcYLocationInWheel(cos);
+//                    //画锚点
+//                    canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
+//                    canvas.save();
                     return;
                 }
 
             }
-            canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
+//            canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
             //画选中区域
             Log.d("dsads", mCurAngle + "");
             for (int i = 0; i < (mCurAngle) / 3; i++) {

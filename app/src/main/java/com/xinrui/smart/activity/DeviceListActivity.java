@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.DeviceListAdapter;
 import com.xinrui.smart.fragment.ClockSetFragment;
@@ -58,11 +59,16 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     @BindView(R.id.timePicker) TimePicker timePicker;
     @BindView(R.id.datePicker) DatePicker datePicker;
     @BindView(R.id.tv_clock) TextView tv_clock;
+    MyApplication application;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_list);
         unbinder = ButterKnife.bind(this);
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
+        application.addActivity(this);
     }
 
     @OnClick({R.id.img_back, R.id.image_home,R.id.btn_cancle,R.id.btn_ensure})
@@ -170,12 +176,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 gradView.setVisibility(View.GONE);
                 break;
             case 2:
-                Intent intent=new Intent(this,TimeTaskActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this,TimeTaskActivity.class));
 //                Toast.makeText(this,"我的订阅",Toast.LENGTH_SHORT).show();
                 break;
             case 3:
-                Toast.makeText(this,"我的评价",Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this,TempChartActivity.class));
                 break;
             case 4:
                 Toast.makeText(this,"我的推荐",Toast.LENGTH_SHORT).show();

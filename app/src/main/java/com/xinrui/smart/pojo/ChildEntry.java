@@ -8,6 +8,7 @@ public class ChildEntry {
     private String child;
     private int img;
     private int direction;
+
     public ChildEntry() {
     }
 

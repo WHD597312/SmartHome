@@ -33,7 +33,6 @@ public class GroupModel {
                 }else{
                     children.add(new ChildEntry("第" + (i + 1) + "组第" + (j + 1) + "项",imgs[0]));
                 }
-
             }
             groups.add(new GroupEntry("第" + (i + 1) + "组头部",colors[0], children));
 

@@ -1,7 +1,10 @@
 package com.xinrui.smart.view_custom;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,9 +17,15 @@ import android.view.View;
 public abstract class OnRecyclerItemClickListener implements RecyclerView.OnItemTouchListener {
     private GestureDetectorCompat mGestureDetector;
     private RecyclerView recyclerView;
+    private Context context;
 
-    public OnRecyclerItemClickListener(RecyclerView recyclerView) {
+    protected static final float FLIP_DISTANCE = 50;
+    SharedPreferences preferences;
+
+    public OnRecyclerItemClickListener(RecyclerView recyclerView,Context context) {
         this.recyclerView = recyclerView;
+        this.context=context;
+        preferences=context.getSharedPreferences("direction",Context.MODE_PRIVATE);
         mGestureDetector = new GestureDetectorCompat(recyclerView.getContext(), new ItemTouchHelperGestureListener());
     }
 
@@ -36,6 +45,8 @@ public abstract class OnRecyclerItemClickListener implements RecyclerView.OnItem
     }
 
     private class ItemTouchHelperGestureListener extends GestureDetector.SimpleOnGestureListener {
+
+
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
@@ -53,6 +64,36 @@ public abstract class OnRecyclerItemClickListener implements RecyclerView.OnItem
                 RecyclerView.ViewHolder vh = recyclerView.getChildViewHolder(child);
                 onItemLongClick(vh);
             }
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (e1.getX() - e2.getX() > FLIP_DISTANCE) {
+
+                SharedPreferences.Editor editor=preferences.edit();
+                editor.putString("direction","left").commit();
+
+                Log.i("TAG", "<--- left, left, go go go");
+                return true;
+            }
+            if (e2.getX() - e1.getX() > FLIP_DISTANCE) {
+                Log.i("TAG", "right, right, go go go --->");  //忽然觉得这个log好智障...
+                SharedPreferences.Editor editor=preferences.edit();
+                editor.putString("direction","right").commit();
+                return true;
+            }
+            if (e1.getY() - e2.getY() > FLIP_DISTANCE) {
+                Log.i("TAG", "向上滑...");
+                return true;
+            }
+            if (e2.getY() - e1.getY() > FLIP_DISTANCE) {
+                Log.i("TAG", "向下滑...");
+                return true;
+            }
+
+            Log.d("TAG", e2.getX() + " " + e2.getY());
+
+            return false;
         }
     }
 

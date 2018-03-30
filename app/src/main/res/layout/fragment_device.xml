@@ -11,14 +11,13 @@
             android:layout_height="0dp"
             android:layout_weight="9"
             android:orientation="vertical"
-            android:layout_marginLeft="@dimen/dp_5"
-            android:layout_marginRight="@dimen/dp_5"
+
             >
-            <com.xinrui.smart.view_custom.SwipeRecyclerView
+            <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#33302b"
+                android:layout_marginLeft="@dimen/dp_5"
                 android:layout_marginRight="@dimen/dp_5"
                 />
         </LinearLayout>

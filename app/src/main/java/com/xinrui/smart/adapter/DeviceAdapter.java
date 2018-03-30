@@ -15,6 +15,7 @@ import com.xinrui.smart.activity.AddDeviceActivity;
 import com.xinrui.smart.activity.DeviceListActivity;
 import com.xinrui.smart.pojo.ChildEntry;
 import com.xinrui.smart.pojo.GroupEntry;
+import com.xinrui.smart.view_custom.MyRecyclerViewItem;
 
 import java.util.ArrayList;
 
@@ -41,7 +42,6 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
         super(context);
         this.context=context;
         this.groups = groups;
-
     }
 
     /**
@@ -188,23 +188,37 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
      * @param groupPosition
      * @param childPosition
      */
+    /**
+     * 绑定某一组中子条目的数据
+     * @param holder
+     * @param groupPosition
+     * @param childPosition
+     */
+    BaseViewHolder mHolder;
+    int mGroupPosition;
+    int mChildPosition;
     @Override
     public void onBindChildViewHolder(final BaseViewHolder holder, final int groupPosition, final int childPosition) {
         final ChildEntry entry=groups.get(groupPosition).getChildern().get(childPosition);
         holder.setText(R.id.tv_device_child,entry.getChild());
         holder.setImageResource(R.id.image_switch,entry.getImg());
         tv_device_child= (TextView) holder.itemView.findViewById(R.id.tv_device_child);
+
+
         tv_device_child.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (tv_device_child!=null){
-                    String content=tv_device_child.getText().toString();
-                    Intent intent=new Intent(context, DeviceListActivity.class);
-                    intent.putExtra("content",content);
-                    context.startActivity(intent);
-                }
+                int a=groupPosition;
+                int b=childPosition;
+                ChildEntry childEntry=groups.get(groupPosition).getChildern().get(childPosition);
+                String content=childEntry.getChild();
+                Intent intent=new Intent(context, DeviceListActivity.class);
+                intent.putExtra("content",content);
+                context.startActivity(intent);
             }
         });
+
+
         image_switch= (ImageView) holder.itemView.findViewById(R.id.image_switch);
         image_switch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -212,11 +226,11 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
 //                int img=imgs[1];
 //                imgs[1]=imgs[0];
 //                imgs[0]=img;
-               if (entry.getImg()==imgs[0]){
-                   entry.setImg(imgs[1]);
-               }else if(entry.getImg()==imgs[1]){
-                   entry.setImg(imgs[0]);
-               }
+                if (entry.getImg()==imgs[0]){
+                    entry.setImg(imgs[1]);
+                }else if(entry.getImg()==imgs[1]){
+                    entry.setImg(imgs[0]);
+                }
                 holder.setImageResource(R.id.image_switch,entry.getImg());
                 changeDataSet();
             }
@@ -231,6 +245,9 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
                 }
             }
         });
+        MyRecyclerViewItem myRecyclerViewItem= (MyRecyclerViewItem) holder.itemView.findViewById(R.id.scroll_item);
+        myRecyclerViewItem.reset();
     }
+
 
 }

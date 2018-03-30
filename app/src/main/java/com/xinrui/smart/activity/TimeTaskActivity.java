@@ -20,6 +20,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.TimeTaskAdapter;
 import com.xinrui.smart.adapter.WeekAdapter;
@@ -73,11 +74,16 @@ public class TimeTaskActivity extends AppCompatActivity implements AdapterView.O
     private String mWeek;/**一周的星期几*/
     private String mSelectedWeek;
     private String copy;
+    MyApplication application;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_time_task);
         ButterKnife.bind(this);
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
+        application.addActivity(this);
     }
     @Override
     public void onStart() {
