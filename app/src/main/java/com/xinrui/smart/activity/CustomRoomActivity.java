@@ -212,8 +212,6 @@ public class CustomRoomActivity extends AppCompatActivity {
     @OnClick({R.id.return_button,R.id.merge, R.id.resolution, R.id.sure})
     public void onViewClicked(View view) {
         switch (view.getId()) {
-
-
             
             case R.id.return_button:
                 setResult(1);
