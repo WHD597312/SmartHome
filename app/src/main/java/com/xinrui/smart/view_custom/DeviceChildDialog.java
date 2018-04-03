@@ -21,7 +21,7 @@ import butterknife.OnClick;
 /**
  * 创建新家
  */
-public class DeviceHomeDialog extends Dialog {
+public class DeviceChildDialog extends Dialog {
     @BindView(R.id.et_name)
     EditText et_name;
     @BindView(R.id.button_cancel)
@@ -29,14 +29,14 @@ public class DeviceHomeDialog extends Dialog {
     @BindView(R.id.button_ensure)
     Button button_ensure;
     private String name;
-    public DeviceHomeDialog(@NonNull Context context) {
+    public DeviceChildDialog(@NonNull Context context) {
         super(context, R.style.MyDialog);
 
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_add_devicehome);
+        setContentView(R.layout.dialog_modify_device_name);
         ButterKnife.bind(this);
     }
 

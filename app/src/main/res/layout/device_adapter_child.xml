@@ -14,7 +14,7 @@
         <RelativeLayout
             android:id="@+id/layout_item"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/dp_50"
             android:orientation="horizontal">
 
             <ImageView
@@ -29,9 +29,8 @@
             <TextView
                 android:id="@+id/tv_device_child"
                 android:layout_width="1000dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/dp_50"
                 android:layout_centerVertical="true"
-                android:gravity="center_vertical"
                 android:paddingLeft="@dimen/dp_50"
                 android:layout_alignTop="@id/image_device_child"
                 android:layout_alignBottom="@id/image_device_child"
@@ -46,7 +45,20 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="@dimen/dp_280"
                 android:layout_marginTop="@dimen/dp_10"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                />
+
+            <TextView
+                android:id="@+id/tv_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/tv_device_child"
+                android:layout_toRightOf="@+id/image_device_child"
+                android:paddingBottom="@dimen/dp_5"
+                android:paddingLeft="@dimen/dp_5"
+                android:layout_centerVertical="true"
+                android:text="离线"
+                />
         </RelativeLayout>
 
         <!-- 屏幕右侧外边部分，正常时在屏幕中处于不可见 -->

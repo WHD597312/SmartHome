@@ -10,38 +10,46 @@ import android.widget.TextView;
 
 import com.donkingliang.groupedadapter.adapter.GroupedRecyclerViewAdapter;
 import com.donkingliang.groupedadapter.holder.BaseViewHolder;
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.AddDeviceActivity;
 import com.xinrui.smart.activity.DeviceListActivity;
-import com.xinrui.smart.pojo.ChildEntry;
+import com.xinrui.smart.pojo.DeviceChild;
+import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.GroupEntry;
+import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.view_custom.DeviceChildDialog;
+import com.xinrui.smart.view_custom.DeviceHomeDialog;
 import com.xinrui.smart.view_custom.MyRecyclerViewItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by win7 on 2018/3/12.
  */
 
 public class DeviceAdapter extends GroupedRecyclerViewAdapter{
+
     private Context context;
-    private ArrayList<GroupEntry> groups;
+    private List<DeviceGroup> groups;
     private ImageView image_switch;
-    private RecyclerView mRecycler;
-    ArrayList<ChildEntry> list;
-    int groupPosition;
-    int childPosition;
+    ArrayList<DeviceChild> list;
+
+    private DeviceChildDaoImpl deviceChildDao;
+    private List<List<DeviceChild>> childern;
     TextView tv_device_child;
-    ChildEntry entry;
 
     int[] imgs={R.mipmap.image_unswitch, R.mipmap.image_switch};
 
 
     int []colors={R.color.color_white,R.color.color_orange};
-    public DeviceAdapter(Context context, ArrayList<GroupEntry> groups) {
+    public DeviceAdapter(Context context, List<DeviceGroup> groups,List<List<DeviceChild>> childern) {
         super(context);
         this.context=context;
         this.groups = groups;
+        this.childern=childern;
+        deviceChildDao=new DeviceChildDaoImpl(context);
     }
 
     /**
@@ -60,8 +68,15 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
      */
     @Override
     public int getChildrenCount(int groupPosition) {
-        ArrayList<ChildEntry> childern=groups.get(groupPosition).getChildern();
-        return childern==null?0:childern.size();
+//        ArrayList<DeviceChild> childern=groups.get(groupPosition).getChildern();
+//        return childern==null?0:childern.size();
+
+        try {
+            return childern.get(groupPosition).size();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     /**
@@ -121,7 +136,9 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
      */
     @Override
     public void onBindHeaderViewHolder(final BaseViewHolder holder, final int groupPosition) {
-        GroupEntry entry=groups.get(groupPosition);
+        DeviceGroup entry=groups.get(groupPosition);
+
+        holder.itemView.setBackgroundResource(R.drawable.shape_header);
         holder.setText(R.id.tv_header,entry.getHeader());
         TextView tv_open=(TextView) holder.itemView.findViewById(R.id.tv_open);
         TextView tv_close= (TextView) holder.itemView.findViewById(R.id.tv_close);
@@ -130,33 +147,42 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
         tv_open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ArrayList<ChildEntry> list=groups.get(groupPosition).getChildern();
-                if (list!=null && list.size()>0){
-                    for (int i=0;i<list.size();i++){
-                        ChildEntry childEntry=list.get(i);
-                        childEntry.setImg(imgs[1]);
+                try {
+                    List<DeviceChild> list=childern.get(groupPosition);
+                    if (list!=null && list.size()>0){
+                        for (int i=0;i<list.size();i++){
+                            DeviceChild childEntry=list.get(i);
+                            childEntry.setImg(imgs[1]);
+                        }
                     }
+                    holder.setTextColor(R.id.tv_close,context.getResources().getColor(colors[0]));
+                    holder.setTextColor(R.id.tv_open,context.getResources().getColor(colors[1]));
+                    changeChildren(groupPosition);
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-                holder.setTextColor(R.id.tv_close,context.getResources().getColor(colors[0]));
-                holder.setTextColor(R.id.tv_open,context.getResources().getColor(colors[1]));
-                changeChildren(groupPosition);
             }
         });
         tv_close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                ArrayList<ChildEntry> list=groups.get(groupPosition).getChildern();
-                if (list!=null && list.size()>0){
-                    for (int i=0;i<list.size();i++){
-                        ChildEntry childEntry=list.get(i);
-                        childEntry.setImg(imgs[0]);
+                try {
+                    List<DeviceChild> list=childern.get(groupPosition);
+                    if (list!=null && list.size()>0){
+                        for (int i=0;i<list.size();i++){
+                            DeviceChild childEntry=list.get(i);
+                            childEntry.setImg(imgs[0]);
+                        }
                     }
-                }
-                holder.setTextColor(R.id.tv_close,context.getResources().getColor(colors[1]));
-                holder.setTextColor(R.id.tv_open,context.getResources().getColor(colors[0]));
+                    holder.setTextColor(R.id.tv_close,context.getResources().getColor(colors[1]));
+                    holder.setTextColor(R.id.tv_open,context.getResources().getColor(colors[0]));
 
-                changeChildren(groupPosition);
+                    changeChildren(groupPosition);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
             }
         });
 //        tv_open.setTextColor(colors[0]);
@@ -168,7 +194,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
      * @param groupPosition
      */
     @Override
-    public void onBindFooterViewHolder(BaseViewHolder holder, int groupPosition) {
+    public void onBindFooterViewHolder(BaseViewHolder holder, final int groupPosition) {
         ImageView image_footer= (ImageView) holder.itemView.findViewById(R.id.image_footer);
         if (image_footer==null){
             return;
@@ -177,6 +203,9 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(context, AddDeviceActivity.class);
+                DeviceGroup deviceGroup=groups.get(groupPosition);
+                intent.putExtra("houseId",deviceGroup.getId()+"");
+                intent.putExtra("wifi","wifi");
                 context.startActivity(intent);
             }
         });
@@ -194,60 +223,85 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
      * @param groupPosition
      * @param childPosition
      */
-    BaseViewHolder mHolder;
-    int mGroupPosition;
-    int mChildPosition;
+
     @Override
     public void onBindChildViewHolder(final BaseViewHolder holder, final int groupPosition, final int childPosition) {
-        final ChildEntry entry=groups.get(groupPosition).getChildern().get(childPosition);
+        final DeviceChild entry=childern.get(groupPosition).get(childPosition);
         holder.setText(R.id.tv_device_child,entry.getChild());
         holder.setImageResource(R.id.image_switch,entry.getImg());
         tv_device_child= (TextView) holder.itemView.findViewById(R.id.tv_device_child);
-
 
         tv_device_child.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int a=groupPosition;
                 int b=childPosition;
-                ChildEntry childEntry=groups.get(groupPosition).getChildern().get(childPosition);
-                String content=childEntry.getChild();
+                DeviceChild deviceChild =childern.get(groupPosition).get(childPosition);
+                String content= deviceChild.getChild();
                 Intent intent=new Intent(context, DeviceListActivity.class);
                 intent.putExtra("content",content);
                 context.startActivity(intent);
             }
         });
 
-
         image_switch= (ImageView) holder.itemView.findViewById(R.id.image_switch);
         image_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                int img=imgs[1];
-//                imgs[1]=imgs[0];
-//                imgs[0]=img;
+
+
                 if (entry.getImg()==imgs[0]){
                     entry.setImg(imgs[1]);
+                    deviceChildDao.update(entry);
                 }else if(entry.getImg()==imgs[1]){
                     entry.setImg(imgs[0]);
+                    deviceChildDao.update(entry);
                 }
-                holder.setImageResource(R.id.image_switch,entry.getImg());
-                changeDataSet();
+//                holder.setImageResource(R.id.image_switch,img);
+                changeChild(groupPosition,childPosition);
             }
         });
         Button btn_editor= (Button) holder.itemView.findViewById(R.id.btn_editor);
         btn_editor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (groups!=null && groups.get(groupPosition).getChildern()!=null){
-                    groups.get(groupPosition).getChildern().remove(childPosition);
-                    changeDataSet();
-                }
+                buildDialog(groupPosition,childPosition);
             }
         });
+        Button btn_delete= (Button) holder.itemView.findViewById(R.id.btn_delete);
+        btn_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deviceChildDao.delete(entry);
+                childern.get(groupPosition).remove(childPosition);
+                changeDataSet();
+            }
+        });
+
         MyRecyclerViewItem myRecyclerViewItem= (MyRecyclerViewItem) holder.itemView.findViewById(R.id.scroll_item);
         myRecyclerViewItem.reset();
     }
-
-
+    private void buildDialog(final int groupPosition, final int childPosition){
+        final DeviceChildDialog dialog=new  DeviceChildDialog(context);
+        dialog.setOnPositiveClickListener(new DeviceChildDialog.OnPositiveClickListener() {
+            @Override
+            public void onPositiveClick() {
+                String child=dialog.getName();
+                if (!Utils.isEmpty(child)){
+                    DeviceChild deviceChild=childern.get(groupPosition).get(childPosition);
+                    deviceChild.setChild(child);
+                    deviceChildDao.update(deviceChild);
+                    changeChild(groupPosition,childPosition);
+                }
+                dialog.dismiss();
+            }
+        });
+        dialog.setOnNegativeClickListener(new DeviceChildDialog.OnNegativeClickListener() {
+            @Override
+            public void onNegativeClick() {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
 }

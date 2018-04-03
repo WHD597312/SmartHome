@@ -4,8 +4,13 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
+
+
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.smssdk.SMSSDK;
+
 
 /**
  * Created by hongming.wang on 2018/1/23.
@@ -17,6 +22,8 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        SMSSDK.initSDK(this,"24c373291db44","eb329179014e3063ce241d718e8693da");
         activities=new ArrayList<>();
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override

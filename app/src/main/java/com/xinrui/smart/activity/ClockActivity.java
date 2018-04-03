@@ -1,25 +1,16 @@
 package com.xinrui.smart.activity;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.TimePicker;
-import android.widget.Toast;
+import android.util.Log;
 
-import com.github.mikephil.charting.charts.LineChart;
-import com.xinrui.chart.LineChartManager;
 import com.xinrui.smart.R;
-import com.xinrui.smart.view_custom.CircleSeekBar;
+import com.xinrui.smart.util.Utils;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class ClockActivity extends AppCompatActivity {
 
@@ -28,9 +19,24 @@ public class ClockActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_clock);
 
+
+        try {
+            String s=Utils.getJson("china_city_data.json",this);
+            JSONArray jsonArray=new JSONArray(s);
+            for (int i=0;i<jsonArray.length();i++){
+                JSONObject jsonObject=jsonArray.getJSONObject(i);
+                String name=jsonObject.getString("name");
+                JSONArray array=jsonObject.getJSONArray("cityList");
+                for (int j=0;j<array.length();j++){
+                    JSONObject object=array.getJSONObject(j);
+                    String name2=object.getString("name");
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
     }
-
-
-
 
 }

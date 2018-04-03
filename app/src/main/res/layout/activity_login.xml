@@ -132,4 +132,16 @@
         android:background="@drawable/shape_btn_login"
         />
 
+    <TextView
+        android:id="@+id/tv_register"
+        android:layout_width="@dimen/dp_60"
+        android:layout_height="@dimen/dp_40"
+        android:layout_alignParentTop="true"
+        android:text="注册"
+        android:gravity="center"
+        android:layout_alignParentRight="true"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_18"
+        />
+
 </RelativeLayout>

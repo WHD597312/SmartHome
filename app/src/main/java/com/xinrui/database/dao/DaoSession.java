@@ -8,11 +8,13 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.greenrobot.greendao.internal.DaoConfig;
 
-import com.xinrui.smart.pojo.DeviceHome;
+import com.xinrui.smart.pojo.DeviceChild;
+import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.RoomEntry;
 import com.xinrui.smart.pojo.TaskTime;
 
-import com.xinrui.database.dao.DeviceHomeDao;
+import com.xinrui.database.dao.DeviceChildDao;
+import com.xinrui.database.dao.DeviceGroupDao;
 import com.xinrui.database.dao.RoomEntryDao;
 import com.xinrui.database.dao.TaskTimeDao;
 
@@ -25,11 +27,13 @@ import com.xinrui.database.dao.TaskTimeDao;
  */
 public class DaoSession extends AbstractDaoSession {
 
-    private final DaoConfig deviceHomeDaoConfig;
+    private final DaoConfig deviceChildDaoConfig;
+    private final DaoConfig deviceGroupDaoConfig;
     private final DaoConfig roomEntryDaoConfig;
     private final DaoConfig taskTimeDaoConfig;
 
-    private final DeviceHomeDao deviceHomeDao;
+    private final DeviceChildDao deviceChildDao;
+    private final DeviceGroupDao deviceGroupDao;
     private final RoomEntryDao roomEntryDao;
     private final TaskTimeDao taskTimeDao;
 
@@ -37,8 +41,11 @@ public class DaoSession extends AbstractDaoSession {
             daoConfigMap) {
         super(db);
 
-        deviceHomeDaoConfig = daoConfigMap.get(DeviceHomeDao.class).clone();
-        deviceHomeDaoConfig.initIdentityScope(type);
+        deviceChildDaoConfig = daoConfigMap.get(DeviceChildDao.class).clone();
+        deviceChildDaoConfig.initIdentityScope(type);
+
+        deviceGroupDaoConfig = daoConfigMap.get(DeviceGroupDao.class).clone();
+        deviceGroupDaoConfig.initIdentityScope(type);
 
         roomEntryDaoConfig = daoConfigMap.get(RoomEntryDao.class).clone();
         roomEntryDaoConfig.initIdentityScope(type);
@@ -46,23 +53,30 @@ public class DaoSession extends AbstractDaoSession {
         taskTimeDaoConfig = daoConfigMap.get(TaskTimeDao.class).clone();
         taskTimeDaoConfig.initIdentityScope(type);
 
-        deviceHomeDao = new DeviceHomeDao(deviceHomeDaoConfig, this);
+        deviceChildDao = new DeviceChildDao(deviceChildDaoConfig, this);
+        deviceGroupDao = new DeviceGroupDao(deviceGroupDaoConfig, this);
         roomEntryDao = new RoomEntryDao(roomEntryDaoConfig, this);
         taskTimeDao = new TaskTimeDao(taskTimeDaoConfig, this);
 
-        registerDao(DeviceHome.class, deviceHomeDao);
+        registerDao(DeviceChild.class, deviceChildDao);
+        registerDao(DeviceGroup.class, deviceGroupDao);
         registerDao(RoomEntry.class, roomEntryDao);
         registerDao(TaskTime.class, taskTimeDao);
     }
     
     public void clear() {
-        deviceHomeDaoConfig.clearIdentityScope();
+        deviceChildDaoConfig.clearIdentityScope();
+        deviceGroupDaoConfig.clearIdentityScope();
         roomEntryDaoConfig.clearIdentityScope();
         taskTimeDaoConfig.clearIdentityScope();
     }
 
-    public DeviceHomeDao getDeviceHomeDao() {
-        return deviceHomeDao;
+    public DeviceChildDao getDeviceChildDao() {
+        return deviceChildDao;
+    }
+
+    public DeviceGroupDao getDeviceGroupDao() {
+        return deviceGroupDao;
     }
 
     public RoomEntryDao getRoomEntryDao() {

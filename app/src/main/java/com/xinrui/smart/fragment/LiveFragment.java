@@ -111,7 +111,6 @@ public class LiveFragment extends Fragment {
    
         fragmentslist = new ArrayList<>();
 
-        
 
         /**
          * FragmentManager,FragmentTransaction管理类

@@ -5,13 +5,16 @@
     android:background="@color/color_white"
     android:layout_marginLeft="@dimen/dp_50"
     android:layout_marginRight="@dimen/dp_50"
+    android:layout_gravity="center_horizontal"
     >
 
         <EditText
             android:id="@+id/et_ssid"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/dp_50"
             android:background="@null"
+            android:hint="wifi名称"
+            android:paddingLeft="@dimen/dp_5"
             />
         <View
             android:layout_width="match_parent"
@@ -21,13 +24,24 @@
         <EditText
             android:id="@+id/et_pswd"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/dp_50"
+            android:background="@null"
+            android:hint="wifi密码"
+            android:inputType="textPassword"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_1"
+            android:background="@color/color_dark_gray"
             />
         <Button
             android:id="@+id/btn_match"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="开始配置"
-            android:background="@drawable/selector_btn_match"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/dp_10"
+            android:background="@drawable/shape_btn_login"
             />
 </LinearLayout>

@@ -30,7 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainControlActivity extends AppCompatActivity {
+public class MainControlActivity extends AppCompatActivity{
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -44,6 +44,7 @@ public class MainControlActivity extends AppCompatActivity {
     @BindView(R.id.img_cancel) ImageView img_cancel;//返回键
     private FragmentManager fragmentManager;
     MyApplication application;
+    public final static int MAINCONTROL=1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,7 +106,10 @@ public class MainControlActivity extends AppCompatActivity {
     public void onClick(View view){
         switch (view.getId()){
             case R.id.img_cancel:
-                finish();
+                Intent intent=new Intent(this,MainActivity.class);
+                intent.putExtra("mainControl","mainControl");
+                startActivity(intent);
+
                 break;
         }
     }
@@ -133,4 +137,5 @@ public class MainControlActivity extends AppCompatActivity {
         super.onBackPressed();
         finish();
     }
+
 }

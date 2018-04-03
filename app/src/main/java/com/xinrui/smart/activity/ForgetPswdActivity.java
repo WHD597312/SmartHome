@@ -4,25 +4,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
-
 
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.util.Utils;
-import com.zhy.http.okhttp.OkHttpUtils;
 
 import org.json.JSONObject;
 
@@ -36,7 +33,7 @@ import butterknife.Unbinder;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 
-public class RegistActivity extends AppCompatActivity {
+public class ForgetPswdActivity extends AppCompatActivity {
 
     private String TAG="RegistActivity";
     MyApplication application;
@@ -45,12 +42,12 @@ public class RegistActivity extends AppCompatActivity {
     @BindView(R.id.et_code) EditText et_code;
     @BindView(R.id.et_password) EditText et_password;
     @BindView(R.id.btn_get_code) Button btn_get_code;
-    private String url="http://120.77.36.206:8082/warmer/v1.0/user/register";
+    private String url="http://120.77.36.206:8082/warmer/v1.0/user//forgetPassword";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_regist);
+        setContentView(R.layout.activity_forget_pswd);
 
         unbinder=ButterKnife.bind(this);
         if (application==null){
@@ -64,6 +61,7 @@ public class RegistActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         SMSSDK.registerEventHandler(eventHandler);
+
     }
 
 
@@ -122,6 +120,7 @@ public class RegistActivity extends AppCompatActivity {
 
                 break;
             case R.id.btn_get_code:
+
                 String phone = et_phone.getText().toString().trim();
                 if (TextUtils.isEmpty(phone)) {
                     Utils.showToast(this,"手机号码不能为空");
@@ -133,6 +132,7 @@ public class RegistActivity extends AppCompatActivity {
                 break;
         }
     }
+
 
     class RegistAsyncTask extends AsyncTask<Map<String,Object>,Void,Integer>{
 
@@ -156,14 +156,14 @@ public class RegistActivity extends AppCompatActivity {
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
             switch (code){
-                case -1001:
-                    Utils.showToast(RegistActivity.this,"创建用户失败，请重试");
+                case -1006:
+                    Utils.showToast(ForgetPswdActivity.this,"手机号码未注册");
                     break;
-                case -1002:
-                    Utils.showToast(RegistActivity.this,"手机帐号已被注册");
+                case -1003:
+                    Utils.showToast(ForgetPswdActivity.this,"验证码错误");
                     break;
                 case 2000:
-                    Utils.showToast(RegistActivity.this,"创建成功");
+                    Utils.showToast(ForgetPswdActivity.this,"重新设置密码成功");
                     SharedPreferences preferences=getSharedPreferences("my",MODE_PRIVATE);
                     SharedPreferences.Editor editor=preferences.edit();
                     String phone = et_phone.getText().toString().trim();
@@ -171,7 +171,7 @@ public class RegistActivity extends AppCompatActivity {
                     editor.putString("phone",phone);
                     editor.putString("password",password);
                     if (editor.commit()){
-                        Intent intent=new Intent(RegistActivity.this,MainActivity.class);
+                        Intent intent=new Intent(ForgetPswdActivity.this,MainActivity.class);
                         startActivity(intent);
                     }
                     break;
@@ -179,7 +179,17 @@ public class RegistActivity extends AppCompatActivity {
         }
     }
 
-    class CountTimer extends CountDownTimer {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (unbinder!=null){
+            unbinder.unbind();
+        }
+        SMSSDK.unregisterEventHandler(eventHandler);
+    }
+
+
+    class CountTimer extends CountDownTimer{
         public CountTimer(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);
         }
@@ -214,13 +224,4 @@ public class RegistActivity extends AppCompatActivity {
             btn_get_code.setClickable(true);
         }
     }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (unbinder!=null){
-            unbinder.unbind();
-        }
-        SMSSDK.unregisterEventHandler(eventHandler);
-    }
-
 }

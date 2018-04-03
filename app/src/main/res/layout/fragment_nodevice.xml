@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:id="@+id/image_home"
+        android:layout_width="@dimen/dp_45"
+        android:layout_height="@dimen/dp_45"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="@dimen/dp_90"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:src="@mipmap/home"
+        android:scaleType="centerInside"
+        />
+
+    <TextView
+        android:id="@+id/tv_myhome"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_50"
+        android:layout_alignBottom="@+id/image_home"
+        android:layout_toRightOf="@+id/image_home"
+        android:text="我的家"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_25"
+        android:gravity="center"
+        />
+
+    <ImageView
+        android:id="@+id/image_position"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="@dimen/dp_40"
+        android:layout_alignBottom="@+id/image_home"
+        android:layout_toRightOf="@id/tv_myhome"
+        android:paddingBottom="@dimen/dp_5"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/poistion" />
+
+    <TextView
+        android:id="@+id/tv_city"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/image_position"
+        android:layout_alignBottom="@id/image_position"
+        android:layout_alignTop="@id/image_position"
+        android:gravity="center"
+        android:textSize="@dimen/sp_18"
+        android:textColor="@color/white"
+        android:text="慈溪市" />
+
+    <Button
+        android:id="@+id/btn_add_device"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/image_home"
+        android:layout_centerHorizontal="true"
+        android:layout_marginRight="@dimen/dp_30"
+        android:layout_below="@id/image_position"
+        android:layout_marginTop="@dimen/dp_200"
+        android:background="@drawable/shape_white_button"
+        android:text="@string/add_device"
+        android:textSize="@dimen/sp_20"
+        android:gravity="center"
+        android:textColor="@color/color_orange"
+        />
+    <ListView
+        android:id="@+id/listview"
+        android:layout_below="@id/image_position"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/shape_white_button"
+        android:visibility="gone"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginRight="@dimen/dp_10"
+        android:dividerHeight="@dimen/dp_1"
+        android:divider="@color/color_gray"
+        />
+</RelativeLayout>

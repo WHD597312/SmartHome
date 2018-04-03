@@ -5,17 +5,17 @@ import java.util.ArrayList;
 /**
  * Created by win7 on 2018/3/12.
  */
-
 public class GroupEntry {
+    private Long id;
     private String header;
     private String footer;
     private int color;
-    private ArrayList<ChildEntry> childern;
+    private ArrayList<DeviceChild> childern;
 
     public GroupEntry() {
     }
 
-    public GroupEntry(String header, int color, ArrayList<ChildEntry> childern) {
+    public GroupEntry(String header, int color, ArrayList<DeviceChild> childern) {
         this.header = header;
         this.color = color;
         this.childern = childern;
@@ -37,11 +37,11 @@ public class GroupEntry {
         this.footer = footer;
     }
 
-    public ArrayList<ChildEntry> getChildern() {
+    public ArrayList<DeviceChild> getChildern() {
         return childern;
     }
 
-    public void setChildern(ArrayList<ChildEntry> childern) {
+    public void setChildern(ArrayList<DeviceChild> childern) {
         this.childern = childern;
     }
 

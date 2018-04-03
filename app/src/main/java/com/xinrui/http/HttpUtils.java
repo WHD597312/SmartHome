@@ -42,22 +42,54 @@ public class HttpUtils {
         return result;
     }
 
-    public static String getOkHpptRequest(Map<String, Object> map) {
+    public static String postOkHpptRequest(String url,Map<String, Object> map) {
         String result=null;
         try{
             String CONTENT_TYPE = "application/json";
+
             String JSON_DATA = "{\"houseName\":\"1\",\"location\":\"sadf\",\"userId\":\"3\"}";
-            String url="http://120.77.36.206:8082/warmer/v1.0/house/registerHouse";
             JSONObject jsonObject=new JSONObject();
             for (Map.Entry<String,Object> param:map.entrySet()){
                 jsonObject.put(param.getKey(),param.getValue());
             }
+
             RequestBody requestBody = RequestBody.create(MediaType.parse(CONTENT_TYPE), jsonObject.toJSONString());
 
             Request request = new Request.Builder()
+                    .addHeader("client","android-xr")
                     .url(url)
                     .post(requestBody)
                     .build();
+
+
+            OkHttpClient okHttpClient=new OkHttpClient();
+            Response response=okHttpClient.newCall(request).execute();
+
+            if(response.isSuccessful()){
+                result= response.body().string();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+
+    public static String getOkHpptRequest(String url) {
+        String result=null;
+        try{
+            String CONTENT_TYPE = "application/json";
+
+
+
+
+            Request request = new Request.Builder()
+                    .addHeader("client","android-xr")
+                    .url(url)
+                    .get()
+                    .build();
+
+
             OkHttpClient okHttpClient=new OkHttpClient();
             Response response=okHttpClient.newCall(request).execute();
 

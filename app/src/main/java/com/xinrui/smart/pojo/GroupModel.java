@@ -26,12 +26,12 @@ public class GroupModel {
     public static ArrayList<GroupEntry> getGroups(int groupCount, int childrenCount) {
         ArrayList<GroupEntry> groups = new ArrayList<>();
         for (int i = 0; i < groupCount; i++) {
-            ArrayList<ChildEntry> children = new ArrayList<>();
+            ArrayList<DeviceChild> children = new ArrayList<>();
             for (int j = 0; j < childrenCount; j++) {
                 if (isOpenAll){
-                    children.add(new ChildEntry("第" + (i + 1) + "组第" + (j + 1) + "项",imgs[1]));
+                    children.add(new DeviceChild("第" + (i + 1) + "组第" + (j + 1) + "项",imgs[1]));
                 }else{
-                    children.add(new ChildEntry("第" + (i + 1) + "组第" + (j + 1) + "项",imgs[0]));
+                    children.add(new DeviceChild("第" + (i + 1) + "组第" + (j + 1) + "项",imgs[0]));
                 }
             }
             groups.add(new GroupEntry("第" + (i + 1) + "组头部",colors[0], children));
@@ -50,9 +50,9 @@ public class GroupModel {
     public static ArrayList<ExpandableGroupEntity> getExpandableGroups(int groupCount, int childrenCount) {
         ArrayList<ExpandableGroupEntity> groups = new ArrayList<>();
         for (int i = 0; i < groupCount; i++) {
-            ArrayList<ChildEntry> children = new ArrayList<>();
+            ArrayList<DeviceChild> children = new ArrayList<>();
             for (int j = 0; j < childrenCount; j++) {
-                children.add(new ChildEntry("第" + (i + 1) + "组第" + (j + 1) + "项"));
+                children.add(new DeviceChild("第" + (i + 1) + "组第" + (j + 1) + "项"));
             }
             groups.add(new ExpandableGroupEntity("第" + (i + 1) + "组头部",
                     "第" + (i + 1) + "组尾部", true, children));

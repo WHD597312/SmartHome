@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 
 
@@ -31,7 +32,7 @@ import java.util.List;
  * @类型名称：PermissionsChecker
  * @since 2.5.0
  */
-public class CheckPermissionsActivity extends Activity {
+public class CheckPermissionsActivity extends AppCompatActivity {
 	/**
 	 * 需要进行检测的权限数组
 	 */

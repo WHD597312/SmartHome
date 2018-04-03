@@ -35,7 +35,7 @@
             android:gravity="center"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_18"
-            android:text="注册" />
+            android:text="重置密码" />
     </RelativeLayout>
 
     <EditText
@@ -102,7 +102,7 @@
         android:layout_centerVertical="true"
         android:layout_alignTop="@id/et_code"
         android:layout_alignBottom="@id/view2"
-        android:background="@drawable/selector_btn_ensure"
+        android:background="@drawable/button_normal"
         android:text="点击获取"
         />
 

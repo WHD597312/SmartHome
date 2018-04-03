@@ -3,6 +3,7 @@ package com.xinrui.smart.activity;
 import android.Manifest;
 import android.app.ActionBar;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
@@ -30,13 +31,18 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
+import com.xinrui.location.CheckPermissionsActivity;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.FunctionAdapter;
 import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.fragment.LiveFragment;
+import com.xinrui.smart.fragment.NoDeviceFragment;
 import com.xinrui.smart.fragment.SmartFragmentManager;
+import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.Function;
+import com.xinrui.smart.util.Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,7 +53,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends CheckPermissionsActivity {
 
     MyApplication application;
     @BindView(R.id.toolbar) Toolbar toolbar;
@@ -64,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.smart_view) View smart_view;//智能页
     @BindView(R.id.live_view) View live_view;//实景页
     private int[] colors={R.color.color_blue,R.color.color_dark_gray};
+    private DeviceGroupDaoImpl deviceGroupDao;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,12 +101,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        fragmentManager=getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction= fragmentManager.beginTransaction();//开启碎片事务
-        deviceFragment=new DeviceFragment();
-        fragmentTransaction.replace(R.id.layout_body,deviceFragment);
-        fragmentTransaction.commit();
-        device_view.setVisibility(View.VISIBLE);
+
+
         function();
 
     }
@@ -115,6 +118,32 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        deviceGroupDao=new DeviceGroupDaoImpl(this);
+        List<DeviceGroup> deviceGroups=deviceGroupDao.findAllDevices();
+        fragmentManager=getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction= fragmentManager.beginTransaction();//开启碎片事务
+        Intent intent=getIntent();
+        String mainControl=intent.getStringExtra("mainControl");
+        if (Utils.isEmpty(mainControl)){
+            if (deviceGroups.isEmpty()){
+                fragmentTransaction.replace(R.id.layout_body,new NoDeviceFragment()).commit();
+            }else {
+                deviceFragment=new DeviceFragment();
+                fragmentTransaction.replace(R.id.layout_body,deviceFragment);
+                fragmentTransaction.commit();
+            }
+            device_view.setVisibility(View.VISIBLE);
+            smart_view.setVisibility(View.GONE);
+            live_view.setVisibility(View.GONE);
+        }else {
+            fragmentTransaction=fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.layout_body,new SmartFragmentManager());
+            fragmentTransaction.commit();
+            device_view.setVisibility(View.GONE);
+            smart_view.setVisibility(View.VISIBLE);
+            live_view.setVisibility(View.GONE);
+        }
+
     }
 
     private LocationManager locationManager;
@@ -187,5 +216,18 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        int a=requestCode;
+        if (requestCode==MainControlActivity.MAINCONTROL){
+            FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.layout_body,new SmartFragmentManager());
+            fragmentTransaction.commit();
+            device_view.setVisibility(View.GONE);
+            smart_view.setVisibility(View.VISIBLE);
+            live_view.setVisibility(View.GONE);
+        }
 
+    }
 }

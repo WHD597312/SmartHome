@@ -65,6 +65,13 @@
     <string name="gpsFirst">GPS优先</string>
     <string name="add_equipment">添加设备</string>
     <string name="rooms_type">房间类型</string>
+    <string name="create_home">创建新家</string>
+    <string name="home_manager">家的管理</string>
+    <string name="add_device">+添加设备</string>
+    <string name="modify_device_name">修改设备名</string>
+    <string name="finish">完成</string>
+    <string name="update_home">修改住所</string>
+    <string name="update_home_name">修改住所名称</string>
 
 
 </resources>
