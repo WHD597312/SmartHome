@@ -14,12 +14,23 @@ public class DeviceGroup {
     private String houseName;
     private String location;
     private int masterControllerDeviceId;
-
+    private int externalSensorsId;
+    private String layers;
     public DeviceGroup(){}
 
-    @Generated(hash = 2145919706)
-    public DeviceGroup(Long id, String header, String footer, int color,
-            String houseName, String location, int masterControllerDeviceId) {
+    public DeviceGroup(Long id, String header, String houseName, String location, int masterControllerDeviceId, int externalSensorsId, String layers) {
+        this.id = id;
+        this.header = header;
+        this.houseName = houseName;
+        this.location = location;
+        this.masterControllerDeviceId = masterControllerDeviceId;
+        this.externalSensorsId = externalSensorsId;
+        this.layers = layers;
+    }
+
+    @Generated(hash = 1168852908)
+    public DeviceGroup(Long id, String header, String footer, int color, String houseName, String location, int masterControllerDeviceId,
+            int externalSensorsId, String layers) {
         this.id = id;
         this.header = header;
         this.footer = footer;
@@ -27,7 +38,11 @@ public class DeviceGroup {
         this.houseName = houseName;
         this.location = location;
         this.masterControllerDeviceId = masterControllerDeviceId;
+        this.externalSensorsId = externalSensorsId;
+        this.layers = layers;
     }
+
+  
 
     public Long getId() {
         return id;
@@ -83,5 +98,21 @@ public class DeviceGroup {
 
     public void setHouseName(String houseName) {
         this.houseName = houseName;
+    }
+
+    public int getExternalSensorsId() {
+        return externalSensorsId;
+    }
+
+    public void setExternalSensorsId(int externalSensorsId) {
+        this.externalSensorsId = externalSensorsId;
+    }
+
+    public String getLayers() {
+        return layers;
+    }
+
+    public void setLayers(String layers) {
+        this.layers = layers;
     }
 }

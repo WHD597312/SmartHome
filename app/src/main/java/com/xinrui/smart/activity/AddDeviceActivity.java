@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -94,6 +95,14 @@ public class AddDeviceActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            application.removeActivity(this);/**退出主页面*/
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     int[] imgs={R.mipmap.image_unswitch, R.mipmap.image_switch};
     @OnClick({R.id.img_back,R.id.btn_wifi,R.id.btn_scan,R.id.btn_scan2,R.id.btn_match})
     public void onClick(View view){
@@ -210,7 +219,6 @@ public class AddDeviceActivity extends AppCompatActivity {
             }
             return code;
         }
-
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);

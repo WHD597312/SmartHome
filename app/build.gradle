@@ -9,7 +9,7 @@ repositories {
 }
 
 greendao {
-    schemaVersion 2
+    schemaVersion 5
     daoPackage 'com.xinrui.database.dao'
     targetGenDir 'src/main/java'
 }
@@ -65,4 +65,5 @@ dependencies {
     compile 'com.journeyapps:zxing-android-embedded:3.3.0'
     compile name: 'SMSSDK-2.1.2', ext: 'aar'
     compile name: 'SMSSDKGUI-2.1.2', ext: 'aar'
+    compile 'com.contrarywind:Android-PickerView:3.2.5'
 }

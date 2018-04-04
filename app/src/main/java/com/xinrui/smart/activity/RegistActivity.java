@@ -18,9 +18,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
+import com.xinrui.database.dao.DeviceGroupDao;
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
+import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
+import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Utils;
 import com.zhy.http.okhttp.OkHttpUtils;
 
@@ -47,6 +51,7 @@ public class RegistActivity extends AppCompatActivity {
     @BindView(R.id.btn_get_code) Button btn_get_code;
     private String url="http://120.77.36.206:8082/warmer/v1.0/user/register";
 
+    SharedPreferences preferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +68,7 @@ public class RegistActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        preferences=getSharedPreferences("my",MODE_PRIVATE);
         SMSSDK.registerEventHandler(eventHandler);
     }
 
@@ -134,6 +140,7 @@ public class RegistActivity extends AppCompatActivity {
         }
     }
 
+
     class RegistAsyncTask extends AsyncTask<Map<String,Object>,Void,Integer>{
 
         @Override
@@ -145,6 +152,32 @@ public class RegistActivity extends AppCompatActivity {
                 try {
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
+                    JSONObject content=jsonObject.getJSONObject("content");
+                    JSONObject user=content.getJSONObject("user");
+                    JSONObject house=content.getJSONObject("house");
+
+                    int houseId=house.getInt("id");
+                    String houseName=house.getString("houseName");
+                    String location=house.getString("location");
+
+                    /**注册的时候默认添加一个新家*/
+                    DeviceGroup deviceGroup=new DeviceGroup();
+                    deviceGroup.setId((long)houseId);
+                    deviceGroup.setHouseName(houseName);
+                    deviceGroup.setLocation(location);
+                    deviceGroup.setHeader(houseName+"."+location);
+                    DeviceGroupDaoImpl deviceGroupDao=new DeviceGroupDaoImpl(RegistActivity.this);
+                    deviceGroupDao.insert(deviceGroup);
+
+                    int id=user.getInt("id");
+                    SharedPreferences.Editor editor=preferences.edit();
+                    if (preferences.contains("userId")){
+                        editor.clear().commit();
+                        deviceGroupDao.deleteAll();
+                        DeviceChildDaoImpl deviceChildDao=new DeviceChildDaoImpl(RegistActivity.this);
+                        deviceChildDao.deleteAll();
+                    }
+                    editor.putString("userId",id+"").commit();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -164,10 +197,10 @@ public class RegistActivity extends AppCompatActivity {
                     break;
                 case 2000:
                     Utils.showToast(RegistActivity.this,"创建成功");
-                    SharedPreferences preferences=getSharedPreferences("my",MODE_PRIVATE);
                     SharedPreferences.Editor editor=preferences.edit();
                     String phone = et_phone.getText().toString().trim();
                     String password=et_password.getText().toString().trim();
+
                     editor.putString("phone",phone);
                     editor.putString("password",password);
                     if (editor.commit()){
