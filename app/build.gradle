@@ -1,15 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao'
 
-
-repositories {
-    flatDir {
-        dirs 'libs'//就是你放aar的目录地址
-    }
-}
-
 greendao {
-    schemaVersion 2
+    schemaVersion 5
     daoPackage 'com.xinrui.database.dao'
     targetGenDir 'src/main/java'
 }
@@ -38,7 +31,6 @@ android {
         }
     }
 }
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:support-v4:25.4.0'
@@ -60,9 +52,6 @@ dependencies {
     compile 'com.alibaba:fastjson:1.2.10'
     compile 'com.google.code.gson:gson:2.8.2'
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
-    compile 'org.jsoup:jsoup:1.11.2'
-    compile 'com.google.zxing:core:3.2.1'
-    compile 'com.journeyapps:zxing-android-embedded:3.3.0'
-    compile name: 'SMSSDK-2.1.2', ext: 'aar'
-    compile name: 'SMSSDKGUI-2.1.2', ext: 'aar'
+
+
 }

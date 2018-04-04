@@ -1,37 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:orientation="vertical"
     android:layout_height="match_parent">
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:background="@color/black">
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:scaleType="fitCenter"
+            android:layout_centerVertical="true"
+            android:background="@color/black"
+            android:src="@drawable/nav_back"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="主卧"
-            />
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_20"
+            android:layout_centerVertical="true"
+            android:text="主卧"/>
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
+            android:background="@color/black"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/homepage"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bedroom1"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_37">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_15"
+                android:gravity="center_vertical"
+                android:layout_centerVertical="true"
+                android:textSize="@dimen/sp_15"
+                android:text="主卧"
+                />
+            <LinearLayout
+                android:layout_width="@dimen/dp_150"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/dp_15"
+                android:textSize="@dimen/sp_15"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/dp_15">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="8℃"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/sp_15"
+                    android:layout_weight="1"
+                    android:text="10％"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/sp_15"
+                    android:layout_weight="1"
+                    android:text="PM2.5 8"/>
+            </LinearLayout>
+        </RelativeLayout>
+        <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1dp"-->
+            <!--android:background="@color/black"-->
+            <!--android:layout_alignParentBottom="true"/>-->
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:background="@color/black"
+        android:layout_height="@dimen/dp_37">
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/dp_15"
+            android:src="@drawable/btn_smileldpi"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_12"
+            android:layout_centerVertical="true"
+            android:text="您的猪窝需要美化哦"
+            android:layout_toRightOf="@id/imageView"/>
        <LinearLayout
-           android:layout_width="@dimen/dp_150"
-           android:layout_height="wrap_content"
+           android:layout_width="@dimen/dp_200"
+           android:orientation="horizontal"
            android:layout_alignParentRight="true"
-           android:layout_marginRight="@dimen/dp_15"
-           android:layout_marginEnd="@dimen/dp_15">
-           <TextView
+           android:layout_height="wrap_content">
+           <Button
+               android:id="@+id/decorat"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:layout_weight="1"
-               android:text="8℃"/>
-           <TextView
+               android:text="@string/decorat"
+               android:textColor="@color/holo_orange_dark"/>
+           <Button
+               android:id="@+id/change_scene"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:layout_weight="1"
-               android:text="10％"/>
-           <TextView
+               android:text="@string/change_scene"/>
+           <ImageView
+               android:id="@+id/add_equipment"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:layout_weight="1"
-               android:text="PM2.5 8"/>
+               android:src="@drawable/add_equmenthdpi"/>
        </LinearLayout>
     </RelativeLayout>
 

@@ -25,7 +25,7 @@ public class Copy_fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.btn1_fragment,container,false);
 //        ImageView imageView = view.findViewById(R.id.iv_btn1);
-//        imageView.setImageResource(R.drawable.drawing_room);
+//        imageView.setImageResource(R.drawable.dining_room);
 
         return view;
     }

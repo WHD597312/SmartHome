@@ -6,13 +6,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:layout_editor_absoluteY="25dp">
-
+<RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_marginTop="@dimen/dp_15"
+    android:layout_marginBottom="@dimen/dp_20"
+    android:layout_height="match_parent">
     <android.support.v4.view.ViewPager
         android:id="@+id/fragment_viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
     </android.support.v4.view.ViewPager>
+</RelativeLayout>
+
 
 
 </LinearLayout>

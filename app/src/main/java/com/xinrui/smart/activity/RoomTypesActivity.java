@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.xinrui.smart.R;
@@ -54,10 +53,42 @@ public class RoomTypesActivity extends Activity {
     }
 
     private void initRoomType() {
-        for (int i = 0; i < 20; i++) {
-            RoomType roomType = new RoomType(R.drawable.drawing_room, "客厅");
-            mRoomtypelsit.add(roomType);
-        }
+        RoomType roomType1 = new RoomType(R.drawable.drawing_room, "客厅");
+        mRoomtypelsit.add(roomType1);
+        RoomType roomType2 = new RoomType(R.drawable.bedroom, "卧室");
+        mRoomtypelsit.add(roomType2);
+        RoomType roomType3 = new RoomType(R.drawable.dining_room, "餐厅");
+        mRoomtypelsit.add(roomType3);
+        RoomType roomType4 = new RoomType(R.drawable.toilet, "卫生间");
+        mRoomtypelsit.add(roomType4);
+        RoomType roomType5 = new RoomType(R.drawable.shower_room, "浴室");
+        mRoomtypelsit.add(roomType5);
+        RoomType roomType6 = new RoomType(R.drawable.kitchen, "厨房");
+        mRoomtypelsit.add(roomType6);
+        RoomType roomType7 = new RoomType(R.drawable.children_bedroom, "儿童房");
+        mRoomtypelsit.add(roomType7);
+        RoomType roomType8 = new RoomType(R.drawable.kitchen2, "厨房2");
+        mRoomtypelsit.add(roomType8);
+        RoomType roomType9 = new RoomType(R.drawable.cloakroom, "衣帽间");
+        mRoomtypelsit.add(roomType9);
+        RoomType roomType10 = new RoomType(R.drawable.cloakroom2, "衣帽间2");
+        mRoomtypelsit.add(roomType10);
+        RoomType roomType11 = new RoomType(R.drawable.studio, "工作室");
+        mRoomtypelsit.add(roomType11);
+        RoomType roomType12 = new RoomType(R.drawable.studio2, "工作室2");
+        mRoomtypelsit.add(roomType12);
+        RoomType roomType13 = new RoomType(R.drawable.studio3, "工作室3");
+        mRoomtypelsit.add(roomType13);
+        RoomType roomType14 = new RoomType(R.drawable.study, "书房");
+        mRoomtypelsit.add(roomType14);
+        RoomType roomType15 = new RoomType(R.drawable.balcony, "阳台");
+        mRoomtypelsit.add(roomType15);
+        RoomType roomType16 = new RoomType(R.drawable.custom, "自定义");
+        mRoomtypelsit.add(roomType16);
+
+
+
+
 
     }
 

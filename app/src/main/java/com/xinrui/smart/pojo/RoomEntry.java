@@ -16,6 +16,8 @@ public class RoomEntry {
     private int y;
     private int width;
     private int height;
+    private int group;
+
 
     public RoomEntry() {
     }
@@ -27,13 +29,14 @@ public class RoomEntry {
         this.height = height;
     }
 
-    @Generated(hash = 631225)
-    public RoomEntry(Long id, int x, int y, int width, int height) {
+    @Generated(hash = 1213358852)
+    public RoomEntry(Long id, int x, int y, int width, int height, int group) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.group = group;
     }
 
     public Long getId() {
@@ -74,5 +77,13 @@ public class RoomEntry {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public int getGroup() {
+        return this.group;
+    }
+
+    public void setGroup(int group) {
+        this.group = group;
     }
 }

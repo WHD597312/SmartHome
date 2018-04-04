@@ -8,8 +8,8 @@
         android:layout_height="wrap_content">
         <Button
             android:id="@+id/custom_house_type"
-            android:layout_width="@dimen/dp_193.75"
-            android:layout_height="@dimen/dp_30.25"
+            android:layout_width="@dimen/dp_200"
+            android:layout_height="@dimen/dp_40"
             android:layout_marginLeft="@dimen/dp_15"
             android:layout_marginBottom="@dimen/dp_5"
             android:textColor="@color/custom_house_button_colir"
@@ -19,18 +19,20 @@
         <Button
             android:id="@+id/copy_and_paste"
             android:layout_width="@dimen/dp_94.5"
-            android:layout_height="@dimen/dp_30.25"
+            android:layout_height="@dimen/dp_40"
             android:layout_marginLeft="@dimen/dp_5"
             android:background="@drawable/addroom_button"
             android:layout_toRightOf="@+id/custom_house_type"
             android:text="@string/cope_and_paste" />
-        <Button
+        <ImageButton
             android:id="@+id/delete"
             android:layout_width="@dimen/dp_37"
-            android:layout_height="@dimen/dp_30.25"
+            android:layout_height="@dimen/dp_40"
             android:layout_marginBottom="@dimen/dp_5"
             android:layout_marginLeft="@dimen/dp_5"
             android:layout_toRightOf="@+id/copy_and_paste"
-            android:background="@drawable/addroom_button_delete"/>
+            android:background="@color/read"
+            android:scaleType="fitCenter"
+            android:src="@drawable/equipment_btn_del"/>
     </RelativeLayout>
 </RelativeLayout>

@@ -2,11 +2,12 @@ package com.xinrui.smart.fragment;
 
 import android.content.Context;
 import android.content.Intent;
-import android.media.Image;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -14,12 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.RoomEntryDaoImpl;
 import com.xinrui.smart.R;
@@ -33,8 +31,6 @@ import com.xinrui.smart.view_custom.RoomViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 
@@ -43,85 +39,50 @@ import butterknife.Unbinder;
  */
 
 public class Btn1_fragment extends Fragment {
-//    Unbinder unbinder;
-
-    //    @BindView(R.id.roomViewGroup)
-//    RoomViewGroup roomViewGroup;
-//    Unbinder unbinder1;
     int x;
     int y;
     int width;
     int height;
     private int roomId = 0;
     Unbinder unbinder;
-//    @BindView(R.id.fl)
-//    FrameLayout fl;
-//    @BindView(R.id.empty_room_tv)
-//    TextView tv;
     ImageView emptyRoom;
     private Context mContext;
     private RoomEntryDaoImpl roomEntryDao;
 
     RoomViewGroup view_background;
     FrameLayout roomViewGroup;
+    int group1 = 1;
 
     List<RoomEntry> list ;
     List<Room> list_room;
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-//       view_background  = (LinearLayout) inflater.inflate(R.layout.rooms_background, container, false);
 
 
-        Log.i("view2", "x=" + x + ";" + "y=" + y + ";" + "width=" + width + ";" + "height=" + height);
-//        View view = LayoutInflater.from(getActivity()).inflate(R.layout.room_content,null);
-//        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-//        view_background.addView(view, layoutParams);
-//        unbinder1 = ButterKnife.bind(this, view_background);
-
-//        if (null != view_background) {
-//            ViewGroup parent = (ViewGroup) view_background.getParent();
-//                if (null != parent) {
-//                    parent.removeView(view_background);
-//            }
-//        } else {
-////            view_background = inflater.inflate(R.layout.rooms_background, null);
-//            view_background= (LinearLayout) inflater.inflate(R.layout.rooms_background,null);
-//        }
-
-           view_background = (RoomViewGroup) inflater.inflate(R.layout.rooms_background, container, false);
+           view_background = (RoomViewGroup) inflater.inflate(R.layout.rooms_background1, container, false);
            roomViewGroup = (FrameLayout) view_background.findViewById(R.id.fl);
-//        emptyRoom = (ImageView) getActivity().findViewById(R.id.empty_room_iv);
-//        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) tv.getLayoutParams();
-//        layoutParams.height = 1500;
-
 
         initView();
-//        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(600, 900);
-//        view_background.findViewById(R.id.tv).setLayoutParams(params);
+
         roomEntryDao = new RoomEntryDaoImpl(getActivity());
 
-        list = roomEntryDao.findAll();
+        list=roomEntryDao.findAllByGroup(group1);
+
         for (int i = 0; i < list.size(); i++) {
             RoomEntry roomEntry = list.get(i);
-//            setLayout(roomEntry.getX(),roomEntry.getY(),roomEntry.getWidth(),roomEntry.getHeight());
-            Log.i("list1", "fragment---------------------" + roomEntry.getX() + "tv" + width + ";" + height);
             setLayout(roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight());
-
         }
-
-//        setLayout(0,0,600,100);
-//        setLayout(30,40,100,100);
-//        setLayout(60,40,100,100);
-//        setLayout(270,540,600,400);
-//        unbinder = ButterKnife.bind(this, view_background);
         return view_background;
     }
 
+    public int getlist(int i){
+        return i;
+    }
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-//        ImageView imageView = (ImageView) getView().findViewById(R.id.empty_room_iv);
         if (null == list || list.size() ==0) {
             Log.i("sdf","asdf");
             view_background.setOnTouchListener(new View.OnTouchListener() {
@@ -143,20 +104,16 @@ public class Btn1_fragment extends Fragment {
         Log.i("view2","x="+x+";"+"y="+y+";"+"width="+width+";"+"height="+height);
         super.onActivityCreated(savedInstanceState);
     }
-
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-//        unbinder.unbind();
     }
 
     public void initView(){
         WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
         int width =  wm.getDefaultDisplay().getWidth();
          height = wm.getDefaultDisplay().getHeight();
-//         view_background.findViewById(R.id.fl).setMinimumHeight((int) (width*2));
-        ImageView imageView = (ImageView) roomViewGroup.findViewById(R.id.empty_room_iv);
+        ImageView imageView = (ImageView) roomViewGroup.findViewById(R.id.empty_room_iv1);
         imageView.setLayoutParams(new FrameLayout.LayoutParams(width,width*2));
         imageView.setMinimumHeight(view_background.getHeight());
 
@@ -164,26 +121,41 @@ public class Btn1_fragment extends Fragment {
     }
 
     public View setLayout(int x, int y, int width, int height) {
-//          setLayout(30,40,80,90);
-        View childView = LayoutInflater.from(getActivity()).inflate(R.layout.room_content, null);
+        View childView1 = LayoutInflater.from(getActivity()).inflate(R.layout.room_content_x1, null);
+        View childView2 = LayoutInflater.from(getActivity()).inflate(R.layout.room_content_x2, null);
+        View childView3 = LayoutInflater.from(getActivity()).inflate(R.layout.room_content_x3, null);
+        View childView4 = LayoutInflater.from(getActivity()).inflate(R.layout.room_content_x4, null);
 
+        if(width>270&&width<810){
+            if(height<540){
+                childView1 = childView4;
+            }else{
+                childView1 = childView2;
+
+            }
+        }
+        if(width>810||width==810){
+            if(height<540){
+                childView1 = childView4;
+            }else{
+                childView1 = childView2;
+            }
+        }
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(width, height);
-        childView.setTranslationX(x);
-        childView.setTranslationY(y);
-        childView.setLayoutParams(params);
-        roomViewGroup.addView(childView);
-        saveViewInstance(childView);
-            /*定义LayoutParams 为了获得当前View的属性*/
-//          设置View的高度，也可以设置其他属性
-//           view.setLayoutParams(lpLayoutParams);
-        return childView;
+        childView1.setTranslationX(x);
+        childView1.setTranslationY(y);
+        childView1.setLayoutParams(params);
+        roomViewGroup.addView(childView1);
+        saveViewInstance(childView1);
+
+        return childView1;
     }
 
     private void saveViewInstance(View childView){
         Room room = new Room();
         room.setId(roomId);
         TextView roomName = (TextView) childView.findViewById(R.id.room_name);
-        ImageButton add_equipment = (ImageButton) childView.findViewById(R.id.add_equipment);
+        ImageView add_equipment = (ImageView) childView.findViewById(R.id.add_equipment);
 
         //注册监听事件
         roomName.setOnClickListener(new View.OnClickListener() {
@@ -220,11 +192,6 @@ public class Btn1_fragment extends Fragment {
         super.onStart();
         Log.i("sss1", "fragment---------------------");
 
-
-//        for (RoomEntry roomEntry:list){
-//
-//            setLayout(roomEntry.getX(),roomEntry.getY(),roomEntry.getWidth(),roomEntry.getHeight());
-//        }
 
     }
 

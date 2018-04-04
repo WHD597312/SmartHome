@@ -45,8 +45,8 @@ public class AddRoomActivity extends AppCompatActivity {
 
     private ArrayList<Room> roomList = new ArrayList<>();
     Room[] rooms = {
-            new Room(R.drawable.bedroom, "卧室"), new Room(R.drawable.study, "书房"),
-            new Room(R.drawable.drawing_room, "客厅"), new Room(R.drawable.toilet, "卫生间"),
+            new Room(R.drawable.bedroom1, "卧室"), new Room(R.drawable.study, "书房"),
+            new Room(R.drawable.dining_room, "客厅"), new Room(R.drawable.toilet, "卫生间"),
     };
 
     private RoomAdapter roomAdapter;

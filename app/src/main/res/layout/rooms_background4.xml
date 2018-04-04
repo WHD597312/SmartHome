@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.xinrui.smart.view_custom.RoomViewGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/roomViewGroup"
+    android:fillViewport="true"
+    android:clipChildren="false"
+    android:orientation="vertical">
+                <FrameLayout
+                    android:id="@+id/f4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                        <ImageView
+                            android:id="@+id/empty_room_iv4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/bedroom1"
+                            android:scaleType="fitCenter"
+                            android:visibility="invisible" />
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="4"/>
+                        <!--<TextView-->
+                        <!--android:id="@+id/empty_room_tv"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"/>-->
+
+                </FrameLayout>
+
+
+</com.xinrui.smart.view_custom.RoomViewGroup>

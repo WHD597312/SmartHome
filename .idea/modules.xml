@@ -10,6 +10,7 @@
       <module fileurl="file://$PROJECT_DIR$/SmartHome.iml" filepath="$PROJECT_DIR$/SmartHome.iml" />
       <module fileurl="file://$PROJECT_DIR$/TestFragment/TestFragment.iml" filepath="$PROJECT_DIR$/TestFragment/TestFragment.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/baiyu_ListDataSave/baiyu_ListDataSave.iml" filepath="$PROJECT_DIR$/baiyu_ListDataSave/baiyu_ListDataSave.iml" />
     </modules>
   </component>
 </project>

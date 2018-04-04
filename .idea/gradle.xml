@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/ScrollImageLoadDemo" />
             <option value="$PROJECT_DIR$/TestFragment" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/baiyu_ListDataSave" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

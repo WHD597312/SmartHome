@@ -1,31 +1,49 @@
 package com.xinrui.smart.activity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Parcelable;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.xinrui.database.dao.daoimpl.RoomEntryDaoImpl;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.CustomAdapter;
 import com.xinrui.smart.fragment.LiveFragment;
+import com.xinrui.smart.pojo.MergeRoom;
 import com.xinrui.smart.pojo.Room;
 import com.xinrui.smart.pojo.RoomEntry;
+import com.xinrui.smart.util.ListDataSave;
 import com.xinrui.smart.util.MessageEvent;
 import com.xinrui.smart.view_custom.MyGridView;
 
 
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -101,10 +119,18 @@ public class CustomRoomActivity extends AppCompatActivity {
 
     List<Integer> list_colors_add = new ArrayList();
 
-
-
     List<RoomEntry> roomEntries = new ArrayList<>();
 
+    List<List<Double>> list_resolution1;
+
+    int current_key;
+
+    ListDataSave listDataSave;
+     Context mContext;
+
+    List<Integer> list1;
+
+    List<Integer> list;
     int colors[] = {R.drawable.merge_room,R.drawable.merge_room1,R.drawable.merge_room2,R.drawable.merge_room3,R.drawable.merge_room4,
                     R.drawable.merge_room5,R.drawable.merge_room6,R.drawable.merge_room7};
 
@@ -161,6 +187,14 @@ public class CustomRoomActivity extends AppCompatActivity {
         setContentView(R.layout.custom_room);
         ButterKnife.bind(this);
 
+
+        Intent intent = getIntent();
+        current_key = intent.getIntExtra("current_key",0);
+        Bundle bundle = this.getIntent().getExtras();
+         list1 = bundle.getIntegerArrayList("list1");
+
+
+
         //初始化数据
         initRooms();
 
@@ -195,25 +229,46 @@ public class CustomRoomActivity extends AppCompatActivity {
         list_colors_remove.add(R.drawable.merge_room18);
     }
     private void initRooms() {
-//        for (int i = 0; i < 20; i++) {
-//            roomlist.add(null);
-//        }
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         titleText.setText("自定义户型");
         reset_list_no_blink();
         customAdapter = new CustomAdapter(this,roomlist);
         customRooms.setAdapter(customAdapter);
+
         customAdapter.notifyDataSetChanged();
         initcolors();
+
+        setHandle();
+
+
+    }
+
+    public void setHandle(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                /**
+                 * 延时执行的代码
+                 */
+                for (int i = 0; i < list1.size(); i++) {
+                    View view4 = customRooms.getChildAt(list1.get(i)-customRooms.getFirstVisiblePosition());
+                    view4.findViewById(R.id.cusromroom_text).setBackgroundResource(R.drawable.merge_room3);
+                }
+
+                customAdapter.notifyDataSetChanged();
+            }
+        },100); // 延时0.1秒
     }
 
     @OnClick({R.id.return_button,R.id.merge, R.id.resolution, R.id.sure})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.return_button:
-                setResult(1);
                 finish();
+            break;
             case R.id.merge:
+
                 if(list_color.size() == 0){
 
                 }else {
@@ -249,6 +304,17 @@ public class CustomRoomActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             resolution(longTemp);
+                            //数据库中移除删除房间
+                            View view = customRooms.getChildAt(longTemp);
+                            int x = view.getLeft()+view.getWidth()/2;
+                            int y = view.getTop()+view.getHeight()/2;
+                            Log.i("roomEntries_list1",roomEntries_list.size()+"");
+                            for (int j = 0; j < roomEntries_list.size(); j++) {
+
+                                if(roomEntries_list.get(j).getX()<x&& x<(roomEntries_list.get(j).getX()+roomEntries_list.get(j).getWidth())&&roomEntries_list.get(j).getY()<y&&y<(roomEntries_list.get(j).getY()+roomEntries_list.get(j).getHeight())){
+                                    roomEntries_list.remove(j);
+                                }
+                            }
                         }
                     });
                     dialog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -261,11 +327,21 @@ public class CustomRoomActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.sure:
-//                roomEntryDao.insertAll(roomEntries_list);
-                List<RoomEntry> list=roomEntryDao.findAll();
+
+
+                SharedPreferences sharedPreferences = this.getSharedPreferences("data",0);
+                int group1 = sharedPreferences.getInt("btn1_group",0);
+                int group2 = sharedPreferences.getInt("btn2_group",0);
+                int group3 = sharedPreferences.getInt("btn3_group",0);
+                int group4 = sharedPreferences.getInt("btn4_group",0);
+
+                List<RoomEntry> list=roomEntryDao.findAllByGroup(current_key);
                 roomEntryDao.deleteAll(list);
+
+                roomEntryDao.findAllByGroup(current_key);
+
                 if (!roomEntries_list.isEmpty()){
-                    roomEntryDao.insertAll(roomEntries_list);
+                    roomEntryDao.insertAll(roomEntries_list,current_key);
                     finish();
                 }
                 break;
@@ -278,6 +354,8 @@ public class CustomRoomActivity extends AppCompatActivity {
                 View view = customRooms.getChildAt(i);
                 view.setVisibility(View.VISIBLE);
             }
+
+
             for (int i = 0; i < list_resolution.size(); i++) {
                 for (int l = 0; l < list_resolution.get(i).size(); l++) {
                     if (list_resolution.get(i).get(l).equals(postion)){
@@ -297,6 +375,11 @@ public class CustomRoomActivity extends AppCompatActivity {
                         for (int k = 0; k < list_blink.size(); k++) {//list_bink集合里的所有binkList[postion]=0
                             blinkList[list_blink.get(k)] = 0;
                         }
+
+                        for (int j = 0; j < list_resolution.get(i).size(); j++) {
+                            RoomEntry roomEntry=roomEntryDao.findById(j);
+                        }
+
                         list_resolution.remove(list_resolution.get(i));
                         list_blink.clear();
                         reset_list_no_blink();
@@ -528,7 +611,21 @@ public class CustomRoomActivity extends AppCompatActivity {
         int width = view1.getRight()-view.getLeft();
         int height = view1.getBottom()-view.getTop();
         RoomEntry roomEntry = new RoomEntry(x,y,width,height);
+        roomEntry.setGroup(current_key);
         roomEntries_list.add(roomEntry);
+        Log.i("roomEntries_list=",roomEntries_list.size()+"");
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+
 
 }
