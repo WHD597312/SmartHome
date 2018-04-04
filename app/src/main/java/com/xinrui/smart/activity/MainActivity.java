@@ -235,14 +235,7 @@ public class MainActivity extends CheckPermissionsActivity {
         }
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            moveTaskToBack(false);
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
