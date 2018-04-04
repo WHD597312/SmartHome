@@ -78,18 +78,12 @@ public class HttpUtils {
     public static String getOkHpptRequest(String url) {
         String result=null;
         try{
-            String CONTENT_TYPE = "application/json";
-
-
-
 
             Request request = new Request.Builder()
                     .addHeader("client","android-xr")
                     .url(url)
                     .get()
                     .build();
-
-
             OkHttpClient okHttpClient=new OkHttpClient();
             Response response=okHttpClient.newCall(request).execute();
 

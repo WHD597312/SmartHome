@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -71,6 +72,15 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         application.addActivity(this);
     }
 
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            application.removeActivity(this);/**退出主页面*/
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @OnClick({R.id.img_back, R.id.image_home,R.id.btn_cancle,R.id.btn_ensure})
     public void onClick(View view) {
         switch (view.getId()) {

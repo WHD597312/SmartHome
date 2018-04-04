@@ -16,9 +16,10 @@ public class DeviceChild {
     private int img;
     private int direction;
     private Long groupId;
+    private int masterControllerUserId;
+
 
     int type;
-    int masterControllerUserId;
     int isUnlock;
 
 
@@ -34,16 +35,16 @@ public class DeviceChild {
         this.img = img;
     }
 
-    @Generated(hash = 1359923417)
-    public DeviceChild(Long id, String child, int img, int direction, Long groupId, int type,
-            int masterControllerUserId, int isUnlock) {
+    @Generated(hash = 1650702124)
+    public DeviceChild(Long id, String child, int img, int direction, Long groupId,
+            int masterControllerUserId, int type, int isUnlock) {
         this.id = id;
         this.child = child;
         this.img = img;
         this.direction = direction;
         this.groupId = groupId;
-        this.type = type;
         this.masterControllerUserId = masterControllerUserId;
+        this.type = type;
         this.isUnlock = isUnlock;
     }
 

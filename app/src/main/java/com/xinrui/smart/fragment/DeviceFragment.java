@@ -149,6 +149,7 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
                 break;
         }
     }
+
     /**创建新家或修改新家名称*/
     private void createOrUpdateHome(){
         listview.setVisibility(View.VISIBLE);

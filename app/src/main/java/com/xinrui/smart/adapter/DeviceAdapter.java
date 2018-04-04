@@ -2,6 +2,8 @@ package com.xinrui.smart.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 import com.donkingliang.groupedadapter.adapter.GroupedRecyclerViewAdapter;
 import com.donkingliang.groupedadapter.holder.BaseViewHolder;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
+import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.AddDeviceActivity;
 import com.xinrui.smart.activity.DeviceListActivity;
@@ -22,6 +25,9 @@ import com.xinrui.smart.view_custom.DeviceChildDialog;
 import com.xinrui.smart.view_custom.DeviceHomeDialog;
 import com.xinrui.smart.view_custom.MyRecyclerViewItem;
 
+import org.json.JSONObject;
+
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +50,8 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
 
 
     int []colors={R.color.color_white,R.color.color_orange};
+    private int groupPosition=0;
+    private int childPosition=0;
     public DeviceAdapter(Context context, List<DeviceGroup> groups,List<List<DeviceChild>> childern) {
         super(context);
         this.context=context;
@@ -154,10 +162,11 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
                             DeviceChild childEntry=list.get(i);
                             childEntry.setImg(imgs[1]);
                         }
+                        holder.setTextColor(R.id.tv_close,context.getResources().getColor(colors[0]));
+                        holder.setTextColor(R.id.tv_open,context.getResources().getColor(colors[1]));
+                        changeChildren(groupPosition);
                     }
-                    holder.setTextColor(R.id.tv_close,context.getResources().getColor(colors[0]));
-                    holder.setTextColor(R.id.tv_open,context.getResources().getColor(colors[1]));
-                    changeChildren(groupPosition);
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -174,11 +183,11 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
                             DeviceChild childEntry=list.get(i);
                             childEntry.setImg(imgs[0]);
                         }
+                        holder.setTextColor(R.id.tv_close,context.getResources().getColor(colors[1]));
+                        holder.setTextColor(R.id.tv_open,context.getResources().getColor(colors[0]));
+                        changeChildren(groupPosition);
                     }
-                    holder.setTextColor(R.id.tv_close,context.getResources().getColor(colors[1]));
-                    holder.setTextColor(R.id.tv_open,context.getResources().getColor(colors[0]));
 
-                    changeChildren(groupPosition);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -272,9 +281,9 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
         btn_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deviceChildDao.delete(entry);
-                childern.get(groupPosition).remove(childPosition);
-                changeDataSet();
+                DeviceAdapter.this.groupPosition=groupPosition;
+                DeviceAdapter.this.childPosition=childPosition;
+                new DeleteDeviceAsync().execute(entry);
             }
         });
 
@@ -290,10 +299,14 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
                 if (!Utils.isEmpty(child)){
                     DeviceChild deviceChild=childern.get(groupPosition).get(childPosition);
                     deviceChild.setChild(child);
-                    deviceChildDao.update(deviceChild);
-                    changeChild(groupPosition,childPosition);
+                    DeviceAdapter.this.groupPosition=groupPosition;
+                    DeviceAdapter.this.childPosition=childPosition;
+                    new UpdateDeviceNameAsync().execute(deviceChild);
+                    dialog.dismiss();
+                }else {
+                    Utils.showToast(context,"设备名称不能为空");
                 }
-                dialog.dismiss();
+
             }
         });
         dialog.setOnNegativeClickListener(new DeviceChildDialog.OnNegativeClickListener() {
@@ -303,5 +316,80 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
             }
         });
         dialog.show();
+    }
+    class UpdateDeviceNameAsync extends AsyncTask<DeviceChild,Void,Integer>{
+
+        @Override
+        protected Integer doInBackground(DeviceChild... deviceChildren) {
+            int code=0;
+            DeviceChild deviceChild=deviceChildren[0];
+            try {
+                String updateDeviceNameUrl="http://120.77.36.206:8082/warmer/v1.0/device/changeDeviceName?deviceId="+
+                        URLEncoder.encode(deviceChild.getId()+"","UTF-8")+"&newName="+URLEncoder.encode(deviceChild.getChild(),"UTF-8");
+                String result=HttpUtils.getOkHpptRequest(updateDeviceNameUrl);
+                JSONObject jsonObject=new JSONObject(result);
+                code=jsonObject.getInt("code");
+                if (code==2000){
+                    deviceChildDao.update(deviceChild);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return code;
+        }
+
+        @Override
+        protected void onPostExecute(Integer code) {
+            super.onPostExecute(code);
+            switch (code){
+                case 2000:
+                    Utils.showToast(context,"修改成功");
+                    changeChild(groupPosition,childPosition);
+                    break;
+                case -3009:
+                    Utils.showToast(context,"修改失败");
+                    break;
+            }
+        }
+    }
+    class DeleteDeviceAsync extends AsyncTask<DeviceChild,Void,Integer>{
+
+        @Override
+        protected Integer doInBackground(DeviceChild... deviceChildren) {
+            int code=0;
+            DeviceChild deviceChild=deviceChildren[0];
+            try {
+                SharedPreferences preferences =context.getSharedPreferences("my", Context.MODE_PRIVATE);
+                String userId=preferences.getString("userId","");
+                String updateDeviceNameUrl="http://120.77.36.206:8082/warmer/v1.0/device/deleteDevice?deviceId="+
+                        URLEncoder.encode(deviceChild.getId()+"","UTF-8")+"&userId="+URLEncoder.encode(userId,"UTF-8")
+                        +"&houseId="+URLEncoder.encode(deviceChild.getGroupId()+"","UTF-8");
+//                String updateDeviceNameUrl="http://192.168.168.3:8082/warmer/v1.0/device/deleteDevice?deviceId=6&userId=1&houseId=1000";
+                String result=HttpUtils.getOkHpptRequest(updateDeviceNameUrl);
+                JSONObject jsonObject=new JSONObject(result);
+                code=jsonObject.getInt("code");
+                if (code==2000){
+                    deviceChildDao.delete(deviceChild);
+                    childern.get(groupPosition).remove(childPosition);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return code;
+        }
+
+        @Override
+        protected void onPostExecute(Integer code) {
+            super.onPostExecute(code);
+            switch (code){
+                case 2000:
+                    Utils.showToast(context,"解除设备成功");
+                    notifyDataSetChanged();
+                    break;
+                case -3009:
+                    Utils.showToast(context,"解除设备失败");
+                    break;
+            }
+        }
     }
 }

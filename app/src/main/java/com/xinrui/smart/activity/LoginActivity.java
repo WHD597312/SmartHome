@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 
@@ -51,6 +52,10 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         preferences = getSharedPreferences("my", MODE_PRIVATE);
+        if (preferences.contains("phone")){
+            String phone = preferences.getString("phone", "");
+            et_name.setText(phone);
+        }
         if (preferences.contains("phone") && preferences.contains("password")) {
             String phone = preferences.getString("phone", "");
             String password = preferences.getString("password", "");
@@ -99,17 +104,17 @@ public class LoginActivity extends AppCompatActivity {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
                     JSONObject content=jsonObject.getJSONObject("content");
-                    String userId=content.getString("userId");
+                    int userId=content.getInt("userId");
                     String phone=content.getString("phone");
                     String password=content.getString("password");
                     if (code==2000){
 
                         SharedPreferences.Editor editor=preferences.edit();
-                        if (!preferences.contains("phone") && !preferences.contains("password")) {
+                        if (!preferences.contains("password")) {
                             editor.putString("phone",phone);
                             editor.putString("password",password);
                         }
-                        editor.putString("userId",userId);
+                        editor.putString("userId",userId+"");
                         editor.commit();
                     }
                 }
@@ -123,6 +128,9 @@ public class LoginActivity extends AppCompatActivity {
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
             switch (code) {
+                case -1006:
+                    Utils.showToast(LoginActivity.this, "手机号码未注册");
+                    break;
                 case -1005:
                     Utils.showToast(LoginActivity.this, "用户名或密码错误");
                     et_name.setText("");
@@ -131,12 +139,31 @@ public class LoginActivity extends AppCompatActivity {
                 case 2000:
                     Utils.showToast(LoginActivity.this, "登录成功");
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
+                    startActivityForResult(intent,MainActivity.LOGIN);
                     break;
             }
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode==MainActivity.LOGIN){
+            if (preferences.contains("phone")){
+                String phone = preferences.getString("phone", "");
+                et_name.setText(phone);
+            }
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            application.removeActivity(this);/**退出主页面*/
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();

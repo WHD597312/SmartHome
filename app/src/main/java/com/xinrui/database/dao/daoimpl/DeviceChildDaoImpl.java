@@ -29,10 +29,17 @@ public class DeviceChildDaoImpl {
     public void update(DeviceChild deviceChild){
         deviceChildDao.update(deviceChild);
     }
+    /**清空用户所有的设备*/
+    public void deleteAll(){
+        deviceChildDao.deleteAll();
+    }
     public void delete(DeviceChild deviceChild){
         deviceChildDao.delete(deviceChild);
     }
     public List<DeviceChild> findGroupIdAllDevice(Long groupId){
         return deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.GroupId.eq(groupId)).list();
+    }
+    public List<DeviceChild> findAllDevice(){
+        return deviceChildDao.loadAll();
     }
 }
