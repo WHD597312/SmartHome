@@ -3,6 +3,7 @@ package com.xinrui.smart.activity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -47,6 +48,14 @@ public class LocationActivity extends CheckPermissionsActivity
         initLocation();
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            application.removeActivity(this);/**退出主页面*/
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     //初始化控件
     private void initView(){
 

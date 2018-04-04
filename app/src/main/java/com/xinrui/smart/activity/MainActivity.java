@@ -238,7 +238,7 @@ public class MainActivity extends CheckPermissionsActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            application.removeActivity(this);/**退出主页面*/
+            moveTaskToBack(false);
             return true;
         }
         return super.onKeyDown(keyCode, event);

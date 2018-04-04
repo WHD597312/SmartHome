@@ -6,6 +6,7 @@ import android.view.KeyEvent;
 
 import com.journeyapps.barcodescanner.CaptureManager;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 
 import butterknife.BindView;
@@ -13,6 +14,7 @@ import butterknife.ButterKnife;
 
 public class ScanActivity extends AppCompatActivity {
 
+    MyApplication application;
     @BindView(R.id.dbv)
     DecoratedBarcodeView mDBV;
     private CaptureManager captureManager;
@@ -24,12 +26,15 @@ public class ScanActivity extends AppCompatActivity {
         captureManager=new CaptureManager(this,mDBV);
         captureManager.initializeFromIntent(getIntent(),savedInstanceState);
         captureManager.decode();
+
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
+        application.addActivity(this);
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return mDBV.onKeyDown(keyCode,event) || super.onKeyDown(keyCode, event);
-    }
+
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

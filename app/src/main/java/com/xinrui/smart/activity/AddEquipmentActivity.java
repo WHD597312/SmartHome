@@ -58,6 +58,7 @@ public class AddEquipmentActivity extends Activity {
         recyclerView.setAdapter(equipmentAdapter);
     }
 
+
     public void initData() {
         equipment_list = new ArrayList<>();
         map = new HashMap<>();
