@@ -17,8 +17,7 @@ public class DeviceChild {
     private int direction;
     private Long groupId;
     private int masterControllerUserId;
-
-
+    private int controlled;
     int type;
     int isUnlock;
 
@@ -35,15 +34,27 @@ public class DeviceChild {
         this.img = img;
     }
 
-    @Generated(hash = 1650702124)
     public DeviceChild(Long id, String child, int img, int direction, Long groupId,
-            int masterControllerUserId, int type, int isUnlock) {
+                       int masterControllerUserId, int type, int isUnlock) {
         this.id = id;
         this.child = child;
         this.img = img;
         this.direction = direction;
         this.groupId = groupId;
         this.masterControllerUserId = masterControllerUserId;
+        this.type = type;
+        this.isUnlock = isUnlock;
+    }
+    @Generated(hash = 1516157361)
+    public DeviceChild(Long id, String child, int img, int direction, Long groupId,
+            int masterControllerUserId, int controlled, int type, int isUnlock) {
+        this.id = id;
+        this.child = child;
+        this.img = img;
+        this.direction = direction;
+        this.groupId = groupId;
+        this.masterControllerUserId = masterControllerUserId;
+        this.controlled = controlled;
         this.type = type;
         this.isUnlock = isUnlock;
     }
@@ -110,5 +121,13 @@ public class DeviceChild {
 
     public void setIsUnlock(int isUnlock) {
         this.isUnlock = isUnlock;
+    }
+
+    public int getControlled() {
+        return controlled;
+    }
+
+    public void setControlled(int controlled) {
+        this.controlled = controlled;
     }
 }

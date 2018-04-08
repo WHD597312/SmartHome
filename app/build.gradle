@@ -9,7 +9,7 @@ repositories {
 }
 
 greendao {
-    schemaVersion 10
+    schemaVersion 11
     daoPackage 'com.xinrui.database.dao'
     targetGenDir 'src/main/java'
 }

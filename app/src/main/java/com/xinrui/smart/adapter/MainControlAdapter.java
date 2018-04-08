@@ -1,6 +1,7 @@
 package com.xinrui.smart.adapter;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -10,10 +11,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
+import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.MainControl;
+import com.xinrui.smart.util.Utils;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,9 +35,11 @@ import butterknife.ButterKnife;
 public class MainControlAdapter extends BaseAdapter {
     private Context context;
     private List<DeviceChild> list;
+    private DeviceChildDaoImpl deviceChildDao;
     public MainControlAdapter(Context context, List<DeviceChild> list) {
         this.context = context;
         this.list = list;
+        deviceChildDao=new DeviceChildDaoImpl(context);
     }
     @Override
     public int getCount() {
@@ -57,31 +67,61 @@ public class MainControlAdapter extends BaseAdapter {
         }else {
             viewHolder= (ViewHolder) convertView.getTag();
         }
-        DeviceChild control=getItem(position);
+        final DeviceChild control=getItem(position);
         if (control!=null){
+
             viewHolder.tv_main.setText(control.getChild());
             CheckBox box=viewHolder.check;
-
+            if (control.getControlled()==2){
+                states.put(position, true);
+                control.setControlled(0);
+            }
             box.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
                     for (int i=0;i<getCount();i++){
                         states.put(i, false);
+                        selected=position;
+                        flag=false;
                     }
-                    states.put(position, true);    //这样所有的条目中只有一个被选中！
+                    states.put(position, true);    //这样所有的条目中只有一个被选中
+                    selected=position;
+                    flag=true;
+                    setSelected(true,position);
                     notifyDataSetChanged();//刷新适配器
                 }
             });
+
             //上面是点击后设置状态，但是也是需要设置显示样式,通过判断状态设置显示的样式
             if (states.get((Integer) position) == null || states.get((Integer) position) == false) {  //true说明没有被选中
                 viewHolder.check.setChecked(false);
             } else {
                 viewHolder.check.setChecked(true);
             }
-
         }
         return convertView;
     }
+    private int selected;
+
+    private boolean flag;
+    public SelectedEnsure getSelected() {
+        return new SelectedEnsure(selected,flag);
+    }
+    public class SelectedEnsure{
+        public int selected;
+        public boolean flag;
+
+        public SelectedEnsure(int selected, boolean flag) {
+            this.selected = selected;
+            this.flag = flag;
+        }
+    }
+    public void setSelected(boolean flag,int selected) {
+        this.selected = selected;
+        this.flag=flag;
+    }
+
     class ViewHolder{
         @BindView(R.id.img_main)
         ImageView img_main;
@@ -93,4 +133,5 @@ public class MainControlAdapter extends BaseAdapter {
             ButterKnife.bind(this,view);
         }
     }
+
 }

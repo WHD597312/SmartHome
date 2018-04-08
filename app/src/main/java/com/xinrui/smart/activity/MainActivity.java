@@ -331,11 +331,8 @@ public class MainActivity extends AppCompatActivity {
 
                                         int masterControllerUserId = device.getInt("masterControllerUserId");
                                         int isUnlock = device.getInt("isUnlock");
-                                        DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, type, masterControllerUserId, isUnlock);
-
+                                        DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
                                         deviceChildDao.insert(deviceChild);
-
-
                                     }
                                 }
                             }

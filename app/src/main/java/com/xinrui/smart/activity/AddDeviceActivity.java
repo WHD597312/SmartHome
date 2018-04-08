@@ -187,7 +187,7 @@ public class AddDeviceActivity extends AppCompatActivity {
                             Map<String,Object> params=new HashMap<>();
                             params.put("deviceName",ssid);
                             params.put("houseId",houseId);
-                            params.put("masterControllerUserId",1);
+                            params.put("masterControllerUserId",userId);
                             params.put("type",1);
                             new WifiConectionAsync().execute(params);
 

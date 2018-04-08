@@ -109,16 +109,23 @@ public class MainControlActivity extends AppCompatActivity{
                Bundle bundle=new Bundle();
                bundle.putString("houseId",houseId);
                mainControlFragment.setArguments(bundle);
-                fragmentTransaction.commit();
+               fragmentTransaction.commit();
             }
         }else if("受控机设置".equals(content)){
             FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.layout_body,new ControlledFragment());
-            fragmentTransaction.commit();
+            ControlledFragment controlledFragment=new ControlledFragment();
+            fragmentTransaction.replace(R.id.layout_body,controlledFragment);
+            if (!Utils.isEmpty(houseId)){
+                Bundle bundle=new Bundle();
+                bundle.putString("houseId",houseId);
+                controlledFragment.setArguments(bundle);
+                fragmentTransaction.commit();
+            }
 
         }else if("外置传感器".equals(content)){
             FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.layout_body,new ETSControlFragment());
+
             fragmentTransaction.commit();
         }
     }
