@@ -68,4 +68,5 @@ dependencies {
     compile 'com.contrarywind:Android-PickerView:3.2.5'
     compile 'org.greenrobot:eventbus:3.0.0'
     compile files('libs/org.eclipse.paho.client.mqttv3-1.0.2.jar')
+
 }
