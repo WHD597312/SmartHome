@@ -106,9 +106,10 @@ public class NoDeviceFragment extends Fragment{
 //                        params.put("houseName",group);
 //                        params.put("location",city);
                         List<DeviceGroup> deviceGroups=deviceGroupDao.findAllDevices();
-                        if (deviceGroups.size()==1){
+                        if (deviceGroups.size()==2){
                             for (DeviceGroup deviceGroup2:deviceGroups){
                                 deviceGroup=deviceGroup2;
+                                break;
                             }
                         }
                         deviceGroup.setLocation(city);

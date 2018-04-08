@@ -9,6 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,13 +17,18 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
+import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.FunctionAdapter;
 import com.xinrui.smart.fragment.ControlledFragment;
 import com.xinrui.smart.fragment.ETSControlFragment;
 import com.xinrui.smart.fragment.MainControlFragment;
+import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.Function;
+import com.xinrui.smart.pojo.MainControl;
+import com.xinrui.smart.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,19 +84,18 @@ public class MainControlActivity extends AppCompatActivity{
         application.addActivity(this);
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            application.removeActivity(this);/**退出主页面*/
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+    private DeviceGroupDaoImpl deviceGroupDao;
+    private DeviceChildDaoImpl deviceChildDao;
+    String houseId;
+
     @Override
     protected void onStart() {
         super.onStart();
+
         Intent intent=getIntent();
         String content=intent.getStringExtra("content");
+        houseId=intent.getStringExtra("houseId");
+
 
         tv_main_device.setText(content);
         fragmentManager=getFragmentManager();
@@ -98,8 +103,14 @@ public class MainControlActivity extends AppCompatActivity{
         function();
         if ("主控制设置".equals(content)){
             FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.layout_body,new MainControlFragment());
-            fragmentTransaction.commit();
+            MainControlFragment mainControlFragment=new MainControlFragment();
+            fragmentTransaction.replace(R.id.layout_body, mainControlFragment);
+            if (!Utils.isEmpty(houseId)){
+               Bundle bundle=new Bundle();
+               bundle.putString("houseId",houseId);
+               mainControlFragment.setArguments(bundle);
+                fragmentTransaction.commit();
+            }
         }else if("受控机设置".equals(content)){
             FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.layout_body,new ControlledFragment());
@@ -118,7 +129,6 @@ public class MainControlActivity extends AppCompatActivity{
                 Intent intent=new Intent(this,MainActivity.class);
                 intent.putExtra("mainControl","mainControl");
                 startActivity(intent);
-
                 break;
         }
     }
@@ -142,9 +152,13 @@ public class MainControlActivity extends AppCompatActivity{
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Intent intent=new Intent(this,MainActivity.class);
+            intent.putExtra("mainControl","mainControl");
+            startActivity(intent);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
-
 }

@@ -23,6 +23,7 @@ public class DeviceChildDaoImpl {
         DaoSession session=master.newSession();
         deviceChildDao=session.getDeviceChildDao();
     }
+
     public void insert(DeviceChild deviceChild){
         deviceChildDao.insert(deviceChild);
     }
@@ -35,6 +36,9 @@ public class DeviceChildDaoImpl {
     }
     public void delete(DeviceChild deviceChild){
         deviceChildDao.delete(deviceChild);
+    }
+    public DeviceChild findDeviceChild(Long id){
+        return deviceChildDao.load(id);
     }
     public List<DeviceChild> findGroupIdAllDevice(Long groupId){
         return deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.GroupId.eq(groupId)).list();

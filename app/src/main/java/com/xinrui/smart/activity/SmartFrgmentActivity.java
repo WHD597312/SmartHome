@@ -7,7 +7,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ListView;
@@ -69,14 +68,6 @@ public class SmartFrgmentActivity extends AppCompatActivity {
         tv_live.setTextColor(getResources().getColor(R.color.color_gray2));
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            application.removeActivity(this);/**退出主页面*/
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
     @Override
     protected void onStart() {
         super.onStart();

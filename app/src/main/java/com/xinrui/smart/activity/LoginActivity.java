@@ -1,5 +1,6 @@
 package com.xinrui.smart.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -18,6 +19,7 @@ import com.xinrui.smart.util.Utils;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -40,9 +42,12 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         unbinder = ButterKnife.bind(this);
+        preferences = getSharedPreferences("my", MODE_PRIVATE);
+
         if (application == null) {
             application = (MyApplication) getApplication();
         }
+
         application.addActivity(this);
     }
 
@@ -51,16 +56,28 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        preferences = getSharedPreferences("my", MODE_PRIVATE);
+
         if (preferences.contains("phone")){
             String phone = preferences.getString("phone", "");
             et_name.setText(phone);
+            et_pswd.setText("");
         }
         if (preferences.contains("phone") && preferences.contains("password")) {
             String phone = preferences.getString("phone", "");
             String password = preferences.getString("password", "");
             et_name.setText(phone);
             et_pswd.setText(password);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (preferences.contains("phone") && preferences.contains("password")){
+//            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            if (preferences.contains("login")){
+                startActivity(new Intent(this,MainActivity.class));
+            }
         }
     }
 
@@ -92,6 +109,14 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            application.removeAllActivity();/**退出主页面*/
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     class LoginAsyncTask extends AsyncTask<Map<String, Object>, Void, Integer> {
 
         @Override
@@ -139,31 +164,16 @@ public class LoginActivity extends AppCompatActivity {
                 case 2000:
                     Utils.showToast(LoginActivity.this, "登录成功");
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivityForResult(intent,MainActivity.LOGIN);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                     break;
             }
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode==MainActivity.LOGIN){
-            if (preferences.contains("phone")){
-                String phone = preferences.getString("phone", "");
-                et_name.setText(phone);
-            }
-        }
-    }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            application.removeActivity(this);/**退出主页面*/
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

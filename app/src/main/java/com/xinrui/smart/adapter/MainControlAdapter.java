@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.xinrui.smart.R;
+import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.MainControl;
 
 import java.util.HashMap;
@@ -25,8 +26,8 @@ import butterknife.ButterKnife;
 
 public class MainControlAdapter extends BaseAdapter {
     private Context context;
-    private List<MainControl> list;
-    public MainControlAdapter(Context context, List<MainControl> list) {
+    private List<DeviceChild> list;
+    public MainControlAdapter(Context context, List<DeviceChild> list) {
         this.context = context;
         this.list = list;
     }
@@ -36,7 +37,7 @@ public class MainControlAdapter extends BaseAdapter {
     }
 
     @Override
-    public MainControl getItem(int position) {
+    public DeviceChild getItem(int position) {
         return list.get(position);
     }
 
@@ -56,9 +57,9 @@ public class MainControlAdapter extends BaseAdapter {
         }else {
             viewHolder= (ViewHolder) convertView.getTag();
         }
-        MainControl control=getItem(position);
+        DeviceChild control=getItem(position);
         if (control!=null){
-            viewHolder.tv_main.setText(control.getName());
+            viewHolder.tv_main.setText(control.getChild());
             CheckBox box=viewHolder.check;
 
             box.setOnClickListener(new View.OnClickListener() {

@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,6 +33,7 @@ import com.xinrui.smart.util.Utils;
 
 import org.json.JSONObject;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,13 +68,18 @@ public class AddDeviceActivity extends AppCompatActivity {
     int scan_drawable;
 
 
+    private String userId;
     private String wifiConnectionUrl="http://120.77.36.206:8082/warmer/v1.0/device/registerDevice";
+    private String qrCodeConnectionUrl="http://120.77.36.206:8082/warmer/v1.0/device/createShareDevice";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_device);
         ButterKnife.bind(this);
+
+        SharedPreferences my=getSharedPreferences("my",MODE_PRIVATE);
+        userId=my.getString("userId","");
         for (int i=0;i<wifi_colors.length;i++){
             if (0==i){
                 wifi_colors[0]=getResources().getColor(R.color.white);
@@ -89,20 +94,25 @@ public class AddDeviceActivity extends AppCompatActivity {
         Intent intent=getIntent();
         houseId=Integer.parseInt(intent.getStringExtra("houseId"));
         String wifi=intent.getStringExtra("wifi");
+
         if (!Utils.isEmpty(wifi)){
+            if ("wifi".equals(wifi)){
+                linearout_add_wifi_device.setVisibility(View.VISIBLE);
+                linearout_add_scan_device.setVisibility(View.GONE);
+                btn_wifi.setVisibility(View.GONE);
+                btn_scan.setVisibility(View.GONE);
+            }else if ("share".equals(wifi)){
+                linearout_add_scan_device.setVisibility(View.VISIBLE);
+                linearout_add_wifi_device.setVisibility(View.GONE);
+                btn_wifi.setVisibility(View.GONE);
+                btn_scan.setVisibility(View.GONE);
+            }
             btn_wifi.setVisibility(View.GONE);
             btn_scan.setVisibility(View.GONE);
         }
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            application.removeActivity(this);/**退出主页面*/
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+    private String sharedDeviceId;
     int[] imgs={R.mipmap.image_unswitch, R.mipmap.image_switch};
     @OnClick({R.id.img_back,R.id.btn_wifi,R.id.btn_scan,R.id.btn_scan2,R.id.btn_match})
     public void onClick(View view){
@@ -161,6 +171,11 @@ public class AddDeviceActivity extends AppCompatActivity {
                 break;
             case R.id.btn_scan2:
                 scanQrCode();
+//                sharedDeviceId="userId";
+//                Map<String,Object> params2=new HashMap<>();
+//                params2.put("deviceId","1067");
+//                params2.put("userId",userId);
+//                new QrCodeAsync().execute(params2);
                 break;
             case R.id.btn_match:
                 String ssid=et_ssid.getText().toString();
@@ -236,6 +251,37 @@ public class AddDeviceActivity extends AppCompatActivity {
     }
 
 
+    class QrCodeAsync extends AsyncTask<Map<String,Object>,Void,Integer>{
+        @Override
+        protected Integer doInBackground(Map<String, Object>... maps) {
+            int code=0;
+            Map<String,Object> params=maps[0];
+            String result=HttpUtils.postOkHpptRequest(qrCodeConnectionUrl,params);
+            if (!Utils.isEmpty(result)){
+                try {
+                    JSONObject jsonObject=new JSONObject(result);
+                    code=jsonObject.getInt("code");
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            return code;
+        }
+        @Override
+        protected void onPostExecute(Integer code) {
+            super.onPostExecute(code);
+            switch (code){
+                case 2000:
+                    Utils.showToast(AddDeviceActivity.this,"分享设备创建成功");
+                    Intent intent=new Intent(AddDeviceActivity.this,MainActivity.class);
+                    startActivity(intent);
+                    break;
+                case -3007:
+                    Utils.showToast(AddDeviceActivity.this,"分享设备添加失败");
+                    break;
+            }
+        }
+    }
     @Override
     protected void onStart() {
         super.onStart();
@@ -253,7 +299,23 @@ public class AddDeviceActivity extends AppCompatActivity {
                 Toast.makeText(this,"内容为空",Toast.LENGTH_LONG).show();
             }else{
                 String content=intentResult.getContents();
-                tv_result.setText(content);
+                if (content!=null){
+                    String deviceId=content;
+                    long deviceId2=Long.parseLong(deviceId);
+                    DeviceChild deviceChild=deviceChildDao.findDeviceChild(deviceId2);
+                    if (deviceChild!=null){
+                        Utils.showToast(AddDeviceActivity.this,"该设备已经存在");
+                        Intent intent=new Intent(AddDeviceActivity.this,MainActivity.class);
+                        startActivity(intent);
+                    }else {
+                        Map<String,Object> params=new HashMap<>();
+                        params.put("deviceId",deviceId);
+                        params.put("userId",userId);
+                        new QrCodeAsync().execute(params);
+                    }
+
+                }
+//                tv_result.setText(content);
             }
         }else{
             super.onActivityResult(requestCode, resultCode, data);

@@ -1,142 +1,234 @@
 package com.xinrui.smart.activity;
 
+import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.RemoteViews;
+import android.widget.Toast;
 
-import com.bigkoo.pickerview.OptionsPickerView;
-import com.google.gson.Gson;
 import com.xinrui.smart.R;
-import com.xinrui.smart.pojo.JsonBean;
-import com.xinrui.smart.util.JsonFileReader;
 
-import org.json.JSONArray;
-import org.json.JSONException;
+import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
+import com.xinrui.smart.util.wifi.WifiHelper;
+
+
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-public class ClockActivity extends AppCompatActivity {
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-    private TextView mTvAddress;
-    private ArrayList<JsonBean> options1Items = new ArrayList<>();
-    private ArrayList<ArrayList<String>> options2Items = new ArrayList<>();
-    private ArrayList<ArrayList<ArrayList<String>>> options3Items = new ArrayList<>();
+public class ClockActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+
+    WifiHelper wifiUtil;//定义Wife工具类
+    ListView listView;//显示Wife的数据列表
+    ArrayAdapter<String> adapter;//列表的适配器
+    List<String> wifiSSIDs = new ArrayList<>();//列表的数据
+    WifiManager wifiManager;//Wife管理器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_clock);
-        initView();
-        setListener();
-        initJsonData();
+        wifiUtil = new WifiHelper(this);
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        listView = (ListView) findViewById(R.id.lv);
+        //创建适配器，并把适配器设置到ListView中
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, wifiSSIDs);
+        listView.setAdapter(adapter);
+        //给ListView设置点击事件，点击后连接Wife
+        listView.setOnItemClickListener(this);
     }
 
-    private void setListener() {
-        mTvAddress.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showPickerView();
-            }
-        });
+    /**
+     * 打开Wife
+     */
+    public void open(View view) {
+        wifiUtil.openWifi();
     }
-
-    private void showPickerView() {
-
-        OptionsPickerView pvOptions=new OptionsPickerView.Builder(this, new OptionsPickerView.OnOptionsSelectListener() {
-            @Override
-            public void onOptionsSelect(int options1, int options2, int options3, View v) {
-                //返回的分别是三个级别的选中位置
-                String text = options1Items.get(options1).getPickerViewText() +
-                        options2Items.get(options1).get(options2) +
-                        options3Items.get(options1).get(options2).get(options3);
-                mTvAddress.setText(text);
-            }
-        }).setTitleText("")
-                .setDividerColor(Color.GRAY)
-                .setTextColorCenter(Color.GRAY)
-                .setContentTextSize(16)
-                .setOutSideCancelable(false)
-                .build();
-          /*pvOptions.setPicker(options1Items);//一级选择器
-        pvOptions.setPicker(options1Items, options2Items);//二级选择器*/
-        pvOptions.setPicker(options1Items, options2Items, options3Items);//三级选择器
-        pvOptions.show();
-    }
-
-    private void initView() {
-        mTvAddress = (TextView) findViewById(R.id.tv_address);
-    }
-
-
-    private void initJsonData() {   //解析数据
-
-        /**
-         * 注意：assets 目录下的Json文件仅供参考，实际使用可自行替换文件
-         * 关键逻辑在于循环体
-         *
-         * */
-        //  获取json数据
-        String JsonData = JsonFileReader.getJson(this, "province_data.json");
-        ArrayList<JsonBean> jsonBean = parseData(JsonData);//用Gson 转成实体
-
-        /**
-         * 添加省份数据
-         *
-         * 注意：如果是添加的JavaBean实体，则实体类需要实现 IPickerViewData 接口，
-         * PickerView会通过getPickerViewText方法获取字符串显示出来。
-         */
-        options1Items = jsonBean;
-
-        for (int i = 0; i < jsonBean.size(); i++) {//遍历省份
-            ArrayList<String> CityList = new ArrayList<>();//该省的城市列表（第二级）
-            ArrayList<ArrayList<String>> Province_AreaList = new ArrayList<>();//该省的所有地区列表（第三极）
-
-            for (int c = 0; c < jsonBean.get(i).getCityList().size(); c++) {//遍历该省份的所有城市
-                String CityName = jsonBean.get(i).getCityList().get(c).getName();
-                CityList.add(CityName);//添加城市
-
-                ArrayList<String> City_AreaList = new ArrayList<>();//该城市的所有地区列表
-
-                //如果无地区数据，建议添加空字符串，防止数据为null 导致三个选项长度不匹配造成崩溃
-                if (jsonBean.get(i).getCityList().get(c).getArea() == null
-                        || jsonBean.get(i).getCityList().get(c).getArea().size() == 0) {
-                    City_AreaList.add("");
-                } else {
-                    for (int d = 0; d < jsonBean.get(i).getCityList().get(c).getArea().size(); d++) {//该城市对应地区所有数据
-                        String AreaName = jsonBean.get(i).getCityList().get(c).getArea().get(d);
-                        City_AreaList.add(AreaName);//添加该城市所有地区数据
-                    }
-                }
-                Province_AreaList.add(City_AreaList);//添加该省所有地区数据
-            }
-            /**
-             * 添加城市数据
-             */
-            options2Items.add(CityList);
-
-            /**
-             * 添加地区数据
-             */
-            options3Items.add(Province_AreaList);
+    /* 搜索wifi热点
+     */
+    private void search() {
+        if (!wifiManager.isWifiEnabled()) {
+            //开启wifi
+            wifiManager.setWifiEnabled(true);
         }
+        wifiManager.startScan();
     }
 
-    public ArrayList<JsonBean> parseData(String result) {//Gson 解析
-        ArrayList<JsonBean> detail = new ArrayList<>();
-        try {
-            JSONArray data = new JSONArray(result);
-            Gson gson = new Gson();
-            for (int i = 0; i < data.length(); i++) {
-                JsonBean entity = gson.fromJson(data.optJSONObject(i).toString(), JsonBean.class);
-                detail.add(entity);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+        mIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(receiver, mIntentFilter);
+    }
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+                // wifi已成功扫描到可用wifi。
+                List<ScanResult> scanResults = wifiManager.getScanResults();
+
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            // mHandler.sendEmptyMessage(MSG_LOAD_FAILED);
         }
-        return detail;
+    };
+
+    private WifiConfiguration isExsits(String SSID) {
+        List<WifiConfiguration> existingConfigs = wifiManager.getConfiguredNetworks();
+        for (WifiConfiguration existingConfig : existingConfigs) {
+            if (existingConfig.SSID.equals("\"" + SSID + "\"")) {
+                return existingConfig;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 关闭Wife
+     */
+    public void close(View view) {
+        wifiUtil.closeWifi();
+    }
+
+    /**
+     * 扫描Wife
+     */
+    List<ScanResult> wifiList = new ArrayList<>();
+
+    public void scan(View view) {
+        isClickHistory = false;//显示的列表不是历史记录
+        //扫描先清除数据
+        wifiSSIDs.clear();
+        wifiList.clear();
+
+        wifiUtil.startScan();//扫描Wife
+        wifiList = wifiUtil.getWifiList();
+        //获取列表中的SSID并显示出来
+        for (ScanResult scanResult : wifiList) {
+            wifiSSIDs.add(scanResult.SSID);
+        }
+        //刷新适配器
+        adapter.notifyDataSetChanged();
+    }
+
+    /**
+     * 获取连接过的Wife数据
+     */
+    List<WifiConfiguration> configuredNetworks = new ArrayList<>();
+
+    public void getGood(View view) {
+        isClickHistory = true;//显示的列表是历史记录
+        //扫描先清除数据
+        wifiSSIDs.clear();
+        if (configuredNetworks != null) {
+            configuredNetworks.clear();
+
+            //获取历史记录
+            configuredNetworks = wifiUtil.getConfiguration();
+            if (configuredNetworks == null)
+                return;
+            for (WifiConfiguration result : configuredNetworks) {
+                wifiSSIDs.add(result.SSID);
+            }
+            //刷新适配器
+            adapter.notifyDataSetChanged();
+        }
+        //获取列表中的SSID并显示出来
+
+    }
+
+    /**
+     * 点击Wife视图列表数据后的回调方法，这里是连接WIfe
+     */
+    boolean isClickHistory = false;
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        //判断是否是点击的历史记录
+        if (isClickHistory) {
+            boolean connOk = wifiUtil.connetionConfiguration(position);
+            if (connOk) {
+                Toast.makeText(ClockActivity.this, "Wife连接成功", Toast.LENGTH_SHORT).show();
+//                finish();
+            } else {
+                Toast.makeText(ClockActivity.this, "Wife连接失败", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            //连接wifi
+            ScanResult sr = wifiList.get(position);//获取点击的扫描信息
+            final String SSID = sr.SSID;//获取Wife的SSID
+
+            final int type = wifiUtil.getType(sr.capabilities);
+            if (type == 1) {//没有密码的Wife情况
+                WifiConfiguration config = wifiUtil.createWifiInfo(SSID, "", type);//第二个空就是密码
+                wifiUtil.addNetWork(config);
+            } else {
+                //有密码
+                final EditText et = new EditText(ClockActivity.this);
+                et.setHint("输入wifi密码");
+                new AlertDialog.Builder(ClockActivity.this)
+                        .setTitle("设置密码")
+                        .setView(et)
+                        .setNeutralButton("取消", null)
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                WifiConfiguration config = wifiUtil.createWifiInfo(SSID, et.getText().toString(), type);
+                                boolean conn = wifiUtil.addNetWork(config);
+                                //判断密码是否连接成功
+                                if (conn) {
+                                    Toast.makeText(ClockActivity.this, "Wife连接成功", Toast.LENGTH_SHORT).show();
+                                    finish();//关闭页面
+                                } else {
+                                    Toast.makeText(ClockActivity.this, "Wife连接失败", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }).create().show();
+            }
+        }
     }
 }
