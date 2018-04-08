@@ -72,6 +72,11 @@ public class MyApplication extends Application {
             activity.finish();
         }
     }
+
+    public List<Activity> getActivities() {
+        return activities;
+    }
+
     public void removeAllActivity(){
         for (Activity activity:activities){
             activity.finish();

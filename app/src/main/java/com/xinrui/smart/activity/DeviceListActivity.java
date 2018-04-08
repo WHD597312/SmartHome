@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -23,6 +22,7 @@ import android.widget.Toast;
 
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
+import com.xinrui.smart.activity.device.ShareDeviceActivity;
 import com.xinrui.smart.adapter.DeviceListAdapter;
 import com.xinrui.smart.fragment.ClockSetFragment;
 import com.xinrui.smart.fragment.ClockSettingFragment;
@@ -61,6 +61,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     @BindView(R.id.datePicker) DatePicker datePicker;
     @BindView(R.id.tv_clock) TextView tv_clock;
     MyApplication application;
+    private String childPosition;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,15 +73,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         application.addActivity(this);
     }
 
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            application.removeActivity(this);/**退出主页面*/
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
     @OnClick({R.id.img_back, R.id.image_home,R.id.btn_cancle,R.id.btn_ensure})
     public void onClick(View view) {
         switch (view.getId()) {
@@ -111,6 +103,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         super.onStart();
         Intent intent = getIntent();
         String content = intent.getStringExtra("content");
+        childPosition=intent.getStringExtra("childPosition");
         tv_name.setText(content);
         fragmentManager =getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -179,7 +172,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         adapter.notifyDataSetInvalidated();
         switch (position){
             case 0:
-                Toast.makeText(this,"我的委托",Toast.LENGTH_SHORT).show();
+                Intent intent=new Intent(DeviceListActivity.this, ShareDeviceActivity.class);
+                intent.putExtra("childPosition",childPosition);
+                startActivity(intent);
                 break;
             case 1:
                 linearout2.setVisibility(View.VISIBLE);

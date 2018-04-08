@@ -9,7 +9,7 @@ repositories {
 }
 
 greendao {
-    schemaVersion 5
+    schemaVersion 11
     daoPackage 'com.xinrui.database.dao'
     targetGenDir 'src/main/java'
 }
@@ -66,6 +66,6 @@ dependencies {
     compile name: 'SMSSDK-2.1.2', ext: 'aar'
     compile name: 'SMSSDKGUI-2.1.2', ext: 'aar'
     compile 'com.contrarywind:Android-PickerView:3.2.5'
-
-
+    compile 'org.greenrobot:eventbus:3.0.0'
+    compile files('libs/org.eclipse.paho.client.mqttv3-1.0.2.jar')
 }

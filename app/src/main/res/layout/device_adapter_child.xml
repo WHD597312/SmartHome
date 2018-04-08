@@ -67,23 +67,25 @@
             android:layout_width="@dimen/dp_120"
             android:layout_height="wrap_content">
 
-            <Button
+            <ImageView
                 android:id="@+id/btn_editor"
                 android:layout_width="@dimen/dp_60"
-                android:layout_height="@dimen/dp_46"
-                android:background="@color/color_blue"
-                android:text="编辑"
+                android:layout_height="@dimen/dp_50"
+                android:background="@color/color_orange"
+                android:src="@mipmap/btn_editmdpi"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16" />
+                android:scaleType="centerInside"
+                />
 
-            <Button
+            <ImageView
                 android:id="@+id/btn_delete"
                 android:layout_width="@dimen/dp_60"
-                android:layout_height="@dimen/dp_46"
+                android:layout_height="@dimen/dp_50"
                 android:background="@color/holo_red_light"
-                android:text="删除"
+                android:src="@mipmap/btn_delmdpi"
                 android:textColor="#ffffff"
-                android:textSize="@dimen/sp_16" />
+                android:scaleType="centerInside"
+                 />
         </LinearLayout>
     </LinearLayout>
 </com.xinrui.smart.view_custom.MyRecyclerViewItem>

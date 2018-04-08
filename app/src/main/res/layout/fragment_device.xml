@@ -27,17 +27,4 @@
         android:text="@string/add_home"
         android:textColor="@color/holo_orange_light"
         android:textSize="@dimen/sp_20" />
-    <ListView
-        android:id="@+id/listview"
-        android:layout_below="@id/image_position"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/shape_white_button"
-        android:visibility="gone"
-        android:layout_marginLeft="@dimen/dp_10"
-        android:layout_marginRight="@dimen/dp_10"
-        android:dividerHeight="@dimen/dp_1"
-        android:divider="@color/color_gray"
-        />
 </RelativeLayout>

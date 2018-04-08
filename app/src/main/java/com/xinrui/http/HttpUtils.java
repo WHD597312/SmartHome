@@ -47,20 +47,22 @@ public class HttpUtils {
         try{
             String CONTENT_TYPE = "application/json";
 
-            String JSON_DATA = "{\"houseName\":\"1\",\"location\":\"sadf\",\"userId\":\"3\"}";
+            String JSON_DATA = "{\n" +
+                    "    \"houseId\":1000,\n" +
+                    "    \"controlledId\":[5,6]\n" +
+                    "}";
             JSONObject jsonObject=new JSONObject();
             for (Map.Entry<String,Object> param:map.entrySet()){
                 jsonObject.put(param.getKey(),param.getValue());
             }
 
-            RequestBody requestBody = RequestBody.create(MediaType.parse(CONTENT_TYPE), jsonObject.toJSONString());
+            RequestBody requestBody = RequestBody.create(MediaType.parse(CONTENT_TYPE),jsonObject.toJSONString());
 
             Request request = new Request.Builder()
                     .addHeader("client","android-xr")
                     .url(url)
                     .post(requestBody)
                     .build();
-
 
             OkHttpClient okHttpClient=new OkHttpClient();
             Response response=okHttpClient.newCall(request).execute();

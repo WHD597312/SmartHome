@@ -5,12 +5,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.Controlled;
+import com.xinrui.smart.pojo.DeviceChild;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -22,11 +25,11 @@ import butterknife.ButterKnife;
 
 public class ControlledAdapter extends BaseAdapter {
     private Context context;
-    private List<Controlled> list;
+    private List<DeviceChild> list;
 
 
 
-    public ControlledAdapter(Context context, List<Controlled> list) {
+    public ControlledAdapter(Context context, List<DeviceChild> list) {
         this.context = context;
         this.list = list;
     }
@@ -37,7 +40,7 @@ public class ControlledAdapter extends BaseAdapter {
     }
 
     @Override
-    public Controlled getItem(int position) {
+    public DeviceChild getItem(int position) {
         return list!=null?list.get(position):null;
     }
 
@@ -56,12 +59,31 @@ public class ControlledAdapter extends BaseAdapter {
         }else {
             viewHolder= (ViewHolder) convertView.getTag();
         }
-        Controlled controlled=getItem(position);
+        final DeviceChild controlled=getItem(position);
         if (controlled!=null){
-            viewHolder.tv_main.setText(controlled.getName());
+            viewHolder.tv_main.setText(controlled.getChild());
         }
+        CheckBox check=viewHolder.check;
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    selected.add(controlled);
+                }else {
+                    selected.remove(controlled);
+                }
+            }
+        });
         return convertView;
     }
+
+    List<DeviceChild> selected=new ArrayList<>();
+
+
+    public List<DeviceChild> getSelected() {
+        return selected;
+    }
+
     class ViewHolder{
         @BindView(R.id.img_main)
         ImageView img_main;

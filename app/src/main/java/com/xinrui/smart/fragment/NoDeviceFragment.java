@@ -100,20 +100,16 @@ public class NoDeviceFragment extends Fragment{
             case R.id.btn_add_device:
                 String group=tv_myhome.getText().toString();
                 if (deviceGroupDao!=null) {
-//                        Map<String,Object> params=new HashMap<>();
-//                        String userId=preferences.getString("userId","");
-//                        params.put("userId",userId);
-//                        params.put("houseName",group);
-//                        params.put("location",city);
+
                         List<DeviceGroup> deviceGroups=deviceGroupDao.findAllDevices();
-                        if (deviceGroups.size()==1){
+                        if (deviceGroups.size()==2){
                             for (DeviceGroup deviceGroup2:deviceGroups){
                                 deviceGroup=deviceGroup2;
+                                break;
                             }
                         }
                         deviceGroup.setLocation(city);
                         new UpdateHomeLocationAsync().execute(deviceGroup);
-//                        new AddFirstHomeAsync().execute(params);
                 }
                 break;
             case R.id.image_position:

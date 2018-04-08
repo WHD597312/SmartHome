@@ -1,8 +1,11 @@
 package com.xinrui.smart.fragment;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -23,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
@@ -30,21 +34,27 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.AMapLocationQualityReport;
+import com.bigkoo.pickerview.OptionsPickerView;
 import com.donkingliang.groupedadapter.adapter.GroupedRecyclerViewAdapter;
 import com.donkingliang.groupedadapter.holder.BaseViewHolder;
+import com.google.gson.Gson;
 import com.squareup.okhttp.Response;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.AddDeviceActivity;
+import com.xinrui.smart.activity.ClockActivity;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.adapter.CityAdapter;
 import com.xinrui.smart.adapter.DeviceAdapter;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 
+import com.xinrui.smart.pojo.JsonBean;
+import com.xinrui.smart.util.JsonFileReader;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.DeviceHomeDialog;
 import com.xinrui.smart.view_custom.DeviceUpdateHomeDialog;
 import com.xinrui.smart.view_custom.DividerItemDecoration;
@@ -69,7 +79,7 @@ import butterknife.Unbinder;
  * Created by win7 on 2018/3/8.
  */
 
-public class DeviceFragment extends Fragment implements AdapterView.OnItemClickListener{
+public class DeviceFragment extends Fragment{
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = null;
     private View view;
@@ -77,7 +87,6 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
     /** children items with a key and value list */
     @BindView(R.id.rv_list) RecyclerView rv_list;
 
-    @BindView(R.id.listview) ListView listview;
 
     @BindView(R.id.btn_add_residence) Button btn_add_residence;
     List<DeviceGroup> deviceGroups;
@@ -100,6 +109,13 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
     String createOrUpdate="";
     private DeviceGroup updateDeviceGroup;
     private int updateGroupPosition=0;
+
+    private String location;
+    private ArrayList<JsonBean> options1Items = new ArrayList<>();
+    private ArrayList<ArrayList<String>> options2Items = new ArrayList<>();
+    private ArrayList<ArrayList<ArrayList<String>>> options3Items = new ArrayList<>();
+    ServiceConnection connection;
+    DeviceAdapter.MessageReceiver  receiver;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -122,14 +138,22 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
         for (DeviceGroup group:groups){
             deviceGroups.add(group);
         }
+
         for (DeviceGroup deviceGroup:deviceGroups){
-           List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
-           if (deviceChildren!=null && !deviceChildren.isEmpty()){
-               childern.add(deviceChildren);
-           }
+            if (deviceGroup!=null){
+                List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
+                for (DeviceChild deviceChild :deviceChildren){
+                    long id=deviceChild.getId();
+                    String name=deviceChild.getChild();
+                }
+                childern.add(deviceChildren);
+            }
         }
+
         adapter=new DeviceAdapter(getActivity(),deviceGroups,childern);
         rv_list.setAdapter(adapter);
+        connection=adapter.getConnection();
+        receiver=adapter.getMessageReceiver();
         return view;
     }
     @Override
@@ -140,50 +164,17 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
         }
     }
 
+
     @OnClick({R.id.btn_add_residence})
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_add_residence:/**添加住所*/
                 createOrUpdate="create";
-                createOrUpdateHome();
+                showPickerView();
                 break;
         }
     }
 
-    /**创建新家或修改新家名称*/
-    private void createOrUpdateHome(){
-        listview.setVisibility(View.VISIBLE);
-        btn_add_residence.setVisibility(View.GONE);
-        if (strings.size()>1){
-            return;
-        }
-        if (!first){
-            try {
-                String s=Utils.getJson("china_city_data.json",getActivity());
-                JSONArray jsonArray=new JSONArray(s);
-                for (int i=0;i<jsonArray.length();i++){
-                    JSONObject jsonObject=jsonArray.getJSONObject(i);
-                    String name=jsonObject.getString("name");
-                    Log.d("sssss",name);
-                    if (name.equals(province)){
-                        JSONArray array=jsonObject.getJSONArray("cityList");
-                        for (int j=0;j<array.length();j++){
-                            JSONObject object=array.getJSONObject(j);
-                            String name2=object.getString("name");
-                            strings.add(name2);
-                        }
-                        stopLocation();
-                        Message msg=handler.obtainMessage();
-                        msg.what=1;
-                        handler.sendMessage(msg);
-                        break;
-                    }
-                }
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-    }
     Handler handler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -197,45 +188,45 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public void onStart() {
         super.onStart();
+
         //初始化定位
         initLocation();
         strings=new ArrayList<>();
         strings.add("选择城市");
 //        strings.add("帮我定位");
-        cityAdapter=new CityAdapter(getActivity(),strings);
-        listview.setAdapter(cityAdapter);
-        listview.setOnItemClickListener(this);
-        startLocation();//开始定位
+//        cityAdapter=new CityAdapter(getActivity(),strings);
+
+//        startLocation();//开始定位
         preferences = getActivity().getSharedPreferences("my", Context.MODE_PRIVATE);
         adapter.setOnHeaderClickListener(new GroupedRecyclerViewAdapter.OnHeaderClickListener() {
             @Override
             public void onHeaderClick(GroupedRecyclerViewAdapter adapter, BaseViewHolder holder, int groupPosition) {
-                if (childern.get(groupPosition).isEmpty()){
-                    return;
-                }else {
                     updateGroupPosition=groupPosition;
                     updateDeviceGroup=deviceGroups.get(groupPosition);
-                    createOrUpdateHome();
                     createOrUpdate="update";
-                }
+                    showPickerView();
             }
         });
     }
+
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (position!=0){
-            city=strings.get(position);
-            if ("create".equals(createOrUpdate)){
-                buildCreateHomeDialog();
-            } else if ("update".equals(createOrUpdate)) {
-                /**先开始定位，然后才开始修改设备组名称*/
-                updateDeviceGroup.setLocation(city);
-                new UpdateHomeLocationAsync().execute(updateDeviceGroup);
-            }
-        }
-        listview.setVisibility(View.GONE);
-        btn_add_residence.setVisibility(View.VISIBLE);
+    public void onResume() {
+        super.onResume();
+        initJsonData();
+        Intent intent=new Intent(getActivity(),MQService.class);
+        getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
+
+
+        IntentFilter intentFilter=new IntentFilter("mqtt");
+        getActivity().registerReceiver(receiver,intentFilter);
+
     }
+
+    @Override
+    public void onDestroyOptionsMenu() {
+        super.onDestroyOptionsMenu();
+    }
+
     private void buildCreateHomeDialog(){
         final DeviceHomeDialog dialog=new DeviceHomeDialog(getActivity());
         dialog.setOnNegativeClickListener(new DeviceHomeDialog.OnNegativeClickListener() {
@@ -255,7 +246,7 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
                     Map<String,Object> params=new HashMap<>();
                     String userId=preferences.getString("userId","");
                     params.put("houseName",name);
-                    params.put("location",city);
+                    params.put("location",location);
                     params.put("userId",userId);
                     new AddHomeAsync().execute(params);
                     dialog.dismiss();
@@ -265,6 +256,7 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
         dialog.show();
     }
 
+    private String houseName;
     private void buildUpdateHomeDialog(){
         final DeviceUpdateHomeDialog dialog=new DeviceUpdateHomeDialog(getActivity());
        dialog.setOnNegativeClickListener(new DeviceUpdateHomeDialog.OnNegativeClickListener() {
@@ -276,12 +268,12 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
         dialog.setOnPositiveClickListener(new DeviceUpdateHomeDialog.OnPositiveClickListener() {
             @Override
             public void onPositiveClick() {
-                String name=dialog.getName();
-                if (Utils.isEmpty(name)){
+                houseName=dialog.getName();
+                if (Utils.isEmpty(houseName)){
                     Utils.showToast(getActivity(),"住所名称不能为空");
                 }else {
                     if (updateDeviceGroup!=null){
-                        updateDeviceGroup.setHouseName(name);
+                        updateDeviceGroup.setHouseName(houseName);
                         new UpdateHomeNameAsync().execute(updateDeviceGroup);
                         dialog.dismiss();
                     }
@@ -315,8 +307,15 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
                         deviceGroup.setLocation(location);
                         deviceGroup.setHouseName(houseName);
                         deviceGroup.setMasterControllerDeviceId(masterControllerDeviceId);
+                        DeviceGroup shareDeviceGroup=deviceGroups.get(deviceGroups.size()-1);
+                        deviceGroups.remove(deviceGroups.size()-1);
+                        childern.remove(deviceGroups.size()-1);
+
+                        deviceGroups.add(deviceGroup);/**添加新住所，但是没有向里面插入子设备*/
+                        childern.add(new ArrayList<DeviceChild>());
+                        deviceGroups.add(shareDeviceGroup);/**将分享设备组添加到列表的最后*/
+                        childern.add(deviceChildDao.findGroupIdAllDevice(shareDeviceGroup.getId()));
                         deviceGroupDao.insert(deviceGroup);/**添加设备组*/
-                        deviceGroups.add(deviceGroup);
                     }
                 }catch (Exception e){
                     e.printStackTrace();
@@ -324,25 +323,13 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
             }
             return code;
         }
-
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
             switch (code){
                 case 2001:
                     Utils.showToast(getActivity(),"创建成功");
-                    List<DeviceGroup> groups=deviceGroupDao.findAllDevices();
-                    deviceGroups.clear();
-                    childern.clear();
-                    for (DeviceGroup group:groups){
-                        deviceGroups.add(group);
-                    }
-                    for (DeviceGroup deviceGroup:deviceGroups){
-                        List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
-                        if (deviceChildren!=null && !deviceChildren.isEmpty()){
-                            childern.add(deviceChildren);
-                        }
-                    }
+                    adapter.notifyDataSetChanged();
                     break;
                 case -3001:
                     Utils.showToast(getActivity(),"新建住所失败");
@@ -356,7 +343,6 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
         protected Integer doInBackground(DeviceGroup... deviceGroups) {
             int code=0;
             updateDeviceGroup=deviceGroups[0];
-
             try {
                 String updateHomeUrl="http://120.77.36.206:8082/warmer/v1.0/house/changeHouseName?houseId="+
                         URLEncoder.encode(updateDeviceGroup.getId()+"","UTF-8")+"&houseName="+URLEncoder.encode(updateDeviceGroup.getHouseName(),"UTF-8");
@@ -374,7 +360,6 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
             }
             return code;
         }
-
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
@@ -386,6 +371,104 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
                     break;
             }
         }
+    }
+    private void showPickerView() {
+
+        OptionsPickerView pvOptions=new OptionsPickerView.Builder(getActivity(), new OptionsPickerView.OnOptionsSelectListener() {
+            @Override
+            public void onOptionsSelect(int options1, int options2, int options3, View v) {
+                //返回的分别是三个级别的选中位置
+                String text = options2Items.get(options1).get(options2);
+                location=text;
+                if (!Utils.isEmpty(location)){
+                    if ("create".equals(createOrUpdate)){
+                        buildCreateHomeDialog();
+                    }else if ("update".equals(createOrUpdate)){
+                        updateDeviceGroup.setLocation(location);
+                        new UpdateHomeLocationAsync().execute(updateDeviceGroup);
+                    }
+                }
+            }
+        }).setTitleText("")
+                .setDividerColor(Color.GRAY)
+                .setTextColorCenter(Color.GRAY)
+                .setContentTextSize(16)
+                .setOutSideCancelable(false)
+                .build();
+          /*pvOptions.setPicker(options1Items);//一级选择器
+        pvOptions.setPicker(options1Items, options2Items);//二级选择器*/
+        pvOptions.setPicker(options1Items, options2Items, options3Items);//三级选择器
+        pvOptions.show();
+    }
+
+
+    private void initJsonData() {   //解析数据
+
+        /**
+         * 注意：assets 目录下的Json文件仅供参考，实际使用可自行替换文件
+         * 关键逻辑在于循环体
+         *
+         * */
+        //  获取json数据
+        String JsonData = JsonFileReader.getJson(getActivity(), "province_data.json");
+        ArrayList<JsonBean> jsonBean = parseData(JsonData);//用Gson 转成实体
+
+        /**
+         * 添加省份数据
+         *
+         * 注意：如果是添加的JavaBean实体，则实体类需要实现 IPickerViewData 接口，
+         * PickerView会通过getPickerViewText方法获取字符串显示出来。
+         */
+        options1Items = jsonBean;
+
+        for (int i = 0; i < jsonBean.size(); i++) {//遍历省份
+            ArrayList<String> CityList = new ArrayList<>();//该省的城市列表（第二级）
+            ArrayList<ArrayList<String>> Province_AreaList = new ArrayList<>();//该省的所有地区列表（第三极）
+
+            for (int c = 0; c < jsonBean.get(i).getCityList().size(); c++) {//遍历该省份的所有城市
+                String CityName = jsonBean.get(i).getCityList().get(c).getName();
+                CityList.add(CityName);//添加城市
+
+                ArrayList<String> City_AreaList = new ArrayList<>();//该城市的所有地区列表
+
+                //如果无地区数据，建议添加空字符串，防止数据为null 导致三个选项长度不匹配造成崩溃
+                if (jsonBean.get(i).getCityList().get(c).getArea() == null
+                        || jsonBean.get(i).getCityList().get(c).getArea().size() == 0) {
+                    City_AreaList.add("");
+                } else {
+                    for (int d = 0; d < jsonBean.get(i).getCityList().get(c).getArea().size(); d++) {//该城市对应地区所有数据
+                        String AreaName = jsonBean.get(i).getCityList().get(c).getArea().get(d);
+                        City_AreaList.add(AreaName);//添加该城市所有地区数据
+                    }
+                }
+                Province_AreaList.add(City_AreaList);//添加该省所有地区数据
+            }
+            /**
+             * 添加城市数据
+             */
+            options2Items.add(CityList);
+
+            /**
+             * 添加地区数据
+             */
+            options3Items.add(Province_AreaList);
+        }
+    }
+
+    public ArrayList<JsonBean> parseData(String result) {//Gson 解析
+        ArrayList<JsonBean> detail = new ArrayList<>();
+        try {
+            JSONArray data = new JSONArray(result);
+            Gson gson = new Gson();
+            for (int i = 0; i < data.length(); i++) {
+                JsonBean entity = gson.fromJson(data.optJSONObject(i).toString(), JsonBean.class);
+                detail.add(entity);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // mHandler.sendEmptyMessage(MSG_LOAD_FAILED);
+        }
+        return detail;
     }
     class UpdateHomeLocationAsync extends AsyncTask<DeviceGroup,Void,Integer>{
 
@@ -582,6 +665,13 @@ public class DeviceFragment extends Fragment implements AdapterView.OnItemClickL
     public void onDestroy() {
         super.onDestroy();
         destroyLocation();
+        if (connection!=null){
+            getActivity().unbindService(connection);
+        }
+        if (receiver!=null){
+            getActivity().unregisterReceiver(receiver);
+        }
+
     }
 
     /**
