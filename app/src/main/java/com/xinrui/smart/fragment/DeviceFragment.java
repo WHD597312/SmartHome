@@ -18,6 +18,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -119,17 +120,38 @@ public class DeviceFragment extends Fragment{
     private ArrayList<ArrayList<ArrayList<String>>> options3Items = new ArrayList<>();
     ServiceConnection connection;
     DeviceAdapter.MessageReceiver  receiver;
+    int sum=0;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
 
-        view=inflater.inflate(R.layout.fragment_device,container,false);
+
+        deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
+        deviceChildDao=new DeviceChildDaoImpl(getActivity());
+        List<DeviceGroup> deviceGroups=deviceGroupDao.findAllDevices();
+
+        for (DeviceGroup deviceGroup:deviceGroups){
+            if (sum>10){
+                break;
+            }
+            sum++;
+            List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
+            for (DeviceChild deviceChild:deviceChildren){
+                if (sum>10){
+                    break;
+                }
+                sum++;
+            }
+        }
+        if (sum<10){
+            view=inflater.inflate(R.layout.fragment_device2,container,false);
+        }else {
+            view=inflater.inflate(R.layout.fragment_device,container,false);
+        }
 
         unbinder=ButterKnife.bind(this,view);
 
-        deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
 
-        deviceChildDao=new DeviceChildDaoImpl(getActivity());
 
         rv_list.setLayoutManager(new LinearLayoutManager(getActivity()));
         rv_list.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
@@ -182,8 +204,11 @@ public class DeviceFragment extends Fragment{
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if (msg.what==1){
-                adapter.notifyDataSetChanged();
+            switch (msg.what){
+                case 1:
+                    adapter.notifyDataSetChanged();
+                    break;
+
             }
         }
     };
@@ -223,7 +248,9 @@ public class DeviceFragment extends Fragment{
         getActivity().registerReceiver(receiver,intentFilter);
 
 
+
     }
+
 
     @Override
     public void onDestroyOptionsMenu() {
