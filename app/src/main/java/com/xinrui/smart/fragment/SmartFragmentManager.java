@@ -194,7 +194,6 @@ public class SmartFragmentManager extends Fragment {
                     e.printStackTrace();
                 }
             }
-
         }
     };
 }

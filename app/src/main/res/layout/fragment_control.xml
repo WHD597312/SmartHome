@@ -36,6 +36,9 @@
             android:layout_below="@+id/tv_home"
             android:layout_marginRight="@dimen/dp_3"
             android:layout_marginLeft="@dimen/dp_2"
+            android:fastScrollEnabled="true"
+            android:scrollbars="none"
+            android:scrollingCache="false"
             />
         <View
             android:layout_width="match_parent"

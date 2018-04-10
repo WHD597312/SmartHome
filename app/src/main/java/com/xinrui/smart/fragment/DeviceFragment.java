@@ -128,9 +128,9 @@ public class DeviceFragment extends Fragment{
 
         deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
         deviceChildDao=new DeviceChildDaoImpl(getActivity());
-        List<DeviceGroup> deviceGroups=deviceGroupDao.findAllDevices();
+        List<DeviceGroup> deviceGroups2=deviceGroupDao.findAllDevices();
 
-        for (DeviceGroup deviceGroup:deviceGroups){
+        for (DeviceGroup deviceGroup:deviceGroups2){
             if (sum>10){
                 break;
             }
@@ -229,10 +229,18 @@ public class DeviceFragment extends Fragment{
         adapter.setOnHeaderClickListener(new GroupedRecyclerViewAdapter.OnHeaderClickListener() {
             @Override
             public void onHeaderClick(GroupedRecyclerViewAdapter adapter, BaseViewHolder holder, int groupPosition) {
+
                     updateGroupPosition=groupPosition;
                     updateDeviceGroup=deviceGroups.get(groupPosition);
-                    createOrUpdate="update";
-                    showPickerView();
+                    if (groupPosition==deviceGroups.size()-1){
+                        Utils.showToast(getActivity(),"该设备组不能更改");
+                    }else {
+                        createOrUpdate="update";
+                        showPickerView();
+                    }
+
+
+
             }
         });
     }

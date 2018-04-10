@@ -1,5 +1,6 @@
 package com.xinrui.smart.fragment;
 
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -10,8 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -99,17 +102,20 @@ public class HeaterFragment extends Fragment {
     public void onClick(View view){
         switch (view.getId()){
             case R.id.image_switch:
-                Animation circle_anim = AnimationUtils.loadAnimation(getActivity(), R.anim.anim_round_rotate);
-                LinearInterpolator interpolator = new LinearInterpolator();  //设置匀速旋转，在xml文件中设置会出现卡顿
-                circle_anim.setInterpolator(interpolator);
+                img_circle.setImageResource(R.drawable.lottery_animlist);
+                AnimationDrawable animationDrawable = (AnimationDrawable) img_circle.getDrawable();
+
+//                Animation circle_anim = AnimationUtils.loadAnimation(getActivity(), R.anim.anim_round_rotate);
+//                LinearInterpolator interpolator = new LinearInterpolator();  //设置匀速旋转，在xml文件中设置会出现卡顿
+//                circle_anim.setInterpolator(interpolator);
                 if (flag){
                     if (img_circle!=null){
-                        img_circle.startAnimation(circle_anim);
+                        animationDrawable.start();
                         flag=false;
                     }
                 }else {
                     if (img_circle!=null){
-                        img_circle.clearAnimation();
+                        animationDrawable.stop();
                         flag=true;
                     }
                 }

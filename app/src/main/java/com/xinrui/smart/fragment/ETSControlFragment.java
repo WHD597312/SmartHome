@@ -1,6 +1,7 @@
 package com.xinrui.smart.fragment;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -8,6 +9,10 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -16,11 +21,8 @@ import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
-import com.xinrui.smart.adapter.ETSControlAdapter;
-import com.xinrui.smart.adapter.MainControlAdapter;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
-import com.xinrui.smart.pojo.ETSControl;
 import com.xinrui.smart.util.Utils;
 
 import org.json.JSONArray;
@@ -41,7 +43,7 @@ import butterknife.Unbinder;
  * Created by win7 on 2018/3/14.
  */
 
-public class ETSControlFragment extends Fragment {
+public class ETSControlFragment extends Fragment{
     View view;
     Unbinder unbinder;
     @BindView(R.id.lv_homes)
@@ -52,6 +54,10 @@ public class ETSControlFragment extends Fragment {
     private List<DeviceChild> mainControls;//外置传感器数量
     private ETSControlAdapter adapter;//外置传感器适配器
     private String extSensorUrl="http://120.77.36.206:8082/warmer/v1.0/device/setExtSensor";
+
+    private Map<Integer, Boolean> isSelected;
+
+    private List beSelectedData = new ArrayList();
 
     @Nullable
     @Override
@@ -82,7 +88,7 @@ public class ETSControlFragment extends Fragment {
         mainControls=new ArrayList<>();
 //        mainControls=deviceChildDao.findDeviceType(id,1);
         new GetExtSensorAsync().execute();
-        adapter=new ETSControlAdapter(getActivity(),mainControls);
+        adapter=new ETSControlAdapter(mainControls,getActivity());
         lv_homes.setAdapter(adapter);
         tv_home.setBackgroundResource(R.drawable.shape_header_blue);
         view2.setBackgroundResource(R.drawable.shape_footer);
@@ -95,28 +101,114 @@ public class ETSControlFragment extends Fragment {
         }
         return mainControls;
     }
+
     @OnClick({R.id.btn_ensure})
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_ensure:
-                ETSControlAdapter.SelectedEnsure selectedEnsure=adapter.getSelected();
-                int selected=selectedEnsure.selected;
-                boolean flag=selectedEnsure.flag;
-                if (flag){
-                    DeviceChild deviceChild=mainControls.get(selected);
-                    long masterControllerDeviceId=deviceChild.getId();
-                    long id=deviceChild.getHouseId();
-                    Map<String,Object> params=new HashMap<>();
-                    params.put("deviceId",masterControllerDeviceId);
-                    params.put("houseId",id);
-                    new ExtSensorAsync().execute(params);
-                }else {
-                    Utils.showToast(getActivity(),"请选择一个主控设备");
-                }
+//                ETSControlAdapter.SelectedEnsure selectedEnsure=adapter.getSelected();
+//                int selected=selectedEnsure.selected;
+//                boolean flag=selectedEnsure.flag;
+//                if (flag){
+//                    DeviceChild deviceChild=mainControls.get(selected);
+//                    long masterControllerDeviceId=deviceChild.getId();
+//                    long id=deviceChild.getHouseId();
+//                    Map<String,Object> params=new HashMap<>();
+//                    params.put("deviceId",masterControllerDeviceId);
+//                    params.put("houseId",id);
+//                    new ExtSensorAsync().execute(params);
+//                }else {
+//                    Utils.showToast(getActivity(),"请选择一个主控设备");
+//                }
                 break;
         }
     }
 
+    public class ETSControlAdapter extends BaseAdapter {
+
+        private List<DeviceChild> children;
+        private Context context;
+
+        public ETSControlAdapter(List<DeviceChild> children, Context context) {
+            this.children = children;
+            this.context = context;
+        }
+
+        @Override
+        public int getCount() {
+            return children.size();
+        }
+
+        @Override
+        public DeviceChild getItem(int position) {
+            return children.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        public void clear() {
+            children.clear();
+        }
+
+        public void setList(List<DeviceChild> list) {
+            children = list;
+        }
+
+        public void addAll(List<DeviceChild> list) {
+            children.addAll(list);
+        }
+
+        @Override
+        public View getView( final int position, View convertView, ViewGroup parent) {
+           ViewHolder viewHolder=null;
+            if (convertView==null){
+                convertView= View.inflate(context, R.layout.item_main_control,null);
+                viewHolder=new ViewHolder(convertView);
+                convertView.setTag(viewHolder);
+            }else {
+                viewHolder= (ViewHolder) convertView.getTag();
+            }
+            viewHolder.img_main.setImageResource(R.mipmap.estsensor);
+            DeviceChild control=getItem(position);
+            if (control!=null){
+                viewHolder.tv_main.setText(control.getDeviceName());
+            }
+            viewHolder.check.setChecked(isSelected.get(position));
+
+            viewHolder.check.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    // 当前点击的CB
+                    boolean cu = !isSelected.get(position);
+                    // 先将所有的置为FALSE
+                    for (Integer p : isSelected.keySet()) {
+                        isSelected.put(p, false);
+                    }
+                    // 再将当前选择CB的实际状态
+                    isSelected.put(position, cu);
+                    notifyDataSetChanged();
+                    beSelectedData.clear();
+                    if (cu) {
+                        beSelectedData.add(children.get(position));
+                    }
+                }
+            });
+            return convertView;
+        }
+        class ViewHolder{
+            @BindView(R.id.img_main)
+            ImageView img_main;
+            @BindView(R.id.tv_main)
+            TextView tv_main;
+            @BindView(R.id.check)
+            CheckBox check;
+            public ViewHolder(View view){
+                ButterKnife.bind(this,view);
+            }
+        }
+    }
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
     class GetExtSensorAsync extends AsyncTask<Void,Void,Integer> {
         @Override
@@ -167,6 +259,18 @@ public class ETSControlFragment extends Fragment {
             super.onPostExecute(code);
             switch (code){
                 case 2000:
+                    if (mainControls == null || mainControls.size() == 0)
+                        return;
+                    if (isSelected != null)
+                        isSelected = null;
+                    isSelected = new HashMap<Integer, Boolean>();
+                    for (int i = 0; i < mainControls.size(); i++) {
+                        isSelected.put(i, false);
+                    }
+                    // 清除已经选择的项
+                    if (beSelectedData.size() > 0) {
+                        beSelectedData.clear();
+                    }
                     adapter.notifyDataSetChanged();
                     break;
             }

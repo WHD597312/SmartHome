@@ -4,7 +4,6 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="@dimen/dp_60"
     android:background="@color/color_white"
-    android:descendantFocusability="blocksDescendants"
     >
     <ImageView
         android:id="@+id/img_main"
@@ -43,9 +42,6 @@
         android:scaleType="centerInside"
         android:layout_marginTop="@dimen/dp_3"
         android:background="@drawable/selector_round"
-        android:clickable="false"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
         android:button="@null"
         />
 </RelativeLayout>

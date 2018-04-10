@@ -284,6 +284,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
 
     class LoadDeviceAsync extends AsyncTask<String, Void, Integer> {
@@ -303,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
 //                        deviceGroupDao.deleteAll();
 //                        deviceChildDao.deleteAll();
                         JSONArray houses = content.getJSONArray("houses");
-                        long shareHouseId = 0;
+
                         for (int i = 0; i < houses.length(); i++) {
                             JSONObject house = houses.getJSONObject(i);
 
@@ -336,6 +337,9 @@ public class MainActivity extends AppCompatActivity {
 
                                         int masterControllerUserId = device.getInt("masterControllerUserId");
                                         int isUnlock = device.getInt("isUnlock");
+                                        int version=device.getInt("version");
+                                        String macAddress=device.getString("macAddress");
+                                        int controlled=device.getInt("controlled");
 
                                         DeviceChild child=deviceChildDao.findDeviceChild((long)deviceId);
                                         if (child!=null){
@@ -344,9 +348,15 @@ public class MainActivity extends AppCompatActivity {
                                             child.setHouseId((long)groupId);
                                             child.setMasterControllerUserId(masterControllerUserId);
                                             child.setIsUnlock(isUnlock);
+                                            child.setVersion(version);
+                                            child.setMacAddress(macAddress);
+                                            child.setControlled(controlled);
                                             deviceChildDao.update(child);
                                         }else {
                                             DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
+                                            deviceChild.setVersion(version);
+                                            deviceChild.setMacAddress(macAddress);
+                                            deviceChild.setControlled(controlled);
                                             deviceChildDao.insert(deviceChild);
                                         }
                                     }
@@ -356,10 +366,17 @@ public class MainActivity extends AppCompatActivity {
 
                         JSONObject  sharedDevice = content.getJSONObject("sharedDevice");
                         JSONArray deviceList=sharedDevice.getJSONArray("deviceList");
-                        DeviceGroup deviceGroup = new DeviceGroup();
-                        deviceGroup.setId(shareHouseId);
-                        deviceGroup.setHeader("分享的设备");
-                        deviceGroupDao.insert(deviceGroup);
+
+                        DeviceGroup deviceGroup=deviceGroupDao.findById(shareHouseId);
+                        if (deviceGroup!=null){
+                            deviceGroup.setHeader("分享的设备");
+                            deviceGroupDao.update(deviceGroup);
+                        }else {
+                            deviceGroup = new DeviceGroup();
+                            deviceGroup.setHeader("分享的设备");
+                            deviceGroup.setId(shareHouseId);
+                            deviceGroupDao.insert(deviceGroup);
+                        }
 
                         for (int x = 0; x < deviceList.length(); x++) {
                             JSONObject device = deviceList.getJSONObject(x);
@@ -370,16 +387,19 @@ public class MainActivity extends AppCompatActivity {
                                 long groupId = shareHouseId;
                                 int masterControllerUserId = device.getInt("masterControllerUserId");
                                 int isUnlock = device.getInt("isUnlock");
+                                int version=device.getInt("version");
+                                String macAddress=device.getString("macAddress");
+                                int controlled=device.getInt("controlled");
                                 DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, groupId, type, masterControllerUserId, isUnlock);
-
+                                deviceChild.setVersion(version);
+                                deviceChild.setMacAddress(macAddress);
+                                deviceChild.setControlled(controlled);
                                 DeviceChild deviceChild2 = deviceChildDao.findDeviceChild((long) deviceId);
                                 if (deviceChild2 == null) {
                                     deviceChildDao.insert(deviceChild);
                                 } else {
                                     deviceChildDao.update(deviceChild);
                                 }
-
-
                             }
                         }
                     }

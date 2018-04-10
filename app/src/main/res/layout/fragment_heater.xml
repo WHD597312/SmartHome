@@ -123,7 +123,7 @@
             android:layout_height="@dimen/dp_200"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:src="@mipmap/img_circle2"
+            android:src="@drawable/lottery_animlist"
             android:scaleType="centerInside"
             />
     </RelativeLayout>
@@ -148,10 +148,11 @@
             android:id="@+id/image_mode"
             android:layout_width="@dimen/dp_60"
             android:layout_height="@dimen/dp_60"
-            android:src="@mipmap/img_hand"
+            android:src="@mipmap/image_handle"
             android:scaleType="centerInside"
             android:layout_below="@+id/tv_mode0"
             android:layout_centerVertical="true"
+            android:background="@mipmap/img_temp_circle"
             />
 
         <ImageView

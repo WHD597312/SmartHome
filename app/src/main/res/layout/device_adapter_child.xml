@@ -29,7 +29,7 @@
 
             <TextView
                 android:id="@+id/tv_device_child"
-                android:layout_width="1000dp"
+                android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_50"
                 android:layout_centerVertical="true"
                 android:paddingLeft="@dimen/dp_50"
@@ -43,8 +43,9 @@
                 android:layout_width="@dimen/dp_50"
                 android:layout_height="@dimen/dp_30"
                 android:layout_alignParentRight="true"
+                android:layout_marginLeft="@dimen/dp_300"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="@dimen/dp_280"
+                android:layout_marginRight="@dimen/dp_20"
                 android:layout_marginTop="@dimen/dp_10"
                 android:scaleType="centerCrop"
                 />

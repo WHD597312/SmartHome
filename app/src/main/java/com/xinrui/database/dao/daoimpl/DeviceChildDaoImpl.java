@@ -36,6 +36,9 @@ public class DeviceChildDaoImpl {
     public void update(DeviceChild deviceChild){
         deviceChildDao.update(deviceChild);
     }
+    public void updateAll(List<DeviceChild> deviceChildren){
+        deviceChildDao.updateInTx(deviceChildren);
+    }
     /**清空用户所有的设备*/
     public void deleteAll(){
         deviceChildDao.deleteAll();
@@ -52,8 +55,8 @@ public class DeviceChildDaoImpl {
      * @param controlled
      * @return
      */
-    public List<DeviceChild> findDeviceType(Long groupId,int controlled){
-        WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(groupId),DeviceChildDao.Properties.Controlled.eq(controlled));
+    public List<DeviceChild> findDeviceControl(Long groupId,int type,int controlled){
+        WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(groupId),DeviceChildDao.Properties.Type.eq(type),DeviceChildDao.Properties.Controlled.notEq(controlled));
         return deviceChildDao.queryBuilder().where(whereCondition).list();
     }
 //        return deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.GroupId.eq(groupId))

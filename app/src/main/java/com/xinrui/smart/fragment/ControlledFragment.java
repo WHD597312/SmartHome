@@ -1,7 +1,7 @@
 package com.xinrui.smart.fragment;
 
-import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,6 +9,10 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -17,8 +21,6 @@ import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
-import com.xinrui.smart.adapter.ControlledAdapter;
-import com.xinrui.smart.pojo.Controlled;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Utils;
@@ -44,7 +46,7 @@ import butterknife.Unbinder;
 /**
  * 受控机
  */
-public class ControlledFragment extends Fragment {
+public class ControlledFragment extends Fragment{
 
     View view;
     Unbinder unbinder;
@@ -98,6 +100,7 @@ public class ControlledFragment extends Fragment {
         new GetControlledAsync().execute();
         adapter=new ControlledAdapter(getActivity(),controlleds);
         lv_homes.setAdapter(adapter);
+
         tv_home.setBackgroundResource(R.drawable.shape_header);
         view2.setBackgroundResource(R.drawable.shape_footer);
         textView.setText("选中的主控制设备不出现在受控制设备中");
@@ -108,20 +111,23 @@ public class ControlledFragment extends Fragment {
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_ensure:
-                List<DeviceChild> deviceChildren=adapter.getSelected();
-                if (deviceChildren.isEmpty()){
-                    Utils.showToast(getActivity(),"未选择受控设备");
-                }else {
 
-                        Map<String,Object> params=new HashMap<>();
-                        params.put("houseId",houseId);
-                        long arr[]=new long[deviceChildren.size()];
-                        for (int i=0;i<deviceChildren.size();i++){
-                            arr[i]=deviceChildren.get(i).getId();
-                        }
-                        params.put("controlledId",arr);
-                        new ControlledAsync().execute(params);
-                }
+//                 List<DeviceChild> deviceChildren=new ArrayList<>();
+//                        for (DeviceChild deviceChild:controlleds){
+//                            if (deviceChild.getControlled()==1){
+//                                deviceChildren.add(deviceChild);
+//                            }
+//                        }
+//
+//                        Map<String,Object> params=new HashMap<>();
+//                        params.put("houseId",houseId);
+//                        long arr[]=new long[deviceChildren.size()];
+//                        for (int i=0;i<deviceChildren.size();i++){
+//                            arr[i]=deviceChildren.get(i).getId();
+//                        }
+//                        params.put("controlledId",arr);
+//                        new ControlledAsync().execute(params);
+
                 break;
         }
     }
@@ -142,6 +148,77 @@ public class ControlledFragment extends Fragment {
 
 
     private List<DeviceChild>  controlledDeviceChildren;
+
+
+    public class ControlledAdapter extends BaseAdapter {
+        private Context context;
+        private List<DeviceChild> list;
+
+        public ControlledAdapter(Context context, List<DeviceChild> list) {
+            this.context = context;
+            this.list = list;
+        }
+
+        @Override
+        public int getCount() {
+            return list.size();
+        }
+
+        @Override
+        public DeviceChild getItem(int position) {
+            return list.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ControlledAdapter.ViewHolder viewHolder=null;
+            if (convertView==null){
+                convertView= View.inflate(context, R.layout.item_controled,null);
+                viewHolder=new ControlledAdapter.ViewHolder(convertView);
+                convertView.setTag(viewHolder);
+            }else {
+                viewHolder= (ViewHolder) convertView.getTag();
+            }
+            viewHolder.img_main.setImageResource(R.mipmap.controlled);
+            DeviceChild controlled=getItem(position);
+            CheckBox check=viewHolder.check;
+
+            if (controlled!=null){
+                viewHolder.tv_main.setText(controlled.getDeviceName());
+//                if (controlled.getControlled()==1){
+//                    check.setChecked(true);
+//                }else if (controlled.getControlled()==0){
+//                    check.setChecked(false);
+//                }
+            }
+            return convertView;
+        }
+
+        List<DeviceChild> selected=new ArrayList<>();
+
+
+        public List<DeviceChild> getSelected() {
+            return selected;
+        }
+
+        class ViewHolder{
+            @BindView(R.id.img_main)
+            ImageView img_main;
+            @BindView(R.id.tv_main)
+            TextView tv_main;
+            @BindView(R.id.check)
+            CheckBox check;
+            public ViewHolder(View view){
+                ButterKnife.bind(this,view);
+            }
+        }
+    }
+
     class GetControlledAsync extends AsyncTask<Void,Void,Integer>{
         @Override
         protected Integer doInBackground(Void... voids) {
@@ -210,6 +287,10 @@ public class ControlledFragment extends Fragment {
                 try{
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
+                    if (code==2000){
+                        List<DeviceChild> deviceChildren=adapter.getSelected();
+                        deviceChildDao.updateAll(deviceChildren);
+                    }
                 }catch (Exception e){
                     e.printStackTrace();
                 }

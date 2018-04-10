@@ -16,9 +16,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainControlActivity;
 import com.xinrui.smart.adapter.SmartSetAdapter;
+import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.SmartSet;
 import com.xinrui.smart.util.Utils;
 
@@ -45,6 +47,7 @@ public class SmartFragment extends Fragment {
     ListView smart_set;
     private List<SmartSet> list;
     private SmartSetAdapter adapter;//智能适配器
+    private DeviceGroupDaoImpl deviceGroupDao;
     String houseId;
 
     @Override
@@ -60,7 +63,15 @@ public class SmartFragment extends Fragment {
     public void onStart() {
         super.onStart();
         adapter=new SmartSetAdapter(getActivity());
+        deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
         smart_set.setAdapter(adapter);
+        if (houseId!=null){
+            DeviceGroup deviceGroup=deviceGroupDao.findById(Long.parseLong(houseId));
+            if (deviceGroup!=null){
+                tv_home.setText(deviceGroup.getHeader());
+            }
+        }
+
         smart_set.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
