@@ -313,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
                                     shareHouseId = houseId + 1;
                                 }
 
-                                String houseName = house.getString("house_name");
+                                String houseName = house.getString("houseName");
                                 String location = house.getString("location");
                                 int masterControllerDeviceId = house.getInt("masterControllerDeviceId");
                                 int externalSensorsId = house.getInt("externalSensorsId");
