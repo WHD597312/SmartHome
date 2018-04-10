@@ -177,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
             live_view.setVisibility(View.GONE);
         } else if ("2".equals(fragment)) {
             fragmentTransaction = fragmentManager.beginTransaction();
+
             fragmentTransaction.replace(R.id.layout_body, new SmartFragmentManager());
             fragmentTransaction.commit();
             device_view.setVisibility(View.GONE);
