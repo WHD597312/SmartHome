@@ -194,7 +194,7 @@ public class NoDeviceFragment extends Fragment{
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
                     JSONObject content=jsonObject.getJSONObject("content");
-                    String houseName=content.getString("houseName");
+                    String houseName=content.getString("house_name");
                     String location=content.getString("location");
                     int houseId=content.getInt("id");
                     int masterControllerDeviceId=content.getInt("masterControllerDeviceId");

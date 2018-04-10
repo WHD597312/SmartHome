@@ -7,6 +7,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 
+import org.json.JSONArray;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -76,7 +78,63 @@ public class HttpUtils {
         return result;
     }
 
+    public static String postOkHpptRequest2(String url, JSONArray jsonArray) {
+        String result=null;
+        try{
+            String CONTENT_TYPE = "application/json";
 
+            String JSON_DATA = "{\n" +
+                    "    \"houseId\":1000,\n" +
+                    "    \"controlledId\":[5,6]\n" +
+                    "}";
+            JSONObject jsonObject=new JSONObject();
+//            for (Map.Entry<String,Object> param:map.entrySet()){
+//                jsonObject.put(param.getKey(),param.getValue());
+//            }
+
+            RequestBody requestBody = RequestBody.create(MediaType.parse(CONTENT_TYPE),jsonArray.toString());
+
+            Request request = new Request.Builder()
+                    .addHeader("client","android-xr")
+                    .url(url)
+                    .post(requestBody)
+                    .build();
+
+            OkHttpClient okHttpClient=new OkHttpClient();
+            Response response=okHttpClient.newCall(request).execute();
+
+            if(response.isSuccessful()){
+                result= response.body().string();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static String doDelete(String url,JSONArray jsonArray){
+        String result=null;
+        try {
+            String CONTENT_TYPE = "application/json";
+
+
+            RequestBody requestBody = RequestBody.create(MediaType.parse(CONTENT_TYPE),jsonArray.toString());
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .delete(requestBody)
+                    .build();
+            OkHttpClient okHttpClient=new OkHttpClient();
+            Response response=okHttpClient.newCall(request).execute();
+
+            if(response.isSuccessful()){
+                result= response.body().string();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
     public static String getOkHpptRequest(String url) {
         String result=null;
         try{

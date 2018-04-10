@@ -8,14 +8,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/MyApplication" />
-            <option value="$PROJECT_DIR$/QzsRecycleView" />
-            <option value="$PROJECT_DIR$/RecycleViewWithHeader-master" />
-            <option value="$PROJECT_DIR$/RecyclerViewSample-master" />
-            <option value="$PROJECT_DIR$/ScrollImageLoadDemo" />
-            <option value="$PROJECT_DIR$/TestFragment" />
+            <option value="$PROJECT_DIR$/1706listdialog1" />
+            <option value="$PROJECT_DIR$/MyOkHttp-master" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/baiyu_ListDataSave" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

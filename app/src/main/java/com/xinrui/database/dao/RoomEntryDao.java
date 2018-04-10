@@ -29,6 +29,7 @@ public class RoomEntryDao extends AbstractDao<RoomEntry, Long> {
         public final static Property Y = new Property(2, int.class, "y", false, "Y");
         public final static Property Width = new Property(3, int.class, "width", false, "WIDTH");
         public final static Property Height = new Property(4, int.class, "height", false, "HEIGHT");
+        public final static Property Group = new Property(5, int.class, "group", false, "GROUP");
     }
 
 
@@ -48,7 +49,8 @@ public class RoomEntryDao extends AbstractDao<RoomEntry, Long> {
                 "\"X\" INTEGER NOT NULL ," + // 1: x
                 "\"Y\" INTEGER NOT NULL ," + // 2: y
                 "\"WIDTH\" INTEGER NOT NULL ," + // 3: width
-                "\"HEIGHT\" INTEGER NOT NULL );"); // 4: height
+                "\"HEIGHT\" INTEGER NOT NULL ," + // 4: height
+                "\"GROUP\" INTEGER NOT NULL );"); // 5: group
     }
 
     /** Drops the underlying database table. */
@@ -69,6 +71,7 @@ public class RoomEntryDao extends AbstractDao<RoomEntry, Long> {
         stmt.bindLong(3, entity.getY());
         stmt.bindLong(4, entity.getWidth());
         stmt.bindLong(5, entity.getHeight());
+        stmt.bindLong(6, entity.getGroup());
     }
 
     @Override
@@ -83,6 +86,7 @@ public class RoomEntryDao extends AbstractDao<RoomEntry, Long> {
         stmt.bindLong(3, entity.getY());
         stmt.bindLong(4, entity.getWidth());
         stmt.bindLong(5, entity.getHeight());
+        stmt.bindLong(6, entity.getGroup());
     }
 
     @Override
@@ -97,7 +101,8 @@ public class RoomEntryDao extends AbstractDao<RoomEntry, Long> {
             cursor.getInt(offset + 1), // x
             cursor.getInt(offset + 2), // y
             cursor.getInt(offset + 3), // width
-            cursor.getInt(offset + 4) // height
+            cursor.getInt(offset + 4), // height
+            cursor.getInt(offset + 5) // group
         );
         return entity;
     }
@@ -109,6 +114,7 @@ public class RoomEntryDao extends AbstractDao<RoomEntry, Long> {
         entity.setY(cursor.getInt(offset + 2));
         entity.setWidth(cursor.getInt(offset + 3));
         entity.setHeight(cursor.getInt(offset + 4));
+        entity.setGroup(cursor.getInt(offset + 5));
      }
     
     @Override

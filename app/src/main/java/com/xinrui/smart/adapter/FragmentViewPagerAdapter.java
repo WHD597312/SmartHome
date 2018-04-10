@@ -19,7 +19,7 @@ import java.util.List;
 public class FragmentViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private List<Fragment> fragments;
-
+    Fragment currentFragment;
 
     public FragmentViewPagerAdapter(FragmentManager fm, List<Fragment> fragments) {
         super(fm);
@@ -56,5 +56,17 @@ public class FragmentViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getItemPosition(Object object) {
         return POSITION_NONE;
+    }
+
+
+
+    @Override
+    public void setPrimaryItem(ViewGroup container, int position, Object object) {
+        currentFragment = (Fragment) object;
+        super.setPrimaryItem(container, position, object);
+    }
+
+    public Fragment getmCurrentFragment(){
+        return  currentFragment;
     }
 }

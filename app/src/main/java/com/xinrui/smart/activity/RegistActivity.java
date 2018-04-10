@@ -157,7 +157,7 @@ public class RegistActivity extends AppCompatActivity {
                     JSONObject house=content.getJSONObject("house");
 
                     int houseId=house.getInt("id");
-                    String houseName=house.getString("houseName");
+                    String houseName=house.getString("house_name");
                     String location=house.getString("location");
 
                     /**注册的时候默认添加一个新家*/

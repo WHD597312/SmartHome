@@ -275,7 +275,7 @@ public class DeviceFragment extends Fragment{
                 }else {
                     Map<String,Object> params=new HashMap<>();
                     String userId=preferences.getString("userId","");
-                    params.put("houseName",name);
+                    params.put("house_name",name);
                     params.put("location",location);
                     params.put("userId",userId);
                     new AddHomeAsync().execute(params);
@@ -326,7 +326,7 @@ public class DeviceFragment extends Fragment{
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
                     JSONObject content=jsonObject.getJSONObject("content");
-                    String houseName=content.getString("houseName");
+                    String houseName=content.getString("house_name");
                     String location=content.getString("location");
                     int houseId=content.getInt("id");
                     int masterControllerDeviceId=content.getInt("masterControllerDeviceId");
@@ -375,7 +375,7 @@ public class DeviceFragment extends Fragment{
             updateDeviceGroup=deviceGroups[0];
             try {
                 String updateHomeUrl="http://120.77.36.206:8082/warmer/v1.0/house/changeHouseName?houseId="+
-                        URLEncoder.encode(updateDeviceGroup.getId()+"","UTF-8")+"&houseName="+URLEncoder.encode(updateDeviceGroup.getHouseName(),"UTF-8");
+                        URLEncoder.encode(updateDeviceGroup.getId()+"","UTF-8")+"&house_name="+URLEncoder.encode(updateDeviceGroup.getHouseName(),"UTF-8");
                 String result=HttpUtils.getOkHpptRequest(updateHomeUrl);
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);

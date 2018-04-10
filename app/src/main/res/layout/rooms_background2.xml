@@ -17,10 +17,6 @@
                             android:src="@drawable/bedroom1"
                             android:scaleType="fitCenter"
                             android:visibility="invisible" />
-                    <Button
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="2"/>
                         <!--<TextView-->
                         <!--android:id="@+id/empty_room_tv"-->
                         <!--android:layout_width="wrap_content"-->
