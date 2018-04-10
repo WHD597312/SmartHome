@@ -63,9 +63,9 @@ public class AddDeviceWifiFragment extends Fragment {
                         deviceGroup.setId(0L);
                         deviceGroupDao.insert(deviceGroup);
 
-                        deviceChild.setChild(ssid);
+                        deviceChild.setDeviceName(ssid);
                         deviceChild.setImg(imgs[0]);
-                        deviceChild.setGroupId(deviceGroup.getId());
+                        deviceChild.setHouseId(deviceGroup.getId());
 
 //                        if (deviceChildDao.insert(deviceChild)){
 //                            DeviceGroup lastGroup=new DeviceGroup();
@@ -76,8 +76,8 @@ public class AddDeviceWifiFragment extends Fragment {
                     }
                 }else if (!Utils.isEmpty(groupPosition) && !Utils.isEmpty(ssid)){
                     long group=Long.parseLong(groupPosition);
-                    deviceChild.setGroupId(group);
-                    deviceChild.setChild(ssid);
+                    deviceChild.setHouseId(group);
+                    deviceChild.setDeviceName(ssid);
                     deviceChild.setImg(imgs[0]);
                     deviceChildDao.insert(deviceChild);
                 }

@@ -23,9 +23,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -144,7 +147,7 @@ public class DeviceFragment extends Fragment{
                 List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
                 for (DeviceChild deviceChild :deviceChildren){
                     long id=deviceChild.getId();
-                    String name=deviceChild.getChild();
+                    String name=deviceChild.getDeviceName();
                 }
                 childern.add(deviceChildren);
             }
@@ -216,9 +219,9 @@ public class DeviceFragment extends Fragment{
         Intent intent=new Intent(getActivity(),MQService.class);
         getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
 
-
         IntentFilter intentFilter=new IntentFilter("mqtt");
         getActivity().registerReceiver(receiver,intentFilter);
+
 
     }
 

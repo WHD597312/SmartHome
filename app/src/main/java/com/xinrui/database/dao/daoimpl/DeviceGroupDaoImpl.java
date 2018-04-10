@@ -26,6 +26,9 @@ public class DeviceGroupDaoImpl {
     public void insert(DeviceGroup deviceGroup){
         long n=deviceGroupDao.insert(deviceGroup);
     }
+    public void insertAll(List<DeviceGroup> deviceGroups){
+        deviceGroupDao.insertInTx(deviceGroups);
+    }
     public void update(DeviceGroup deviceGroup){
         deviceGroupDao.update(deviceGroup);
     }

@@ -41,7 +41,7 @@ public class ControlledAdapter extends BaseAdapter {
 
     @Override
     public DeviceChild getItem(int position) {
-        return list!=null?list.get(position):null;
+        return list.get(position);
     }
 
     @Override
@@ -59,11 +59,15 @@ public class ControlledAdapter extends BaseAdapter {
         }else {
             viewHolder= (ViewHolder) convertView.getTag();
         }
+        viewHolder.img_main.setImageResource(R.mipmap.controlled);
         final DeviceChild controlled=getItem(position);
-        if (controlled!=null){
-            viewHolder.tv_main.setText(controlled.getChild());
-        }
         CheckBox check=viewHolder.check;
+        if (controlled!=null){
+            viewHolder.tv_main.setText(controlled.getDeviceName());
+            if (controlled.getControlled()==1){
+                check.setChecked(true);
+            }
+        }
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

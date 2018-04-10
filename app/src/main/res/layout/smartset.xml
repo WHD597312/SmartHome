@@ -13,20 +13,25 @@
         >
         <ImageView
             android:id="@+id/image_smart"
-            android:layout_width="@dimen/dp_50"
-            android:layout_height="@dimen/dp_50"
+            android:layout_width="@dimen/dp_45"
+            android:layout_height="@dimen/dp_45"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingLeft="@dimen/dp_10"
             android:src="@drawable/example"
             android:scaleType="centerInside"
             />
         <TextView
             android:id="@+id/tv_smart"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/dp_40"
             android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/dp_5"
             android:layout_toRightOf="@+id/image_smart"
             android:text="TextView"
+            android:gravity="center_vertical"
             android:textColor="@color/color_black"
+            android:paddingBottom="5dp"
             />
 
         <ImageView
@@ -38,6 +43,7 @@
             android:layout_centerVertical="true"
             android:src="@drawable/right_arrow"
             android:scaleType="centerInside"
+            android:layout_marginRight="@dimen/dp_10"
             />
         <View
             android:id="@+id/view"

@@ -24,6 +24,7 @@
                 android:layout_centerVertical="true"
                 android:scaleType="centerInside"
                 android:background="@null"
+                android:paddingLeft="@dimen/dp_10"
                 android:src="@mipmap/home" />
 
             <TextView

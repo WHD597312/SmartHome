@@ -197,5 +197,4 @@ public class SmartFragmentManager extends Fragment {
 
         }
     };
-
 }

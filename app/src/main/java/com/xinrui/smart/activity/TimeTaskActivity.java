@@ -41,7 +41,7 @@ import butterknife.Unbinder;
 
 /**定时任务
 */
-public class TimeTaskActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
+public class TimeTaskActivity extends AppCompatActivity{
     public String OPEN_CLOSE="";
     @BindView(R.id.img_back) ImageView img_back;//返回按钮
     Unbinder unbinder;
@@ -62,7 +62,14 @@ public class TimeTaskActivity extends AppCompatActivity implements AdapterView.O
     @BindView(R.id.numberPicker) NumberPicker numberPicker;/**数字选择器*/
     @BindView(R.id.btn_copy) Button btn_copy;/**复制按钮*/
 
-    @BindView(R.id.week) GridView week;
+    @BindView(R.id.tv_mon) TextView tv_mon;
+    @BindView(R.id.tv_tue) TextView tv_tue;
+    @BindView(R.id.tv_wen) TextView tv_wen;
+    @BindView(R.id.tv_thu) TextView tv_thu;
+    @BindView(R.id.tv_fri) TextView tv_fri;
+    @BindView(R.id.tv_sta) TextView tv_sta;
+    @BindView(R.id.tv_sun) TextView tv_sun;
+
     private List<String> mWeekList;
     private int hour;/**开始设定时间与结束设定时间*/
     private TimeTaskDaoImpl timeTaskDao;/**定时任务的数据库操作*/
@@ -72,6 +79,7 @@ public class TimeTaskActivity extends AppCompatActivity implements AdapterView.O
     private List<TaskTime> list;
     int mPoistion=0;;// 选中的位置
     private String mWeek;/**一周的星期几*/
+
     private String mSelectedWeek;
     private String copy;
     MyApplication application;
@@ -89,12 +97,12 @@ public class TimeTaskActivity extends AppCompatActivity implements AdapterView.O
     public void onStart() {
         super.onStart();
 
-        listview.setOnItemClickListener(this);
+//        listview.setOnItemClickListener(this);
         timeTaskDao=new TimeTaskDaoImpl(this);
 
 
 
-        week.setOnItemClickListener(this);
+//        week.setOnItemClickListener(this);
 
 
         timePicker.setIs24HourView(true);
@@ -118,6 +126,7 @@ public class TimeTaskActivity extends AppCompatActivity implements AdapterView.O
             }
         });
     }
+    private TextView[] week=new TextView[7];
     @Override
     protected void onResume() {
         super.onResume();
@@ -140,36 +149,102 @@ public class TimeTaskActivity extends AppCompatActivity implements AdapterView.O
             listview.setVisibility(View.VISIBLE);
         }
 
-        /**初始化周天适配器*/
-        mWeekList=new ArrayList<>();
-        mWeekList.add("一");
-        mWeekList.add("二");
-        mWeekList.add("三");
-        mWeekList.add("四");
-        mWeekList.add("五");
-        mWeekList.add("六");
-        mWeekList.add("日");
+        week[0]=tv_mon;
+        week[1]=tv_tue;
+        week[2]=tv_wen;
+        week[3]=tv_thu;
+        week[4]=tv_fri;
+        week[5]=tv_sta;
+        week[6]=tv_sun;
 
-        weekAdapter=new WeekAdapter(this,mWeekList);
-        week.setAdapter(weekAdapter);
-        for (int i=0;i<mWeekList.size();i++){
-            String s=mWeekList.get(i);
+        for (int i=0;i<week.length;i++){
+            String s=week[i].getText().toString();
             if (mWeek.equals(s)){
-                mPoistion=i;
-                weekAdapter.setSelectedPosition(mPoistion);
-                weekAdapter.notifyDataSetInvalidated();
-                break;
+                tv_copy=week[i];
+                tv_copy.setTextColor(getResources().getColor(R.color.color_black));
+                tv_copy.setBackgroundResource(R.drawable.button_normal);
+            }
+        }
+//        week.setAdapter(weekAdapter);
+//        for (int i=0;i<mWeekList.size();i++){
+//            String s=mWeekList.get(i);
+//            if (mWeek.equals(s)){
+//                mPoistion=i;
+//                weekAdapter.setSelectedPosition(mPoistion);
+//                weekAdapter.notifyDataSetInvalidated();
+//                break;
+//            }
+//        }
+    }
+
+
+    TextView tv_copy;
+    private void setBack(TextView tv_week){
+        String copy=btn_copy.getText().toString();
+        if ("复制".equals(copy)){
+            for (int i=0;i<week.length;i++){
+                if (tv_week==week[i]){
+                    Message msg=handler.obtainMessage();
+                    msg.obj=tv_week.getText().toString();
+                    msg.what=1;
+                    handler.sendMessage(msg);
+                    tv_copy=tv_week;
+                    mSelectedWeek=tv_week.getText().toString();
+                    tv_week.setTextColor(getResources().getColor(R.color.color_black));
+                    tv_week.setBackgroundResource(R.drawable.button_normal);
+                }else {
+                    week[i].setTextColor(getResources().getColor(R.color.white));
+                    week[i].setBackgroundColor(getResources().getColor(R.color.color_black3));
+                }
+            }
+        }else if ("粘贴".equals(copy)){
+            for (int i=0;i<week.length;i++){
+                if (tv_week==week[i]){
+                    pasteWeek=tv_week.getText().toString();
+                    tv_week.setTextColor(getResources().getColor(R.color.color_black));
+                    tv_week.setBackgroundResource(R.drawable.shape_btn_ensure_pressed);
+                }else {
+                    if (tv_copy==week[i]){
+                        tv_copy.setTextColor(getResources().getColor(R.color.color_black));
+                        tv_copy.setBackgroundResource(R.drawable.button_normal);
+                    }else {
+                        week[i].setTextColor(getResources().getColor(R.color.white));
+                        week[i].setBackgroundColor(getResources().getColor(R.color.color_black3));
+                    }
+                }
             }
         }
     }
-    @OnClick({R.id.btn_add,R.id.open_time,R.id.btn_cancle2,R.id.btn_ensure2,R.id.close_time,R.id.tv_temp_num,R.id.img_back,R.id.btn_copy})
+//    private void setPaster
+    int [] tvBack={R.color.color_black,R.color.white};
+    @OnClick({R.id.btn_add,R.id.open_time,R.id.btn_cancle2,R.id.btn_ensure2,R.id.close_time,R.id.tv_temp_num,R.id.img_back,R.id.btn_copy,R.id.tv_mon,R.id.tv_tue,R.id.tv_wen,R.id.tv_thu,R.id.tv_fri,R.id.tv_sta,R.id.tv_sun})
     public void onClick(View view){
         switch (view.getId()){
+            case R.id.tv_mon:
+                setBack(tv_mon);
+                break;
+            case R.id.tv_tue:
+                setBack(tv_tue);
+                break;
+            case R.id.tv_wen:
+                setBack(tv_wen);
+                break;
+            case R.id.tv_thu:
+                setBack(tv_thu);
+                break;
+            case R.id.tv_fri:
+                setBack(tv_fri);
+                break;
+            case R.id.tv_sta:
+                setBack(tv_sta);
+                break;
+            case R.id.tv_sun:
+                setBack(tv_sun);
+                break;
             case R.id.img_back:
                 finish();
                 break;
             case R.id.btn_copy:
-
                 String s=btn_copy.getText().toString();
                 if ("复制".equals(s)){
                     btn_copy.setText("粘贴");
@@ -181,10 +256,9 @@ public class TimeTaskActivity extends AppCompatActivity implements AdapterView.O
                     btn_copy.setText("复制");
                    Message msg=handler.obtainMessage();
                    msg.what=3;
-                   msg.obj=copy;
+                   msg.obj=pasteWeek;
                    handler.sendMessage(msg);
                 }
-
                 break;
             case R.id.btn_add:/**添加开始设定时间和结束设定时间，温度*/
                 String open=open_time.getText().toString();
@@ -289,21 +363,27 @@ public class TimeTaskActivity extends AppCompatActivity implements AdapterView.O
                     break;
                 case 2:
                     copyWeek= (String) msg.obj;
+                    List<TaskTime> mCopyList=timeTaskDao.findWeekAll(copyWeek);
+                    if (mCopyList.isEmpty()){
+                        Utils.showToast(TimeTaskActivity.this,"没有复制的数据");
+                        btn_copy.setText("复制");
+                    }
                     break;
                 case 3:
                    pasteWeek= (String) msg.obj;
-                    List<TaskTime> mCopyList=timeTaskDao.findWeekAll(copyWeek);
-                    if (mCopyList!=null && !mCopyList.isEmpty()){
+                    List<TaskTime> mCopyList2=timeTaskDao.findWeekAll(copyWeek);
+                    if (mCopyList2!=null && !mCopyList2.isEmpty()){
                         if (pasteWeek.equals(copyWeek)){
                             return;
                         }
                         List<TaskTime> pasteList=new ArrayList<>();
-                        for (TaskTime taskTime : mCopyList){
+                        for (TaskTime taskTime : mCopyList2){
                             TaskTime taskTime2=new TaskTime(taskTime.getStart(),taskTime.getEnd(),taskTime.getTemp(),pasteWeek);
                             pasteList.add(taskTime2);
                         }
                         timeTaskDao.insertTaskTimeList(pasteList);
                         seekbar.setWeek(pasteWeek);
+
                         seekbar.invalidate();
                         listview.setVisibility(View.VISIBLE);
                         list=pasteList;
@@ -328,42 +408,42 @@ public class TimeTaskActivity extends AppCompatActivity implements AdapterView.O
 
         }
     };
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mPoistion=position;
-
-        mSelectedWeek=mWeekList.get(position);
-        copy=mSelectedWeek;
-
-        Message msg=handler.obtainMessage();
-        msg.obj=mSelectedWeek;
-        msg.what=1;
-        handler.sendMessage(msg);
-        Log.d("ss",mWeek);
-        weekAdapter.setSelectedPosition(mPoistion);
-        weekAdapter.notifyDataSetInvalidated();
-        switch (position){
-            case 0:
-
-                break;
-            case 1:
-
-                break;
-            case 2:
-
-                break;
-            case 3:
-
-                break;
-            case 4:
-
-                break;
-            case 5:
-
-                break;
-            case 6:
-
-                break;
-        }
-    }
+//    @Override
+//    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//        mPoistion=position;
+//
+//        mSelectedWeek=mWeekList.get(position);
+//        copy=mSelectedWeek;
+//
+//        Message msg=handler.obtainMessage();
+//        msg.obj=mSelectedWeek;
+//        msg.what=1;
+//        handler.sendMessage(msg);
+//        Log.d("ss",mWeek);
+//        weekAdapter.setSelectedPosition(mPoistion);
+//        weekAdapter.notifyDataSetInvalidated();
+//        switch (position){
+//            case 0:
+//
+//                break;
+//            case 1:
+//
+//                break;
+//            case 2:
+//
+//                break;
+//            case 3:
+//
+//                break;
+//            case 4:
+//
+//                break;
+//            case 5:
+//
+//                break;
+//            case 6:
+//
+//                break;
+//        }
+//    }
 }

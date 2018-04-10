@@ -8,6 +8,7 @@ import org.greenrobot.greendao.annotation.Generated;
 public class DeviceGroup {
     @Id(autoincrement = false)
     private Long id;
+    private int userId;
     private String header;
     private String footer;
     private int color;
@@ -28,10 +29,11 @@ public class DeviceGroup {
         this.layers = layers;
     }
 
-    @Generated(hash = 1168852908)
-    public DeviceGroup(Long id, String header, String footer, int color, String houseName, String location, int masterControllerDeviceId,
+    @Generated(hash = 1421572116)
+    public DeviceGroup(Long id, int userId, String header, String footer, int color, String houseName, String location, int masterControllerDeviceId,
             int externalSensorsId, String layers) {
         this.id = id;
+        this.userId = userId;
         this.header = header;
         this.footer = footer;
         this.color = color;
@@ -41,8 +43,6 @@ public class DeviceGroup {
         this.externalSensorsId = externalSensorsId;
         this.layers = layers;
     }
-
-  
 
     public Long getId() {
         return id;
@@ -115,4 +115,13 @@ public class DeviceGroup {
     public void setLayers(String layers) {
         this.layers = layers;
     }
+
+    public int getUserId() {
+        return this.userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
 }

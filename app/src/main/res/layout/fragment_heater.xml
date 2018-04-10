@@ -72,9 +72,9 @@
         >
         <ImageView
             android:id="@+id/image_temp"
-            android:layout_width="@dimen/dp_30"
+            android:layout_width="@dimen/dp_40"
             android:layout_height="@dimen/dp_40"
-            android:src="@mipmap/image_temp2"
+            android:src="@mipmap/img_cur_temp"
             android:scaleType="centerInside"
             android:layout_marginLeft="@dimen/dp_60"
             android:layout_centerVertical="true"
@@ -97,17 +97,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <com.xinrui.smart.view_custom.SemicircleBar
-            android:layout_width="290dp"
-            android:layout_height="290dp"
+            android:id="@+id/semicBar"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
             android:layout_centerHorizontal="true"
             app:wheel_pointer_radius="10dp"
             app:wheel_reached_width="20dp"
             app:wheel_unreached_width="20dp"
             app:wheel_max_process="24"
+            app:semicircle_module="1"
             />
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/image_switch"
             android:layout_width="@dimen/dp_80"
             android:layout_height="@dimen/dp_80"
             android:layout_centerHorizontal="true"
@@ -137,15 +139,16 @@
             android:id="@+id/tv_mode0"
             android:layout_width="@dimen/dp_60"
             android:layout_height="wrap_content"
-            android:text="模式一"
+            android:text="手动模式"
             android:textColor="@color/white"
             android:gravity="center"
+            android:visibility="gone"
             />
         <ImageView
             android:id="@+id/image_mode"
             android:layout_width="@dimen/dp_60"
             android:layout_height="@dimen/dp_60"
-            android:src="@mipmap/image_temp3"
+            android:src="@mipmap/img_hand"
             android:scaleType="centerInside"
             android:layout_below="@+id/tv_mode0"
             android:layout_centerVertical="true"
@@ -157,10 +160,9 @@
             android:layout_height="@dimen/dp_60"
             android:layout_below="@+id/tv_mode0"
             android:layout_toRightOf="@+id/image_mode"
-            android:src="@mipmap/image_temp3"
+            android:src="@mipmap/img_protect_close"
             android:scaleType="centerInside"
             android:layout_marginLeft="@dimen/dp_20"
-            android:background="@mipmap/img_temp_circle"
             />
 
         <TextView
@@ -172,7 +174,8 @@
             android:layout_above="@+id/image_mode2"
             android:textColor="@color/white"
             android:gravity="center"
-            android:text="模式二"
+            android:visibility="gone"
+            android:text="保护模式"
             />
 
         <ImageView
@@ -180,7 +183,7 @@
             android:layout_width="@dimen/dp_60"
             android:layout_height="@dimen/dp_60"
             android:layout_toRightOf="@+id/image_mode2"
-            android:src="@mipmap/image_temp3"
+            android:src="@mipmap/img_lock"
             android:scaleType="centerInside"
             android:layout_marginLeft="@dimen/dp_20"
             android:layout_below="@+id/tv_mode0"
@@ -195,13 +198,14 @@
             android:layout_above="@+id/image_mode3"
             android:textColor="@color/white"
             android:gravity="center"
-            android:text="模式三" />
+            android:visibility="gone"
+            android:text="锁定模式" />
         <ImageView
             android:id="@+id/image_mode4"
             android:layout_width="@dimen/dp_60"
             android:layout_height="@dimen/dp_60"
             android:layout_toRightOf="@+id/image_mode3"
-            android:src="@mipmap/image_temp3"
+            android:src="@mipmap/img_screen"
             android:scaleType="centerInside"
             android:layout_marginLeft="@dimen/dp_20"
             android:layout_below="@+id/tv_mode0"
@@ -216,7 +220,8 @@
             android:layout_above="@+id/image_mode4"
             android:textColor="@color/white"
             android:gravity="center"
-            android:text="模式四" />
+            android:visibility="gone"
+            android:text="屏幕模式" />
     </RelativeLayout>
 
 </LinearLayout>

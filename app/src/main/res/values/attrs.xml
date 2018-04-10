@@ -41,13 +41,14 @@
         <attr name="pointcolor" format="color"/>
         <attr name="numsize" format="integer"/>
         <attr name="numcolor" format="color"/>
+        <attr name="module" format="string"/>
         <attr name="week" format="string"/>
     </declare-styleable>
     <declare-styleable name="SemicircleBar">
         <attr name="semicircle_max_precess" format="integer"/>
         <attr name="semicircle_cur_processs" format="integer"/>
         <attr name="semicircle_inner_color" format="color"/>
-        <attr name="semicircle_inner_width" format="dimension"/>
-        
+        <attr name="semicircle_inner_width" format="dimension" />
+        <attr name="semicircle_module" format="string"/>
     </declare-styleable>
   </resources>

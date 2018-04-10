@@ -70,7 +70,7 @@
             android:layout_marginRight="@dimen/dp_8"
             />
 
-        <GridView
+        <LinearLayout
             android:id="@+id/week"
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_40"
@@ -78,11 +78,84 @@
             android:layout_toLeftOf="@+id/btn_copy"
             android:layout_centerVertical="true"
             android:layout_alignTop="@+id/btn_copy"
+            android:layout_marginLeft="@dimen/dp_8"
             android:layout_alignBottom="@+id/btn_copy"
             android:numColumns="7"
             android:layout_marginTop="@dimen/dp_10"
-            android:horizontalSpacing="@dimen/dp_3"
-            />
+            android:orientation="horizontal"
+            >
+            <TextView
+                android:id="@+id/tv_mon"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:layout_centerInParent="true"
+                android:text="一"
+                android:textSize="@dimen/sp_15"
+                android:textColor="@color/white"
+                android:gravity="center"
+                />
+            <TextView
+                android:id="@+id/tv_tue"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:layout_centerInParent="true"
+                android:text="二"
+                android:textSize="@dimen/sp_15"
+                android:gravity="center"
+                android:textColor="@color/white"
+                />
+            <TextView
+                android:id="@+id/tv_wen"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:layout_centerInParent="true"
+                android:text="三"
+                android:textSize="@dimen/sp_15"
+                android:gravity="center"
+                android:textColor="@color/white"
+                />
+            <TextView
+                android:id="@+id/tv_thu"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:layout_centerInParent="true"
+                android:text="四"
+                android:textSize="@dimen/sp_15"
+                android:textColor="@color/white"
+                android:gravity="center"
+                />
+            <TextView
+                android:id="@+id/tv_fri"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:layout_centerInParent="true"
+                android:text="五"
+                android:textSize="@dimen/sp_15"
+                android:textColor="@color/white"
+                android:gravity="center"
+                />
+            <TextView
+                android:id="@+id/tv_sta"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:layout_centerInParent="true"
+                android:text="六"
+                android:textSize="@dimen/sp_15"
+                android:textColor="@color/white"
+                android:gravity="center"
+                />
+            <TextView
+                android:id="@+id/tv_sun"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:layout_centerInParent="true"
+                android:text="日"
+                android:textSize="@dimen/sp_15"
+                android:gravity="center"
+                android:textColor="@color/white"
+                />
+        </LinearLayout>
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -96,7 +169,8 @@
             app:wheel_reached_width="20dp"
             app:wheel_unreached_width="25dp"
             android:layout_centerInParent="true"
-            app:wheel_max_process="24"/>
+            app:wheel_max_process="24"
+            />
         <TextView
             android:id="@+id/textview"
             android:layout_width="wrap_content"

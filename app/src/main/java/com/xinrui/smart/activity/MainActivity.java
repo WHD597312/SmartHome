@@ -34,6 +34,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
@@ -53,6 +54,7 @@ import com.xinrui.smart.util.Utils;
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -229,8 +231,8 @@ public class MainActivity extends AppCompatActivity {
                     fragmentPreferences.edit().clear();
                 }
                 fragmentPreferences.edit().clear().commit();
-                deviceGroupDao.deleteAll();
-                deviceChildDao.deleteAll();
+//                deviceGroupDao.deleteAll();
+//                deviceChildDao.deleteAll();
 
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
@@ -297,18 +299,19 @@ public class MainActivity extends AppCompatActivity {
                     code = jsonObject.getInt("code");
                     JSONObject content = jsonObject.getJSONObject("content");
                     if (code == 2000) {
-                        deviceGroupDao.deleteAll();
-                        deviceChildDao.deleteAll();
+//                        deviceGroupDao.deleteAll();
+//                        deviceChildDao.deleteAll();
                         JSONArray houses = content.getJSONArray("houses");
-                        JSONArray sharedDevice = content.getJSONArray("sharedDevice");
                         long shareHouseId = 0;
                         for (int i = 0; i < houses.length(); i++) {
                             JSONObject house = houses.getJSONObject(i);
+
                             if (house != null) {
                                 int houseId = house.getInt("id");
                                 if (i == houses.length() - 1) {
                                     shareHouseId = houseId + 1;
                                 }
+
                                 String houseName = house.getString("houseName");
                                 String location = house.getString("location");
                                 int masterControllerDeviceId = house.getInt("masterControllerDeviceId");
@@ -323,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
                                 JSONArray deviceList = house.getJSONArray("deviceList");
                                 for (int j = 0; j < deviceList.length(); j++) {
                                     JSONObject device = deviceList.getJSONObject(j);
+
                                     if (device != null) {
                                         int deviceId = device.getInt("id");
                                         String deviceName = device.getString("deviceName");
@@ -331,19 +335,33 @@ public class MainActivity extends AppCompatActivity {
 
                                         int masterControllerUserId = device.getInt("masterControllerUserId");
                                         int isUnlock = device.getInt("isUnlock");
-                                        DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
-                                        deviceChildDao.insert(deviceChild);
+
+                                        DeviceChild child=deviceChildDao.findDeviceChild((long)deviceId);
+                                        if (child!=null){
+                                            child.setType(type);
+                                            child.setDeviceName(deviceName);
+                                            child.setHouseId((long)groupId);
+                                            child.setMasterControllerUserId(masterControllerUserId);
+                                            child.setIsUnlock(isUnlock);
+                                            deviceChildDao.update(child);
+                                        }else {
+                                            DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
+                                            deviceChildDao.insert(deviceChild);
+                                        }
                                     }
                                 }
                             }
                         }
 
+                        JSONObject  sharedDevice = content.getJSONObject("sharedDevice");
+                        JSONArray deviceList=sharedDevice.getJSONArray("deviceList");
                         DeviceGroup deviceGroup = new DeviceGroup();
                         deviceGroup.setId(shareHouseId);
                         deviceGroup.setHeader("分享的设备");
                         deviceGroupDao.insert(deviceGroup);
-                        for (int x = 0; x < sharedDevice.length(); x++) {
-                            JSONObject device = sharedDevice.getJSONObject(x);
+
+                        for (int x = 0; x < deviceList.length(); x++) {
+                            JSONObject device = deviceList.getJSONObject(x);
                             if (device != null) {
                                 int deviceId = device.getInt("id");
                                 String deviceName = device.getString("deviceName");

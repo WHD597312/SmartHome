@@ -53,6 +53,7 @@ dependencies {
     compile 'com.github.donkingliang:GroupedRecyclerViewAdapter:1.2.0'
     compile 'com.loopeer.library:itemtouchhelperextension:1.0.0'
     compile 'com.yanzhenjie:recyclerview-swipe:1.0.3'
+
     compile 'org.greenrobot:greendao:3.1.0'
     compile 'org.greenrobot:greendao-generator:3.1.0'
     compile 'com.zhy:okhttputils:2.0.0'
