@@ -92,14 +92,17 @@ public class ControlledFragment extends Fragment {
         if (!Utils.isEmpty(houseName)){
             tv_home.setText(houseName);
         }
-        controlleds=getControlleds();
+//        controlleds=getControlleds();
+        controlleds=new ArrayList<>();
+//        controlleds=deviceChildDao.findDeviceType(id,1);
+        new GetControlledAsync().execute();
         adapter=new ControlledAdapter(getActivity(),controlleds);
         lv_homes.setAdapter(adapter);
         tv_home.setBackgroundResource(R.drawable.shape_header);
         view2.setBackgroundResource(R.drawable.shape_footer);
         textView.setText("选中的主控制设备不出现在受控制设备中");
         textView.setPadding(60,0,0,0);
-        new GetMainControlAsync().execute();
+
     }
     @OnClick({R.id.btn_ensure})
     public void onClick(View view){
@@ -118,7 +121,6 @@ public class ControlledFragment extends Fragment {
                         }
                         params.put("controlledId",arr);
                         new ControlledAsync().execute(params);
-
                 }
                 break;
         }
@@ -134,14 +136,18 @@ public class ControlledFragment extends Fragment {
             unbinder.unbind();
         }
     }
+
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
     private DeviceChild masterDevice;
-    class GetMainControlAsync extends AsyncTask<Void,Void,Integer>{
+
+
+    private List<DeviceChild>  controlledDeviceChildren;
+    class GetControlledAsync extends AsyncTask<Void,Void,Integer>{
         @Override
         protected Integer doInBackground(Void... voids) {
             int code=0;
             try {
-                String getAllMainControl="http://120.77.36.206:8082/warmer/v1.0/device/getMasterControlledDevice?houseId="+ URLEncoder.encode(houseId,"utf-8");
+                String getAllMainControl="http://120.77.36.206:8082/warmer/v1.0/device/getControlledDevice?houseId="+ URLEncoder.encode(houseId,"utf-8");
                 String result=HttpUtils.getOkHpptRequest(getAllMainControl);
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
@@ -159,14 +165,12 @@ public class ControlledFragment extends Fragment {
                                 int masterControllerUserId=device.getInt("masterControllerUserId");
                                 int isUnlock=device.getInt("isUnlock");
                                 int controlled=device.getInt("controlled");
-                                if (controlled!=2){
-                                    DeviceChild deviceChild = new DeviceChild((long)id, deviceName, imgs[0],0, (long)houseId,
-                                            masterControllerUserId, type,isUnlock);
-                                    controlleds.add(deviceChild);
-                                }else if (controlled==2){
-                                    masterDevice=new DeviceChild((long)id, deviceName, imgs[0],0, (long)houseId,
-                                            masterControllerUserId, type,isUnlock);
-                                }
+
+                                DeviceChild deviceChild = new DeviceChild((long)id, deviceName, imgs[0],0, (long)houseId,
+                                        masterControllerUserId, type,isUnlock);
+                                deviceChild.setControlled(controlled);
+                                deviceChildDao.update(deviceChild);
+                                controlleds.add(deviceChild);
                             }
                         }
                     }
@@ -185,9 +189,16 @@ public class ControlledFragment extends Fragment {
                 case 2000:
                     adapter.notifyDataSetChanged();
                     break;
+                case -3013:
+                    Utils.showToast(getActivity(),"请先设置主控设备");
+                    Intent intent=new Intent(getActivity(),MainActivity.class);
+                    intent.putExtra("mainControl","mainControl");
+                    startActivity(intent);
+                    break;
             }
         }
     }
+
     class ControlledAsync extends AsyncTask<Map<String,Object>,Void,Integer>{
 
         @Override

@@ -2,34 +2,103 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="open"
-        android:text="打开wifi" />
+        android:layout_height="50dp"
+        android:orientation="horizontal" >
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="close"
-        android:text="关闭wifi" />
+        <TextView
+            android:id="@+id/tvApSsid"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/tvApSsidTitle"
+            android:textSize="24sp" />
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="scan"
-        android:text="扫描wifi" />
+        <TextView
+            android:id="@+id/tvApSssidConnected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:ems="10"
+            android:singleLine="true" >
+        </TextView>
+    </LinearLayout>
 
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="getGood"
-        android:text="获取连接过的wifi配置信息" />
+        android:layout_height="50dp"
+        android:orientation="horizontal" >
 
-    <ListView
-        android:id="@+id/lv"
+        <TextView
+            android:id="@+id/tvApPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/tvPasswordTitle"
+            android:textSize="24sp" />
+
+        <EditText
+            android:id="@+id/edtApPassword"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="text"
+            android:singleLine="true"
+            android:text=""
+            tools:ignore="TextFields" >
+
+        </EditText>
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="50dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/spinnerTaskResultCountTitle"
+            android:textSize="24sp" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <Spinner
+            android:id="@+id/spinnerTaskResultCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/btnConfirm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btnConfirmTitle"
+            android:textSize="24sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_version"
+            android:textSize="16sp"/>
+
+    </LinearLayout>
 </LinearLayout>

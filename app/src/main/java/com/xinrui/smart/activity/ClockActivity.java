@@ -1,233 +1,301 @@
 package com.xinrui.smart.activity;
 
-import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.RemoteViews;
-import android.widget.Toast;
 
+import android.app.ProgressDialog;
+
+import android.content.DialogInterface;
+
+import android.os.AsyncTask;
+import android.os.Bundle;
+
+import android.support.v7.app.AppCompatActivity;
+
+
+import com.xinrui.esptouch.EspWifiAdminSimple;
+import com.xinrui.esptouch.EsptouchTask;
+import com.xinrui.esptouch.IEsptouchListener;
+import com.xinrui.esptouch.IEsptouchResult;
+import com.xinrui.esptouch.IEsptouchTask;
+import com.xinrui.esptouch.task.__IEsptouchTask;
 import com.xinrui.smart.R;
 
-import com.xinrui.smart.util.Utils;
-import com.xinrui.smart.util.mqtt.MQService;
-import com.xinrui.smart.util.wifi.WifiHelper;
 
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
-public class ClockActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class ClockActivity extends AppCompatActivity implements View.OnClickListener {
 
-    WifiHelper wifiUtil;//定义Wife工具类
-    ListView listView;//显示Wife的数据列表
-    ArrayAdapter<String> adapter;//列表的适配器
-    List<String> wifiSSIDs = new ArrayList<>();//列表的数据
-    WifiManager wifiManager;//Wife管理器
+    private static final String TAG = "EsptouchDemoActivity";
+
+    private TextView mTvApSsid;
+
+    private EditText mEdtApPassword;
+
+    private Button mBtnConfirm;
+
+    private EspWifiAdminSimple mWifiAdmin;
+
+    private Spinner mSpinnerTaskCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_clock);
-        wifiUtil = new WifiHelper(this);
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        listView = (ListView) findViewById(R.id.lv);
-        //创建适配器，并把适配器设置到ListView中
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, wifiSSIDs);
-        listView.setAdapter(adapter);
-        //给ListView设置点击事件，点击后连接Wife
-        listView.setOnItemClickListener(this);
+        mWifiAdmin = new EspWifiAdminSimple(this);
+        mTvApSsid = (TextView) findViewById(R.id.tvApSssidConnected);
+        mEdtApPassword = (EditText) findViewById(R.id.edtApPassword);
+        mBtnConfirm = (Button) findViewById(R.id.btnConfirm);
+        mBtnConfirm.setOnClickListener(this);
+        initSpinner();
     }
 
-    /**
-     * 打开Wife
-     */
-    public void open(View view) {
-        wifiUtil.openWifi();
-    }
-    /* 搜索wifi热点
-     */
-    private void search() {
-        if (!wifiManager.isWifiEnabled()) {
-            //开启wifi
-            wifiManager.setWifiEnabled(true);
+    private void initSpinner() {
+        mSpinnerTaskCount = (Spinner) findViewById(R.id.spinnerTaskResultCount);
+        int[] spinnerItemsInt = getResources().getIntArray(R.array.taskResultCount);
+        int length = spinnerItemsInt.length;
+        Integer[] spinnerItemsInteger = new Integer[length];
+        for (int i = 0; i < length; i++) {
+            spinnerItemsInteger[i] = spinnerItemsInt[i];
         }
-        wifiManager.startScan();
+        ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(this,
+                android.R.layout.simple_list_item_1, spinnerItemsInteger);
+        mSpinnerTaskCount.setAdapter(adapter);
+        mSpinnerTaskCount.setSelection(1);
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        IntentFilter mIntentFilter = new IntentFilter();
-        mIntentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        mIntentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
-        mIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(receiver, mIntentFilter);
+    protected void onResume() {
+        super.onResume();
+        // display the connected ap's ssid
+        String apSsid = mWifiAdmin.getWifiConnectedSsid();
+        if (apSsid != null) {
+            mTvApSsid.setText(apSsid);
+        } else {
+            mTvApSsid.setText("");
+        }
+        // check whether the wifi is connected
+        boolean isApSsidEmpty = TextUtils.isEmpty(apSsid);
+        mBtnConfirm.setEnabled(!isApSsidEmpty);
     }
 
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
-                // wifi已成功扫描到可用wifi。
-                List<ScanResult> scanResults = wifiManager.getScanResults();
+    @Override
+    public void onClick(View v) {
 
+        if (v == mBtnConfirm) {
+            String apSsid = mTvApSsid.getText().toString();
+            String apPassword = mEdtApPassword.getText().toString();
+            String apBssid = mWifiAdmin.getWifiConnectedBssid();
+            String taskResultCountStr = Integer.toString(mSpinnerTaskCount
+                    .getSelectedItemPosition());
+            if (__IEsptouchTask.DEBUG) {
+                Log.d(TAG, "mBtnConfirm is clicked, mEdtApSsid = " + apSsid
+                        + ", " + " mEdtApPassword = " + apPassword);
             }
+            new EsptouchAsyncTask3().execute(apSsid, apBssid, apPassword, taskResultCountStr);
+        }
+    }
+
+    private class EsptouchAsyncTask2 extends AsyncTask<String, Void, IEsptouchResult> {
+
+        private ProgressDialog mProgressDialog;
+
+        private IEsptouchTask mEsptouchTask;
+        // without the lock, if the user tap confirm and cancel quickly enough,
+        // the bug will arise. the reason is follows:
+        // 0. task is starting created, but not finished
+        // 1. the task is cancel for the task hasn't been created, it do nothing
+        // 2. task is created
+        // 3. Oops, the task should be cancelled, but it is running
+        private final Object mLock = new Object();
+
+        @Override
+        protected void onPreExecute() {
+            mProgressDialog = new ProgressDialog(ClockActivity.this);
+            mProgressDialog
+                    .setMessage("Esptouch is configuring, please wait for a moment...");
+            mProgressDialog.setCanceledOnTouchOutside(false);
+            mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    synchronized (mLock) {
+                        if (__IEsptouchTask.DEBUG) {
+                            Log.i(TAG, "progress dialog is canceled");
+                        }
+                        if (mEsptouchTask != null) {
+                            mEsptouchTask.interrupt();
+                        }
+                    }
+                }
+            });
+            mProgressDialog.setButton(DialogInterface.BUTTON_POSITIVE,
+                    "Waiting...", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+            mProgressDialog.show();
+            mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                    .setEnabled(false);
+        }
+
+        @Override
+        protected IEsptouchResult doInBackground(String... params) {
+            synchronized (mLock) {
+                String apSsid = params[0];
+                String apBssid = params[1];
+                String apPassword = params[2];
+                mEsptouchTask = new EsptouchTask(apSsid, apBssid, apPassword, ClockActivity.this);
+            }
+            IEsptouchResult result = mEsptouchTask.executeForResult();
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(IEsptouchResult result) {
+            mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                    .setEnabled(true);
+            mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE).setText(
+                    "Confirm");
+            // it is unnecessary at the moment, add here just to show how to use isCancelled()
+            if (!result.isCancelled()) {
+                if (result.isSuc()) {
+                    mProgressDialog.setMessage("Esptouch success, bssid = "
+                            + result.getBssid() + ",InetAddress = "
+                            + result.getInetAddress().getHostAddress());
+                } else {
+                    mProgressDialog.setMessage("Esptouch fail");
+                }
+            }
+        }
+    }
+
+    private void onEsptoucResultAddedPerform(final IEsptouchResult result) {
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                String text = result.getBssid() + " is connected to the wifi";
+                Toast.makeText(ClockActivity.this, text,
+                        Toast.LENGTH_LONG).show();
+            }
+
+        });
+    }
+
+    private IEsptouchListener myListener = new IEsptouchListener() {
+
+        @Override
+        public void onEsptouchResultAdded(final IEsptouchResult result) {
+            onEsptoucResultAddedPerform(result);
         }
     };
 
-    private WifiConfiguration isExsits(String SSID) {
-        List<WifiConfiguration> existingConfigs = wifiManager.getConfiguredNetworks();
-        for (WifiConfiguration existingConfig : existingConfigs) {
-            if (existingConfig.SSID.equals("\"" + SSID + "\"")) {
-                return existingConfig;
-            }
+    private class EsptouchAsyncTask3 extends AsyncTask<String, Void, List<IEsptouchResult>> {
+
+        private ProgressDialog mProgressDialog;
+
+        private IEsptouchTask mEsptouchTask;
+        // without the lock, if the user tap confirm and cancel quickly enough,
+        // the bug will arise. the reason is follows:
+        // 0. task is starting created, but not finished
+        // 1. the task is cancel for the task hasn't been created, it do nothing
+        // 2. task is created
+        // 3. Oops, the task should be cancelled, but it is running
+        private final Object mLock = new Object();
+
+        @Override
+        protected void onPreExecute() {
+            mProgressDialog = new ProgressDialog(ClockActivity.this);
+            mProgressDialog
+                    .setMessage("Esptouch is configuring, please wait for a moment...");
+            mProgressDialog.setCanceledOnTouchOutside(false);
+            mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    synchronized (mLock) {
+                        if (__IEsptouchTask.DEBUG) {
+                            Log.i(TAG, "progress dialog is canceled");
+                        }
+                        if (mEsptouchTask != null) {
+                            mEsptouchTask.interrupt();
+                        }
+                    }
+                }
+            });
+            mProgressDialog.setButton(DialogInterface.BUTTON_POSITIVE,
+                    "Waiting...", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+            mProgressDialog.show();
+            mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                    .setEnabled(false);
         }
-        return null;
-    }
 
-    /**
-     * 关闭Wife
-     */
-    public void close(View view) {
-        wifiUtil.closeWifi();
-    }
-
-    /**
-     * 扫描Wife
-     */
-    List<ScanResult> wifiList = new ArrayList<>();
-
-    public void scan(View view) {
-        isClickHistory = false;//显示的列表不是历史记录
-        //扫描先清除数据
-        wifiSSIDs.clear();
-        wifiList.clear();
-
-        wifiUtil.startScan();//扫描Wife
-        wifiList = wifiUtil.getWifiList();
-        //获取列表中的SSID并显示出来
-        for (ScanResult scanResult : wifiList) {
-            wifiSSIDs.add(scanResult.SSID);
-        }
-        //刷新适配器
-        adapter.notifyDataSetChanged();
-    }
-
-    /**
-     * 获取连接过的Wife数据
-     */
-    List<WifiConfiguration> configuredNetworks = new ArrayList<>();
-
-    public void getGood(View view) {
-        isClickHistory = true;//显示的列表是历史记录
-        //扫描先清除数据
-        wifiSSIDs.clear();
-        if (configuredNetworks != null) {
-            configuredNetworks.clear();
-
-            //获取历史记录
-            configuredNetworks = wifiUtil.getConfiguration();
-            if (configuredNetworks == null)
-                return;
-            for (WifiConfiguration result : configuredNetworks) {
-                wifiSSIDs.add(result.SSID);
+        @Override
+        protected List<IEsptouchResult> doInBackground(String... params) {
+            int taskResultCount = -1;
+            synchronized (mLock) {
+                // !!!NOTICE
+                String apSsid = mWifiAdmin.getWifiConnectedSsidAscii(params[0]);
+                String apBssid = params[1];
+                String apPassword = params[2];
+                String taskResultCountStr = params[3];
+                taskResultCount = Integer.parseInt(taskResultCountStr);
+                mEsptouchTask = new EsptouchTask(apSsid, apBssid, apPassword, ClockActivity.this);
+                mEsptouchTask.setEsptouchListener(myListener);
             }
-            //刷新适配器
-            adapter.notifyDataSetChanged();
+            List<IEsptouchResult> resultList = mEsptouchTask.executeForResults(taskResultCount);
+            return resultList;
         }
-        //获取列表中的SSID并显示出来
 
-    }
-
-    /**
-     * 点击Wife视图列表数据后的回调方法，这里是连接WIfe
-     */
-    boolean isClickHistory = false;
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        //判断是否是点击的历史记录
-        if (isClickHistory) {
-            boolean connOk = wifiUtil.connetionConfiguration(position);
-            if (connOk) {
-                Toast.makeText(ClockActivity.this, "Wife连接成功", Toast.LENGTH_SHORT).show();
-//                finish();
-            } else {
-                Toast.makeText(ClockActivity.this, "Wife连接失败", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            //连接wifi
-            ScanResult sr = wifiList.get(position);//获取点击的扫描信息
-            final String SSID = sr.SSID;//获取Wife的SSID
-
-            final int type = wifiUtil.getType(sr.capabilities);
-            if (type == 1) {//没有密码的Wife情况
-                WifiConfiguration config = wifiUtil.createWifiInfo(SSID, "", type);//第二个空就是密码
-                wifiUtil.addNetWork(config);
-            } else {
-                //有密码
-                final EditText et = new EditText(ClockActivity.this);
-                et.setHint("输入wifi密码");
-                new AlertDialog.Builder(ClockActivity.this)
-                        .setTitle("设置密码")
-                        .setView(et)
-                        .setNeutralButton("取消", null)
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                WifiConfiguration config = wifiUtil.createWifiInfo(SSID, et.getText().toString(), type);
-                                boolean conn = wifiUtil.addNetWork(config);
-                                //判断密码是否连接成功
-                                if (conn) {
-                                    Toast.makeText(ClockActivity.this, "Wife连接成功", Toast.LENGTH_SHORT).show();
-                                    finish();//关闭页面
-                                } else {
-                                    Toast.makeText(ClockActivity.this, "Wife连接失败", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        }).create().show();
+        @Override
+        protected void onPostExecute(List<IEsptouchResult> result) {
+            mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                    .setEnabled(true);
+            mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE).setText(
+                    "Confirm");
+            IEsptouchResult firstResult = result.get(0);
+            // check whether the task is cancelled and no results received
+            if (!firstResult.isCancelled()) {
+                int count = 0;
+                // max results to be displayed, if it is more than maxDisplayCount,
+                // just show the count of redundant ones
+                final int maxDisplayCount = 5;
+                // the task received some results including cancelled while
+                // executing before receiving enough results
+                if (firstResult.isSuc()) {
+                    StringBuilder sb = new StringBuilder();
+                    for (IEsptouchResult resultInList : result) {
+                        sb.append("Esptouch success, bssid = "
+                                + resultInList.getBssid()
+                                + ",InetAddress = "
+                                + resultInList.getInetAddress()
+                                .getHostAddress() + "\n");
+                        count++;
+                        if (count >= maxDisplayCount) {
+                            break;
+                        }
+                    }
+                    if (count < result.size()) {
+                        sb.append("\nthere's " + (result.size() - count)
+                                + " more result(s) without showing\n");
+                    }
+                    mProgressDialog.setMessage(sb.toString());
+                } else {
+                    mProgressDialog.setMessage("Esptouch fail");
+                }
             }
         }
     }

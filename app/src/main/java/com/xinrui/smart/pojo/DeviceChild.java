@@ -12,122 +12,149 @@ import org.greenrobot.greendao.annotation.Generated;
 public class DeviceChild {
     @Id(autoincrement = false)
     private Long id;
-    private String child;
+
+    private String deviceName;
+    private String macAddress;
     private int img;
     private int direction;
-    private Long groupId;
+    private Long houseId;
     private int masterControllerUserId;
     private int controlled;
-    int type;
-    int isUnlock;
+    private int type;
+    private int isUnlock;
+    private int version;
 
 
     public DeviceChild() {
     }
 
-    public DeviceChild(String child) {
-        this.child = child;
+    public DeviceChild(String deviceName) {
+        this.deviceName = deviceName;
     }
 
-    public DeviceChild(String child, int img) {
-        this.child = child;
+    public DeviceChild(String deviceName, int img) {
+        this.deviceName = deviceName;
         this.img = img;
     }
 
-    public DeviceChild(Long id, String child, int img, int direction, Long groupId,
+    public DeviceChild(Long id, String deviceName, int img, int direction, Long houseId,
                        int masterControllerUserId, int type, int isUnlock) {
         this.id = id;
-        this.child = child;
+        this.deviceName = deviceName;
         this.img = img;
         this.direction = direction;
-        this.groupId = groupId;
+        this.houseId = houseId;
         this.masterControllerUserId = masterControllerUserId;
         this.type = type;
         this.isUnlock = isUnlock;
     }
-    @Generated(hash = 1516157361)
-    public DeviceChild(Long id, String child, int img, int direction, Long groupId,
-            int masterControllerUserId, int controlled, int type, int isUnlock) {
-        this.id = id;
-        this.child = child;
-        this.img = img;
-        this.direction = direction;
-        this.groupId = groupId;
-        this.masterControllerUserId = masterControllerUserId;
-        this.controlled = controlled;
-        this.type = type;
-        this.isUnlock = isUnlock;
+
+    public int getVersion() {
+        return this.version;
     }
 
-    public String getChild() {
-        return child;
-    }
-
-    public void setChild(String child) {
-        this.child = child;
-    }
-
-    public int getImg() {
-        return img;
-    }
-
-    public void setImg(int img) {
-        this.img = img;
-    }
-
-    public int getDirection() {
-        return direction;
-    }
-
-    public void setDirection(int direction) {
-        this.direction = direction;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(Long groupId) {
-        this.groupId = groupId;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    public int getMasterControllerUserId() {
-        return masterControllerUserId;
-    }
-
-    public void setMasterControllerUserId(int masterControllerUserId) {
-        this.masterControllerUserId = masterControllerUserId;
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     public int getIsUnlock() {
-        return isUnlock;
+        return this.isUnlock;
     }
 
     public void setIsUnlock(int isUnlock) {
         this.isUnlock = isUnlock;
     }
 
+    public int getType() {
+        return this.type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
     public int getControlled() {
-        return controlled;
+        return this.controlled;
     }
 
     public void setControlled(int controlled) {
         this.controlled = controlled;
     }
+
+    public int getMasterControllerUserId() {
+        return this.masterControllerUserId;
+    }
+
+    public void setMasterControllerUserId(int masterControllerUserId) {
+        this.masterControllerUserId = masterControllerUserId;
+    }
+
+    public Long getHouseId() {
+        return this.houseId;
+    }
+
+    public void setHouseId(Long houseId) {
+        this.houseId = houseId;
+    }
+
+    public int getDirection() {
+        return this.direction;
+    }
+
+    public void setDirection(int direction) {
+        this.direction = direction;
+    }
+
+    public int getImg() {
+        return this.img;
+    }
+
+    public void setImg(int img) {
+        this.img = img;
+    }
+
+    public String getMacAddress() {
+        return this.macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    public String getDeviceName() {
+        return this.deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @Generated(hash = 426386247)
+    public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
+            Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
+            int version) {
+        this.id = id;
+        this.deviceName = deviceName;
+        this.macAddress = macAddress;
+        this.img = img;
+        this.direction = direction;
+        this.houseId = houseId;
+        this.masterControllerUserId = masterControllerUserId;
+        this.controlled = controlled;
+        this.type = type;
+        this.isUnlock = isUnlock;
+        this.version = version;
+    }
+
+   
+
+
 }

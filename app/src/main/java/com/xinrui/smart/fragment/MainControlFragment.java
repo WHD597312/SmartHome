@@ -53,10 +53,8 @@ public class MainControlFragment extends Fragment {
     private List<DeviceChild> mainControls;//主控机数量
     private MainControlAdapter adapter;//主控制设置适配器
     public int runing=0;
-    private DeviceChildDaoImpl deviceChildDao;
-    private DeviceGroupDaoImpl deviceGroupDao;
+
     private String masterUrl="http://120.77.36.206:8082/warmer/v1.0/house/setMasterDevice";
-    String houseName;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -65,7 +63,11 @@ public class MainControlFragment extends Fragment {
         return view;
     }
 
-    String houseId;
+    private String houseId;
+    private String houseName;
+    private DeviceChildDaoImpl deviceChildDao;
+    private DeviceGroupDaoImpl deviceGroupDao;
+
     @Override
     public void onStart() {
         super.onStart();
@@ -74,24 +76,23 @@ public class MainControlFragment extends Fragment {
         deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
         deviceChildDao=new DeviceChildDaoImpl(getActivity());
         long id=Long.parseLong(houseId);
-//        DeviceGroup deviceGroup=deviceGroupDao.findById(id);
-//
-//        houseName=deviceGroup.getHeader();
-//        if (!Utils.isEmpty(houseName)){
-//            tv_home.setText(houseName);
-//        }
-//        mainControls=getMainControls();
+        DeviceGroup deviceGroup=deviceGroupDao.findById(id);
+
+        houseName=deviceGroup.getHeader();
+        if (!Utils.isEmpty(houseName)){
+            tv_home.setText(houseName);
+        }
+
         mainControls=new ArrayList<>();
+//        mainControls=deviceChildDao.findDeviceType(id,2);
         new GetMainControlAsync().execute();
         adapter=new MainControlAdapter(getActivity(),mainControls);
         lv_homes.setAdapter(adapter);
-
 
     }
     @Override
     public void onResume() {
         super.onResume();
-
     }
     private List<DeviceChild> getMainControls(){
         long id=0;
@@ -145,7 +146,6 @@ public class MainControlFragment extends Fragment {
                         }
                     }
                 }
-
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -172,7 +172,7 @@ public class MainControlFragment extends Fragment {
                 if (flag){
                     DeviceChild deviceChild=mainControls.get(selected);
                     long masterControllerDeviceId=deviceChild.getId();
-                    long id=deviceChild.getGroupId();
+                    long id=deviceChild.getHouseId();
                     Map<String,Object> params=new HashMap<>();
                     params.put("masterControllerDeviceId",masterControllerDeviceId);
                     params.put("id",id);

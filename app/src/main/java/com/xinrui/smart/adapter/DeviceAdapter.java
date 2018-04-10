@@ -63,7 +63,6 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
     public DeviceAdapter(Context context, List<DeviceGroup> groups,List<List<DeviceChild>> childern) {
         super(context);
 
-
         this.context=context;
         this.groups = groups;
         this.childern=childern;
@@ -259,9 +258,21 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
     @Override
     public void onBindChildViewHolder(final BaseViewHolder holder, final int groupPosition, final int childPosition) {
         final DeviceChild entry=childern.get(groupPosition).get(childPosition);
-        holder.setText(R.id.tv_device_child,entry.getChild());
+        holder.setText(R.id.tv_device_child,entry.getDeviceName());
         holder.setImageResource(R.id.image_switch,entry.getImg());
         tv_device_child= (TextView) holder.itemView.findViewById(R.id.tv_device_child);
+
+        if (entry.getType()==1){
+            if (entry.getControlled()==2){
+                holder.setImageResource(R.id.image_device_child,R.mipmap.master);
+            }else if (entry.getControlled()==1){
+                holder.setImageResource(R.id.image_device_child,R.mipmap.controlled);
+            }else if (entry.getControlled()==0){
+                holder.setImageResource(R.id.image_device_child,R.mipmap.heater2);
+            }
+        }else if (entry.getType()==2){
+            holder.setImageResource(R.id.image_device_child,R.mipmap.estsensor);
+        }
 
         tv_device_child.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -355,7 +366,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
                 String child=dialog.getName();
                 if (!Utils.isEmpty(child)){
                     DeviceChild deviceChild=childern.get(groupPosition).get(childPosition);
-                    deviceChild.setChild(child);
+                    deviceChild.setDeviceName(child);
                     DeviceAdapter.this.groupPosition=groupPosition;
                     DeviceAdapter.this.childPosition=childPosition;
                     new UpdateDeviceNameAsync().execute(deviceChild);
@@ -382,7 +393,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
             DeviceChild deviceChild=deviceChildren[0];
             try {
                 String updateDeviceNameUrl="http://120.77.36.206:8082/warmer/v1.0/device/changeDeviceName?deviceId="+
-                        URLEncoder.encode(deviceChild.getId()+"","UTF-8")+"&newName="+URLEncoder.encode(deviceChild.getChild(),"UTF-8");
+                        URLEncoder.encode(deviceChild.getId()+"","UTF-8")+"&newName="+URLEncoder.encode(deviceChild.getDeviceName(),"UTF-8");
                 String result=HttpUtils.getOkHpptRequest(updateDeviceNameUrl);
                 JSONObject jsonObject=new JSONObject(result);
                 code=jsonObject.getInt("code");
@@ -420,7 +431,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
                 String userId=preferences.getString("userId","");
                 String updateDeviceNameUrl="http://120.77.36.206:8082/warmer/v1.0/device/deleteDevice?deviceId="+
                         URLEncoder.encode(deviceChild.getId()+"","UTF-8")+"&userId="+URLEncoder.encode(userId,"UTF-8")
-                        +"&houseId="+URLEncoder.encode(deviceChild.getGroupId()+"","UTF-8");
+                        +"&houseId="+URLEncoder.encode(deviceChild.getHouseId()+"","UTF-8");
 //                String updateDeviceNameUrl="http://192.168.168.3:8082/warmer/v1.0/device/deleteDevice?deviceId=6&userId=1&houseId=1000";
                 String result=HttpUtils.getOkHpptRequest(updateDeviceNameUrl);
                 JSONObject jsonObject=new JSONObject(result);

@@ -11,6 +11,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
+import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
@@ -133,8 +135,14 @@ public class LoginActivity extends AppCompatActivity {
                     String phone=content.getString("phone");
                     String password=content.getString("password");
                     if (code==2000){
-
                         SharedPreferences.Editor editor=preferences.edit();
+                        if (preferences.contains("phone")){
+                            String phone2=preferences.getString("phone","");
+                            if (!phone2.equals(phone)){
+                               new DeviceGroupDaoImpl(LoginActivity.this).deleteAll();
+                               new DeviceChildDaoImpl(LoginActivity.this).deleteAll();
+                            }
+                        }
                         if (!preferences.contains("password")) {
                             editor.putString("phone",phone);
                             editor.putString("password",password);

@@ -9,6 +9,9 @@ import com.xinrui.database.dao.DaoSession;
 import com.xinrui.database.dao.DeviceChildDao;
 import com.xinrui.smart.pojo.DeviceChild;
 
+import org.greenrobot.greendao.query.QueryBuilder;
+import org.greenrobot.greendao.query.WhereCondition;
+
 import java.util.List;
 
 public class DeviceChildDaoImpl {
@@ -27,6 +30,9 @@ public class DeviceChildDaoImpl {
     public void insert(DeviceChild deviceChild){
         deviceChildDao.insert(deviceChild);
     }
+    public void insertAll(List<DeviceChild> deviceChildren){
+        deviceChildDao.insertInTx(deviceChildren);
+    }
     public void update(DeviceChild deviceChild){
         deviceChildDao.update(deviceChild);
     }
@@ -40,8 +46,19 @@ public class DeviceChildDaoImpl {
     public DeviceChild findDeviceChild(Long id){
         return deviceChildDao.load(id);
     }
+
+    /**
+     * 获取设备类型下的设备 controlled=2时表示设备为主控 controlled=1时表示设备为受控 controlled=0表示外置传感器
+     * @param controlled
+     * @return
+     */
+    public List<DeviceChild> findDeviceType(Long groupId,int controlled){
+        WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(groupId),DeviceChildDao.Properties.Controlled.eq(controlled));
+        return deviceChildDao.queryBuilder().where(whereCondition).list();
+    }
+//        return deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.GroupId.eq(groupId))
     public List<DeviceChild> findGroupIdAllDevice(Long groupId){
-        return deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.GroupId.eq(groupId)).list();
+        return deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.HouseId.eq(groupId)).list();
     }
     public List<DeviceChild> findAllDevice(){
         return deviceChildDao.loadAll();

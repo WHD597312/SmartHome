@@ -13,8 +13,9 @@
         >
         <ImageView
             android:id="@+id/image_smart"
-            android:layout_width="@dimen/dp_50"
-            android:layout_height="@dimen/dp_50"
+            android:layout_width="@dimen/dp_45"
+            android:layout_height="@dimen/dp_45"
+            android:paddingLeft="@dimen/dp_10"
             android:src="@drawable/example"
             android:scaleType="centerInside"
             />
@@ -38,6 +39,7 @@
             android:layout_centerVertical="true"
             android:src="@drawable/right_arrow"
             android:scaleType="centerInside"
+            android:layout_marginRight="@dimen/dp_10"
             />
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>

@@ -121,12 +121,16 @@ public class MainControlActivity extends AppCompatActivity{
                 controlledFragment.setArguments(bundle);
                 fragmentTransaction.commit();
             }
-
         }else if("外置传感器".equals(content)){
             FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.layout_body,new ETSControlFragment());
-
-            fragmentTransaction.commit();
+            ETSControlFragment etsControlFragment= new ETSControlFragment();
+            fragmentTransaction.replace(R.id.layout_body,etsControlFragment);
+            if (!Utils.isEmpty(houseId)){
+                Bundle bundle=new Bundle();
+                bundle.putString("houseId",houseId);
+                etsControlFragment.setArguments(bundle);
+                fragmentTransaction.commit();
+            }
         }
     }
     @OnClick({R.id.img_cancel})

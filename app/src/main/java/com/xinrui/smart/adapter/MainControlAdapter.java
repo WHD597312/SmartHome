@@ -67,11 +67,14 @@ public class MainControlAdapter extends BaseAdapter {
         }else {
             viewHolder= (ViewHolder) convertView.getTag();
         }
-        final DeviceChild control=getItem(position);
+        DeviceChild control=getItem(position);
         if (control!=null){
 
-            viewHolder.tv_main.setText(control.getChild());
+            viewHolder.tv_main.setText(control.getDeviceName());
+
             CheckBox box=viewHolder.check;
+            viewHolder.img_main.setImageResource(R.mipmap.master);
+
             if (control.getControlled()==2){
                 states.put(position, true);
                 control.setControlled(0);

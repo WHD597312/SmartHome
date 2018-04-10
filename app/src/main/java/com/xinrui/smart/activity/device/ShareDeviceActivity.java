@@ -47,7 +47,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
         if (deviceChild!=null){
 
             long deviceId=deviceChild.getId();
-            String deviceName=deviceChild.getChild();
+            String deviceName=deviceChild.getDeviceName();
             share=deviceId+"";
             if (!Utils.isEmpty(share)){
                 Message msg=handler.obtainMessage();

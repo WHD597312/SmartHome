@@ -73,8 +73,6 @@ public class SmartFragment extends Fragment {
                     intent.putExtra("content",content);
                     startActivity(intent);
                 }
-
-
             }
         });
     }
