@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -58,6 +60,8 @@ public class ControlledFragment extends Fragment{
     private List<DeviceChild> controlleds;
     private ControlledAdapter adapter;//受控机适配器
     private String controlledUrl="http://120.77.36.206:8082/warmer/v1.0/device/setControlled";
+    private Map<Integer, Boolean> isSelected;
+    private List<DeviceChild> beSelectedData = new ArrayList();
 
     @Nullable
     @Override
@@ -111,23 +115,18 @@ public class ControlledFragment extends Fragment{
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_ensure:
-
-//                 List<DeviceChild> deviceChildren=new ArrayList<>();
-//                        for (DeviceChild deviceChild:controlleds){
-//                            if (deviceChild.getControlled()==1){
-//                                deviceChildren.add(deviceChild);
-//                            }
-//                        }
-//
-//                        Map<String,Object> params=new HashMap<>();
-//                        params.put("houseId",houseId);
-//                        long arr[]=new long[deviceChildren.size()];
-//                        for (int i=0;i<deviceChildren.size();i++){
-//                            arr[i]=deviceChildren.get(i).getId();
-//                        }
-//                        params.put("controlledId",arr);
-//                        new ControlledAsync().execute(params);
-
+                if (controlledDeviceChildren.isEmpty()){
+                    Utils.showToast(getActivity(),"未选中受控机");
+                }else {
+                        Map<String,Object> params=new HashMap<>();
+                        params.put("houseId",houseId);
+                        long arr[]=new long[controlledDeviceChildren.size()];
+                        for (int i=0;i<controlledDeviceChildren.size();i++){
+                            arr[i]=controlledDeviceChildren.get(i).getId();
+                        }
+                        params.put("controlledId",arr);
+                        new ControlledAsync().execute(params);
+                }
                 break;
         }
     }
@@ -147,7 +146,7 @@ public class ControlledFragment extends Fragment{
     private DeviceChild masterDevice;
 
 
-    private List<DeviceChild>  controlledDeviceChildren;
+    private List<DeviceChild>  controlledDeviceChildren=new ArrayList<>();
 
 
     public class ControlledAdapter extends BaseAdapter {
@@ -175,7 +174,7 @@ public class ControlledFragment extends Fragment{
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             ControlledAdapter.ViewHolder viewHolder=null;
             if (convertView==null){
                 convertView= View.inflate(context, R.layout.item_controled,null);
@@ -185,26 +184,34 @@ public class ControlledFragment extends Fragment{
                 viewHolder= (ViewHolder) convertView.getTag();
             }
             viewHolder.img_main.setImageResource(R.mipmap.controlled);
-            DeviceChild controlled=getItem(position);
-            CheckBox check=viewHolder.check;
+            final DeviceChild controlled=getItem(position);
+            final CheckBox check=viewHolder.check;
 
             if (controlled!=null){
                 viewHolder.tv_main.setText(controlled.getDeviceName());
-//                if (controlled.getControlled()==1){
-//                    check.setChecked(true);
-//                }else if (controlled.getControlled()==0){
-//                    check.setChecked(false);
-//                }
+                if (controlled.getControlled()==1){
+                    viewHolder.check.setChecked(true);
+                }else {
+                    viewHolder.check.setChecked(false);
+                }
             }
+
+             check.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                   if (check.isChecked()){
+                       if (!controlledDeviceChildren.contains(controlled)){
+                           controlledDeviceChildren.add(list.get(position));
+                       }
+
+                   }else {
+                       controlledDeviceChildren.remove(list.get(position));
+                   }
+                }
+            });
             return convertView;
         }
 
-        List<DeviceChild> selected=new ArrayList<>();
-
-
-        public List<DeviceChild> getSelected() {
-            return selected;
-        }
 
         class ViewHolder{
             @BindView(R.id.img_main)
@@ -248,6 +255,10 @@ public class ControlledFragment extends Fragment{
                                 deviceChild.setControlled(controlled);
                                 deviceChildDao.update(deviceChild);
                                 controlleds.add(deviceChild);
+                                if (controlled==1){
+                                    controlledDeviceChildren.add(deviceChild);
+                                }
+
                             }
                         }
                     }
@@ -288,8 +299,8 @@ public class ControlledFragment extends Fragment{
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
                     if (code==2000){
-                        List<DeviceChild> deviceChildren=adapter.getSelected();
-                        deviceChildDao.updateAll(deviceChildren);
+//                        List<DeviceChild> deviceChildren=adapter.getSelected();
+//                        deviceChildDao.updateAll(deviceChildren);
                     }
                 }catch (Exception e){
                     e.printStackTrace();

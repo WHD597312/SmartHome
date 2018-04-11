@@ -167,9 +167,10 @@ public class MainControlFragment extends Fragment{
            if (control!=null){
                viewHolder.tv_main.setText(control.getDeviceName());
                if (control.getControlled()==2){
-                   viewHolder.check.setChecked(true);
+                   isSelected.put(position, true);
+//                   children.get(position).setControlled(2);
                }else {
-                   viewHolder.check.setChecked(false);
+                   isSelected.put(position, false);
                }
            }
 
@@ -185,7 +186,6 @@ public class MainControlFragment extends Fragment{
                    // 当前点击的CB
                    boolean cu = !isSelected.get(position);
                    // 先将所有的置为FALSE
-
 
                    for (Integer p : isSelected.keySet()) {
                        isSelected.put(p, false);
@@ -289,23 +289,18 @@ public class MainControlFragment extends Fragment{
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_ensure:
-                for (DeviceChild deviceChild:beSelectedData){
-                    Log.d("ss",deviceChild.getDeviceName());
+                if (beSelectedData.isEmpty()){
+                    Utils.showToast(getActivity(),"请选择一个主控设备");
+                }else {
+                    for (DeviceChild deviceChild:beSelectedData){
+                        long masterControllerDeviceId=deviceChild.getId();
+                        long id=deviceChild.getHouseId();
+                        Map<String,Object> params=new HashMap<>();
+                        params.put("masterControllerDeviceId",masterControllerDeviceId);
+                        params.put("id",id);
+                        new MasterAsync().execute(params);
+                    }
                 }
-//                MainControlAdapter.SelectedEnsure selectedEnsure=adapter.getSelected();
-//                int selected=selectedEnsure.selected;
-//                boolean flag=selectedEnsure.flag;
-//                if (flag){
-//                    DeviceChild deviceChild=mainControls.get(selected);
-//                    long masterControllerDeviceId=deviceChild.getId();
-//                    long id=deviceChild.getHouseId();
-//                    Map<String,Object> params=new HashMap<>();
-//                    params.put("masterControllerDeviceId",masterControllerDeviceId);
-//                    params.put("id",id);
-//                    new MasterAsync().execute(params);
-//                }else {
-//                    Utils.showToast(getActivity(),"请选择一个主控设备");
-//                }
                 break;
         }
     }

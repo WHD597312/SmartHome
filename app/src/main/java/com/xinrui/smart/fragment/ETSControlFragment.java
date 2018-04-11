@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +58,7 @@ public class ETSControlFragment extends Fragment{
 
     private Map<Integer, Boolean> isSelected;
 
-    private List beSelectedData = new ArrayList();
+    private List<DeviceChild> beSelectedData = new ArrayList();
 
     @Nullable
     @Override
@@ -106,20 +107,19 @@ public class ETSControlFragment extends Fragment{
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_ensure:
-//                ETSControlAdapter.SelectedEnsure selectedEnsure=adapter.getSelected();
-//                int selected=selectedEnsure.selected;
-//                boolean flag=selectedEnsure.flag;
-//                if (flag){
-//                    DeviceChild deviceChild=mainControls.get(selected);
-//                    long masterControllerDeviceId=deviceChild.getId();
-//                    long id=deviceChild.getHouseId();
-//                    Map<String,Object> params=new HashMap<>();
-//                    params.put("deviceId",masterControllerDeviceId);
-//                    params.put("houseId",id);
-//                    new ExtSensorAsync().execute(params);
-//                }else {
-//                    Utils.showToast(getActivity(),"请选择一个主控设备");
-//                }
+               if (beSelectedData.isEmpty()){
+                   Utils.showToast(getActivity(),"请选择一个传感器");
+               }else {
+                   for (DeviceChild deviceChild:beSelectedData){
+                    long masterControllerDeviceId=deviceChild.getId();
+                    long id=deviceChild.getHouseId();
+                    Map<String,Object> params=new HashMap<>();
+                    params.put("deviceId",masterControllerDeviceId);
+                    params.put("houseId",id);
+                    new ExtSensorAsync().execute(params);
+                   }
+               }
+
                 break;
         }
     }
@@ -143,6 +143,7 @@ public class ETSControlFragment extends Fragment{
         public DeviceChild getItem(int position) {
             return children.get(position);
         }
+
 
         @Override
         public long getItemId(int position) {
@@ -175,6 +176,11 @@ public class ETSControlFragment extends Fragment{
             DeviceChild control=getItem(position);
             if (control!=null){
                 viewHolder.tv_main.setText(control.getDeviceName());
+                if (control.getControlled()==1){
+                    isSelected.put(position, true);
+                }else {
+                    isSelected.put(position, false);
+                }
             }
             viewHolder.check.setChecked(isSelected.get(position));
 
@@ -185,6 +191,7 @@ public class ETSControlFragment extends Fragment{
                     // 先将所有的置为FALSE
                     for (Integer p : isSelected.keySet()) {
                         isSelected.put(p, false);
+                        children.get(p).setControlled(0);
                     }
                     // 再将当前选择CB的实际状态
                     isSelected.put(position, cu);
@@ -192,6 +199,7 @@ public class ETSControlFragment extends Fragment{
                     beSelectedData.clear();
                     if (cu) {
                         beSelectedData.add(children.get(position));
+                        children.get(position).setControlled(1);
                     }
                 }
             });
@@ -226,6 +234,7 @@ public class ETSControlFragment extends Fragment{
                             mainControls.clear();
                         }else {
                             mainControls.clear();
+                            DeviceChild deviceChild2=null;
                             for (int i=0;i<content.length();i++){
                                 JSONObject device=content.getJSONObject(i);
                                 if (device!=null){
@@ -242,6 +251,20 @@ public class ETSControlFragment extends Fragment{
                                     deviceChild.setControlled(controlled);
                                     deviceChildDao.update(deviceChild);
                                     mainControls.add(deviceChild);
+                                    if (controlled==1){
+                                        deviceChild2=deviceChild;
+                                    }
+                                    if (isSelected != null)
+                                        isSelected = null;
+                                    isSelected = new HashMap<Integer, Boolean>();
+                                    for (int x = 0; x < mainControls.size(); x++) {
+                                        isSelected.put(x, false);
+                                    }
+                                    // 清除已经选择的项
+                                    if (beSelectedData.size() > 0) {
+                                        beSelectedData.clear();
+                                    }
+                                    beSelectedData.add(deviceChild2);
                                 }
                             }
                         }
@@ -259,18 +282,6 @@ public class ETSControlFragment extends Fragment{
             super.onPostExecute(code);
             switch (code){
                 case 2000:
-                    if (mainControls == null || mainControls.size() == 0)
-                        return;
-                    if (isSelected != null)
-                        isSelected = null;
-                    isSelected = new HashMap<Integer, Boolean>();
-                    for (int i = 0; i < mainControls.size(); i++) {
-                        isSelected.put(i, false);
-                    }
-                    // 清除已经选择的项
-                    if (beSelectedData.size() > 0) {
-                        beSelectedData.clear();
-                    }
                     adapter.notifyDataSetChanged();
                     break;
             }
