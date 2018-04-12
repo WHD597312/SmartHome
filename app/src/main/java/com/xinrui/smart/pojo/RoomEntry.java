@@ -1,8 +1,12 @@
 package com.xinrui.smart.pojo;
 
+import android.widget.ImageView;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
+
+import java.util.List;
 
 /**
  * Created by win7 on 2018/3/28.
@@ -18,9 +22,6 @@ public class RoomEntry {
     private int height;
     private int group;
 
-
-    public RoomEntry() {
-    }
 
     public RoomEntry(int x, int y, int width, int height) {
         this.x = x;
@@ -38,6 +39,12 @@ public class RoomEntry {
         this.height = height;
         this.group = group;
     }
+
+    @Generated(hash = 1918853975)
+    public RoomEntry() {
+    }
+
+
 
     public Long getId() {
         return id;

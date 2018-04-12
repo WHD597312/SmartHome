@@ -113,9 +113,9 @@ public class Btn3_fragment extends Fragment {
 //            list=roomEntryDao.findAllByGroup(u);
 //        }
 //        for (int i = 0; i < list.size(); i++) {
-//            RoomEntry roomEntry = list.get(i);
-//            Log.i("list1", "fragment---------------------" + roomEntry.getX() + "tv" + width + ";" + height);
-//            setLayout(roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight());
+//            RoomEntry roomEntry_list = list.get(i);
+//            Log.i("list1", "fragment---------------------" + roomEntry_list.getX() + "tv" + width + ";" + height);
+//            setLayout(roomEntry_list.getX(), roomEntry_list.getY(), roomEntry_list.getWidth(), roomEntry_list.getHeight());
 //
 //        }
 
@@ -348,8 +348,6 @@ public class Btn3_fragment extends Fragment {
     }
 
     private void saveViewInstance(final View childView){
-        Room room = new Room();
-        room.setId(roomId);
         TextView roomName = (TextView) childView.findViewById(R.id.room_name);
         ImageView add_equipment = (ImageView) childView.findViewById(R.id.add_equipment);
 
@@ -411,9 +409,9 @@ public class Btn3_fragment extends Fragment {
         Log.i("sss1", "fragment---------------------");
 
 
-//        for (RoomEntry roomEntry:list){
+//        for (RoomEntry roomEntry_list:list){
 //
-//            setLayout(roomEntry.getX(),roomEntry.getY(),roomEntry.getWidth(),roomEntry.getHeight());
+//            setLayout(roomEntry_list.getX(),roomEntry_list.getY(),roomEntry_list.getWidth(),roomEntry_list.getHeight());
 //        }
 
     }

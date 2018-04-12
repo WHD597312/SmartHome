@@ -28,7 +28,7 @@
             android:layout_marginLeft="0dp"
             android:background="@drawable/floor_button_colour"
             android:text="@string/onefloor"
-            android:visibility="gone"
+            android:visibility="visible"
             android:textColor="@color/white"
             app:layout_constraintStart_toEndOf="@+id/room"
             app:layout_constraintTop_toTopOf="parent" />

@@ -11,6 +11,15 @@ import android.widget.TextView;
 public class RoomType {
     private int roomImageview;
     private String roomName;
+    private boolean flag;
+
+    public boolean isFlag() {
+        return flag;
+    }
+
+    public void setFlag(boolean flag) {
+        this.flag = flag;
+    }
 
     public RoomType(int roomImageview, String roomName) {
         this.roomImageview = roomImageview;
@@ -35,5 +44,9 @@ public class RoomType {
 
     public void setRoomName(String roomName) {
         this.roomName = roomName;
+    }
+
+    public void setFladed(boolean flaged){
+        this.flag = flaged;
     }
 }

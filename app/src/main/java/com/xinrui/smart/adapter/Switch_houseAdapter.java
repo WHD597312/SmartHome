@@ -25,6 +25,7 @@ private OnItemClickListener mListener;
     public Switch_houseAdapter(Context mContext, OnItemClickListener mListener) {
         this.mContext = mContext;
         this.mListener = mListener;
+        mInflater = LayoutInflater.from(mContext);
     }
 
     @Override

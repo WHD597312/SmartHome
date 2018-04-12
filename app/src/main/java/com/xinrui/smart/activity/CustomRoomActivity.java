@@ -134,8 +134,6 @@ public class CustomRoomActivity extends AppCompatActivity {
 
     List<Room> roomlist = new ArrayList();
 
-    Room room = new Room();
-
     List<Integer> list_color = new ArrayList();//点击变色的item
 
     List<Integer> list_state = new ArrayList();//合并后的item
@@ -394,17 +392,17 @@ public class CustomRoomActivity extends AppCompatActivity {
                 WindowManager wm = (WindowManager) this
                         .getSystemService(Context.WINDOW_SERVICE);
                 int width = wm.getDefaultDisplay().getWidth()/4;
-
-                List<RoomEntry> list = roomEntryDao.findAllByGroup(current_key);
-                roomEntryDao.deleteAll(list);
-
-                roomEntryDao.findAllByGroup(current_key);
+//
+//                List<RoomEntry> list = roomEntryDao.findAllByGroup(current_key);
+//                roomEntryDao.deleteAll(list);
+//
+//                roomEntryDao.findAllByGroup(current_key);
 
                 if ( list_resolution!= null) {
                     JSONArray jsonArray = new JSONArray();
                     SharedPreferences sharedPreferences = this.getSharedPreferences("data",0);
                     long house_id = sharedPreferences.getLong("house_id",0);
-                    List<DeviceGroup> DeviceGroup = deviceGroupDao.findAllDevices();
+//                    List<DeviceGroup> DeviceGroup = deviceGroupDao.findAllDevices();
                         for (int i = 0; i < list_resolution.size(); i++) {
                         int startPoint = Collections.min(list_resolution.get(i))+100;
 

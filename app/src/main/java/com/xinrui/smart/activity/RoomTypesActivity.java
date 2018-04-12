@@ -2,10 +2,14 @@ package com.xinrui.smart.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.xinrui.smart.R;
@@ -28,29 +32,59 @@ public class RoomTypesActivity extends Activity {
     ImageButton returnButton;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    @BindView(R.id.sure)
+    Button sure;
     private List<RoomType> mRoomtypelsit = new ArrayList<>();
     private Context mContext;
+
     @OnClick(R.id.return_button)
-    public void rollback ( ){
-            finish();
+    public void rollback() {
+        finish();
     }
 
+    private int checkedPosition;
+
+    SharedPreferences fragmentPreferences;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.roomtypes);
         ButterKnife.bind(this);
+        fragmentPreferences = getSharedPreferences("fragment", Context.MODE_PRIVATE);
         //初始化List数据
         initRoomType();
+        String returnName ;
         //初始化RecyclerView
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         //创建GridLayoutManager 对象
         GridLayoutManager gridLayoutManager = new GridLayoutManager(mContext, 4);
         recyclerView.setLayoutManager(gridLayoutManager);
-        RoomtypeAdapter roomType = new RoomtypeAdapter(mRoomtypelsit);
+        final RoomtypeAdapter roomType = new RoomtypeAdapter(mRoomtypelsit);
+        roomType.setOnItemClickListener(new RoomtypeAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                for (int i = 0; i < mRoomtypelsit.size(); i++) {
+                    if (i == position) {
+                        mRoomtypelsit.get(i).setFladed(true);
+                    } else {
+                        mRoomtypelsit.get(i).setFladed(false);
+                    }
+                }
+                SharedPreferences.Editor editor = getSharedPreferences("roomType",MODE_PRIVATE).edit();
+
+                String returnName = mRoomtypelsit.get(position).getRoomName();
+                editor.putString("return",returnName);
+                checkedPosition = position;
+                editor.commit();
+                roomType.notifyDataSetChanged();
+
+            }
+        });
         recyclerView.setAdapter(roomType);
     }
+
+
 
     private void initRoomType() {
         RoomType roomType1 = new RoomType(R.drawable.drawing_room, "客厅");
@@ -83,14 +117,31 @@ public class RoomTypesActivity extends Activity {
         mRoomtypelsit.add(roomType14);
         RoomType roomType15 = new RoomType(R.drawable.balcony, "阳台");
         mRoomtypelsit.add(roomType15);
-        RoomType roomType16 = new RoomType(R.drawable.custom, "自定义");
-        mRoomtypelsit.add(roomType16);
-
-
-
-
 
     }
 
+    @OnClick(R.id.sure)
+    public void onViewClicked() {
+        SharedPreferences sharedPreferences =  this.getSharedPreferences("roomType",MODE_PRIVATE);
+        String returnName = sharedPreferences.getString("return","卧室");
 
+        Bundle b = getIntent().getExtras();
+        int retutnRoomId = b.getInt("roomId");
+        Intent intent = new Intent(RoomTypesActivity.this,MainActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("returnName", returnName);
+        bundle.putInt("returnRoomId",retutnRoomId);
+        intent.putExtras(bundle);
+//        SharedPreferences fragment = this.getSharedPreferences("fragment", MODE_PRIVATE);
+//        fragment.edit().putString("fragment","3");
+//        fragment.edit().commit();
+        SharedPreferences sp = this.getSharedPreferences("room_postion", MODE_PRIVATE);
+        SharedPreferences.Editor editor=sp.edit();
+        editor.putString("returnRoomName",returnName);
+        editor.putInt("returnRoomId",retutnRoomId);
+        editor.commit();
+
+        setResult(2, intent);//返回值调用函数，其中2为resultCode，返回值的标志
+        finish();//传值结束
+    }
 }

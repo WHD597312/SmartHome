@@ -1,9 +1,12 @@
 package com.xinrui.smart.pojo;
 
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.xinrui.smart.R;
+
+import org.json.JSONArray;
 
 import java.io.Serializable;
 
@@ -12,125 +15,88 @@ import java.io.Serializable;
  */
 
 public class Room implements Serializable{
-    private int Id;
-    private int room_image;
-    private String room_name;//房间名
-    private ImageView pull_down;//下拉
-    private double  temperature;//温度
-    private double humidity;//湿度
-    private double PM25;//PM2.5
-    int equipment[] = {R.drawable.equipment,R.drawable.equipment,R.drawable.equipment,R.drawable.equipment};
-    public int width;
-    public int height;
-    private int add_equipment;
+    private View view;
+    private int roomId;
+    private String roomName;
+    private int startPoint;
+    private JSONArray points;
+    private int houseId;
+    private JSONArray devices;
+    private int layer;
 
-    public Room() {
+
+    public Room(View view,int roomId, String roomName, int startPoint, JSONArray points, int houseId, JSONArray devices, int layer) {
+        this.view = view;
+        this.roomId = roomId;
+        this.roomName = roomName;
+        this.startPoint = startPoint;
+        this.points = points;
+        this.houseId = houseId;
+        this.devices = devices;
+        this.layer = layer;
     }
 
-    public int getAdd_equipment() {
-        return add_equipment;
+    public View getView() {
+        return view;
     }
 
-    public void setAdd_equipment(int add_equipment) {
-        this.add_equipment = add_equipment;
+    public void setView(View view) {
+        this.view = view;
     }
 
-    public Room(int id, int room_image, String room_name, ImageView pull_down, double temperature, double humidity, double PM25, int[] equipment, int width, int height, int add_equipment) {
-        Id = id;
-        this.room_image = room_image;
-        this.room_name = room_name;
-        this.pull_down = pull_down;
-        this.temperature = temperature;
-        this.humidity = humidity;
-        this.PM25 = PM25;
-        this.equipment = equipment;
-        this.width = width;
-        this.height = height;
-        this.add_equipment = add_equipment;
+    public int getRoomId() {
+        return roomId;
     }
 
-    public Room(int room_image, String room_name) {
-        this.room_image = room_image;
-        this.room_name = room_name;
+    public void setRoomId(int roomId) {
+        this.roomId = roomId;
     }
 
-    public int getId() {
-        return Id;
+    public String getRoomName() {
+        return roomName;
     }
 
-    public void setId(int id) {
-        Id = id;
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
-    public int getRoom_image() {
-        return room_image;
+    public int getStartPoint() {
+        return startPoint;
     }
 
-    public void setRoom_image(int room_image) {
-        this.room_image = room_image;
+    public void setStartPoint(int startPoint) {
+        this.startPoint = startPoint;
     }
 
-    public String getRoom_name() {
-        return room_name;
+    public JSONArray getPoints() {
+        return points;
     }
 
-    public void setRoom_name(String room_name) {
-        this.room_name = room_name;
+    public void setPoints(JSONArray points) {
+        this.points = points;
     }
 
-    public ImageView getPull_down() {
-        return pull_down;
+    public int getHouseId() {
+        return houseId;
     }
 
-    public void setPull_down(ImageView pull_down) {
-        this.pull_down = pull_down;
+    public void setHouseId(int houseId) {
+        this.houseId = houseId;
     }
 
-    public double getTemperature() {
-        return temperature;
+    public JSONArray getDevices() {
+        return devices;
     }
 
-    public void setTemperature(double temperature) {
-        this.temperature = temperature;
+    public void setDevices(JSONArray devices) {
+        this.devices = devices;
     }
 
-    public double getHumidity() {
-        return humidity;
+    public int getLayer() {
+        return layer;
     }
 
-    public void setHumidity(double humidity) {
-        this.humidity = humidity;
-    }
-
-    public double getPM25() {
-        return PM25;
-    }
-
-    public void setPM25(double PM25) {
-        this.PM25 = PM25;
-    }
-
-    public int[] getEquipment() {
-        return equipment;
-    }
-
-    public void setEquipment(int[] equipment) {
-        this.equipment = equipment;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
+    public void setLayer(int layer) {
+        this.layer = layer;
     }
 }

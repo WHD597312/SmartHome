@@ -50,6 +50,7 @@
         </android.support.v7.widget.RecyclerView>
     </LinearLayout>
     <Button
+        android:id="@+id/sure"
         android:layout_width="@dimen/dp_280"
         android:layout_height="@dimen/dp_40"
         android:layout_alignParentBottom="true"

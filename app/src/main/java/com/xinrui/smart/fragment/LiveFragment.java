@@ -1,5 +1,6 @@
 package com.xinrui.smart.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +19,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -124,7 +124,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
 
     SharedPreferences.Editor editor1;
     SharedPreferences sharedPreferences;
-
+    SharedPreferences pref;
     RoomEntryDaoImpl roomEntryDao;
     int item_width;
     View view;
@@ -132,13 +132,15 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
     private ArrayAdapter<String> adapter;
     Switch_houseAdapter switch_houseAdapter;
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view=inflater.inflate(R.layout.fragment_live,container,false);
         unbinder=ButterKnife.bind(this,view);
         roomEntryDao = new RoomEntryDaoImpl(getActivity());
-        SharedPreferences pref = getActivity().getSharedPreferences("myActivityName", 0);
+         pref = getActivity().getSharedPreferences("myActivityName", 0);
+        editor1 = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE).edit();
         //取得相应的值，如果没有该值，说明还未写入，用true作为默认值
         isFirstIn = pref.getBoolean("isFirstIn", true);
         initData();
@@ -160,7 +162,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
         WindowManager wm = (WindowManager) getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
          item_width = wm.getDefaultDisplay().getWidth()/4;
-        deviceGroupDao = new DeviceGroupDaoImpl(getActivity());
         fragmentslist = new ArrayList<>();
         fragmentManager = getActivity().getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
@@ -168,21 +169,25 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
         initView();
 
 
-        for (int i = 0; i < 4; i++) {
-            HashMap<String, Object> itemHashMap = new HashMap<>();
-            itemHashMap.put("item_image", R.drawable.com_tencent_open_notice_msg_icon_big);
-            itemHashMap.put("item_text", "房间" + Integer.toString(i));
-            dataSourceList.add(itemHashMap);
-        }
-        final DragAdapter mDragAdapter = new DragAdapter(getActivity(), dataSourceList);
+//        for (int i = 0; i < 4; i++) {
+//            HashMap<String, Object> itemHashMap = new HashMap<>();
+//            itemHashMap.put("item_image", R.drawable.com_tencent_open_notice_msg_icon_big);
+//            itemHashMap.put("item_text", "房间" + Integer.toString(i));
+//            dataSourceList.add(itemHashMap);
+//        }
+//        final DragAdapter mDragAdapter = new DragAdapter(getActivity(), dataSourceList);
     }
 
     private void initData() {
+        deviceGroupDao = new DeviceGroupDaoImpl(getActivity());
+        DeviceGroup = deviceGroupDao.findAllDevices();
         if(DeviceGroup==null||DeviceGroup.isEmpty()){
 
         }else{
             house_id= DeviceGroup.get(0).getId();
             house_Name = DeviceGroup.get(0).getHouseName()+"("+house_id+")";
+            editor1.putString("house_Name",house_Name);
+            editor1.putLong("house_id",house_id);
         }
         SharedPreferences pref1= getActivity().getSharedPreferences("myActivityName", 0);
         SharedPreferences.Editor editor = pref1.edit();
@@ -198,28 +203,24 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
 
     //初始化View
     public void initView() {
-
+        fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
+                getChildFragmentManager(),fragmentslist);
+        btn1_fragment = new Btn1_fragment();
+        fragmentslist.add(btn1_fragment);
         viewPager = (ViewPager) view.findViewById(R.id.fragment_viewPager);
-        editor1 = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE).edit();
-
+        viewPager.setAdapter(fragmentViewPagerAdapter);
+        saveViewPage();
+        restore_Data();
         if(isFirstIn){
-            btn1_fragment = new Btn1_fragment();
-            fragmentslist.add(btn1_fragment);
-            saveViewPage();
-        }else{
-            saveViewPage();
-            restore_Data();
+            showDialog();
         }
 
 
     }
 
+
     //初始化viewpage
     public void saveViewPage(){
-        fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
-                getChildFragmentManager(),fragmentslist);
-
-        viewPager.setAdapter(fragmentViewPagerAdapter);
 
         //viewPager滑动监听
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -241,17 +242,17 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
                     }
                 }
                 current_key = position+1;
-//                editor1.putInt("viewpage_current",current_key);
             }
             @Override
             public void onPageScrollStateChanged(int state) {
 
             }
+
         });
     }
 
     /**
-     * dialog点击监听
+     * 切换房间的diaolog时监听
      * @param position
      */
     @Override
@@ -259,8 +260,89 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
         house_id= DeviceGroup.get(position).getId();
         house_Name = DeviceGroup.get(position).getHouseName()+"("+house_id+")";
         houseId.setText(house_Name);
-        savedState();
+        cut_houseId();
         dialog.dismiss();
+    }
+
+    public void cut_houseId(){
+        @SuppressLint("HandlerLeak") final Handler handler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case 1:
+                        List<String> strings = (List<String>) msg.obj;
+                        for (String result:strings){
+                            try {
+                                btn1_fragment = new Btn1_fragment();
+                                btn2_fragment = new Btn2_fragment();
+                                btn3_fragment = new Btn3_fragment();
+                                btn4_fragment = new Btn4_fragment();
+                                JSONObject jsonObject=new JSONObject(result);
+                                int code=jsonObject.getInt("code");
+                                if (code==2000){
+                                    fragmentslist.clear();
+                                    JSONObject content=jsonObject.getJSONObject("content");
+                                    int floor = content.length();
+                                    if(floor == 1){
+                                        fragmentslist.add(btn1_fragment);
+                                        btn1.setVisibility(View.VISIBLE);
+                                        btn2.setVisibility(View.GONE);
+                                        btn3.setVisibility(View.GONE);
+                                        btn4.setVisibility(View.GONE);
+                                    }else if(floor == 2){
+                                        fragmentslist.add(btn1_fragment);
+                                        fragmentslist.add(btn2_fragment);
+                                        btn1.setVisibility(View.VISIBLE);
+                                        btn2.setVisibility(View.VISIBLE);
+                                        btn3.setVisibility(View.GONE);
+                                        btn4.setVisibility(View.GONE);
+                                    }else if(floor == 3){
+                                        fragmentslist.add(btn1_fragment);
+                                        fragmentslist.add(btn2_fragment);
+                                        fragmentslist.add(btn3_fragment);
+                                        btn1.setVisibility(View.VISIBLE);
+                                        btn2.setVisibility(View.VISIBLE);
+                                        btn3.setVisibility(View.VISIBLE);
+                                        btn4.setVisibility(View.GONE);
+                                    }else if(floor == 4){
+                                        fragmentslist.add(btn1_fragment);
+                                        fragmentslist.add(btn2_fragment);
+                                        fragmentslist.add(btn3_fragment);
+                                        fragmentslist.add(btn4_fragment);
+                                        btn1.setVisibility(View.VISIBLE);
+                                        btn2.setVisibility(View.VISIBLE);
+                                        btn3.setVisibility(View.VISIBLE);
+                                        btn4.setVisibility(View.VISIBLE);
+                                    }
+                                    add_key = floor;
+                                    current_key = 1;
+                                    btn1.setBackgroundResource(R.drawable.new_floor_button_colour);
+                                    btn2.setBackgroundResource(R.drawable.floor_button_colour);
+                                    btn3.setBackgroundResource(R.drawable.floor_button_colour);
+                                    btn4.setBackgroundResource(R.drawable.floor_button_colour);
+                                    viewPager.setCurrentItem(0);
+                                    savedState();//切换房间后保存此时的数据,显示当前住所的信息
+                                    fragmentViewPagerAdapter.notifyDataSetChanged();
+                                }
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+                            JSONArray jsonArray = new JSONArray();
+
+                            new DeleteRoomAsyncTask().execute(jsonArray);
+                        }
+
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+        };
+        QueryAllRoomAsyncTask1 queryAllRoomAsyncTask1 = new QueryAllRoomAsyncTask1(handler);
+
+        queryAllRoomAsyncTask1.execute();
     }
 
     class NewRoomAsyncTask extends AsyncTask<Void,Void,Integer>{
@@ -407,7 +489,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
             case R.id.custom_house_type:
                 savedState();
 //                setRoomType();
-                getHttp();
+                From_server_make_room();
                 break;
 //            case R.id.copy_and_paste:
 //                method_copy_paste_btn();
@@ -443,8 +525,8 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
                         Log.i("btn2_fragment",btn2_fragment.getListViews().size()+"");
                         FrameLayout roomViewGroup = (FrameLayout) btn2_fragment.getView().findViewById(R.id.f2);
                         roomViewGroup.removeView(childView);
-//                        RoomEntry roomEntry = new RoomEntry((int) childView.getX(),(int) childView.getY(),childView.getWidth(),childView.getHeight());
-//                        roomEntryDao.delete(roomEntry);
+//                        RoomEntry roomEntry_list = new RoomEntry((int) childView.getX(),(int) childView.getY(),childView.getWidth(),childView.getHeight());
+//                        roomEntryDao.delete(roomEntry_list);
 
                         RoomEntry roomEntry = new RoomEntry((int) childView.getX(),(int) childView.getY(),childView.getWidth(),childView.getHeight());
                         for (int j = 0; j < roomEntryDao.findAllByGroup(2).size(); j++) {
@@ -588,11 +670,11 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
 //        Log.i("list",list.size()+"");
 //        for (int i = 0; i < list.size(); i++) {
 //            List<Integer>  list_roomPostion = new ArrayList<>();//每间房间的postion
-//            RoomEntry roomEntry = list.get(i);
-//            int x = roomEntry.getX();
-//            int y = roomEntry.getY();
-//            int width = roomEntry.getWidth();
-//            int height = roomEntry.getHeight();
+//            RoomEntry roomEntry_list = list.get(i);
+//            int x = roomEntry_list.getX();
+//            int y = roomEntry_list.getY();
+//            int width = roomEntry_list.getWidth();
+//            int height = roomEntry_list.getHeight();
 //            int postion_left_top = x/270+4*(y/270);
 //            int postion_right_bottom = (x+width)/270+4*((y+height)/270);
 //            int postion = 0;
@@ -617,7 +699,8 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
 //        getActivity().startActivity(custom_house_type);
 //    }
     List<RoomEntry> roomEntries = new ArrayList<>();
-    public void getHttp(){
+    //从服务器获取数据创建房间的形状
+    public void From_server_make_room(){
         WindowManager wm = (WindowManager) getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
         final int width = wm.getDefaultDisplay().getWidth();
@@ -887,97 +970,97 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
         Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
     }
 
-    public void method_delete_btn() {
-        int postion_delete = current_key - 1; //删除页面的序号
-        if(add_key == 0){
-            Toast.makeText(getActivity(), "数据全部清除，无法再继续删除", Toast.LENGTH_LONG).show();
-        }else if (add_key == 1) {
-            btn1.setVisibility(View.GONE);
-            delPage(postion_delete);
-            add_key = 0;
-        } else if (add_key == 2) {
-            if (current_key == 1) {
-                btn2.setVisibility(View.GONE);
-                current_key = 1;
-                add_key--;
-                isestablied = false;
-                delPage(postion_delete);
-                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-            } else if (current_key == 2) {
-                btn2.setVisibility(View.GONE);
-                btn1.setBackgroundResource(R.drawable.new_floor_button_colour);
-                btn1.setTextColor(getResources().getColor(R.color.white));
-                current_key = 1;
-                add_key--;
-                isestablied = false;
-                delPage(postion_delete);
-                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-            }
-
-        } else if (add_key == 3) {
-            if (current_key == 1) {
-                btn3.setVisibility(View.GONE);
-                current_key = 1;
-                add_key--;
-                isestablied = false;
-                delPage(postion_delete);
-                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-            } else if (current_key == 2) {
-                btn3.setVisibility(View.GONE);
-                current_key = 2;
-                add_key--;
-                isestablied = false;
-                delPage(postion_delete);
-                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-
-            } else if (current_key == 3) {
-                btn3.setVisibility(View.GONE);
-                btn2.setBackgroundResource(R.drawable.new_floor_button_colour);
-                btn2.setTextColor(getResources().getColor(R.color.white));
-                current_key = 2;
-                add_key--;
-                isestablied = false;
-                delPage(postion_delete);
-                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-            }
-        } else if (add_key == 4) {
-            if (current_key == 1) {
-                btn4.setVisibility(View.GONE);
-                current_key = 1;
-                add_key--;
-                isestablied = false;
-                delPage(postion_delete);
-                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-
-            } else if (current_key == 2) {
-                btn4.setVisibility(View.GONE);
-                current_key = 2;
-                add_key--;
-                isestablied = false;
-                delPage(postion_delete);
-                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-
-            } else if (current_key == 3) {
-                btn4.setVisibility(View.GONE);
-                current_key = 3;
-                add_key--;
-                isestablied = false;
-                delPage(postion_delete);
-                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-
-            } else if (current_key == 4) {
-                btn4.setVisibility(View.GONE);
-                btn3.setBackgroundResource(R.drawable.new_floor_button_colour);
-                btn3.setTextColor(getResources().getColor(R.color.white));
-                current_key = 3;
-                add_key--;
-                isestablied = false;
-                delPage(postion_delete);
-                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-            }
-        }
-        savedState();
-    }
+//    public void method_delete_btn() {
+//        int postion_delete = current_key - 1; //删除页面的序号
+//        if(add_key == 0){
+//            Toast.makeText(getActivity(), "数据全部清除，无法再继续删除", Toast.LENGTH_LONG).show();
+//        }else if (add_key == 1) {
+//            btn1.setVisibility(View.GONE);
+//            delPage(postion_delete);
+//            add_key = 0;
+//        } else if (add_key == 2) {
+//            if (current_key == 1) {
+//                btn2.setVisibility(View.GONE);
+//                current_key = 1;
+//                add_key--;
+//                isestablied = false;
+//                delPage(postion_delete);
+//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
+//            } else if (current_key == 2) {
+//                btn2.setVisibility(View.GONE);
+//                btn1.setBackgroundResource(R.drawable.new_floor_button_colour);
+//                btn1.setTextColor(getResources().getColor(R.color.white));
+//                current_key = 1;
+//                add_key--;
+//                isestablied = false;
+//                delPage(postion_delete);
+//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
+//            }
+//
+//        } else if (add_key == 3) {
+//            if (current_key == 1) {
+//                btn3.setVisibility(View.GONE);
+//                current_key = 1;
+//                add_key--;
+//                isestablied = false;
+//                delPage(postion_delete);
+//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
+//            } else if (current_key == 2) {
+//                btn3.setVisibility(View.GONE);
+//                current_key = 2;
+//                add_key--;
+//                isestablied = false;
+//                delPage(postion_delete);
+//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
+//
+//            } else if (current_key == 3) {
+//                btn3.setVisibility(View.GONE);
+//                btn2.setBackgroundResource(R.drawable.new_floor_button_colour);
+//                btn2.setTextColor(getResources().getColor(R.color.white));
+//                current_key = 2;
+//                add_key--;
+//                isestablied = false;
+//                delPage(postion_delete);
+//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
+//            }
+//        } else if (add_key == 4) {
+//            if (current_key == 1) {
+//                btn4.setVisibility(View.GONE);
+//                current_key = 1;
+//                add_key--;
+//                isestablied = false;
+//                delPage(postion_delete);
+//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
+//
+//            } else if (current_key == 2) {
+//                btn4.setVisibility(View.GONE);
+//                current_key = 2;
+//                add_key--;
+//                isestablied = false;
+//                delPage(postion_delete);
+//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
+//
+//            } else if (current_key == 3) {
+//                btn4.setVisibility(View.GONE);
+//                current_key = 3;
+//                add_key--;
+//                isestablied = false;
+//                delPage(postion_delete);
+//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
+//
+//            } else if (current_key == 4) {
+//                btn4.setVisibility(View.GONE);
+//                btn3.setBackgroundResource(R.drawable.new_floor_button_colour);
+//                btn3.setTextColor(getResources().getColor(R.color.white));
+//                current_key = 3;
+//                add_key--;
+//                isestablied = false;
+//                delPage(postion_delete);
+//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
+//            }
+//        }
+//        savedState();
+//    }
 
 //    public void method_copy_paste_btn() {
 //        postion_current = add_key;//当前页面序号
@@ -1158,7 +1241,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+                      super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 1&& resultCode == 1){
             MainActivity mainActivity = (MainActivity) getActivity();
             mainActivity.goLiveFragment();
@@ -1171,10 +1254,10 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
         //保存数据
         editor1.putInt("current_key",current_key);
         editor1.putInt("add_key",add_key);
-        editor1.putInt("btn1",btn1.getVisibility());
-        editor1.putInt("btn2",btn2.getVisibility());
-        editor1.putInt("btn3",btn3.getVisibility());
-        editor1.putInt("btn4",btn4.getVisibility());
+        editor1.putInt("btn1", btn1.getVisibility());
+        editor1.putInt("btn2", btn2.getVisibility());
+        editor1.putInt("btn3", btn3.getVisibility());
+        editor1.putInt("btn4", btn4.getVisibility());
         editor1.putInt("btn1_group",1);
         editor1.putInt("btn2_group",2);
         editor1.putInt("btn3_group",3);
@@ -1194,8 +1277,8 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
         house_Name = sharedPreferences.getString("house_Name", "我的家");
         current_key = sharedPreferences.getInt("current_key",1);
         int viewpage_current = sharedPreferences.getInt("viewpage_current",0);
-        int fragmentlist_size = sharedPreferences.getInt("fragmentlist_size",fragmentslist.size());
-        for (int i = 0; i < fragmentlist_size; i++) {
+        int fragmentlist_size = sharedPreferences.getInt("fragmentlist_size",1);
+        for (int i = 1; i < fragmentlist_size; i++) {
             addPage(i);
         }
         viewPager.setCurrentItem(viewpage_current);

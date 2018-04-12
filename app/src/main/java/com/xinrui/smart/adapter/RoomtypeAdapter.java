@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.RoomType;
+import com.xinrui.smart.util.ChoiceItemLayout;
+import com.xinrui.smart.util.OnItemClickListener;
 
 import java.util.List;
 
@@ -21,6 +23,7 @@ public class RoomtypeAdapter extends RecyclerView.Adapter<RoomtypeAdapter.ViewHo
 
     public RoomtypeAdapter(List<RoomType> mRoomTypelist) {
         this.mRoomTypelist = mRoomTypelist;
+
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{
@@ -54,18 +57,36 @@ public class RoomtypeAdapter extends RecyclerView.Adapter<RoomtypeAdapter.ViewHo
      * @param position
      */
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         RoomType roomType = mRoomTypelist.get(position);
         holder.roomImage.setImageResource(roomType.getRoomImageview());
         holder.roomName.setText(roomType.getRoomName());
+        ViewHolder viewHolde = holder;
+
+        ChoiceItemLayout layout = (ChoiceItemLayout) viewHolde.itemView;
+        layout.setChecked(roomType.isFlag());
+
+        if(onItemClickListener != null){
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemClickListener.onItemClick(v,position);
+                }
+            });
+        }
     }
-
-
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
+    }
+    private OnItemClickListener onItemClickListener;
     /*
     返回子项个数
      */
     @Override
     public int getItemCount() {
         return mRoomTypelist.size();
+    }
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 }
