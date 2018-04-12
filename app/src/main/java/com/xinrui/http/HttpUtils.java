@@ -3,6 +3,7 @@ package com.xinrui.http;
 import android.util.Log;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.zhy.http.okhttp.OkHttpUtils;
 
@@ -50,13 +51,22 @@ public class HttpUtils {
             String CONTENT_TYPE = "application/json";
 
             String JSON_DATA = "{\n" +
-                    "    \"houseId\":1000,\n" +
-                    "    \"controlledId\":[5,6]\n" +
+                    "\"deviceId\":1129,\n" +
+                    "\"deviceTimeControlDtos\":\n" +
+                    "[\n" +
+                    "{\n" +
+                    "\"week\":2,\n" +
+                    "\"deviceTimeControlList\":[\n" +
+                    "         {\"temp\":2.0,\"openTime\":2,\"closeTime\":3},\n" +
+                    "         {\"temp\":2.0,\"openTime\":4,\"closeTime\":5}\n" +
+                    "     ]\n" +
                     "}";
             JSONObject jsonObject=new JSONObject();
             for (Map.Entry<String,Object> param:map.entrySet()){
                 jsonObject.put(param.getKey(),param.getValue());
             }
+
+
 
             RequestBody requestBody = RequestBody.create(MediaType.parse(CONTENT_TYPE),jsonObject.toJSONString());
 
@@ -112,6 +122,43 @@ public class HttpUtils {
         return result;
     }
 
+    public static String postOkHpptRequest3(String url, org.json.JSONObject jsonObject) {
+        String result=null;
+        try{
+            String CONTENT_TYPE = "application/json";
+
+            String JSON_DATA = "{\n" +
+                    "\"deviceId\":1129,\n" +
+                    "\"deviceTimeControlDtos\":\n" +
+                    "[\n" +
+                    "{\n" +
+                    "\"week\":2,\n" +
+                    "\"deviceTimeControlList\":[\n" +
+                    "         {\"temp\":2.0,\"openTime\":2,\"closeTime\":3},\n" +
+                    "         {\"temp\":2.0,\"openTime\":4,\"closeTime\":5}\n" +
+                    "     ]\n" +
+                    "}";
+
+
+            RequestBody requestBody = RequestBody.create(MediaType.parse(CONTENT_TYPE),jsonObject.toString());
+
+            Request request = new Request.Builder()
+                    .addHeader("client","android-xr")
+                    .url(url)
+                    .post(requestBody)
+                    .build();
+
+            OkHttpClient okHttpClient=new OkHttpClient();
+            Response response=okHttpClient.newCall(request).execute();
+
+            if(response.isSuccessful()){
+                result= response.body().string();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
     public static String doDelete(String url,JSONArray jsonArray){
         String result=null;
         try {

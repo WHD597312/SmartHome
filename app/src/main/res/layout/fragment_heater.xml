@@ -98,11 +98,12 @@
         android:layout_height="wrap_content">
         <com.xinrui.smart.view_custom.SemicircleBar
             android:id="@+id/semicBar"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
+            android:layout_width="@dimen/dp_260"
+            android:layout_height="@dimen/dp_260"
             android:layout_centerHorizontal="true"
-            app:wheel_pointer_radius="10dp"
-            app:wheel_reached_width="20dp"
+            app:wheel_pointer_radius="20dp"
+            app:wheel_reached_width="0dp"
+            app:wheel_unreached_color="#312728"
             app:wheel_unreached_width="20dp"
             app:wheel_max_process="24"
             app:semicircle_module="1"
@@ -148,10 +149,11 @@
             android:id="@+id/image_mode"
             android:layout_width="@dimen/dp_60"
             android:layout_height="@dimen/dp_60"
-            android:src="@mipmap/image_handle"
+            android:src="@mipmap/module_handle"
             android:scaleType="centerInside"
             android:layout_below="@+id/tv_mode0"
             android:layout_centerVertical="true"
+
             />
 
         <ImageView

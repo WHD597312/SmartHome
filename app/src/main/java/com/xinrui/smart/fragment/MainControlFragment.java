@@ -278,8 +278,6 @@ public class MainControlFragment extends Fragment{
             super.onPostExecute(code);
             switch (code){
                 case 2000:
-
-
                     adapter.notifyDataSetChanged();
                     break;
             }
@@ -327,11 +325,18 @@ public class MainControlFragment extends Fragment{
         protected Integer doInBackground(Map<String, Object>... maps) {
             int code=0;
             Map<String,Object> params=maps[0];
+            long masterControllerDeviceId=(long)params.get("masterControllerDeviceId");
+
             String result=HttpUtils.postOkHpptRequest(masterUrl,params);
             if (!Utils.isEmpty(result)){
                 try {
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
+                    if (code==2000){
+                        DeviceChild deviceChild=deviceChildDao.findDeviceChild(masterControllerDeviceId);
+                        deviceChild.setControlled(2);
+                        deviceChildDao.update(deviceChild);
+                    }
                 }catch (Exception e){
                     e.printStackTrace();
                 }

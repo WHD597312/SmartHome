@@ -64,7 +64,8 @@ public class SemicircleBar extends View {
     private boolean isHasReachedCornerRound;
     private int mPointerColor;
     private float mPointerRadius;
-    private String module;
+    private String module;/**模式*/
+    private boolean slide;
 
     private double mCurAngle;
     private float mWheelCurX, mWheelCurY;
@@ -114,9 +115,9 @@ public class SemicircleBar extends View {
         mWheelPaint.setColor(mUnreachedColor);
         mWheelPaint.setStyle(Paint.Style.STROKE);
         mWheelPaint.setStrokeWidth(mUnreachedWidth);
-        if (isHasWheelShadow) {
-            mWheelPaint.setShadowLayer(mWheelShadowRadius, mDefShadowOffset, mDefShadowOffset, Color.DKGRAY);
-        }
+//        if (isHasWheelShadow) {
+//            mWheelPaint.setShadowLayer(mWheelShadowRadius, mDefShadowOffset, mDefShadowOffset, Color.DKGRAY);
+//        }
         /**
          * 选中区域画笔
          */
@@ -150,10 +151,10 @@ public class SemicircleBar extends View {
         mCurProcess = a.getInt(R.styleable.CircleSeekBar_wheel_cur_process, 0);
         if (mCurProcess > mMaxProcess) mCurProcess = mMaxProcess;
         mReachedColor = a.getColor(R.styleable.CircleSeekBar_wheel_reached_color, getColor(R.color.color_blank2));
-        mUnreachedColor = a.getColor(R.styleable.CircleSeekBar_wheel_unreached_color,
-                getColor(R.color.color_black3));
+
         mUnreachedWidth = a.getDimension(R.styleable.CircleSeekBar_wheel_unreached_width,
                 getDimen(R.dimen.def_wheel_width));
+
         isHasReachedCornerRound = a.getBoolean(R.styleable.CircleSeekBar_wheel_reached_has_corner_round, true);
         mReachedWidth = a.getDimension(R.styleable.CircleSeekBar_wheel_reached_width, mUnreachedWidth);
         mPointerColor = a.getColor(R.styleable.CircleSeekBar_wheel_pointer_color, getColor(R.color.def_pointer_color));
@@ -265,18 +266,18 @@ public class SemicircleBar extends View {
             if (i > 37) {
                 mPaint.setColor(getResources().getColor(R.color.color_black3));
             }
-            if (i % 7 == 0) {
-                canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),
-                        getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-                        centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-
-                        getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics()), mPaint);
-            } else {
+//            if (i % 7 == 0) {
+//                canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),
+//                        getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
+//                        centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
+//
+//                        getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics()), mPaint);
+//            } else {
                 canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-                        getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, getResources().getDisplayMetrics()),
-                        centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-                        getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics()), mPaint);
-            }
+                        getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),
+                        centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),
+                        getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, getResources().getDisplayMetrics()), mPaint);
+//            }
 //            if (i == 37) {
 //                mPaint.setColor(getResources().getColor(R.color.red_normal));
 //                canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),
@@ -336,9 +337,8 @@ public class SemicircleBar extends View {
 
 
 //        mCurAngle=getmCurAngle();
-
-        if (mCurAngle >= 0) {
-
+        if (slide){
+            if (mCurAngle >= 0) {
                 if (mCurAngle>=272){
                     if (mCurAngle>272 && mCurAngle<=310){
                         mCurAngle=272;
@@ -348,35 +348,33 @@ public class SemicircleBar extends View {
                     }
                 }
 
+                //画选中区域
+                Log.d("dsads", mCurAngle + "");
+                for (int i = 0; i < (mCurAngle) / 7; i++) {
+                    if ((i - 1) % 7 == 0) {
 
-            //画选中区域
-            Log.d("dsads", mCurAngle + "");
-            for (int i = 0; i < (mCurAngle) / 7; i++) {
-                if ((i - 1) % 7 == 0) {
-
-                    mPaint.setColor(getResources().getColor(R.color.color_orange));
-
-                    canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-                            getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-                            centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()),
-
-                            getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics()), mPaint);
-                } else {
-                    if (i == 0) {
-                        mPaint.setColor(getResources().getColor(R.color.color_black3));
-                    } else {
                         mPaint.setColor(getResources().getColor(R.color.color_orange));
+
+                        canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()),
+                                getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
+                                centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
+
+                                getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, getResources().getDisplayMetrics()), mPaint);
+                    } else {
+                        if (i == 0) {
+                            mPaint.setColor(getResources().getColor(R.color.color_black3));
+                        } else {
+                            mPaint.setColor(getResources().getColor(R.color.color_orange));
+                        }
+                        canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()),
+                                getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
+                                centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
+                                getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, getResources().getDisplayMetrics()), mPaint);
                     }
-                    canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-                            getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-                            centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()),
-                            getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, getResources().getDisplayMetrics()), mPaint);
+                    canvas.rotate(8, centerX, centerY);//360度  绘制60次   每次旋转6度
                 }
-
-
-                canvas.rotate(8, centerX, centerY);//360度  绘制60次   每次旋转6度
+                canvas.save();
             }
-            canvas.save();
         }
     }
     private void buildCache(float centerX, float centerY, float wheelRadius) {
@@ -535,6 +533,14 @@ public class SemicircleBar extends View {
 
     public String getModule() {
         return module;
+    }
+
+    public void setSlide(boolean slide) {
+        this.slide = slide;
+    }
+
+    public boolean isSlide() {
+        return slide;
     }
 
     private double getSelectedValue() {

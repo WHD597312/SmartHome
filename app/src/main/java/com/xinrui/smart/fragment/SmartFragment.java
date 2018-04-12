@@ -49,7 +49,7 @@ public class SmartFragment extends Fragment {
     @BindView(R.id.smart_set)
     ListView smart_set;
     @BindView(R.id.relative) RelativeLayout relative;
-    
+
     private List<SmartSet> list;
     private SmartSetAdapter adapter;//智能适配器
     private DeviceGroupDaoImpl deviceGroupDao;

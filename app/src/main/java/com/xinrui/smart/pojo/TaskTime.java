@@ -17,20 +17,8 @@ public class TaskTime {
     private int temp;//温度
     private String week;/**一周的星期几*/
 
-    public TaskTime(int start, int end) {
-        this.start = start;
-        this.end = end;
-    }
 
-    @Generated(hash = 886541981)
-    public TaskTime(Long id, int start, int end, int temp, String week) {
-        this.id = id;
-        this.start = start;
-        this.end = end;
-        this.temp = temp;
-        this.week = week;
-    }
-
+    public TaskTime(){}
     public TaskTime(int start, int end, int temp) {
         this.start = start;
         this.end = end;
@@ -43,48 +31,55 @@ public class TaskTime {
         this.temp = temp;
         this.week = week;
     }
-
-    @Generated(hash = 1763742976)
-    public TaskTime() {
+    public String getWeek() {
+        return this.week;
     }
-
-    public int getStart() {
-        return start;
+    public void setWeek(String week) {
+        this.week = week;
     }
-
-    public void setStart(int start) {
-        this.start = start;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public void setEnd(int end) {
-        this.end = end;
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public int getTemp() {
-        return temp;
+        return this.temp;
     }
-
     public void setTemp(int temp) {
         this.temp = temp;
     }
-
-    public String getWeek() {
-        return week;
+    public int getEnd() {
+        return this.end;
+    }
+    public void setEnd(int end) {
+        this.end = end;
+    }
+    public int getStart() {
+        return this.start;
+    }
+    public void setStart(int start) {
+        this.start = start;
+    }
+    public Long getId() {
+        return this.id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    @Generated(hash = 886541981)
+    public TaskTime(Long id, int start, int end, int temp, String week) {
+        this.id = id;
+        this.start = start;
+        this.end = end;
+        this.temp = temp;
+        this.week = week;
     }
 
-    public void setWeek(String week) {
-        this.week = week;
+    @Override
+    public boolean equals(Object obj) {
+        if (this==obj)
+            return true;
+        if (!(obj instanceof TaskTime))
+            return false;
+        TaskTime taskTime= (TaskTime) obj;
+        if (this.start==taskTime.start && this.end==taskTime.getEnd() && this.temp==taskTime.getTemp() && this.week.equals(taskTime.getWeek()))
+            return true;
+        else
+            return false;
     }
 }

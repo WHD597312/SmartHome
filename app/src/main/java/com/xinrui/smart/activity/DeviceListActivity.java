@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.device.ShareDeviceActivity;
@@ -28,6 +29,7 @@ import com.xinrui.smart.fragment.ClockSetFragment;
 import com.xinrui.smart.fragment.ClockSettingFragment;
 import com.xinrui.smart.fragment.HeaterFragment;
 import com.xinrui.smart.fragment.ShareDeviceFragment;
+import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.util.Utils;
 
 import java.util.ArrayList;
@@ -101,9 +103,12 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     @Override
     protected void onStart() {
         super.onStart();
+
         Intent intent = getIntent();
         String content = intent.getStringExtra("content");
         childPosition=intent.getStringExtra("childPosition");
+
+
         tv_name.setText(content);
         fragmentManager =getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -173,7 +178,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         switch (position){
             case 0:
                 Intent intent=new Intent(DeviceListActivity.this, ShareDeviceActivity.class);
-                intent.putExtra("childPosition",childPosition);
+                intent.putExtra("deviceId",childPosition);
                 startActivity(intent);
                 break;
             case 1:
@@ -181,7 +186,10 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 gradView.setVisibility(View.GONE);
                 break;
             case 2:
-                startActivity(new Intent(this,TimeTaskActivity.class));
+                Intent timeTask=new Intent(this,TimeTaskActivity.class);
+                timeTask.putExtra("deviceId",childPosition);
+                startActivity(timeTask);
+
 //                Toast.makeText(this,"我的订阅",Toast.LENGTH_SHORT).show();
                 break;
             case 3:

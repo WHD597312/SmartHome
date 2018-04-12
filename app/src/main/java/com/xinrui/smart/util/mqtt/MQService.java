@@ -9,6 +9,10 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
+import com.xinrui.smart.pojo.DeviceChild;
+import com.xinrui.smart.util.Utils;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -17,6 +21,8 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -30,8 +36,9 @@ public class MQService extends Service {
 
     private MqttClient client;
 
-    public String myTopic = "warmer1.0/12345678/transfer";
+    public String myTopic = "warmer1.0/dc4f220aa96e/transfer";
 
+    private DeviceChildDaoImpl deviceChildDao;
     private MqttConnectOptions options;
 
     private ScheduledExecutorService scheduler= Executors.newSingleThreadScheduledExecutor();
@@ -45,6 +52,7 @@ public class MQService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        deviceChildDao=new DeviceChildDaoImpl(this);
         Log.d(TAG,"onCreate");
         init();
         connect();
@@ -78,7 +86,12 @@ public class MQService extends Service {
             public void run() {
                 try {
                     client.connect(options);
-                    client.subscribe(myTopic,1);
+                    List<String> topicNames=getTopicNames();
+                    if (!topicNames.isEmpty()){
+                        for (String topicName :topicNames){
+                            client.subscribe(topicName,1);
+                        }
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -126,6 +139,7 @@ public class MQService extends Service {
                     System.out.println("topic:"+topicName+",message"+message.toString());
                     Intent intent=new Intent();
                     intent.setAction("mqttmessage");
+                    intent.putExtra("topicName",topicName);
                     intent.putExtra("message",message.toString());
                     sendBroadcast(intent);
                 }
@@ -174,12 +188,18 @@ public class MQService extends Service {
         return flag;
     }
 
-    public  void setMyTopic(String myTopic) {
-        this.myTopic = myTopic;
-    }
 
-    public String getMyTopic() {
-        return myTopic;
+    public List<String> getTopicNames(){
+        List<String> topicNames=new ArrayList<>();
+        List<DeviceChild> list=deviceChildDao.findAllDevice();
+        for (DeviceChild deviceChild :list){
+            String macAddress=deviceChild.getMacAddress();
+            if (!Utils.isEmpty(macAddress)){
+                String topicName="warmer1.0/"+macAddress+"/transfer";
+                topicNames.add(topicName);
+            }
+        }
+        return topicNames;
     }
 
     public String getName(){

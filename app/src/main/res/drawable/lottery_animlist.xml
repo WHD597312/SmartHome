@@ -4,12 +4,11 @@
 
     <item
         android:drawable="@mipmap/img_circle2"
-        android:duration="500" />
+        android:duration="200" />
 
     <item
         android:drawable="@mipmap/img_circle5"
-        android:duration="500" />
-
+        android:duration="200" />
 
 
 </animation-list>

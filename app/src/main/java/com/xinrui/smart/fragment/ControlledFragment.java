@@ -293,14 +293,20 @@ public class ControlledFragment extends Fragment{
         protected Integer doInBackground(Map<String, Object>... maps) {
             int code=0;
             Map<String,Object> params=maps[0];
+            long arr[]= (long[]) params.get("controlledId");
             String result=HttpUtils.postOkHpptRequest(controlledUrl,params);
             if (!Utils.isEmpty(result)){
                 try{
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
                     if (code==2000){
-//                        List<DeviceChild> deviceChildren=adapter.getSelected();
-//                        deviceChildDao.updateAll(deviceChildren);
+                        if (arr!=null){
+                            for (int i = 0; i < arr.length; i++) {
+                                DeviceChild deviceChild=deviceChildDao.findDeviceChild(arr[i]);
+                                deviceChild.setControlled(1);
+                                deviceChildDao.update(deviceChild);
+                            }
+                        }
                     }
                 }catch (Exception e){
                     e.printStackTrace();

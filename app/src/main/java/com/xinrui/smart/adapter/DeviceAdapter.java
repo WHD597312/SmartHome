@@ -260,6 +260,11 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
         final DeviceChild entry=childern.get(groupPosition).get(childPosition);
         holder.setText(R.id.tv_device_child,entry.getDeviceName());
         holder.setImageResource(R.id.image_switch,entry.getImg());
+        if (entry.getImg()==imgs[1]){
+            holder.setText(R.id.tv_state,"在线");
+        }else {
+            holder.setText(R.id.tv_state,"离线");
+        }
         tv_device_child= (TextView) holder.itemView.findViewById(R.id.tv_device_child);
 
         if (entry.getType()==1){
@@ -277,14 +282,17 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
         tv_device_child.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int a=groupPosition;
-                int b=childPosition;
-                DeviceChild deviceChild =childern.get(groupPosition).get(childPosition);
-                long id=deviceChild.getId();
-                Intent intent=new Intent(context, DeviceListActivity.class);
-                intent.putExtra("content","取暖器");
-                intent.putExtra("childPosition",id+"");
-                context.startActivity(intent);
+                if (entry.getImg()==imgs[1]){
+
+                    DeviceChild deviceChild =childern.get(groupPosition).get(childPosition);
+                    long id=deviceChild.getId();
+                    Intent intent=new Intent(context, DeviceListActivity.class);
+                    intent.putExtra("content","取暖器");
+                    intent.putExtra("childPosition",id+"");
+                    context.startActivity(intent);
+                }else {
+                    Utils.showToast(context,"设备不在线");
+                }
             }
         });
         String mac=entry.getMacAddress();
@@ -295,34 +303,51 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
         image_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 String mac=entry.getMacAddress();
                 if (entry.getImg()==imgs[0]){
                     if (bound){
                         try {
                             JSONObject jsonObject=new JSONObject();
+                            jsonObject.put("id",entry.getMacAddress());
                             jsonObject.put("deviceState","open");
                             String s=jsonObject.toString();
-
-                            boolean open=mqService.publish("warmer1.0/"+mac+"/set",2,s);
+                            boolean open=false;
+                            String topicName;
+                            if (entry.getType()==1 && entry.getControlled()==2){
+                                topicName="warmer1.0/"+mac+"/masterController/set";
+                                open=mqService.publish(topicName,2,s);
+                            }else {
+                                topicName="warmer1.0/"+mac+"/set";
+                                open=mqService.publish(topicName,2,s);
+                            }
                             if (open){
                                 entry.setImg(imgs[1]);
+                                holder.setText(R.id.tv_state,"在线");
                                 deviceChildDao.update(entry);
                             }
                         }catch (Exception e){
                             e.printStackTrace();
                         }
                     }
-
                 }else if(entry.getImg()==imgs[1]){
                     if (bound){
                         try {
                             JSONObject jsonObject=new JSONObject();
+                            jsonObject.put("id",entry.getMacAddress());
                             jsonObject.put("deviceState","close");
                             String s=jsonObject.toString();
-                            boolean close=mqService.publish("warmer1.0/"+mac+"+/set",2,s);
-                            if (close){
+                            boolean open=false;
+                            String topicName;
+                            if (entry.getType()==1 && entry.getControlled()==2){
+                                topicName="warmer1.0/"+mac+"/masterController/set";
+                                open=mqService.publish(topicName,2,s);
+                            }else {
+                                topicName="warmer1.0/"+mac+"/set";
+                                open=mqService.publish(topicName,2,s);
+                            }
+                            if (open){
                                 entry.setImg(imgs[0]);
+                                holder.setText(R.id.tv_state,"离线");
                                 deviceChildDao.update(entry);
                             }
                         }catch (Exception e){
@@ -438,6 +463,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
                         URLEncoder.encode(deviceChild.getId()+"","UTF-8")+"&userId="+URLEncoder.encode(userId,"UTF-8")
                         +"&houseId="+URLEncoder.encode(deviceChild.getHouseId()+"","UTF-8");
 //                String updateDeviceNameUrl="http://192.168.168.3:8082/warmer/v1.0/device/deleteDevice?deviceId=6&userId=1&houseId=1000";
+//                String updateDeviceNameUrl="http://192.168.168.10:8082/warmer/v1.0/device/deleteDevice?deviceId=1004&userId=1&&houseId=1001";
                 String result=HttpUtils.getOkHpptRequest(updateDeviceNameUrl);
                 JSONObject jsonObject=new JSONObject(result);
                 code=jsonObject.getInt("code");
@@ -492,28 +518,48 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            String topicName=intent.getStringExtra("topicName");
             String message=intent.getStringExtra("message");
 
-            if (!Utils.isEmpty(message)){
-                Log.d("ss","-->"+message);
+            if (!Utils.isEmpty(message) && !Utils.isEmpty(topicName)){
+                int groupPostion=0;
+                int childPosition=0;
                 try {
                     JSONObject jsonObject=new JSONObject(message);
+                    String macAddress=jsonObject.getString("id");
+                    DeviceChild child=null;
+
+                    Log.d("ss","-->"+topicName+","+message);
+
+                    for (List<DeviceChild> deviceChildren :childern){
+
+                        childPosition=0;
+                        for (DeviceChild deviceChild:deviceChildren){
+                            String mac=deviceChild.getMacAddress();
+                            if (!Utils.isEmpty(macAddress) && macAddress.equals(mac)) {
+                                child=deviceChild;
+                                break;
+                            }
+                            childPosition++;
+                        }
+                        if (child!=null){
+                            break;
+                        }
+                        groupPostion++;
+                    }
+
                     String deviceState=jsonObject.getString("deviceState");
-                    int deviceGroup=jsonObject.getInt("deviceGroup");
-                    int deviceChild=jsonObject.getInt("deviceChild");
                     if ("close".equals(deviceState)){
-                        DeviceChild child=childern.get(deviceGroup).get(deviceChild);
                         if (child!=null){
                             child.setImg(imgs[0]);
                             deviceChildDao.update(child);
-                            changeChild(deviceGroup,deviceChild);
+                            changeChild(groupPosition,childPosition);
                         }
                     }else if ("open".equals(deviceState)){
-                        DeviceChild child=childern.get(deviceGroup).get(deviceChild);
                         if (child!=null){
                             child.setImg(imgs[1]);
                             deviceChildDao.update(child);
-                            changeChild(deviceGroup,deviceChild);
+                            changeChild(groupPosition,childPosition);
                         }
                     }
                 }catch (Exception e){

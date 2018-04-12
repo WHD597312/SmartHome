@@ -58,31 +58,41 @@ public class HeaterFragment extends Fragment {
     public void onStart() {
         super.onStart();
         semicBar.setModule("1");
-
+        semicBar.setSlide(false);
         semicBar.setOnSeekBarChangeListener(new SemicircleBar.OnSeekBarChangeListener() {
             @Override
             public void onChanged(SemicircleBar seekbar, double curValue) {
+                String open= (String) image_switch.getTag();
                 String module=semicBar.getModule();
-                Log.i(TAG,"-->"+seekbar.getmCurAngle());
-                double curAngle=semicBar.getmCurAngle();
-                mCurrent=(int) curAngle/8+8;
-                if (curAngle>272 && curAngle<=310){
-                    if ("1".equals(module)){
-                        mCurrent=42;
-                    }else if ("2".equals(module)){
-                        mCurrent=60;
+                if ("开".equals(open)){
+                    Log.i(TAG,"-->"+seekbar.getmCurAngle());
+                    double curAngle=semicBar.getmCurAngle();
+                    mCurrent=(int) curAngle/8+8;
+                    if (curAngle>272 && curAngle<=310){
+                        if ("1".equals(module)){
+                            mCurrent=42;
+                        }else if ("2".equals(module)){
+                            mCurrent=60;
+                        }
+                    }else if (curAngle>= 310 && curAngle<=360){
+                        if ("1".equals(module)){
+                            mCurrent=5;
+                        }else if ("2".equals(module)){
+                            mCurrent=48;
+                        }
                     }
-                }else if (curAngle>= 310 && curAngle<=360){
-                    if ("1".equals(module)){
-                        mCurrent=5;
-                    }else if ("2".equals(module)){
-                        mCurrent=48;
-                    }
+                    Message msg=handler.obtainMessage();
+                    msg.arg1=1;
+                    msg.what=mCurrent;
+                    handler.sendMessage(msg);
+                }else {
+                    mCurrent=0;
+                    Message msg=handler.obtainMessage();
+                    msg.arg1=4;
+                    msg.what=mCurrent;
+                    handler.sendMessage(msg);
                 }
-                Message msg=handler.obtainMessage();
-                msg.arg1=1;
-                msg.what=mCurrent;
-                handler.sendMessage(msg);
+
             }
         });
     }
@@ -104,67 +114,124 @@ public class HeaterFragment extends Fragment {
                     semicBar.setmCurAngle(0);
                     semicBar.invalidate();
                     break;
+                case 4:
+//                    semicBar.setmCurAngle(0);
+//                    semicBar.invalidate();
+                    break;
             }
         }
     };
 
-    private ImageView images[]=new ImageView[4];
     @Override
     public void onResume() {
         super.onResume();
-        images[0]=image_hand_task;
-        images[1]=model_protect;
-        images[2]=image_lock;
-        images[3]=image_srceen;
+        image_switch.setTag("关");
+        image_hand_task.setTag("定时");
+        model_protect.setTag("不保护");
+        image_lock.setTag("上锁");
+        image_srceen.setTag("屏保关");
     }
 
-    boolean flag=true;
     @OnClick({R.id.image_switch,R.id.image_mode2,R.id.image_mode,R.id.image_mode3,R.id.image_mode4})
     public void onClick(View view){
         switch (view.getId()){
             case R.id.image_switch:
                 img_circle.setImageResource(R.drawable.lottery_animlist);
                 AnimationDrawable animationDrawable = (AnimationDrawable) img_circle.getDrawable();
-
-//                Animation circle_anim = AnimationUtils.loadAnimation(getActivity(), R.anim.anim_round_rotate);
-//                LinearInterpolator interpolator = new LinearInterpolator();  //设置匀速旋转，在xml文件中设置会出现卡顿
-//                circle_anim.setInterpolator(interpolator);
-                if (flag){
-                    if (img_circle!=null){
-                        animationDrawable.start();
-                        flag=false;
-                    }
+                String open= (String) image_switch.getTag();
+                if ("关".equals(open)){
+                   image_switch.setTag("开");
+                   animationDrawable.start();
+                    semicBar.setSlide(true);
                 }else {
-                    if (img_circle!=null){
-                        animationDrawable.stop();
-                        flag=true;
-                    }
+                    image_switch.setTag("关");
+                    animationDrawable.stop();
+                    semicBar.setSlide(false);
                 }
+
                 break;
             case R.id.image_mode:
+                String tag= (String) image_hand_task.getTag();
+                if ("定时".equals(tag)){
+                    image_hand_task.setImageResource(R.mipmap.module_task);
+                    image_hand_task.setTag("手动");
+                    tv_mode.setText("手动");
+                }else {
+                    image_hand_task.setImageResource(R.mipmap.module_handle);
+                    image_hand_task.setTag("定时");
+                    tv_mode.setText("定时");
+                }
                 setModuleBack(image_hand_task);
-                tv_mode.setText("手动模式");
+                String s= (String) model_protect.getTag();
+                if ("保护".equals(s)){
+                    image_temp.setImageResource(R.mipmap.img_protect_open);
+                }else {
+                    image_temp.setImageResource(R.mipmap.img_cur_temp);
+                }
                 break;
             case R.id.image_mode2:
-                setModuleBack(model_protect);
-                tv_mode.setText("保护模式");
+                String tag2= (String) model_protect.getTag();
+               if ("不保护".equals(tag2)){
+                   model_protect.setTag("保护");
+                   tv_mode.setText("保护");
+                   model_protect.setBackgroundResource(R.mipmap.img_temp_circle);
+               }else {
+                   model_protect.setTag("不保护");
+                   tv_mode.setText("定时");
+                   model_protect.setBackgroundResource(0);
+               }
+                setModuleBack( model_protect);
+               String s2= (String) model_protect.getTag();
+                if ("保护".equals(s2)){
+                    image_temp.setImageResource(R.mipmap.img_protect_open);
+                }else {
+                    image_temp.setImageResource(R.mipmap.img_cur_temp);
+                }
                 break;
             case R.id.image_mode3:
-                tv_mode.setText("锁定模式");
+                String tag3= (String) image_lock.getTag();
+                if ("上锁".equals(tag3)){
+                    image_lock.setTag("解锁");
+                    tv_mode.setText("解锁");
+                    image_lock.setBackgroundResource(R.mipmap.img_temp_circle);
+                }else {
+                    image_lock.setTag("上锁");
+                    tv_mode.setText("上锁");
+                    image_lock.setBackgroundResource(0);
+                }
                 setModuleBack(image_lock);
+                String s3= (String) model_protect.getTag();
+                if ("保护".equals(s3)){
+                    image_temp.setImageResource(R.mipmap.img_protect_open);
+                }else {
+                    image_temp.setImageResource(R.mipmap.img_cur_temp);
+                }
                 break;
             case R.id.image_mode4:
-                tv_mode.setText("屏幕模式");
+                String tag4= (String) image_srceen.getTag();
+                if ("屏保关".equals(tag4)){
+                    image_srceen.setTag("屏保开");
+                    tv_mode.setText("屏保开");
+                    image_srceen.setBackgroundResource(R.mipmap.img_temp_circle);
+                }else {
+                    image_srceen.setTag("屏保关");
+                    tv_mode.setText("屏保关");
+                    image_srceen.setBackgroundResource(0);
+                }
                 setModuleBack(image_srceen);
+                String s4= (String) model_protect.getTag();
+                if ("保护".equals(s4)){
+                    image_temp.setImageResource(R.mipmap.img_protect_open);
+                }else {
+                    image_temp.setImageResource(R.mipmap.img_cur_temp);
+                }
                 break;
         }
     }
     /**设置背景*/
     private void setModuleBack(ImageView view){
-        for (int i = 0; i <images.length ; i++) {
-            if (view==images[i]){
-                if (view==model_protect){
-                    image_temp.setImageResource(R.mipmap.img_protect_open);
+                if (view.getTag().equals("保护")){
+
                     semicBar.setModule("2");
                     mCurrent=48;
                     tv_set_temp.setText(mCurrent+"℃");
@@ -172,7 +239,6 @@ public class HeaterFragment extends Fragment {
                     msg.arg1=2;
                     handler.sendMessage(msg);
                 }else {
-                    image_temp.setImageResource(R.mipmap.img_cur_temp);
                     semicBar.setModule("1");
                     mCurrent=5;
                     tv_set_temp.setText(mCurrent+"℃");
@@ -180,11 +246,6 @@ public class HeaterFragment extends Fragment {
                     msg.arg1=3;
                     handler.sendMessage(msg);
                 }
-                view.setBackgroundResource(R.mipmap.img_temp_circle);
-            }else {
-                images[i].setBackgroundResource(0);
-            }
-        }
     }
 
     @Override

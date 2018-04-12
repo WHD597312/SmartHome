@@ -1,6 +1,7 @@
 package com.xinrui.smart.activity;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -19,19 +20,29 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
+import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.TimeTaskAdapter;
 import com.xinrui.smart.adapter.WeekAdapter;
 import com.xinrui.smart.fragment.ClockSetFragment;
+import com.xinrui.smart.pojo.DeviceChild;
+import com.xinrui.smart.pojo.MainControl;
 import com.xinrui.smart.pojo.TaskTime;
+import com.xinrui.smart.util.ChineseNumber;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.view_custom.CircleSeekBar;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,6 +64,7 @@ public class TimeTaskActivity extends AppCompatActivity{
     TextView open_time;//设定开始时间
     @BindView(R.id.close_time)
     TextView close_time;//结束时间
+
     @BindView(R.id.tv_temp) TextView tv_temp;//温度
     @BindView(R.id.tv_temp_num) TextView tv_temp_num;//温度计数
     @BindView(R.id.listview) ListView listview;/**开始时间，结束时间，温度列表*/
@@ -61,6 +73,7 @@ public class TimeTaskActivity extends AppCompatActivity{
     @BindView(R.id.timePicker) TimePicker timePicker;/**时间选择器*/
     @BindView(R.id.numberPicker) NumberPicker numberPicker;/**数字选择器*/
     @BindView(R.id.btn_copy) Button btn_copy;/**复制按钮*/
+    @BindView(R.id.btn_add) Button btn_add;/**添加时间*/
 
     @BindView(R.id.tv_mon) TextView tv_mon;
     @BindView(R.id.tv_tue) TextView tv_tue;
@@ -72,6 +85,7 @@ public class TimeTaskActivity extends AppCompatActivity{
 
     private int hour;/**开始设定时间与结束设定时间*/
     private TimeTaskDaoImpl timeTaskDao;/**定时任务的数据库操作*/
+    private DeviceChildDaoImpl deviceChildDao;/**单个设备数据库操作*/
     private int temperature;/**温度*/
     private TimeTaskAdapter timeTaskAdapter;/**定时任务适配器*/
     private WeekAdapter weekAdapter;/***/
@@ -81,6 +95,7 @@ public class TimeTaskActivity extends AppCompatActivity{
     private String mSelectedWeek;
     private String copy;
     MyApplication application;
+    String taskTimeUrl="http://120.77.36.206:8082/warmer/v1.0/device/timeControl";
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,14 +106,22 @@ public class TimeTaskActivity extends AppCompatActivity{
         }
         application.addActivity(this);
     }
+    long deviceId;
+    private DeviceChild deviceChild;
     @Override
     public void onStart() {
         super.onStart();
 
+        Intent intent=getIntent();
+        String device=intent.getStringExtra("deviceId");
+        if (!Utils.isEmpty(device)){
+            deviceId=Integer.parseInt(device);
+        }
 //        listview.setOnItemClickListener(this);
         timeTaskDao=new TimeTaskDaoImpl(this);
 
-
+        deviceChildDao=new DeviceChildDaoImpl(this);
+        deviceChild=deviceChildDao.findDeviceChild(deviceId);
 
 //        week.setOnItemClickListener(this);
 
@@ -134,11 +157,13 @@ public class TimeTaskActivity extends AppCompatActivity{
         int day=calendar.get(Calendar.DAY_OF_MONTH);
         int week2=calendar.get(Calendar.DAY_OF_WEEK);
         mWeek=Utils.getWeek(year,month,day,week2).substring(2);
+
         mSelectedWeek=mWeek;
-        seekbar.setWeek(mWeek);
+        int week3=ChineseNumber.chineseNumber2Int(mWeek);
+        seekbar.setWeek(week3+"");
 
         /**初始化时间适配器*/
-        list=timeTaskDao.findWeekAll(mWeek);/**查询一周某一天的定时数据*/
+        list=timeTaskDao.findWeekAll(week3+"");/**查询一周某一天的定时数据*/
         timeTaskAdapter=new TimeTaskAdapter(this,list,myClickListener);
         listview.setAdapter(timeTaskAdapter);
 
@@ -248,27 +273,50 @@ public class TimeTaskActivity extends AppCompatActivity{
                 }
                 break;
             case R.id.btn_add:/**添加开始设定时间和结束设定时间，温度*/
+
+
                 String open=open_time.getText().toString();
                 String close=close_time.getText().toString();
-                if(!Utils.isEmpty(open) && !Utils.isEmpty(close)){
-                    int openTime=Integer.parseInt(open.substring(0,open.indexOf(":")));
-                    int closeTime=Integer.parseInt(close.substring(0,close.indexOf(":")));
-                    TaskTime taskTime=new TaskTime(openTime,closeTime,temperature,mWeek);
-
-                    if(timeTaskDao.insert(taskTime)){
-                        Utils.showToast(this,"添加成功");
-                        list.add(taskTime);
-                        timeTaskAdapter.notifyDataSetChanged();
-                        listview.setVisibility(View.VISIBLE);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                seekbar.invalidate();
-                            }
-                        });
-                    }else {
-                        Utils.showToast(this,"添加失败");
+                String temp=tv_temp_num.getText().toString();
+                if(!Utils.isEmpty(open) && !Utils.isEmpty(close)&& !Utils.isEmpty(temp)){
+                    open=open.substring(0,open.indexOf(":"));
+                    close=close.substring(0,close.indexOf(":"));
+                    temp=close.substring(0,temp.indexOf("℃"));
+                    int mWeek= ChineseNumber.chineseNumber2Int(mSelectedWeek);
+                    TaskTime taskTime2=new TaskTime(Integer.parseInt(open), Integer.parseInt(close), Integer.parseInt(temp), mWeek+"");
+                    List<TaskTime> taskTimes=timeTaskDao.findWeekAll(mWeek+"");
+                    for (TaskTime taskTime:taskTimes){
+                        if (taskTime2.equals(taskTime)){
+                            Utils.showToast(this,"该时间段已存在");
+                            return;
+                        }
                     }
+                    try {
+                        JSONObject device=new JSONObject();
+                        device.put("deviceId",deviceId);
+                        JSONArray deviceTimeControlDtos=new JSONArray();
+
+                        JSONObject week=new JSONObject();
+
+                        week.put("week",mWeek);
+                        JSONArray deviceTimeControlList=new JSONArray();
+                        JSONObject object=new JSONObject();
+                        object.put("temp",temp);
+                        object.put("openTime",open);
+                        object.put("closeTime",close);
+                        deviceTimeControlList.put(object);
+
+                        week.put("deviceTimeControlList",deviceTimeControlList);
+                        deviceTimeControlDtos.put(week);
+                        device.put("deviceTimeControlDtos",deviceTimeControlDtos);
+                        new TaskTimeAsync().execute(device);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+//                    int openTime=Integer.parseInt(open.substring(0,open.indexOf(":")));
+//                    int closeTime=Integer.parseInt(close.substring(0,close.indexOf(":")));
+
                 }
                 break;
             case R.id.open_time:/**设定开始时间*/
@@ -315,12 +363,12 @@ public class TimeTaskActivity extends AppCompatActivity{
 //            Toast.makeText(TimeTaskActivity.this,"listview的内部的按钮被点击了！，位置是-->" + position + ",内容是-->"+list.get(position),Toast.LENGTH_LONG).show();
             TaskTime taskTime=list.get(position);
             if (taskTime!=null){
-                timeTaskDao.delete(taskTime);
-                Utils.showToast(TimeTaskActivity.this,"删除成功");
                 Message msg=handler.obtainMessage();
                 msg.obj=taskTime.getWeek();
+                timeTaskDao.delete(taskTime);
                 msg.what=4;
                 handler.sendMessage(msg);
+                Utils.showToast(TimeTaskActivity.this,"删除成功");
             }
         }
     };
@@ -335,13 +383,14 @@ public class TimeTaskActivity extends AppCompatActivity{
                 case 1:
 
                     if (!Utils.isEmpty(mSelectedWeek)){
-                        list=timeTaskDao.findWeekAll(mSelectedWeek);
+                        int selectedWeek=ChineseNumber.chineseNumber2Int(mSelectedWeek);
+                        list=timeTaskDao.findWeekAll(selectedWeek+"");
                         if (list.isEmpty()){
                             seekbar.setWeek(mSelectedWeek);
                             seekbar.invalidate();
                             listview.setVisibility(View.GONE);
                         }else {
-                            seekbar.setWeek(mSelectedWeek);
+                            seekbar.setWeek(selectedWeek+"");
                             seekbar.invalidate();
                             listview.setVisibility(View.VISIBLE);
                             timeTaskAdapter.notifyDataSetChanged();
@@ -350,7 +399,8 @@ public class TimeTaskActivity extends AppCompatActivity{
                     break;
                 case 2:
                     copyWeek= (String) msg.obj;
-                    List<TaskTime> mCopyList=timeTaskDao.findWeekAll(copyWeek);
+                    int copy=ChineseNumber.chineseNumber2Int(copyWeek);
+                    List<TaskTime> mCopyList=timeTaskDao.findWeekAll(copy+"");
                     if (mCopyList.isEmpty()){
                         Utils.showToast(TimeTaskActivity.this,"没有复制的数据");
                         btn_copy.setText("复制");
@@ -358,18 +408,20 @@ public class TimeTaskActivity extends AppCompatActivity{
                     break;
                 case 3:
                    pasteWeek= (String) msg.obj;
-                    List<TaskTime> mCopyList2=timeTaskDao.findWeekAll(copyWeek);
+                    int copy2=ChineseNumber.chineseNumber2Int(copyWeek);
+                    int paster=ChineseNumber.chineseNumber2Int(pasteWeek);
+                    List<TaskTime> mCopyList2=timeTaskDao.findWeekAll(copy2+"");
                     if (mCopyList2!=null && !mCopyList2.isEmpty()){
                         if (pasteWeek.equals(copyWeek)){
                             return;
                         }
                         List<TaskTime> pasteList=new ArrayList<>();
                         for (TaskTime taskTime : mCopyList2){
-                            TaskTime taskTime2=new TaskTime(taskTime.getStart(),taskTime.getEnd(),taskTime.getTemp(),pasteWeek);
+                            TaskTime taskTime2=new TaskTime(taskTime.getStart(),taskTime.getEnd(),taskTime.getTemp(),paster+"");
                             pasteList.add(taskTime2);
                         }
                         timeTaskDao.insertTaskTimeList(pasteList);
-                        seekbar.setWeek(pasteWeek);
+                        seekbar.setWeek(paster+"");
 
                         seekbar.invalidate();
                         listview.setVisibility(View.VISIBLE);
@@ -379,13 +431,14 @@ public class TimeTaskActivity extends AppCompatActivity{
                     break;
                 case 4:
                     String deleteWeek= (String) msg.obj;
-                    list=timeTaskDao.findWeekAll(deleteWeek);
+                    int delete=ChineseNumber.chineseNumber2Int(deleteWeek);
+                    list=timeTaskDao.findWeekAll(delete+"");
                     if (list.isEmpty()){
-                        seekbar.setWeek(deleteWeek);
+                        seekbar.setWeek(delete+"");
                         seekbar.invalidate();
                         listview.setVisibility(View.GONE);
                     }else {
-                        seekbar.setWeek(deleteWeek);
+                        seekbar.setWeek(delete+"");
                         seekbar.invalidate();
                         listview.setVisibility(View.VISIBLE);
                         timeTaskAdapter.notifyDataSetChanged();
@@ -395,42 +448,59 @@ public class TimeTaskActivity extends AppCompatActivity{
 
         }
     };
-//    @Override
-//    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//        mPoistion=position;
-//
-//        mSelectedWeek=mWeekList.get(position);
-//        copy=mSelectedWeek;
-//
-//        Message msg=handler.obtainMessage();
-//        msg.obj=mSelectedWeek;
-//        msg.what=1;
-//        handler.sendMessage(msg);
-//        Log.d("ss",mWeek);
-//        weekAdapter.setSelectedPosition(mPoistion);
-//        weekAdapter.notifyDataSetInvalidated();
-//        switch (position){
-//            case 0:
-//
-//                break;
-//            case 1:
-//
-//                break;
-//            case 2:
-//
-//                break;
-//            case 3:
-//
-//                break;
-//            case 4:
-//
-//                break;
-//            case 5:
-//
-//                break;
-//            case 6:
-//
-//                break;
-//        }
-//    }
+
+    class TaskTimeAsync extends AsyncTask<JSONObject,Void,Integer>{
+
+        @Override
+        protected Integer doInBackground(JSONObject... jsonObjects) {
+            int code=0;
+            JSONObject jsonObject=jsonObjects[0];
+            String result=HttpUtils.postOkHpptRequest3(taskTimeUrl,jsonObject);
+            if (!Utils.isEmpty(result)){
+                try {
+                    JSONObject object=new JSONObject(result);
+                    code=object.getInt("code");
+                    if (code==2000){
+//                        long jsonObject.getLong("deviceId");
+                        JSONArray deviceTimeControlDtos=jsonObject.getJSONArray("deviceTimeControlDtos");
+                        for (int i = 0; i < deviceTimeControlDtos.length(); i++) {
+                            JSONObject week=deviceTimeControlDtos.getJSONObject(i);
+                            int  mWeek=week.getInt("week");
+                            JSONArray deviceTimeControlList=week.getJSONArray("deviceTimeControlList");
+                            for (int j = 0; j < deviceTimeControlList.length(); j++) {
+                                JSONObject object1=deviceTimeControlList.getJSONObject(j);
+                                String openTime=object1.getString("openTime");
+                                String closeTime=object1.getString("closeTime");
+                                String temp=object1.getString("temp");
+                                TaskTime taskTime=new TaskTime(Integer.parseInt(openTime), Integer.parseInt(closeTime), Integer.parseInt(temp),mWeek+"");
+                                if (timeTaskDao.insert(taskTime)){
+                                    list.add(taskTime);
+                                }
+                            }
+                        }
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            return code;
+        }
+
+        @Override
+        protected void onPostExecute(Integer code) {
+            super.onPostExecute(code);
+            switch (code){
+                case 2000:
+                    Utils.showToast(TimeTaskActivity.this, "添加成功");
+                    timeTaskAdapter.notifyDataSetChanged();
+                    listview.setVisibility(View.VISIBLE);
+                    seekbar.invalidate();
+                    break;
+                default:
+                    Utils.showToast(TimeTaskActivity.this, "添加失败");
+                    break;
+            }
+        }
+    }
+
 }

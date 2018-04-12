@@ -252,6 +252,8 @@ public class DeviceFragment extends Fragment{
         Intent intent=new Intent(getActivity(),MQService.class);
         getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
 
+
+
         IntentFilter intentFilter=new IntentFilter("mqtt");
         getActivity().registerReceiver(receiver,intentFilter);
 
