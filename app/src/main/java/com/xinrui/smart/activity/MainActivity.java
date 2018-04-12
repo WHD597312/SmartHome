@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             new LoadDeviceAsync().execute();
         } else {
             fragmentPreferences.edit().putString("fragment", "2").commit();
-            
+
         }
 
         String fragment = fragmentPreferences.getString("fragment", "");

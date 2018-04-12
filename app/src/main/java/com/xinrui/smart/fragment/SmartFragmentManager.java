@@ -43,6 +43,7 @@ import butterknife.Unbinder;
 public class SmartFragmentManager extends Fragment {
     @BindView(R.id.viewpager) ViewPager mPager;
     List<Fragment> fragmentList;
+
     DeviceGroupDaoImpl deviceGroupDao;
     DeviceChildDaoImpl deviceChildDao;
     List<DeviceGroup> deviceGroups;
