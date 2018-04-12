@@ -14,12 +14,15 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainControlActivity;
 import com.xinrui.smart.adapter.SmartSetAdapter;
+import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.SmartSet;
 import com.xinrui.smart.util.Utils;
@@ -45,9 +48,11 @@ public class SmartFragment extends Fragment {
 
     @BindView(R.id.smart_set)
     ListView smart_set;
+    @BindView(R.id.relative) RelativeLayout relative;
     private List<SmartSet> list;
     private SmartSetAdapter adapter;//智能适配器
     private DeviceGroupDaoImpl deviceGroupDao;
+    private DeviceChildDaoImpl deviceChildDao;
     String houseId;
 
     @Override
@@ -64,6 +69,8 @@ public class SmartFragment extends Fragment {
         super.onStart();
         adapter=new SmartSetAdapter(getActivity());
         deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
+        deviceChildDao=new DeviceChildDaoImpl(getActivity());
+
         smart_set.setAdapter(adapter);
         if (houseId!=null){
             DeviceGroup deviceGroup=deviceGroupDao.findById(Long.parseLong(houseId));

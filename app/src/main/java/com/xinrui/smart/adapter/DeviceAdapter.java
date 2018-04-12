@@ -287,19 +287,24 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
                 context.startActivity(intent);
             }
         });
+        String mac=entry.getMacAddress();
+
+
 
         image_switch= (ImageView) holder.itemView.findViewById(R.id.image_switch);
         image_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                String mac=entry.getMacAddress();
                 if (entry.getImg()==imgs[0]){
                     if (bound){
                         try {
                             JSONObject jsonObject=new JSONObject();
                             jsonObject.put("deviceState","open");
                             String s=jsonObject.toString();
-                            boolean open=mqService.publish("warmer1.0/12345678/set",2,s);
+
+                            boolean open=mqService.publish("warmer1.0/"+mac+"/set",2,s);
                             if (open){
                                 entry.setImg(imgs[1]);
                                 deviceChildDao.update(entry);
@@ -315,7 +320,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
                             JSONObject jsonObject=new JSONObject();
                             jsonObject.put("deviceState","close");
                             String s=jsonObject.toString();
-                            boolean close=mqService.publish("warmer1.0/12345678/set",2,s);
+                            boolean close=mqService.publish("warmer1.0/"+mac+"+/set",2,s);
                             if (close){
                                 entry.setImg(imgs[0]);
                                 deviceChildDao.update(entry);

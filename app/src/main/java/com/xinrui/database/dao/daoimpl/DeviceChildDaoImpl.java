@@ -60,6 +60,10 @@ public class DeviceChildDaoImpl {
         return deviceChildDao.queryBuilder().where(whereCondition).list();
     }
 //        return deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.GroupId.eq(groupId))
+    public List<DeviceChild> findDeviceType(Long houseId,int type){
+        WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(houseId),DeviceChildDao.Properties.Type.eq(type));
+        return deviceChildDao.queryBuilder().where(whereCondition).list();
+    }
     public List<DeviceChild> findGroupIdAllDevice(Long groupId){
         return deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.HouseId.eq(groupId)).list();
     }

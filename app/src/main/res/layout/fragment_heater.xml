@@ -152,7 +152,6 @@
             android:scaleType="centerInside"
             android:layout_below="@+id/tv_mode0"
             android:layout_centerVertical="true"
-            android:background="@mipmap/img_temp_circle"
             />
 
         <ImageView

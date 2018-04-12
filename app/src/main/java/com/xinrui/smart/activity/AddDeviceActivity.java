@@ -204,31 +204,14 @@ public class AddDeviceActivity extends AppCompatActivity {
             case R.id.btn_match:
                 String ssid = et_ssid.getText().toString();
                 String apPassword = et_pswd.getText().toString();
-//                String apBssid = mWifiAdmin.getWifiConnectedBssid();
-//                String taskResultCountStr = "1";
-//                if (__IEsptouchTask.DEBUG) {
+                String apBssid = mWifiAdmin.getWifiConnectedBssid();
+                String taskResultCountStr = "1";
+                if (__IEsptouchTask.DEBUG) {
 //                    Log.d(TAG, "mBtnConfirm is clicked, mEdtApSsid = " + apSsid
 //                            + ", " + " mEdtApPassword = " + apPassword);
-//                }
-//                new EsptouchAsyncTask3().execute(apSsid, apBssid, apPassword, taskResultCountStr);
+                }
                 if (!Utils.isEmpty(ssid)) {
-                    if (deviceGroupDao != null) {
-                        DeviceGroup deviceGroup = deviceGroupDao.findById(houseId);
-                        if (deviceGroup != null) {
-                            Map<String, Object> params = new HashMap<>();
-                            params.put("deviceName", ssid);
-                            params.put("houseId", houseId);
-                            params.put("masterControllerUserId", userId);
-                            params.put("type", 2);
-                            params.put("macAddress",ssid);
-                            new WifiConectionAsync().execute(params);
-//                            SharedPreferences wifi=getSharedPreferences("wifi",MODE_PRIVATE);
-//                            boolean success=wifi.edit().putString(et_ssid.getText().toString(),et_ssid.getText().toString()).commit();
-//                            if (success){
-//                                new WifiConectionAsync().execute(params);
-//                            }
-                        }
-                    }
+                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
                 } else if (!Utils.isEmpty(groupPosition) && !Utils.isEmpty(ssid)) {
                     long group = Long.parseLong(groupPosition);
                     DeviceChild deviceChild = new DeviceChild();
@@ -237,7 +220,6 @@ public class AddDeviceActivity extends AppCompatActivity {
                     deviceChild.setImg(imgs[0]);
                     deviceChildDao.insert(deviceChild);
                 }
-
                 break;
         }
     }
@@ -266,7 +248,6 @@ public class AddDeviceActivity extends AppCompatActivity {
                         deviceChild.setImg(imgs[0]);
                         if (deviceChild != null) {
                             deviceChildDao.insert(deviceChild);
-
                         }
                     }
                 } catch (Exception e) {
@@ -347,13 +328,14 @@ public class AddDeviceActivity extends AppCompatActivity {
         // check whether the wifi is connected
         boolean isApSsidEmpty = TextUtils.isEmpty(apSsid);
         btn_match.setEnabled(!isApSsidEmpty);
-        SharedPreferences wifi=getSharedPreferences("wifi",MODE_PRIVATE);
-        if (wifi.contains(et_ssid.getText().toString())){
-            String pswd=wifi.getString(et_ssid.getText().toString(),"");
+        SharedPreferences wifi = getSharedPreferences("wifi", MODE_PRIVATE);
+        if (wifi.contains(et_ssid.getText().toString())) {
+            String pswd = wifi.getString(et_ssid.getText().toString(), "");
             et_pswd.setText(pswd);
             et_pswd.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         }
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
@@ -574,30 +556,24 @@ public class AddDeviceActivity extends AppCompatActivity {
                         //                String ssid=et_ssid.getText().toString();
                         DeviceChild deviceChild = new DeviceChild();
                         String ssid = resultInList.getBssid();
-                        if (!Utils.isEmpty(ssid)) {
-                            if (deviceGroupDao != null) {
-                                DeviceGroup deviceGroup = deviceGroupDao.findById(houseId);
-                                if (deviceGroup != null) {
-                                    Map<String, Object> params = new HashMap<>();
-                                    params.put("deviceName", ssid);
-                                    params.put("houseId", houseId);
-                                    params.put("masterControllerUserId", userId);
-                                    params.put("type", 1);
-                                    params.put("macAddress",ssid);
-                                    SharedPreferences wifi=getSharedPreferences("wifi",MODE_PRIVATE);
-                                    boolean success=wifi.edit().putString(et_ssid.getText().toString(),et_ssid.getText().toString()).commit();
-                                    if (success){
-                                        new WifiConectionAsync().execute(params);
-                                    }
+
+                        if (deviceGroupDao != null) {
+                            DeviceGroup deviceGroup = deviceGroupDao.findById(houseId);
+                            if (deviceGroup != null) {
+                                Map<String, Object> params = new HashMap<>();
+                                params.put("deviceName", ssid);
+                                params.put("houseId", houseId);
+                                params.put("masterControllerUserId", userId);
+                                params.put("type", 1);
+                                params.put("macAddress", ssid);
+                                SharedPreferences wifi = getSharedPreferences("wifi", MODE_PRIVATE);
+                                boolean success = wifi.edit().putString(et_ssid.getText().toString(), et_ssid.getText().toString()).commit();
+                                if (success) {
+                                    new WifiConectionAsync().execute(params);
                                 }
                             }
-                        } else if (!Utils.isEmpty(groupPosition) && !Utils.isEmpty(ssid)) {
-                            long group = Long.parseLong(groupPosition);
-                            deviceChild.setHouseId(group);
-                            deviceChild.setDeviceName(ssid);
-                            deviceChild.setImg(imgs[0]);
-                            deviceChildDao.insert(deviceChild);
                         }
+
                         sb.append("配置成功");
                         count++;
                         if (count >= maxDisplayCount) {

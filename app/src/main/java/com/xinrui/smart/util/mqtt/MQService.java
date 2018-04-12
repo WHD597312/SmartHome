@@ -30,7 +30,7 @@ public class MQService extends Service {
 
     private MqttClient client;
 
-    private String myTopic = "warmer1.0/12345678/transfer";
+    public String myTopic = "warmer1.0/12345678/transfer";
 
     private MqttConnectOptions options;
 
@@ -172,6 +172,14 @@ public class MQService extends Service {
             }
         }
         return flag;
+    }
+
+    public  void setMyTopic(String myTopic) {
+        this.myTopic = myTopic;
+    }
+
+    public String getMyTopic() {
+        return myTopic;
     }
 
     public String getName(){

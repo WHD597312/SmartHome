@@ -70,14 +70,12 @@ public class TimeTaskActivity extends AppCompatActivity{
     @BindView(R.id.tv_sta) TextView tv_sta;
     @BindView(R.id.tv_sun) TextView tv_sun;
 
-    private List<String> mWeekList;
     private int hour;/**开始设定时间与结束设定时间*/
     private TimeTaskDaoImpl timeTaskDao;/**定时任务的数据库操作*/
     private int temperature;/**温度*/
     private TimeTaskAdapter timeTaskAdapter;/**定时任务适配器*/
     private WeekAdapter weekAdapter;/***/
     private List<TaskTime> list;
-    int mPoistion=0;;// 选中的位置
     private String mWeek;/**一周的星期几*/
 
     private String mSelectedWeek;
@@ -165,18 +163,7 @@ public class TimeTaskActivity extends AppCompatActivity{
                 tv_copy.setBackgroundResource(R.drawable.button_normal);
             }
         }
-//        week.setAdapter(weekAdapter);
-//        for (int i=0;i<mWeekList.size();i++){
-//            String s=mWeekList.get(i);
-//            if (mWeek.equals(s)){
-//                mPoistion=i;
-//                weekAdapter.setSelectedPosition(mPoistion);
-//                weekAdapter.notifyDataSetInvalidated();
-//                break;
-//            }
-//        }
     }
-
 
     TextView tv_copy;
     private void setBack(TextView tv_week){

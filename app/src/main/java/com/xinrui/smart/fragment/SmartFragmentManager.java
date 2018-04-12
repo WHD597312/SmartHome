@@ -17,9 +17,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.SmartFragmentAdapter;
+import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.SmartSet;
 
@@ -42,6 +44,7 @@ public class SmartFragmentManager extends Fragment {
     @BindView(R.id.viewpager) ViewPager mPager;
     List<Fragment> fragmentList;
     DeviceGroupDaoImpl deviceGroupDao;
+    DeviceChildDaoImpl deviceChildDao;
     List<DeviceGroup> deviceGroups;
     ImageView[] imageViews;
     View view;
@@ -71,18 +74,23 @@ public class SmartFragmentManager extends Fragment {
     public void onStart() {
         super.onStart();
         //初始化fragment
+        deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
+        deviceGroups=deviceGroupDao.findAllDevices();
+        deviceChildDao=new DeviceChildDaoImpl(getActivity());
         fragmentList=new ArrayList<Fragment>();
-        fragmentList.add(new SmartFragment());
-        fragmentList.add(new SmartFragment());
+        for (DeviceGroup deviceGroup:deviceGroups){
+            fragmentList.add(new SmartFragment());
+        }
+
         FragmentPagerAdapter fragmentPagerAdapter=new SmartFragmentAdapter(getChildFragmentManager(),fragmentList);
         LinearLayout layout= (LinearLayout) view.findViewById(R.id.linearout);
         mPager.setAdapter(fragmentPagerAdapter);
         mPager.setCurrentItem(0);
-        MyOnPageChangeListener listener=new MyOnPageChangeListener(getActivity(),mPager,layout,2);
+        MyOnPageChangeListener listener=new MyOnPageChangeListener(getActivity(),mPager,layout,fragmentList.size());
         listener.onPageSelected(0);
         mPager.setOnPageChangeListener(listener);
-        deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
-        deviceGroups=deviceGroupDao.findAllDevices();
+
+
         Message msg=handler.obtainMessage();
         msg.what=0;
         handler.sendMessage(msg);
@@ -189,6 +197,12 @@ public class SmartFragmentManager extends Fragment {
                     if (smartFragment!=null){
                         smartFragment.houseId=deviceGroup.getId()+"";
                         smartFragment.tv_home.setText(header);
+                        List<DeviceChild> deviceChildren=deviceChildDao.findDeviceType(deviceGroup.getId(),2);//外置传感器
+                        if (deviceChildren.isEmpty()){
+                            smartFragment.relative.setVisibility(View.GONE);
+                        }else {
+                            smartFragment.relative.setVisibility(View.VISIBLE);
+                        }
                     }
                 }catch (Exception e){
                     e.printStackTrace();

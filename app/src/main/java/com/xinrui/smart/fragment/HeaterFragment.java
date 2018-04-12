@@ -17,6 +17,7 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.xinrui.smart.R;
 import com.xinrui.smart.view_custom.SemicircleBar;
@@ -37,8 +38,13 @@ public class HeaterFragment extends Fragment {
     @BindView(R.id.img_circle) ImageView img_circle;
     @BindView(R.id.image_switch) ImageView image_switch;
     @BindView(R.id.semicBar) SemicircleBar semicBar;
-    @BindView(R.id.tv_set_temp) TextView tv_set_temp;
+    @BindView(R.id.tv_set_temp) TextView tv_set_temp;/**设定温度*/
     @BindView(R.id.image_mode2) ImageView model_protect;/**保护模式*/
+    @BindView(R.id.image_mode) ImageView image_hand_task;/**手动，定时模式*/
+    @BindView(R.id.image_mode3) ImageView image_lock;/**锁定模式*/
+    @BindView(R.id.image_mode4) ImageView image_srceen;/**屏幕模式*/
+    @BindView(R.id.tv_mode) TextView tv_mode;/**模式文本*/
+    @BindView(R.id.image_temp) ImageView image_temp;/**模式图标*/
     private int mCurrent=5;
     @Nullable
     @Override
@@ -52,6 +58,7 @@ public class HeaterFragment extends Fragment {
     public void onStart() {
         super.onStart();
         semicBar.setModule("1");
+
         semicBar.setOnSeekBarChangeListener(new SemicircleBar.OnSeekBarChangeListener() {
             @Override
             public void onChanged(SemicircleBar seekbar, double curValue) {
@@ -93,12 +100,26 @@ public class HeaterFragment extends Fragment {
                     semicBar.setmCurAngle(0);
                     semicBar.invalidate();
                     break;
+                case 3:
+                    semicBar.setmCurAngle(0);
+                    semicBar.invalidate();
+                    break;
             }
-
         }
     };
+
+    private ImageView images[]=new ImageView[4];
+    @Override
+    public void onResume() {
+        super.onResume();
+        images[0]=image_hand_task;
+        images[1]=model_protect;
+        images[2]=image_lock;
+        images[3]=image_srceen;
+    }
+
     boolean flag=true;
-    @OnClick({R.id.image_switch,R.id.image_mode2})
+    @OnClick({R.id.image_switch,R.id.image_mode2,R.id.image_mode,R.id.image_mode3,R.id.image_mode4})
     public void onClick(View view){
         switch (view.getId()){
             case R.id.image_switch:
@@ -120,16 +141,52 @@ public class HeaterFragment extends Fragment {
                     }
                 }
                 break;
+            case R.id.image_mode:
+                setModuleBack(image_hand_task);
+                tv_mode.setText("手动模式");
+                break;
             case R.id.image_mode2:
-                semicBar.setModule("2");
-                mCurrent=48;
-                tv_set_temp.setText(mCurrent+"℃");
-                Message msg=handler.obtainMessage();
-                msg.arg1=2;
-                handler.sendMessage(msg);
+                setModuleBack(model_protect);
+                tv_mode.setText("保护模式");
+                break;
+            case R.id.image_mode3:
+                tv_mode.setText("锁定模式");
+                setModuleBack(image_lock);
+                break;
+            case R.id.image_mode4:
+                tv_mode.setText("屏幕模式");
+                setModuleBack(image_srceen);
                 break;
         }
     }
+    /**设置背景*/
+    private void setModuleBack(ImageView view){
+        for (int i = 0; i <images.length ; i++) {
+            if (view==images[i]){
+                if (view==model_protect){
+                    image_temp.setImageResource(R.mipmap.img_protect_open);
+                    semicBar.setModule("2");
+                    mCurrent=48;
+                    tv_set_temp.setText(mCurrent+"℃");
+                    Message msg=handler.obtainMessage();
+                    msg.arg1=2;
+                    handler.sendMessage(msg);
+                }else {
+                    image_temp.setImageResource(R.mipmap.img_cur_temp);
+                    semicBar.setModule("1");
+                    mCurrent=5;
+                    tv_set_temp.setText(mCurrent+"℃");
+                    Message msg=handler.obtainMessage();
+                    msg.arg1=3;
+                    handler.sendMessage(msg);
+                }
+                view.setBackgroundResource(R.mipmap.img_temp_circle);
+            }else {
+                images[i].setBackgroundResource(0);
+            }
+        }
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
