@@ -16,7 +16,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" >
-        <include layout="@layout/room_content_x1"></include>
+        <include layout="@layout/scene_room_content"></include>
     </android.support.v7.widget.CardView>
 
 </android.support.constraint.ConstraintLayout>

@@ -23,7 +23,7 @@
             android:text="@string/addRoom"/>
 
     <ImageButton
-        android:id="@+id/imageButton2"
+        android:id="@+id/homepage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
