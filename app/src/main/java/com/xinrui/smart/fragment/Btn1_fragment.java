@@ -1,14 +1,16 @@
 package com.xinrui.smart.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -28,16 +30,20 @@ import com.xinrui.smart.R;
 import com.xinrui.smart.activity.AddEquipmentActivity;
 import com.xinrui.smart.activity.RoomContentActivity;
 import com.xinrui.smart.activity.RoomTypesActivity;
+import com.xinrui.smart.adapter.Scene_deviceAdapter;
 import com.xinrui.smart.pojo.DeviceGroup;
+import com.xinrui.smart.pojo.Equipment;
 import com.xinrui.smart.pojo.Room;
 import com.xinrui.smart.pojo.RoomEntry;
 import com.xinrui.smart.util.GetUrl;
+import com.xinrui.smart.util.ItemDecoration.GridSpacingItemDecoration;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.view_custom.RoomViewGroup;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -68,6 +74,8 @@ public class Btn1_fragment extends Fragment{
     FrameLayout roomViewGroup;
     int group1 = 1;
 
+     int item_width;
+
     List<Room> room_list = new ArrayList<>();
     List<RoomEntry> roomEntry_list = new ArrayList<>();
     public List<View> childView_list  = new ArrayList<>();
@@ -95,7 +103,6 @@ public class Btn1_fragment extends Fragment{
         house_id = sharedPreferences.getLong("house_id",0);
         view_background = (RoomViewGroup) inflater.inflate(R.layout.rooms_background1, container, false);
         roomViewGroup = (FrameLayout) view_background.findViewById(R.id.fl);
-//        roomViewGroup.setOnClickListener(listec);
         initView();
         ModificationAsyncTask();
         sendRequestForListData();
@@ -181,6 +188,17 @@ public class Btn1_fragment extends Fragment{
                                 String point_string = points.getString(j);
                                 int point_int = Integer.parseInt(point_string)-100;
                             }
+                            int devices_length = devices.length();
+                            for (int j = 0; j < devices.length(); j++) {
+                                String device = devices.getString(j);
+                                JSONObject devices_object = devices.getJSONObject(j);
+                                int id = devices_object.getInt("id");
+                                String deviceName = devices_object.getString("deviceName");
+                                int type = devices_object.getInt("type");
+                                String macAddress = devices_object.getString("macAddress");
+                                int controlled = devices_object.getInt("controlled");
+                            }
+
 
                             if (startPoint_list.contains(startPoint - 100)) {
                                 Log.i("startPoint_list", startPoint_list.get(0) + "");
@@ -209,7 +227,7 @@ public class Btn1_fragment extends Fragment{
                             int height_room = ((y_max-y_min)/ item_width +1)*(width/4);
                             roomEntry = new RoomEntry(x_min,y_min,width_room,height_room);
 
-                            View view = setLayout(roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight());
+                            View view = setLayout(devices,roomName,roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight());
                             roomEntry_list.add(roomEntry);
                             view.setTag(roomId);
                              room = new Room(view,roomId,roomName,startPoint,points,houseId,devices,layer);
@@ -243,9 +261,6 @@ public class Btn1_fragment extends Fragment{
                 e.printStackTrace();
             }
         }
-
-
-
     }
 
     //回调接口，用于异步返回数据
@@ -265,6 +280,7 @@ public class Btn1_fragment extends Fragment{
     public void initView(){
         WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
         int width =  wm.getDefaultDisplay().getWidth();
+         item_width = width/4;
          height = wm.getDefaultDisplay().getHeight();
         ImageView imageView = (ImageView) roomViewGroup.findViewById(R.id.empty_room_iv1);
         imageView.setLayoutParams(new FrameLayout.LayoutParams(width,width*2));
@@ -272,50 +288,76 @@ public class Btn1_fragment extends Fragment{
 
     }
 
-    View childView;
-    public View setLayout(int x, int y, int width, int height) {
-        View childView1 = LayoutInflater.from(getActivity()).inflate(R.layout.room_content_x1, null);
-        View childView2 = LayoutInflater.from(getActivity()).inflate(R.layout.room_content_x2, null);
-        View childView3 = LayoutInflater.from(getActivity()).inflate(R.layout.room_content_x3, null);
-        View childView4 = LayoutInflater.from(getActivity()).inflate(R.layout.room_content_x4, null);
+    //绘制房间view
+    @SuppressLint("ClickableViewAccessibility")
+    public View setLayout(JSONArray devices, String roomName, int x, int y, int width, int height) {
+        List<Equipment> device_list = new ArrayList<>();
 
-        if(width>270&&width<810){
-            if(height<540){
-                childView1 = childView4;
-            }else{
-                childView1 = childView2;
+        WindowManager wm = (WindowManager) getActivity()
+                .getSystemService(Context.WINDOW_SERVICE);
+         int width1 = wm.getDefaultDisplay().getWidth();
+         int item_width = width1/4;
 
-            }
+        int line;//列
+        View childView = LayoutInflater.from(getActivity()).inflate(R.layout.scene_room_content, null);
+
+        if(width == item_width || width < item_width){
+            line = 2;
+        }else if(width == 2*item_width ||( 3*item_width > width&& width > item_width )){
+            line = 4;
+        }else if( width == 3*item_width || (4*item_width > width && width >3*item_width)){
+            line = 6;
+        }else {
+            line = 8;
         }
-        if(width>810||width==810){
-            if(height<540){
-                childView1 = childView4;
-            }else{
-                childView1 = childView2;
+
+        try {
+            for (int j = 0; j < devices.length(); j++) {
+                String device = devices.getString(j);
+                JSONObject devices_object = devices.getJSONObject(j);
+                int id = devices_object.getInt("id");
+                String deviceName = devices_object.getString("deviceName");
+                int type = devices_object.getInt("type");
+                int house = devices_object.getInt("houseId");
+                String macAddress = devices_object.getString("macAddress");
+                int isUnlock = devices_object.getInt("isUnlock");
+                int controlled = devices_object.getInt("controlled");
+                int masterControllerUserId = devices_object.getInt("masterControllerUserId");
+                Equipment equipment = new Equipment(id,deviceName,type,macAddress,controlled);
+                device_list.add(equipment);
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
+
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(width, height);
-        childView1.setTranslationX(x);
-        childView1.setTranslationY(y);
-        childView1.setLayoutParams(params);
-        roomViewGroup.addView(childView1);
-        saveViewInstance(childView1);
-        TextView textView = (TextView) childView1.findViewById(R.id.roomName);
-//        textView.setOnClickListener(onClickListener);
-        childView=childView1;
-        return childView1;
+        childView.setTranslationX(x);
+        childView.setTranslationY(y);
+        childView.setLayoutParams(params);
+        roomViewGroup.addView(childView);
+        //获取rv控件
+        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), line , GridLayoutManager.VERTICAL ,false);
+        RecyclerView rv = (RecyclerView) childView.findViewById(R.id.scene_device_recyclerView);
+        rv.setLayoutManager(layoutManager);
+        rv.addItemDecoration(new GridSpacingItemDecoration(
+                line, getResources().getDimensionPixelSize(R.dimen.dp_6),true
+        ));
+        rv.setHasFixedSize(true);
+        Scene_deviceAdapter scene_deviceAdapter = new Scene_deviceAdapter(device_list);
+        rv.setAdapter(scene_deviceAdapter);
+        saveViewInstance(roomName,childView);
+        return childView;
     }
 
+    //每个房间里面的空间
+    public void saveViewInstance(String roomName,final View childView){
+        TextView room_Name = (TextView) childView.findViewById(R.id.room_name);
+        ImageView add_equipment = (ImageView) childView.findViewById(R.id.add_equipment);
+        room_Name.setText(roomName);
 
-     TextView roomName;
-    ImageView add_equipment;
-    public void saveViewInstance(final View childView){
-         roomName = (TextView) childView.findViewById(R.id.room_name);
-         add_equipment = (ImageView) childView.findViewById(R.id.add_equipment);
-
-         roomName.setOnClickListener(onClickListener);
         //注册监听事件
-            roomName.setOnClickListener(new View.OnClickListener() {
+            room_Name.setOnClickListener(new View.OnClickListener() {
 
             @SuppressLint("CommitPrefEdits")
             @Override
@@ -328,7 +370,7 @@ public class Btn1_fragment extends Fragment{
                         Intent intent = new Intent(getActivity(),RoomTypesActivity.class);
                         int roomId = room_list.get(i).getRoomId();
                         sp.edit().putInt("roomId",roomId);
-                        sp.edit().apply();
+                        sp.edit().commit();
                         Bundle bundle = new Bundle();
                         bundle.putInt("roomId",roomId);
                         intent.putExtras(bundle);
@@ -342,6 +384,17 @@ public class Btn1_fragment extends Fragment{
         add_equipment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences.Editor sp = getActivity().getSharedPreferences("roomId", Activity.MODE_PRIVATE).edit();
+
+                for (int i = 0; i < room_list.size(); i++) {
+                    if (childView.getTag() == room_list.get(i).getView().getTag()) {
+                        int roomId = room_list.get(i).getRoomId();
+                        sp.putInt("roomId",roomId);
+                        sp.commit();
+                        break;
+                    }
+                }
+
                 Intent intent = new Intent(getActivity(), AddEquipmentActivity.class);
                 startActivity(intent);
             }
@@ -376,6 +429,42 @@ public class Btn1_fragment extends Fragment{
         });
     }
 
+    public void getUnboundDevice() {
+        Log.i("getUnboundDevice","getUnboundDevice");
+        GetUnboundDeviceAsyncTask getUnboundDeviceAsyncTask = new GetUnboundDeviceAsyncTask();
+        getUnboundDeviceAsyncTask.execute();
+    }
+        class GetUnboundDeviceAsyncTask extends AsyncTask<Void,Void,Integer>{
+            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data",MODE_PRIVATE);
+            @Override
+            protected Integer doInBackground(Void... voids) {
+                int code = 0;
+                int houseId = (int) sharedPreferences.getLong("house_id",0);
+                Map<String,Object> map = new HashMap<>();
+                map.put("houseId",houseId);
+                String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/getUnboundDevice",map);
+                String result = HttpUtils.getOkHpptRequest(url);
+                try {
+                    if(!Utils.isEmpty(result)){
+                        JSONObject jsonObject = new JSONObject(result);
+                        code = jsonObject.getInt("code");
+                        if(code == 2000){
+                            JSONArray content=jsonObject.getJSONArray("content");
+                        }
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                return code;
+            }
+
+            @Override
+            protected void onPostExecute(Integer integer) {
+                int code = integer;
+                super.onPostExecute(integer);
+            }
+        }
+
 
     //修改房间类型网络请求方法
     public void ModificationAsyncTask(){
@@ -391,13 +480,14 @@ public class Btn1_fragment extends Fragment{
         protected Integer doInBackground(Void... voids) {
             int code = 0;
             int roomId = sp.getInt("returnRoomId",0);
-            String returnName = sp.getString("returnRoomName","卧室");
+            String roomName = sp.getString("returnRoomName","卧室");
             Map<String,Object> params = new HashMap<>();
-            params.put("returnName",returnName);
+            params.put("roomName",roomName);
             params.put("roomId",roomId);
-            String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/changeRoomType",params);
-            String result = HttpUtils.getOkHpptRequest(url);
             try {
+                String url="http://120.77.36.206:8082/warmer/v1.0/room/changeRoomType?roomId="+roomId+"&roomName="
+                        + URLEncoder.encode(roomName);
+                String result=HttpUtils.getOkHpptRequest(url);
                 if(!Utils.isEmpty(result)){
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");

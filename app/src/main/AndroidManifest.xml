@@ -158,6 +158,10 @@
             android:label=""
             android:theme="@style/AppTheme.NoActionBar"
             />
+        <activity android:name=".activity.RoomContentActivity"
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>

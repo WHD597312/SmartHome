@@ -1,1 +1,1 @@
-include ':app', 'MyOkHttp-master', ':1706listdialog1'
+include ':app', 'MyOkHttp-master'
