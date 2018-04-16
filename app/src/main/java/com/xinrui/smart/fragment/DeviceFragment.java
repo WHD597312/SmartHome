@@ -91,6 +91,7 @@ public class DeviceFragment extends Fragment{
     private AMapLocationClientOption locationOption = null;
     private View view;
     private Unbinder unbinder;
+    public static int running=0;
     /** children items with a key and value list */
     @BindView(R.id.rv_list) RecyclerView rv_list;
 
@@ -250,11 +251,12 @@ public class DeviceFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
+        running=1;
         initJsonData();
         Intent intent=new Intent(getActivity(),MQService.class);
         getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
 
-        IntentFilter intentFilter=new IntentFilter("mqtt");
+        IntentFilter intentFilter=new IntentFilter("DeviceFragment");
         getActivity().registerReceiver(receiver,intentFilter);
 
     }
@@ -816,6 +818,7 @@ public class DeviceFragment extends Fragment{
     public void onDestroy() {
         super.onDestroy();
         destroyLocation();
+        running=0;
         if (connection!=null){
             getActivity().unbindService(connection);
         }

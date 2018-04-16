@@ -87,7 +87,7 @@
             android:layout_centerVertical="true"
             android:layout_toEndOf="@+id/image_temp"
             android:layout_toRightOf="@+id/image_temp"
-            android:text="保温模式"
+            android:text="手动"
             android:textColor="@color/color_gray2"
             android:textSize="@dimen/sp_16"
             android:layout_marginLeft="@dimen/dp_5"

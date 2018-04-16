@@ -63,6 +63,7 @@ public class DeviceChildDaoImpl {
         WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(groupId),DeviceChildDao.Properties.Type.eq(type),DeviceChildDao.Properties.Controlled.notEq(controlled));
         return deviceChildDao.queryBuilder().where(whereCondition).list();
     }
+
     //        return deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.GroupId.eq(groupId))
     public List<DeviceChild> findDeviceType(Long houseId,int type){
         WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(houseId),DeviceChildDao.Properties.Type.eq(type));
@@ -73,6 +74,9 @@ public class DeviceChildDaoImpl {
         List<DeviceChild> children=deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.HouseId.eq(groupId)).list();
         deviceChildren.addAll(children);
         return deviceChildren;
+    }
+    public DeviceChild findDeviceById(long id){
+        return deviceChildDao.load(id);
     }
     public List<DeviceChild> findAllDevice(){
         return deviceChildDao.loadAll();

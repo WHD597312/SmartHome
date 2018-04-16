@@ -35,6 +35,23 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         public final static Property Type = new Property(8, int.class, "type", false, "TYPE");
         public final static Property IsUnlock = new Property(9, int.class, "isUnlock", false, "IS_UNLOCK");
         public final static Property Version = new Property(10, int.class, "version", false, "VERSION");
+        public final static Property RatedPower = new Property(11, int.class, "ratedPower", false, "RATED_POWER");
+        public final static Property MatTemp = new Property(12, String.class, "MatTemp", false, "MAT_TEMP");
+        public final static Property WorkMode = new Property(13, String.class, "workMode", false, "WORK_MODE");
+        public final static Property LockScreen = new Property(14, String.class, "LockScreen", false, "LOCK_SCREEN");
+        public final static Property BackGroundLED = new Property(15, String.class, "BackGroundLED", false, "BACK_GROUND_LED");
+        public final static Property DeviceState = new Property(16, String.class, "deviceState", false, "DEVICE_STATE");
+        public final static Property TempState = new Property(17, String.class, "tempState", false, "TEMP_STATE");
+        public final static Property OutputMod = new Property(18, String.class, "outputMod", false, "OUTPUT_MOD");
+        public final static Property CurTemp = new Property(19, int.class, "curTemp", false, "CUR_TEMP");
+        public final static Property ProtectEnable = new Property(20, String.class, "protectEnable", false, "PROTECT_ENABLE");
+        public final static Property CtrlMode = new Property(21, String.class, "ctrlMode", false, "CTRL_MODE");
+        public final static Property PowerValue = new Property(22, int.class, "powerValue", false, "POWER_VALUE");
+        public final static Property VoltageValue = new Property(23, int.class, "voltageValue", false, "VOLTAGE_VALUE");
+        public final static Property CurrentValue = new Property(24, int.class, "currentValue", false, "CURRENT_VALUE");
+        public final static Property MachineFall = new Property(25, String.class, "machineFall", false, "MACHINE_FALL");
+        public final static Property ProtectSetTemp = new Property(26, int.class, "protectSetTemp", false, "PROTECT_SET_TEMP");
+        public final static Property ProtectProTemp = new Property(27, int.class, "protectProTemp", false, "PROTECT_PRO_TEMP");
     }
 
 
@@ -60,7 +77,24 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
                 "\"CONTROLLED\" INTEGER NOT NULL ," + // 7: controlled
                 "\"TYPE\" INTEGER NOT NULL ," + // 8: type
                 "\"IS_UNLOCK\" INTEGER NOT NULL ," + // 9: isUnlock
-                "\"VERSION\" INTEGER NOT NULL );"); // 10: version
+                "\"VERSION\" INTEGER NOT NULL ," + // 10: version
+                "\"RATED_POWER\" INTEGER NOT NULL ," + // 11: ratedPower
+                "\"MAT_TEMP\" TEXT," + // 12: MatTemp
+                "\"WORK_MODE\" TEXT," + // 13: workMode
+                "\"LOCK_SCREEN\" TEXT," + // 14: LockScreen
+                "\"BACK_GROUND_LED\" TEXT," + // 15: BackGroundLED
+                "\"DEVICE_STATE\" TEXT," + // 16: deviceState
+                "\"TEMP_STATE\" TEXT," + // 17: tempState
+                "\"OUTPUT_MOD\" TEXT," + // 18: outputMod
+                "\"CUR_TEMP\" INTEGER NOT NULL ," + // 19: curTemp
+                "\"PROTECT_ENABLE\" TEXT," + // 20: protectEnable
+                "\"CTRL_MODE\" TEXT," + // 21: ctrlMode
+                "\"POWER_VALUE\" INTEGER NOT NULL ," + // 22: powerValue
+                "\"VOLTAGE_VALUE\" INTEGER NOT NULL ," + // 23: voltageValue
+                "\"CURRENT_VALUE\" INTEGER NOT NULL ," + // 24: currentValue
+                "\"MACHINE_FALL\" TEXT," + // 25: machineFall
+                "\"PROTECT_SET_TEMP\" INTEGER NOT NULL ," + // 26: protectSetTemp
+                "\"PROTECT_PRO_TEMP\" INTEGER NOT NULL );"); // 27: protectProTemp
     }
 
     /** Drops the underlying database table. */
@@ -99,6 +133,63 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         stmt.bindLong(9, entity.getType());
         stmt.bindLong(10, entity.getIsUnlock());
         stmt.bindLong(11, entity.getVersion());
+        stmt.bindLong(12, entity.getRatedPower());
+ 
+        String MatTemp = entity.getMatTemp();
+        if (MatTemp != null) {
+            stmt.bindString(13, MatTemp);
+        }
+ 
+        String workMode = entity.getWorkMode();
+        if (workMode != null) {
+            stmt.bindString(14, workMode);
+        }
+ 
+        String LockScreen = entity.getLockScreen();
+        if (LockScreen != null) {
+            stmt.bindString(15, LockScreen);
+        }
+ 
+        String BackGroundLED = entity.getBackGroundLED();
+        if (BackGroundLED != null) {
+            stmt.bindString(16, BackGroundLED);
+        }
+ 
+        String deviceState = entity.getDeviceState();
+        if (deviceState != null) {
+            stmt.bindString(17, deviceState);
+        }
+ 
+        String tempState = entity.getTempState();
+        if (tempState != null) {
+            stmt.bindString(18, tempState);
+        }
+ 
+        String outputMod = entity.getOutputMod();
+        if (outputMod != null) {
+            stmt.bindString(19, outputMod);
+        }
+        stmt.bindLong(20, entity.getCurTemp());
+ 
+        String protectEnable = entity.getProtectEnable();
+        if (protectEnable != null) {
+            stmt.bindString(21, protectEnable);
+        }
+ 
+        String ctrlMode = entity.getCtrlMode();
+        if (ctrlMode != null) {
+            stmt.bindString(22, ctrlMode);
+        }
+        stmt.bindLong(23, entity.getPowerValue());
+        stmt.bindLong(24, entity.getVoltageValue());
+        stmt.bindLong(25, entity.getCurrentValue());
+ 
+        String machineFall = entity.getMachineFall();
+        if (machineFall != null) {
+            stmt.bindString(26, machineFall);
+        }
+        stmt.bindLong(27, entity.getProtectSetTemp());
+        stmt.bindLong(28, entity.getProtectProTemp());
     }
 
     @Override
@@ -131,6 +222,63 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         stmt.bindLong(9, entity.getType());
         stmt.bindLong(10, entity.getIsUnlock());
         stmt.bindLong(11, entity.getVersion());
+        stmt.bindLong(12, entity.getRatedPower());
+ 
+        String MatTemp = entity.getMatTemp();
+        if (MatTemp != null) {
+            stmt.bindString(13, MatTemp);
+        }
+ 
+        String workMode = entity.getWorkMode();
+        if (workMode != null) {
+            stmt.bindString(14, workMode);
+        }
+ 
+        String LockScreen = entity.getLockScreen();
+        if (LockScreen != null) {
+            stmt.bindString(15, LockScreen);
+        }
+ 
+        String BackGroundLED = entity.getBackGroundLED();
+        if (BackGroundLED != null) {
+            stmt.bindString(16, BackGroundLED);
+        }
+ 
+        String deviceState = entity.getDeviceState();
+        if (deviceState != null) {
+            stmt.bindString(17, deviceState);
+        }
+ 
+        String tempState = entity.getTempState();
+        if (tempState != null) {
+            stmt.bindString(18, tempState);
+        }
+ 
+        String outputMod = entity.getOutputMod();
+        if (outputMod != null) {
+            stmt.bindString(19, outputMod);
+        }
+        stmt.bindLong(20, entity.getCurTemp());
+ 
+        String protectEnable = entity.getProtectEnable();
+        if (protectEnable != null) {
+            stmt.bindString(21, protectEnable);
+        }
+ 
+        String ctrlMode = entity.getCtrlMode();
+        if (ctrlMode != null) {
+            stmt.bindString(22, ctrlMode);
+        }
+        stmt.bindLong(23, entity.getPowerValue());
+        stmt.bindLong(24, entity.getVoltageValue());
+        stmt.bindLong(25, entity.getCurrentValue());
+ 
+        String machineFall = entity.getMachineFall();
+        if (machineFall != null) {
+            stmt.bindString(26, machineFall);
+        }
+        stmt.bindLong(27, entity.getProtectSetTemp());
+        stmt.bindLong(28, entity.getProtectProTemp());
     }
 
     @Override
@@ -151,7 +299,24 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
             cursor.getInt(offset + 7), // controlled
             cursor.getInt(offset + 8), // type
             cursor.getInt(offset + 9), // isUnlock
-            cursor.getInt(offset + 10) // version
+            cursor.getInt(offset + 10), // version
+            cursor.getInt(offset + 11), // ratedPower
+            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // MatTemp
+            cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // workMode
+            cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // LockScreen
+            cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15), // BackGroundLED
+            cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16), // deviceState
+            cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17), // tempState
+            cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18), // outputMod
+            cursor.getInt(offset + 19), // curTemp
+            cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20), // protectEnable
+            cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21), // ctrlMode
+            cursor.getInt(offset + 22), // powerValue
+            cursor.getInt(offset + 23), // voltageValue
+            cursor.getInt(offset + 24), // currentValue
+            cursor.isNull(offset + 25) ? null : cursor.getString(offset + 25), // machineFall
+            cursor.getInt(offset + 26), // protectSetTemp
+            cursor.getInt(offset + 27) // protectProTemp
         );
         return entity;
     }
@@ -169,6 +334,23 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         entity.setType(cursor.getInt(offset + 8));
         entity.setIsUnlock(cursor.getInt(offset + 9));
         entity.setVersion(cursor.getInt(offset + 10));
+        entity.setRatedPower(cursor.getInt(offset + 11));
+        entity.setMatTemp(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
+        entity.setWorkMode(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
+        entity.setLockScreen(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
+        entity.setBackGroundLED(cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15));
+        entity.setDeviceState(cursor.isNull(offset + 16) ? null : cursor.getString(offset + 16));
+        entity.setTempState(cursor.isNull(offset + 17) ? null : cursor.getString(offset + 17));
+        entity.setOutputMod(cursor.isNull(offset + 18) ? null : cursor.getString(offset + 18));
+        entity.setCurTemp(cursor.getInt(offset + 19));
+        entity.setProtectEnable(cursor.isNull(offset + 20) ? null : cursor.getString(offset + 20));
+        entity.setCtrlMode(cursor.isNull(offset + 21) ? null : cursor.getString(offset + 21));
+        entity.setPowerValue(cursor.getInt(offset + 22));
+        entity.setVoltageValue(cursor.getInt(offset + 23));
+        entity.setCurrentValue(cursor.getInt(offset + 24));
+        entity.setMachineFall(cursor.isNull(offset + 25) ? null : cursor.getString(offset + 25));
+        entity.setProtectSetTemp(cursor.getInt(offset + 26));
+        entity.setProtectProTemp(cursor.getInt(offset + 27));
      }
     
     @Override

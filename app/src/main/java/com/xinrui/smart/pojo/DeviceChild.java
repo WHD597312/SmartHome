@@ -23,6 +23,23 @@ public class DeviceChild {
     private int type;
     private int isUnlock;
     private int version;
+    private int ratedPower;//额定功率
+    private String MatTemp;/**手动/定时模式下的温度*/
+    private String workMode;/**manual:手动模式	timer:定时模式*/
+    private String LockScreen;/** open:上锁  close:解锁*/
+    private String BackGroundLED;/**open:照明  close:节能*/
+    private String deviceState;/**open:开机  close：关机*/
+    private String tempState;/**nor:正常 err:异常*/
+    private String outputMod;
+    private int curTemp;
+    private String protectEnable;
+    private String ctrlMode;
+    private int powerValue;
+    private int voltageValue;
+    private int currentValue;
+    private String machineFall;
+    private int protectSetTemp;
+    private int protectProTemp;
 
 
     public DeviceChild() {
@@ -137,10 +154,150 @@ public class DeviceChild {
         this.id = id;
     }
 
-    @Generated(hash = 426386247)
+    public int getRatedPower() {
+        return this.ratedPower;
+    }
+
+    public void setRatedPower(int ratedPower) {
+        this.ratedPower = ratedPower;
+    }
+
+    public int getProtectProTemp() {
+        return this.protectProTemp;
+    }
+
+    public void setProtectProTemp(int protectProTemp) {
+        this.protectProTemp = protectProTemp;
+    }
+
+    public int getProtectSetTemp() {
+        return this.protectSetTemp;
+    }
+
+    public void setProtectSetTemp(int protectSetTemp) {
+        this.protectSetTemp = protectSetTemp;
+    }
+
+    public String getMachineFall() {
+        return this.machineFall;
+    }
+
+    public void setMachineFall(String machineFall) {
+        this.machineFall = machineFall;
+    }
+
+    public int getCurrentValue() {
+        return this.currentValue;
+    }
+
+    public void setCurrentValue(int currentValue) {
+        this.currentValue = currentValue;
+    }
+
+    public int getVoltageValue() {
+        return this.voltageValue;
+    }
+
+    public void setVoltageValue(int voltageValue) {
+        this.voltageValue = voltageValue;
+    }
+
+    public int getPowerValue() {
+        return this.powerValue;
+    }
+
+    public void setPowerValue(int powerValue) {
+        this.powerValue = powerValue;
+    }
+
+    public String getCtrlMode() {
+        return this.ctrlMode;
+    }
+
+    public void setCtrlMode(String ctrlMode) {
+        this.ctrlMode = ctrlMode;
+    }
+
+    public String getProtectEnable() {
+        return this.protectEnable;
+    }
+
+    public void setProtectEnable(String protectEnable) {
+        this.protectEnable = protectEnable;
+    }
+
+    public int getCurTemp() {
+        return this.curTemp;
+    }
+
+    public void setCurTemp(int curTemp) {
+        this.curTemp = curTemp;
+    }
+
+    public String getOutputMod() {
+        return this.outputMod;
+    }
+
+    public void setOutputMod(String outputMod) {
+        this.outputMod = outputMod;
+    }
+
+    public String getTempState() {
+        return this.tempState;
+    }
+
+    public void setTempState(String tempState) {
+        this.tempState = tempState;
+    }
+
+    public String getDeviceState() {
+        return this.deviceState;
+    }
+
+    public void setDeviceState(String deviceState) {
+        this.deviceState = deviceState;
+    }
+
+    public String getBackGroundLED() {
+        return this.BackGroundLED;
+    }
+
+    public void setBackGroundLED(String BackGroundLED) {
+        this.BackGroundLED = BackGroundLED;
+    }
+
+    public String getLockScreen() {
+        return this.LockScreen;
+    }
+
+    public void setLockScreen(String LockScreen) {
+        this.LockScreen = LockScreen;
+    }
+
+    public String getWorkMode() {
+        return this.workMode;
+    }
+
+    public void setWorkMode(String workMode) {
+        this.workMode = workMode;
+    }
+
+    public String getMatTemp() {
+        return this.MatTemp;
+    }
+
+    public void setMatTemp(String MatTemp) {
+        this.MatTemp = MatTemp;
+    }
+
+    @Generated(hash = 1714108533)
     public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
             Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
-            int version) {
+            int version, int ratedPower, String MatTemp, String workMode, String LockScreen,
+            String BackGroundLED, String deviceState, String tempState, String outputMod,
+            int curTemp, String protectEnable, String ctrlMode, int powerValue,
+            int voltageValue, int currentValue, String machineFall, int protectSetTemp,
+            int protectProTemp) {
         this.id = id;
         this.deviceName = deviceName;
         this.macAddress = macAddress;
@@ -152,9 +309,22 @@ public class DeviceChild {
         this.type = type;
         this.isUnlock = isUnlock;
         this.version = version;
+        this.ratedPower = ratedPower;
+        this.MatTemp = MatTemp;
+        this.workMode = workMode;
+        this.LockScreen = LockScreen;
+        this.BackGroundLED = BackGroundLED;
+        this.deviceState = deviceState;
+        this.tempState = tempState;
+        this.outputMod = outputMod;
+        this.curTemp = curTemp;
+        this.protectEnable = protectEnable;
+        this.ctrlMode = ctrlMode;
+        this.powerValue = powerValue;
+        this.voltageValue = voltageValue;
+        this.currentValue = currentValue;
+        this.machineFall = machineFall;
+        this.protectSetTemp = protectSetTemp;
+        this.protectProTemp = protectProTemp;
     }
-
-   
-
-
 }

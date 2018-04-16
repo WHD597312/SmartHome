@@ -318,8 +318,8 @@ public class MainActivity extends AppCompatActivity {
                     code = jsonObject.getInt("code");
                     JSONObject content = jsonObject.getJSONObject("content");
                     if (code == 2000) {
-                        deviceGroupDao.deleteAll();
                         deviceChildDao.deleteAll();
+                        deviceGroupDao.deleteAll();
                         JSONArray houses = content.getJSONArray("houses");
 
                         for (int i = 0; i < houses.length(); i++) {
