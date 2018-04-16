@@ -1,44 +1,95 @@
 package com.xinrui.smart.pojo;
 
+import android.graphics.drawable.Drawable;
+
+import java.io.Serializable;
+
 /**
  * Created by win7 on 2018/3/29.
  */
 
-public class Equipment {
-    private String equipment_Name;
-    private int equipment_image;
-    private boolean ischecked;
+public class Equipment implements Serializable{
+    private int id;
+    private String deviceName;
+    private int type;
+    private int houseId;
+    private int masterControllerUserId;
+    private int isUnlock;
+    public String macAddress;
+    public int controlled;
+    private boolean isChecked;
 
-    public Equipment() {
+    public Equipment(int id, String deviceName, int type, String macAddress, int controlled) {
+        this.id = id;
+        this.deviceName = deviceName;
+        this.type = type;
+        this.macAddress = macAddress;
+        this.controlled = controlled;
     }
 
-    public Equipment(String equipment_Name, int equipment_image, boolean ischecked) {
-        this.equipment_Name = equipment_Name;
-        this.equipment_image = equipment_image;
-        this.ischecked = ischecked;
+    public Equipment(int id, String deviceName, int type, int houseId, int masterControllerUserId, int isUnlock, boolean isChecked) {
+        this.id = id;
+        this.deviceName = deviceName;
+        this.type = type;
+        this.houseId = houseId;
+        this.masterControllerUserId = masterControllerUserId;
+        this.isUnlock = isUnlock;
+        this.isChecked = isChecked;
     }
 
-    public String getEquipment_Name() {
-        return equipment_Name;
+    public int getId() {
+        return id;
     }
 
-    public void setEquipment_Name(String equipment_Name) {
-        this.equipment_Name = equipment_Name;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public int getEquipment_image() {
-        return equipment_image;
+    public String getDeviceName() {
+        return deviceName;
     }
 
-    public void setEquipment_image(int equipment_image) {
-        this.equipment_image = equipment_image;
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
     }
 
-    public boolean isIschecked() {
-        return ischecked;
+    public int getType() {
+        return type;
     }
 
-    public void setIschecked(boolean ischecked) {
-        this.ischecked = ischecked;
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public int getHouseId() {
+        return houseId;
+    }
+
+    public void setHouseId(int houseId) {
+        this.houseId = houseId;
+    }
+
+    public int getMasterControllerUserId() {
+        return masterControllerUserId;
+    }
+
+    public void setMasterControllerUserId(int masterControllerUserId) {
+        this.masterControllerUserId = masterControllerUserId;
+    }
+
+    public int getIsUnlock() {
+        return isUnlock;
+    }
+
+    public void setIsUnlock(int isUnlock) {
+        this.isUnlock = isUnlock;
+    }
+
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
     }
 }

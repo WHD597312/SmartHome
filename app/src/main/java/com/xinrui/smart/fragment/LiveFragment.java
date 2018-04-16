@@ -36,7 +36,6 @@ import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.CustomRoomActivity;
 import com.xinrui.smart.activity.MainActivity;
-import com.xinrui.smart.adapter.DragAdapter;
 import com.xinrui.smart.adapter.FragmentViewPagerAdapter;
 import com.xinrui.smart.adapter.Switch_houseAdapter;
 import com.xinrui.smart.pojo.DeviceGroup;
@@ -167,15 +166,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
         fragmentTransaction = fragmentManager.beginTransaction();
         getActivity().getSupportFragmentManager().findFragmentByTag("");
         initView();
-
-
-//        for (int i = 0; i < 4; i++) {
-//            HashMap<String, Object> itemHashMap = new HashMap<>();
-//            itemHashMap.put("item_image", R.drawable.com_tencent_open_notice_msg_icon_big);
-//            itemHashMap.put("item_text", "房间" + Integer.toString(i));
-//            dataSourceList.add(itemHashMap);
-//        }
-//        final DragAdapter mDragAdapter = new DragAdapter(getActivity(), dataSourceList);
     }
 
     private void initData() {
@@ -214,10 +204,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
         if(isFirstIn){
             showDialog();
         }
-
-
     }
-
 
     //初始化viewpage
     public void saveViewPage(){
@@ -499,39 +486,46 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
                 final List<Integer> roomId_list = new ArrayList<>();
                 if (current_key == 1) {
                     Btn1_fragment btn1_fragment = (Btn1_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
+                    if(btn1_fragment.getListViews().isEmpty()||btn1_fragment.getListViews() == null){
+
+                    }else{
                     for (int i = 0; i < btn1_fragment.getListViews().size(); i++) {
                         View childView = btn1_fragment.getListViews().get(i);
-                        int startPoint = (int) (childView.getX()/item_width)+(int) (childView.getY()/item_width)*4;
+                        int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
                         startPoint_list.add(startPoint);
-                        Log.i("startPoint","childView.getX()="+childView.getX()+";"+"childView.getY()="+childView.getY()+";"+"startPoint="+startPoint);
+                        Log.i("startPoint", "childView.getX()=" + childView.getX() + ";" + "childView.getY()=" + childView.getY() + ";" + "startPoint=" + startPoint);
                         FrameLayout roomViewGroup = (FrameLayout) btn1_fragment.getView().findViewById(R.id.fl);
                         roomViewGroup.removeView(childView);
 
-                        RoomEntry roomEntry = new RoomEntry((int) childView.getX(),(int) childView.getY(),childView.getWidth(),childView.getHeight());
+                        RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
                         for (int j = 0; j < roomEntryDao.findAllByGroup(1).size(); j++) {
-                            if((roomEntry.getX()==roomEntryDao.findAllByGroup(1).get(j).getX())&&(roomEntry.getY()==roomEntryDao.findAllByGroup(1).get(j).getY())&&(roomEntry.getWidth()==roomEntryDao.findAllByGroup(1).get(j).getWidth())&&(roomEntry.getHeight()==roomEntryDao.findAllByGroup(1).get(j).getHeight())){
+                            if ((roomEntry.getX() == roomEntryDao.findAllByGroup(1).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(1).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(1).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(1).get(j).getHeight())) {
                                 roomEntryDao.delete(roomEntryDao.findAllByGroup(1).get(j));
                             }
                         }
-
+                        }
                     }
                 } else if (current_key == 2) {
                     Log.i("uuu2","dsf");
                     Btn2_fragment btn2_fragment = (Btn2_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
                     for (int i = 0; i < btn2_fragment.getListViews().size(); i++) {
-                        View childView = btn2_fragment.getListViews().get(i);
-                        int startPoint = (int) (childView.getX()/item_width)+(int) (childView.getY()/item_width)*4;
-                        startPoint_list.add(startPoint);
-                        Log.i("btn2_fragment",btn2_fragment.getListViews().size()+"");
-                        FrameLayout roomViewGroup = (FrameLayout) btn2_fragment.getView().findViewById(R.id.f2);
-                        roomViewGroup.removeView(childView);
+                        if (btn2_fragment.getListViews().isEmpty() || btn2_fragment.getListViews() == null) {
+
+                        } else {
+                            View childView = btn2_fragment.getListViews().get(i);
+                            int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
+                            startPoint_list.add(startPoint);
+                            Log.i("btn2_fragment", btn2_fragment.getListViews().size() + "");
+                            FrameLayout roomViewGroup = (FrameLayout) btn2_fragment.getView().findViewById(R.id.f2);
+                            roomViewGroup.removeView(childView);
 //                        RoomEntry roomEntry_list = new RoomEntry((int) childView.getX(),(int) childView.getY(),childView.getWidth(),childView.getHeight());
 //                        roomEntryDao.delete(roomEntry_list);
 
-                        RoomEntry roomEntry = new RoomEntry((int) childView.getX(),(int) childView.getY(),childView.getWidth(),childView.getHeight());
-                        for (int j = 0; j < roomEntryDao.findAllByGroup(2).size(); j++) {
-                            if((roomEntry.getX()==roomEntryDao.findAllByGroup(2).get(j).getX())&&(roomEntry.getY()==roomEntryDao.findAllByGroup(2).get(j).getY())&&(roomEntry.getWidth()==roomEntryDao.findAllByGroup(2).get(j).getWidth())&&(roomEntry.getHeight()==roomEntryDao.findAllByGroup(2).get(j).getHeight())){
-                                roomEntryDao.delete(roomEntryDao.findAllByGroup(2).get(j));
+                            RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
+                            for (int j = 0; j < roomEntryDao.findAllByGroup(2).size(); j++) {
+                                if ((roomEntry.getX() == roomEntryDao.findAllByGroup(2).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(2).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(2).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(2).get(j).getHeight())) {
+                                    roomEntryDao.delete(roomEntryDao.findAllByGroup(2).get(j));
+                                }
                             }
                         }
                     }
@@ -539,40 +533,47 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
                     Log.i("uuu3","dsf");
                     Btn3_fragment btn3_fragment = (Btn3_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
                     for (int i = 0; i < btn3_fragment.getListViews().size(); i++) {
-                        View childView = btn3_fragment.getListViews().get(i);
-                        int startPoint = (int) (childView.getX()/item_width)+(int) (childView.getY()/item_width)*4;
-                        startPoint_list.add(startPoint);
-                        FrameLayout roomViewGroup = (FrameLayout) btn3_fragment.getView().findViewById(R.id.f3);
-                        roomViewGroup.removeView(childView);
-                        Log.i("uuu33","dsf"+";"+roomEntryDao.findAllByGroup(3).size());
-                        RoomEntry roomEntry = new RoomEntry((int) childView.getX(),(int) childView.getY(),childView.getWidth(),childView.getHeight());
-                        for (int j = 0; j < roomEntryDao.findAllByGroup(3).size(); j++) {
-                            if((roomEntry.getX()==roomEntryDao.findAllByGroup(3).get(j).getX())&&(roomEntry.getY()==roomEntryDao.findAllByGroup(3).get(j).getY())&&(roomEntry.getWidth()==roomEntryDao.findAllByGroup(3).get(j).getWidth())&&(roomEntry.getHeight()==roomEntryDao.findAllByGroup(3).get(j).getHeight())){
-                                roomEntryDao.delete(roomEntryDao.findAllByGroup(3).get(j));
-                                Log.i("uuu333","dsf");
+                        if (btn3_fragment.getListViews().isEmpty() || btn3_fragment.getListViews() == null) {
+
+                        } else {
+                            View childView = btn3_fragment.getListViews().get(i);
+                            int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
+                            startPoint_list.add(startPoint);
+                            FrameLayout roomViewGroup = (FrameLayout) btn3_fragment.getView().findViewById(R.id.f3);
+                            roomViewGroup.removeView(childView);
+                            Log.i("uuu33", "dsf" + ";" + roomEntryDao.findAllByGroup(3).size());
+                            RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
+                            for (int j = 0; j < roomEntryDao.findAllByGroup(3).size(); j++) {
+                                if ((roomEntry.getX() == roomEntryDao.findAllByGroup(3).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(3).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(3).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(3).get(j).getHeight())) {
+                                    roomEntryDao.delete(roomEntryDao.findAllByGroup(3).get(j));
+                                    Log.i("uuu333", "dsf");
+                                }
                             }
                         }
                     }
                 } else if (current_key == 4) {
-                    Log.i("uuu4","dsf");
+                    Log.i("uuu4", "dsf");
                     Btn4_fragment btn4_fragment = (Btn4_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
                     for (int i = 0; i < btn4_fragment.getListViews().size(); i++) {
-                        View childView = btn4_fragment.getListViews().get(i);
-                        int startPoint = (int) (childView.getX()/item_width)+(int) (childView.getY()/item_width)*4;
-                        startPoint_list.add(startPoint);
-                        FrameLayout roomViewGroup = (FrameLayout) btn4_fragment.getView().findViewById(R.id.f4);
-                        roomViewGroup.removeView(childView);
+                        if (btn4_fragment.getListViews().isEmpty() || btn4_fragment.getListViews() == null) {
 
-                        RoomEntry roomEntry = new RoomEntry((int) childView.getX(),(int) childView.getY(),childView.getWidth(),childView.getHeight());
-                        for (int j = 0; j < roomEntryDao.findAllByGroup(4).size(); j++) {
-                            if((roomEntry.getX()==roomEntryDao.findAllByGroup(4).get(j).getX())&&(roomEntry.getY()==roomEntryDao.findAllByGroup(4).get(j).getY())&&(roomEntry.getWidth()==roomEntryDao.findAllByGroup(4).get(j).getWidth())&&(roomEntry.getHeight()==roomEntryDao.findAllByGroup(4).get(j).getHeight())){
-                                roomEntryDao.delete(roomEntryDao.findAllByGroup(4).get(j));
+                        } else {
+                            View childView = btn4_fragment.getListViews().get(i);
+                            int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
+                            startPoint_list.add(startPoint);
+                            FrameLayout roomViewGroup = (FrameLayout) btn4_fragment.getView().findViewById(R.id.f4);
+                            roomViewGroup.removeView(childView);
+
+                            RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
+                            for (int j = 0; j < roomEntryDao.findAllByGroup(4).size(); j++) {
+                                if ((roomEntry.getX() == roomEntryDao.findAllByGroup(4).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(4).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(4).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(4).get(j).getHeight())) {
+                                    roomEntryDao.delete(roomEntryDao.findAllByGroup(4).get(j));
+                                }
                             }
                         }
                     }
                 }
-                Log.i("startPoint_list",startPoint_list.get(0)+"");
-                Handler handler = new Handler(){
+                @SuppressLint("HandlerLeak") Handler handler = new Handler(){
                     @Override
                     public void handleMessage(Message msg) {
                         switch (msg.what) {
@@ -591,7 +592,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
                                                 int roomId=object.getInt("roomId");
                                                 int startPoint=object.getInt("startPoint");
                                                 if(startPoint_list.contains(startPoint-100)){
-                                                    Log.i("startPoint_list",startPoint_list.get(0)+"");
                                                     roomId_list.add(roomId);
                                                 }
                                             }
@@ -603,7 +603,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener{
                                     JSONArray jsonArray = new JSONArray();
                                     for (int i = 0; i < roomId_list.size(); i++) {
                                         roomId_list.get(i);
-                                        Log.i("roomId_list.get(i)",roomId_list.get(i)+"");
                                         jsonArray.put(roomId_list.get(i));
                                     }
 

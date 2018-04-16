@@ -155,17 +155,29 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
         Intent intent = getIntent();
+        Bundle bundle=intent.getExtras();
         String mainControl = intent.getStringExtra("mainControl");
         DeviceChildDaoImpl deviceChildDao = new DeviceChildDaoImpl(this);
 
         fragmentPreferences = getSharedPreferences("fragment", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        if (Utils.isEmpty(mainControl)) {
+        if (Utils.isEmpty(mainControl) &&bundle==null) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
             new LoadDeviceAsync().execute();
         } else {
             fragmentPreferences.edit().putString("fragment", "2").commit();
 
+        }
+
+        if (bundle!=null){
+            String Activity_return=bundle.getString("Activity_return");
+            String return_homepage=bundle.getString("return_homepage");
+            if (!Utils.isEmpty(Activity_return)){
+                fragmentPreferences.edit().putString("fragment", "3").commit();
+            }else if(!Utils.isEmpty(return_homepage)){
+                fragmentPreferences.edit().putString("fragment", "1").commit();
+
+            }
         }
 
         String fragment = fragmentPreferences.getString("fragment", "");

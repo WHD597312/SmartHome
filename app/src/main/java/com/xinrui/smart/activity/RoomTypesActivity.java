@@ -125,23 +125,26 @@ public class RoomTypesActivity extends Activity {
         SharedPreferences sharedPreferences =  this.getSharedPreferences("roomType",MODE_PRIVATE);
         String returnName = sharedPreferences.getString("return","卧室");
 
+        //得到从实景页面获取到的roomId
         Bundle b = getIntent().getExtras();
         int retutnRoomId = b.getInt("roomId");
+
+        //回退到MainActivity判断是哪个fragment，并切换回之前的fragment
         Intent intent = new Intent(RoomTypesActivity.this,MainActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString("returnName", returnName);
-        bundle.putInt("returnRoomId",retutnRoomId);
+        bundle.putString("Activity_return", "Activity_return");
         intent.putExtras(bundle);
-//        SharedPreferences fragment = this.getSharedPreferences("fragment", MODE_PRIVATE);
-//        fragment.edit().putString("fragment","3");
-//        fragment.edit().commit();
+
+        //把当前页面的roomName和从实景页面获取的roomId返回给实景页面
         SharedPreferences sp = this.getSharedPreferences("room_postion", MODE_PRIVATE);
         SharedPreferences.Editor editor=sp.edit();
         editor.putString("returnRoomName",returnName);
         editor.putInt("returnRoomId",retutnRoomId);
         editor.commit();
 
-        setResult(2, intent);//返回值调用函数，其中2为resultCode，返回值的标志
-        finish();//传值结束
+
+        startActivity(intent);
+//        setResult(2, intent);//返回值调用函数，其中2为resultCode，返回值的标志
+//        finish();//传值结束
     }
 }

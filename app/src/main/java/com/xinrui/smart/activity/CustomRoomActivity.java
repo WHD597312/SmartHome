@@ -4,69 +4,41 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.database.dao.daoimpl.RoomEntryDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.CustomAdapter;
-import com.xinrui.smart.fragment.Btn4_fragment;
-import com.xinrui.smart.fragment.LiveFragment;
-import com.xinrui.smart.pojo.DeviceGroup;
-import com.xinrui.smart.pojo.MergeRoom;
 import com.xinrui.smart.pojo.Room;
 import com.xinrui.smart.pojo.RoomEntry;
 import com.xinrui.smart.util.GetUrl;
-import com.xinrui.smart.util.ListDataSave;
-import com.xinrui.smart.util.MessageEvent;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.view_custom.MyGridView;
-
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import butterknife.BindView;
@@ -74,14 +46,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnItemClick;
 import butterknife.OnItemLongClick;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /**
  * Created by win7 on 2018/3/12.
@@ -124,6 +88,8 @@ public class CustomRoomActivity extends AppCompatActivity {
     GetUrl getUrl = new GetUrl();
     Vibrator vibrator;
     DeviceGroupDaoImpl deviceGroupDao;
+    @BindView(R.id.homepage)
+    ImageButton homepage;
 
     private Gson gson;
     private GsonBuilder builder;
@@ -160,10 +126,6 @@ public class CustomRoomActivity extends AppCompatActivity {
     int colors[] = {R.drawable.merge_room, R.drawable.merge_room1, R.drawable.merge_room2, R.drawable.merge_room3, R.drawable.merge_room4,
             R.drawable.merge_room5, R.drawable.merge_room6, R.drawable.merge_room7};
 
-//    SimpleDateFormat formatter = new SimpleDateFormat("yyyy年MM月dd日   HH:mm:ss");
-//    Date curDate = new Date(System.currentTimeMillis());
-//    //获取当前时间
-//    String str = formatter.format(curDate);
 
     /**
      * 点击gridview一个item变色，再次点击还原
@@ -326,11 +288,22 @@ public class CustomRoomActivity extends AppCompatActivity {
         }
     }
 
-    @OnClick({R.id.return_button, R.id.merge, R.id.resolution, R.id.sure})
+    @OnClick({R.id.return_button, R.id.merge, R.id.resolution, R.id.sure,R.id.homepage})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.homepage:
+                Intent intent1 = new Intent(this,MainActivity.class);
+                Bundle bundle1 = new Bundle();
+                bundle1.putString("return_homepage", "return_homepage");
+                intent1.putExtras(bundle1);
+                startActivity(intent1);
+                break;
             case R.id.return_button:
-                finish();
+                Intent intent = new Intent(this, MainActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("Activity_return", "Activity_return");
+                intent.putExtras(bundle);
+                startActivity(intent);
                 break;
             case R.id.merge:
                 if (list_color.size() == 0) {
@@ -389,91 +362,95 @@ public class CustomRoomActivity extends AppCompatActivity {
                 break;
             case R.id.sure:
                 //获取item宽
+
                 WindowManager wm = (WindowManager) this
                         .getSystemService(Context.WINDOW_SERVICE);
-                int width = wm.getDefaultDisplay().getWidth()/4;
-//
-//                List<RoomEntry> list = roomEntryDao.findAllByGroup(current_key);
-//                roomEntryDao.deleteAll(list);
-//
-//                roomEntryDao.findAllByGroup(current_key);
+                int width = wm.getDefaultDisplay().getWidth() / 4;
 
-                if ( list_resolution!= null) {
+                if (list_resolution != null) {
                     JSONArray jsonArray = new JSONArray();
-                    SharedPreferences sharedPreferences = this.getSharedPreferences("data",0);
-                    long house_id = sharedPreferences.getLong("house_id",0);
-//                    List<DeviceGroup> DeviceGroup = deviceGroupDao.findAllDevices();
-                        for (int i = 0; i < list_resolution.size(); i++) {
-                        int startPoint = Collections.min(list_resolution.get(i))+100;
+                    SharedPreferences sharedPreferences = this.getSharedPreferences("data", 0);
+                    long house_id = sharedPreferences.getLong("house_id", 0);
+                    for (int i = 0; i < list_resolution.size(); i++) {
+                        int startPoint = Collections.min(list_resolution.get(i)) + 100;
 
-                            try {
-                                JSONObject jsonObject = new JSONObject();
+                        try {
+                            JSONObject jsonObject = new JSONObject();
 
-                                jsonObject.put("houseId", house_id);
-                                jsonObject.put("layer", current_key);
-                                jsonObject.put("color", getRandomColor());
-                                jsonObject.put("startPoint", startPoint);
-
-
-                                JSONArray array = new JSONArray();
-                                for (int j = 0; j < list_resolution.get(i).size(); j++) {
-                                    array.put(list_resolution.get(i).get(j) + 100);
-                                }
-                                jsonObject.put("points", array);
-                                //获取行列
-
-                                View view_min = customRooms.getChildAt(Collections.min(list_resolution.get(i)));
-                                View view_max = customRooms.getChildAt(Collections.max(list_resolution.get(i)));
-                                int x = view_min.getLeft();
-                                int y = view_min.getTop();
-                                int columns = (view_max.getRight() - view_min.getLeft()) / width;
-                                int rows = (view_max.getBottom() - view_min.getTop()) / width;
+                            jsonObject.put("houseId", house_id);
+                            jsonObject.put("layer", current_key);
+                            jsonObject.put("color", getRandomColor());
+                            jsonObject.put("startPoint", startPoint);
 
 
-                                jsonObject.put("rows", rows);
-                                jsonObject.put("columns", columns);
-
-                                jsonArray.put(jsonObject);
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                            JSONArray array = new JSONArray();
+                            for (int j = 0; j < list_resolution.get(i).size(); j++) {
+                                array.put(list_resolution.get(i).get(j) + 100);
                             }
+                            jsonObject.put("points", array);
+                            //获取行列
+
+                            View view_min = customRooms.getChildAt(Collections.min(list_resolution.get(i)));
+                            View view_max = customRooms.getChildAt(Collections.max(list_resolution.get(i)));
+                            int x = view_min.getLeft();
+                            int y = view_min.getTop();
+                            int columns = (view_max.getRight() - view_min.getLeft()) / width;
+                            int rows = (view_max.getBottom() - view_min.getTop()) / width;
+
+
+                            jsonObject.put("rows", rows);
+                            jsonObject.put("columns", columns);
+
+                            jsonArray.put(jsonObject);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 //                         }
 
                     }
                     new CustomRoomAsyncTask().execute(jsonArray);
-                    roomEntryDao.insertAll(roomEntries_list, current_key);
-                    finish();
+
+                    //回退到MainActivity判断是哪个fragment，并切换回之前的fragment
+                    Toast.makeText(this, "ok", Toast.LENGTH_LONG).show();
+                    Intent intent2 = new Intent(this, MainActivity.class);
+                    Bundle bundle2 = new Bundle();
+                    bundle2.putString("Activity_return", "Activity_return");
+                    intent2.putExtras(bundle2);
+                    startActivity(intent2);
                 }
                 break;
         }
     }
 
-    class   CustomRoomAsyncTask extends AsyncTask<JSONArray,Void,Integer>{
+
+    //新建房间并提交服务器
+    class CustomRoomAsyncTask extends AsyncTask<JSONArray, Void, Integer> {
         @Override
-        protected Integer doInBackground(JSONArray ...s) {
+        protected Integer doInBackground(JSONArray... s) {
             int code = 0;
-           JSONArray params = s[0];
-            String result = HttpUtils.postOkHpptRequest2(url,params);
-            if(!Utils.isEmpty(result)){
+            JSONArray params = s[0];
+            String result = HttpUtils.postOkHpptRequest2(url, params);
+            if (!Utils.isEmpty(result)) {
                 try {
                     JSONObject jsonObject = new JSONObject(result);
-                    code=jsonObject.getInt("code");
+                    code = jsonObject.getInt("code");
                     String message = jsonObject.getString("message");
-                    Log.i("message",message);
-                    if(code == 2000){
+                    Log.i("message", message);
+                    if (code == 2000) {
                         JSONObject content = jsonObject.getJSONObject("content");
-                    }else if(code == 4001){
+                    } else if (code == 4001) {
                         String error = jsonObject.getString("error");
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
             return code;
         }
     }
-    public  static String getRandomColor() {
+
+    public static String getRandomColor() {
         Random random = new Random();
         int r = 0;
         int g = 0;
@@ -487,7 +464,7 @@ public class CustomRoomActivity extends AppCompatActivity {
             temp = random.nextInt(16);
             b = b * 16 + temp;
         }
-        return r+","+g+","+b;
+        return r + "," + g + "," + b;
     }
 
     //拆分
@@ -761,7 +738,8 @@ public class CustomRoomActivity extends AppCompatActivity {
         roomEntries_list.add(roomEntry);
         Log.i("roomEntries_list=", roomEntries_list.size() + "");
 
-}
+    }
+
     @Override
     protected void onResume() {
         super.onResume();

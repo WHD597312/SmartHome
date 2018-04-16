@@ -42,7 +42,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
         super.onStart();
         deviceChildDao=new DeviceChildDaoImpl(this);
         Intent intent=getIntent();
-        long childPosition=Long.parseLong(intent.getStringExtra("childPosition"));
+        long childPosition=Long.parseLong(intent.getStringExtra("deviceId"));
         DeviceChild deviceChild=deviceChildDao.findDeviceChild(childPosition);
         if (deviceChild!=null){
 
