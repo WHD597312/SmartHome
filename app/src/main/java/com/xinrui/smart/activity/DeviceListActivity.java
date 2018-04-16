@@ -115,15 +115,15 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         fragmentTransaction.replace(R.id.linearout, new HeaterFragment());
         fragmentTransaction.commit();
 
-       list = new ArrayList<>();
+        list = new ArrayList<>();
         String[] titles = {"分享设备", "时钟设置", "定时任务", "设备状态", "常见问题", "关乎我们"};
         for (int i = 0; i < titles.length; i++) {
             list.add(titles[i]);
         }
 
-       adapter=new DeviceListAdapter(this,list);
+        adapter=new DeviceListAdapter(this,list);
         gradView.setAdapter(adapter);
-       gradView.setOnItemClickListener(this);
+        gradView.setOnItemClickListener(this);
 
         timePicker.setIs24HourView(true);
         Calendar calendar= Calendar.getInstance();

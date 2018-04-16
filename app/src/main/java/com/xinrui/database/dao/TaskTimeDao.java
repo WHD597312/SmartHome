@@ -28,7 +28,8 @@ public class TaskTimeDao extends AbstractDao<TaskTime, Long> {
         public final static Property Start = new Property(1, int.class, "start", false, "START");
         public final static Property End = new Property(2, int.class, "end", false, "END");
         public final static Property Temp = new Property(3, int.class, "temp", false, "TEMP");
-        public final static Property Week = new Property(4, String.class, "week", false, "WEEK");
+        public final static Property DeviceId = new Property(4, long.class, "deviceId", false, "DEVICE_ID");
+        public final static Property Week = new Property(5, String.class, "week", false, "WEEK");
     }
 
 
@@ -48,7 +49,8 @@ public class TaskTimeDao extends AbstractDao<TaskTime, Long> {
                 "\"START\" INTEGER NOT NULL ," + // 1: start
                 "\"END\" INTEGER NOT NULL ," + // 2: end
                 "\"TEMP\" INTEGER NOT NULL ," + // 3: temp
-                "\"WEEK\" TEXT);"); // 4: week
+                "\"DEVICE_ID\" INTEGER NOT NULL ," + // 4: deviceId
+                "\"WEEK\" TEXT);"); // 5: week
     }
 
     /** Drops the underlying database table. */
@@ -68,10 +70,11 @@ public class TaskTimeDao extends AbstractDao<TaskTime, Long> {
         stmt.bindLong(2, entity.getStart());
         stmt.bindLong(3, entity.getEnd());
         stmt.bindLong(4, entity.getTemp());
+        stmt.bindLong(5, entity.getDeviceId());
  
         String week = entity.getWeek();
         if (week != null) {
-            stmt.bindString(5, week);
+            stmt.bindString(6, week);
         }
     }
 
@@ -86,10 +89,11 @@ public class TaskTimeDao extends AbstractDao<TaskTime, Long> {
         stmt.bindLong(2, entity.getStart());
         stmt.bindLong(3, entity.getEnd());
         stmt.bindLong(4, entity.getTemp());
+        stmt.bindLong(5, entity.getDeviceId());
  
         String week = entity.getWeek();
         if (week != null) {
-            stmt.bindString(5, week);
+            stmt.bindString(6, week);
         }
     }
 
@@ -105,7 +109,8 @@ public class TaskTimeDao extends AbstractDao<TaskTime, Long> {
             cursor.getInt(offset + 1), // start
             cursor.getInt(offset + 2), // end
             cursor.getInt(offset + 3), // temp
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4) // week
+            cursor.getLong(offset + 4), // deviceId
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5) // week
         );
         return entity;
     }
@@ -116,7 +121,8 @@ public class TaskTimeDao extends AbstractDao<TaskTime, Long> {
         entity.setStart(cursor.getInt(offset + 1));
         entity.setEnd(cursor.getInt(offset + 2));
         entity.setTemp(cursor.getInt(offset + 3));
-        entity.setWeek(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setDeviceId(cursor.getLong(offset + 4));
+        entity.setWeek(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
      }
     
     @Override

@@ -38,6 +38,7 @@ import com.xinrui.smart.view_custom.CircleSeekBar;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -51,7 +52,7 @@ import butterknife.Unbinder;
 
 
 /**定时任务
-*/
+ */
 public class TimeTaskActivity extends AppCompatActivity{
     public String OPEN_CLOSE="";
     @BindView(R.id.img_back) ImageView img_back;//返回按钮
@@ -143,7 +144,7 @@ public class TimeTaskActivity extends AppCompatActivity{
         timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-               hour= hourOfDay;
+                hour= hourOfDay;
             }
         });
     }
@@ -227,7 +228,7 @@ public class TimeTaskActivity extends AppCompatActivity{
             }
         }
     }
-//    private void setPaster
+    //    private void setPaster
     int [] tvBack={R.color.color_black,R.color.white};
     @OnClick({R.id.btn_add,R.id.open_time,R.id.btn_cancle2,R.id.btn_ensure2,R.id.close_time,R.id.tv_temp_num,R.id.img_back,R.id.btn_copy,R.id.tv_mon,R.id.tv_tue,R.id.tv_wen,R.id.tv_thu,R.id.tv_fri,R.id.tv_sta,R.id.tv_sun})
     public void onClick(View view){
@@ -266,10 +267,10 @@ public class TimeTaskActivity extends AppCompatActivity{
                     handler.sendMessage(msg);
                 }else if ("粘贴".equals(s)){
                     btn_copy.setText("复制");
-                   Message msg=handler.obtainMessage();
-                   msg.what=3;
-                   msg.obj=pasteWeek;
-                   handler.sendMessage(msg);
+                    Message msg=handler.obtainMessage();
+                    msg.what=3;
+                    msg.obj=pasteWeek;
+                    handler.sendMessage(msg);
                 }
                 break;
             case R.id.btn_add:/**添加开始设定时间和结束设定时间，温度*/
@@ -407,7 +408,7 @@ public class TimeTaskActivity extends AppCompatActivity{
                     }
                     break;
                 case 3:
-                   pasteWeek= (String) msg.obj;
+                    pasteWeek= (String) msg.obj;
                     int copy2=ChineseNumber.chineseNumber2Int(copyWeek);
                     int paster=ChineseNumber.chineseNumber2Int(pasteWeek);
                     List<TaskTime> mCopyList2=timeTaskDao.findWeekAll(copy2+"");
@@ -448,6 +449,46 @@ public class TimeTaskActivity extends AppCompatActivity{
 
         }
     };
+
+    class GetTaskTimeAsync extends AsyncTask<Void,Void,Integer>{
+
+        @Override
+        protected Integer doInBackground(Void... voids) {
+            int code=0;
+            try {
+                String taskTimeUrl="http://120.77.36.206:8082/warmer/v1.0/device/timeControl?deviceId="+ URLEncoder.encode(deviceId+"","utf-8");
+                String result=HttpUtils.getOkHpptRequest(taskTimeUrl);
+                if (!Utils.isEmpty(result)){
+                    JSONObject jsonObject=new JSONObject(result);
+                    code=jsonObject.getInt("code");
+                    if (code==2000){
+                        JSONObject content=jsonObject.getJSONObject("content");
+                        int deviceId=content.getInt("deviceId");
+                        JSONArray deviceTimeControlDtos=content.getJSONArray("deviceTimeControlDtos");
+                        for (int i = 0; i < deviceTimeControlDtos.length(); i++) {
+                            JSONObject week=deviceTimeControlDtos.getJSONObject(i);
+                            int  mWeek=week.getInt("week");
+                            JSONArray deviceTimeControlList=week.getJSONArray("deviceTimeControlList");
+                            for (int j = 0; j < deviceTimeControlList.length(); j++) {
+                                JSONObject object1=deviceTimeControlList.getJSONObject(j);
+                                String openTime=object1.getString("openTime");
+                                String closeTime=object1.getString("closeTime");
+                                String temp=object1.getString("temp");
+                                TaskTime taskTime=new TaskTime(Integer.parseInt(openTime), Integer.parseInt(closeTime), Integer.parseInt(temp),mWeek+"");
+                                if (timeTaskDao.insert(taskTime)){
+                                    list.add(taskTime);
+                                }
+                            }
+                        }
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+    }
 
     class TaskTimeAsync extends AsyncTask<JSONObject,Void,Integer>{
 

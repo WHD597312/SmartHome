@@ -190,14 +190,17 @@ public class MainControlFragment extends Fragment{
                    for (Integer p : isSelected.keySet()) {
                        isSelected.put(p, false);
                        children.get(p).setControlled(0);
+                       deviceChildDao.update(children.get(p));
                    }
                    // 再将当前选择CB的实际状态
                    isSelected.put(position, cu);
+
                    notifyDataSetChanged();
                    beSelectedData.clear();
                    if (cu) {
                        beSelectedData.add(children.get(position));
                        children.get(position).setControlled(2);
+                       deviceChildDao.update(children.get(position));
                    }
                }
            });

@@ -106,10 +106,10 @@ public class MainControlActivity extends AppCompatActivity{
             MainControlFragment mainControlFragment=new MainControlFragment();
             fragmentTransaction.replace(R.id.layout_body, mainControlFragment);
             if (!Utils.isEmpty(houseId)){
-               Bundle bundle=new Bundle();
-               bundle.putString("houseId",houseId);
-               mainControlFragment.setArguments(bundle);
-               fragmentTransaction.commit();
+                Bundle bundle=new Bundle();
+                bundle.putString("houseId",houseId);
+                mainControlFragment.setArguments(bundle);
+                fragmentTransaction.commit();
             }
         }else if("受控机设置".equals(content)){
             FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();

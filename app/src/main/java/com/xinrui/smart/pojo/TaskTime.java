@@ -15,8 +15,8 @@ public class TaskTime {
     private int start;
     private int end;
     private int temp;//温度
+    private  long deviceId;/**对应设备的Id*/
     private String week;/**一周的星期几*/
-
 
     public TaskTime(){}
     public TaskTime(int start, int end, int temp) {
@@ -61,15 +61,15 @@ public class TaskTime {
     public void setId(Long id) {
         this.id = id;
     }
-    @Generated(hash = 886541981)
-    public TaskTime(Long id, int start, int end, int temp, String week) {
+    @Generated(hash = 750696548)
+    public TaskTime(Long id, int start, int end, int temp, long deviceId, String week) {
         this.id = id;
         this.start = start;
         this.end = end;
         this.temp = temp;
+        this.deviceId = deviceId;
         this.week = week;
     }
-
     @Override
     public boolean equals(Object obj) {
         if (this==obj)
@@ -81,5 +81,11 @@ public class TaskTime {
             return true;
         else
             return false;
+    }
+    public long getDeviceId() {
+        return this.deviceId;
+    }
+    public void setDeviceId(long deviceId) {
+        this.deviceId = deviceId;
     }
 }

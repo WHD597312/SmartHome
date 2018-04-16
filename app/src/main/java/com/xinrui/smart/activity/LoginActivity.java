@@ -139,8 +139,8 @@ public class LoginActivity extends AppCompatActivity {
                         if (preferences.contains("phone")){
                             String phone2=preferences.getString("phone","");
                             if (!phone2.equals(phone)){
-                               new DeviceGroupDaoImpl(LoginActivity.this).deleteAll();
-                               new DeviceChildDaoImpl(LoginActivity.this).deleteAll();
+                                new DeviceGroupDaoImpl(LoginActivity.this).deleteAll();
+                                new DeviceChildDaoImpl(LoginActivity.this).deleteAll();
                             }
                         }
                         if (!preferences.contains("password")) {

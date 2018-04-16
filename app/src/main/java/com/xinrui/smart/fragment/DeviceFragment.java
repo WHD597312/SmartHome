@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +22,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -135,6 +138,7 @@ public class DeviceFragment extends Fragment{
                 break;
             }
             sum++;
+
             List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
             for (DeviceChild deviceChild:deviceChildren){
                 if (sum>10){
@@ -142,6 +146,7 @@ public class DeviceFragment extends Fragment{
                 }
                 sum++;
             }
+            sum++;
         }
         if (sum<10){
             view=inflater.inflate(R.layout.fragment_device2,container,false);
@@ -230,17 +235,14 @@ public class DeviceFragment extends Fragment{
             @Override
             public void onHeaderClick(GroupedRecyclerViewAdapter adapter, BaseViewHolder holder, int groupPosition) {
 
-                    updateGroupPosition=groupPosition;
-                    updateDeviceGroup=deviceGroups.get(groupPosition);
-                    if (groupPosition==deviceGroups.size()-1){
-                        Utils.showToast(getActivity(),"该设备组不能更改");
-                    }else {
-                        createOrUpdate="update";
-                        showPickerView();
-                    }
-
-
-
+                updateGroupPosition=groupPosition;
+                updateDeviceGroup=deviceGroups.get(groupPosition);
+                if (groupPosition==deviceGroups.size()-1){
+                    Utils.showToast(getActivity(),"该设备组不能更改");
+                }else {
+                    createOrUpdate="update";
+                    showPopwindow();
+                }
             }
         });
     }
@@ -252,15 +254,121 @@ public class DeviceFragment extends Fragment{
         Intent intent=new Intent(getActivity(),MQService.class);
         getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
 
-
-
         IntentFilter intentFilter=new IntentFilter("mqtt");
         getActivity().registerReceiver(receiver,intentFilter);
 
-
-
     }
 
+
+    /**
+     * 这里popupWindow用的是showAtLocation而不是showAsDropDown
+     * popupWindow.isShowing会一直返回false，所以要重新定义一个变量
+     * 要注意setOutsideTouchable的干扰
+     */
+    /**弹出一个底部窗口*/
+    private void showPopwindow() {
+
+        View popView = View.inflate(getActivity(), R.layout.house_pop, null);
+
+        Button btn_edit_house = (Button) popView.findViewById(R.id.btn_edit_house);
+        Button btn_delete_house = (Button) popView.findViewById(R.id.btn_delete_house);
+        Button btn_cancel_house = (Button) popView.findViewById(R.id.btn_cancel_house);
+
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+
+        final PopupWindow popWindow = new PopupWindow(popView,width,height);
+        popWindow.setFocusable(true);
+        popWindow.setAnimationStyle(R.style.anim_menu_bottombar);
+//        popWindow.setOutsideTouchable(false);// 设置同意在外点击消失
+
+        View.OnClickListener listener = new View.OnClickListener() {
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.btn_edit_house:
+                        updateDeviceGroup=deviceGroups.get(updateGroupPosition);
+
+                        showPickerView();
+
+                        popWindow.dismiss();
+                        break;
+                    case R.id.btn_delete_house:
+
+                        DeviceGroup deleteHouse=deviceGroups.get(updateGroupPosition);
+                        if (deleteHouse!=null){
+                            try {
+                                String userId=preferences.getString("userId","");
+                                String url="http://120.77.36.206:8082/warmer/v1.0/house/deleteHouse?userId="+URLEncoder.encode(userId,"utf-8")+"&houseId="+deleteHouse.getId();
+                                new DeletHouseAsync().execute(url);
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        }
+                        popWindow.dismiss();
+                        break;
+                    case R.id.btn_cancel_house:
+                        popWindow.dismiss();
+                        break;
+                }
+
+            }
+        };
+
+        btn_edit_house.setOnClickListener(listener);
+        btn_delete_house.setOnClickListener(listener);
+        btn_cancel_house.setOnClickListener(listener);
+
+        ColorDrawable dw = new ColorDrawable(0x30000000);
+        popWindow.setBackgroundDrawable(dw);
+        popWindow.showAtLocation(view.findViewById(R.id.layout_body), Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+    }
+
+    class DeletHouseAsync extends AsyncTask<String,Void,Integer>{
+
+        @Override
+        protected Integer doInBackground(String ...urls) {
+            int code=0;
+            try {
+                String url=urls[0];
+                String result=HttpUtils.getOkHpptRequest(url);
+                if (!Utils.isEmpty(result)){
+                    JSONObject object=new JSONObject(result);
+                    code=object.getInt("code");
+                    if (code==2000){
+                        DeviceGroup deviceGroup=deviceGroups.get(updateGroupPosition);
+                        if (deviceGroup!=null){
+
+                           List<DeviceChild> deviceChildren3=childern.get(updateGroupPosition);
+                           if (!deviceChildren3.isEmpty()){
+                               deviceChildDao.deleteGroupDevice(deviceChildren3);
+                               childern.removeAll(deviceChildren3);
+                           }
+                           deviceGroupDao.delete(deviceGroup);
+                           deviceGroups.remove(deviceGroup);
+
+                        }
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return code;
+        }
+
+        @Override
+        protected void onPostExecute(Integer code) {
+            super.onPostExecute(code);
+            switch (code){
+                case 2000:
+                    Utils.showToast(getActivity(),"删除住所成功");
+                    adapter.notifyDataSetChanged();
+                    break;
+                case -3003:
+                    Utils.showToast(getActivity(),"删除住所失败");
+                    break;
+            }
+        }
+    }
 
     @Override
     public void onDestroyOptionsMenu() {
@@ -285,7 +393,7 @@ public class DeviceFragment extends Fragment{
                 }else {
                     Map<String,Object> params=new HashMap<>();
                     String userId=preferences.getString("userId","");
-                    params.put("house_name",name);
+                    params.put("houseName",name);
                     params.put("location",location);
                     params.put("userId",userId);
                     new AddHomeAsync().execute(params);
@@ -299,12 +407,12 @@ public class DeviceFragment extends Fragment{
     private String houseName;
     private void buildUpdateHomeDialog(){
         final DeviceUpdateHomeDialog dialog=new DeviceUpdateHomeDialog(getActivity());
-       dialog.setOnNegativeClickListener(new DeviceUpdateHomeDialog.OnNegativeClickListener() {
-           @Override
-           public void onNegativeClick() {
-               dialog.dismiss();
-           }
-       });
+        dialog.setOnNegativeClickListener(new DeviceUpdateHomeDialog.OnNegativeClickListener() {
+            @Override
+            public void onNegativeClick() {
+                dialog.dismiss();
+            }
+        });
         dialog.setOnPositiveClickListener(new DeviceUpdateHomeDialog.OnPositiveClickListener() {
             @Override
             public void onPositiveClick() {
@@ -323,6 +431,7 @@ public class DeviceFragment extends Fragment{
         dialog.show();
     }
 
+
     class AddHomeAsync extends AsyncTask<Map<String,Object>,Void,Integer>{
 
         @Override
@@ -336,7 +445,7 @@ public class DeviceFragment extends Fragment{
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
                     JSONObject content=jsonObject.getJSONObject("content");
-                    String houseName=content.getString("house_name");
+                    String houseName=content.getString("houseName");
                     String location=content.getString("location");
                     int houseId=content.getInt("id");
                     int masterControllerDeviceId=content.getInt("masterControllerDeviceId");
@@ -348,11 +457,12 @@ public class DeviceFragment extends Fragment{
                         deviceGroup.setHouseName(houseName);
                         deviceGroup.setMasterControllerDeviceId(masterControllerDeviceId);
                         DeviceGroup shareDeviceGroup=deviceGroups.get(deviceGroups.size()-1);
-                        deviceGroups.remove(deviceGroups.size()-1);
                         childern.remove(deviceGroups.size()-1);
+                        deviceGroups.remove(deviceGroups.size()-1);
+
 
                         deviceGroups.add(deviceGroup);/**添加新住所，但是没有向里面插入子设备*/
-                        childern.add(new ArrayList<DeviceChild>());
+                        childern.add(deviceChildDao.findGroupIdAllDevice(deviceGroup.getId()));
                         deviceGroups.add(shareDeviceGroup);/**将分享设备组添加到列表的最后*/
                         childern.add(deviceChildDao.findGroupIdAllDevice(shareDeviceGroup.getId()));
                         deviceGroupDao.insert(deviceGroup);/**添加设备组*/
@@ -385,12 +495,13 @@ public class DeviceFragment extends Fragment{
             updateDeviceGroup=deviceGroups[0];
             try {
                 String updateHomeUrl="http://120.77.36.206:8082/warmer/v1.0/house/changeHouseName?houseId="+
-                        URLEncoder.encode(updateDeviceGroup.getId()+"","UTF-8")+"&house_name="+URLEncoder.encode(updateDeviceGroup.getHouseName(),"UTF-8");
+                        URLEncoder.encode(updateDeviceGroup.getId()+"","UTF-8")+"&houseName="+URLEncoder.encode(updateDeviceGroup.getHouseName(),"UTF-8");
                 String result=HttpUtils.getOkHpptRequest(updateHomeUrl);
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
                     if (code==2000){
+
                         updateDeviceGroup.setHeader(updateDeviceGroup.getHouseName()+"."+updateDeviceGroup.getLocation());
                         deviceGroupDao.update(updateDeviceGroup);
                     }

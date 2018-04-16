@@ -258,6 +258,10 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter{
     @Override
     public void onBindChildViewHolder(final BaseViewHolder holder, final int groupPosition, final int childPosition) {
         final DeviceChild entry=childern.get(groupPosition).get(childPosition);
+        List<DeviceChild> deviceChildren=childern.get(groups.size()-1);
+        for (DeviceChild deviceChild:deviceChildren){
+            Log.d("sss",deviceChild.getType()+","+deviceChild.getControlled());
+        }
         holder.setText(R.id.tv_device_child,entry.getDeviceName());
         holder.setImageResource(R.id.image_switch,entry.getImg());
         if (entry.getImg()==imgs[1]){

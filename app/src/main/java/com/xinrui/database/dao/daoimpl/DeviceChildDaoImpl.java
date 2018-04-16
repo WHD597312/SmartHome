@@ -12,6 +12,7 @@ import com.xinrui.smart.pojo.DeviceChild;
 import org.greenrobot.greendao.query.QueryBuilder;
 import org.greenrobot.greendao.query.WhereCondition;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DeviceChildDaoImpl {
@@ -43,6 +44,9 @@ public class DeviceChildDaoImpl {
     public void deleteAll(){
         deviceChildDao.deleteAll();
     }
+    public void deleteGroupDevice(List<DeviceChild> deviceChildren){
+        deviceChildDao.deleteInTx(deviceChildren);
+    }
     public void delete(DeviceChild deviceChild){
         deviceChildDao.delete(deviceChild);
     }
@@ -59,13 +63,16 @@ public class DeviceChildDaoImpl {
         WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(groupId),DeviceChildDao.Properties.Type.eq(type),DeviceChildDao.Properties.Controlled.notEq(controlled));
         return deviceChildDao.queryBuilder().where(whereCondition).list();
     }
-//        return deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.GroupId.eq(groupId))
+    //        return deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.GroupId.eq(groupId))
     public List<DeviceChild> findDeviceType(Long houseId,int type){
         WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(houseId),DeviceChildDao.Properties.Type.eq(type));
         return deviceChildDao.queryBuilder().where(whereCondition).list();
     }
     public List<DeviceChild> findGroupIdAllDevice(Long groupId){
-        return deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.HouseId.eq(groupId)).list();
+        List<DeviceChild> deviceChildren=new ArrayList<>();
+        List<DeviceChild> children=deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.HouseId.eq(groupId)).list();
+        deviceChildren.addAll(children);
+        return deviceChildren;
     }
     public List<DeviceChild> findAllDevice(){
         return deviceChildDao.loadAll();

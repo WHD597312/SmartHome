@@ -223,7 +223,6 @@ public class AddDeviceActivity extends AppCompatActivity {
                 break;
         }
     }
-
     class WifiConectionAsync extends AsyncTask<Map<String, Object>, Void, Integer> {
 
         @Override

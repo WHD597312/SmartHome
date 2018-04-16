@@ -297,8 +297,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
+
+
 
     class LoadDeviceAsync extends AsyncTask<String, Void, Integer> {
 
@@ -314,8 +318,8 @@ public class MainActivity extends AppCompatActivity {
                     code = jsonObject.getInt("code");
                     JSONObject content = jsonObject.getJSONObject("content");
                     if (code == 2000) {
-//                        deviceGroupDao.deleteAll();
-//                        deviceChildDao.deleteAll();
+                        deviceGroupDao.deleteAll();
+                        deviceChildDao.deleteAll();
                         JSONArray houses = content.getJSONArray("houses");
 
                         for (int i = 0; i < houses.length(); i++) {
@@ -380,16 +384,10 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject  sharedDevice = content.getJSONObject("sharedDevice");
                         JSONArray deviceList=sharedDevice.getJSONArray("deviceList");
 
-                        DeviceGroup deviceGroup=deviceGroupDao.findById(shareHouseId);
-                        if (deviceGroup!=null){
-                            deviceGroup.setHeader("分享的设备");
-                            deviceGroupDao.update(deviceGroup);
-                        }else {
-                            deviceGroup = new DeviceGroup();
-                            deviceGroup.setHeader("分享的设备");
-                            deviceGroup.setId(shareHouseId);
-                            deviceGroupDao.insert(deviceGroup);
-                        }
+                        DeviceGroup deviceGroup= new DeviceGroup();
+                        deviceGroup.setHeader("分享的设备");
+                        deviceGroup.setId(shareHouseId);
+                        deviceGroupDao.insert(deviceGroup);
 
                         for (int x = 0; x < deviceList.length(); x++) {
                             JSONObject device = deviceList.getJSONObject(x);

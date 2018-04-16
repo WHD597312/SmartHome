@@ -175,10 +175,10 @@ public class ControlledFragment extends Fragment{
 
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
-            ControlledAdapter.ViewHolder viewHolder=null;
+            ViewHolder viewHolder=null;
             if (convertView==null){
                 convertView= View.inflate(context, R.layout.item_controled,null);
-                viewHolder=new ControlledAdapter.ViewHolder(convertView);
+                viewHolder=new ViewHolder(convertView);
                 convertView.setTag(viewHolder);
             }else {
                 viewHolder= (ViewHolder) convertView.getTag();
@@ -202,9 +202,15 @@ public class ControlledFragment extends Fragment{
                    if (check.isChecked()){
                        if (!controlledDeviceChildren.contains(controlled)){
                            controlledDeviceChildren.add(list.get(position));
+                           DeviceChild deviceChild=list.get(position);
+                           deviceChild.setControlled(1);
+                           deviceChildDao.update(deviceChild);
                        }
 
                    }else {
+                       DeviceChild deviceChild=list.get(position);
+                       deviceChild.setControlled(0);
+                       deviceChildDao.update(deviceChild);
                        controlledDeviceChildren.remove(list.get(position));
                    }
                 }

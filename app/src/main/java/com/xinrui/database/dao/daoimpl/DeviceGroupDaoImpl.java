@@ -32,6 +32,10 @@ public class DeviceGroupDaoImpl {
     public void update(DeviceGroup deviceGroup){
         deviceGroupDao.update(deviceGroup);
     }
+    /**删除用户组*/
+    public void delete(DeviceGroup deviceGroup){
+        deviceGroupDao.delete(deviceGroup);
+    }
     /**清空所有的用户数据*/
     public void deleteAll(){
         deviceGroupDao.deleteAll();
