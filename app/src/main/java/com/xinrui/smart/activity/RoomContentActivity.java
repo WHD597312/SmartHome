@@ -35,7 +35,7 @@ public class RoomContentActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.roomcontent);
+        setContentView(R.layout.room_content);
         ButterKnife.bind(this);
     }
 
