@@ -3,7 +3,7 @@ package com.xinrui.smart;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-
+import android.os.StrictMode;
 
 
 import java.util.ArrayList;
@@ -22,6 +22,10 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        // android 7.0系统解决拍照的问题
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+        builder.detectFileUriExposure();
 
         SMSSDK.initSDK(this,"24c373291db44","eb329179014e3063ce241d718e8693da");
         activities=new ArrayList<>();

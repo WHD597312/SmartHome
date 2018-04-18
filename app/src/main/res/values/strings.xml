@@ -33,7 +33,7 @@
     <string name="roomName">XX房间</string>
     <string name="city_Name">宁波市·慈溪市</string>
     <string name="weather_Name">小雨</string>
-    <string name="air_qualaity_Name">室外空气 优|水质 不可饮用|湿度 潮湿</string>
+    <string name="air_qualaity_Name">室外空气 优</string>
     <string name="addRoom">添加房间</string>
     <string name="merge">合并</string>
     <string name="resolution">拆分</string>

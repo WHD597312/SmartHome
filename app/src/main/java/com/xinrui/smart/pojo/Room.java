@@ -23,9 +23,66 @@ public class Room implements Serializable{
     private int houseId;
     private JSONArray devices;
     private int layer;
+    private int x;
+    private int y;
+    private int width;
+    private int height;
 
+    public View getView() {
+        return view;
+    }
 
-    public Room(View view,int roomId, String roomName, int startPoint, JSONArray points, int houseId, JSONArray devices, int layer) {
+    public void setView(View view) {
+        this.view = view;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public Room(int roomId, String roomName, int startPoint, JSONArray points, int houseId, JSONArray devices, int layer, int x, int y, int width, int height) {
+        this.roomId = roomId;
+        this.roomName = roomName;
+        this.startPoint = startPoint;
+        this.points = points;
+        this.houseId = houseId;
+        this.devices = devices;
+        this.layer = layer;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
+    public Room (View view, int roomId, String roomName, int startPoint, JSONArray points, int houseId, JSONArray devices, int layer, int x, int y, int width, int height) {
         this.view = view;
         this.roomId = roomId;
         this.roomName = roomName;
@@ -34,14 +91,10 @@ public class Room implements Serializable{
         this.houseId = houseId;
         this.devices = devices;
         this.layer = layer;
-    }
-
-    public View getView() {
-        return view;
-    }
-
-    public void setView(View view) {
-        this.view = view;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
     }
 
     public int getRoomId() {

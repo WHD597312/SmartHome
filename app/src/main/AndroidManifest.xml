@@ -15,6 +15,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!--拍照权限 -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <!-- Normal Permissions 不需要运行时注册 -->
     <!-- 获取运营商信息，用于支持提供运营商信息相关的接口 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -68,6 +73,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <provider
+            android:authorities="com.xinrui.smart.fileprovider"
+            android:name="android.support.v4.content.FileProvider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths"/>
+        </provider>
+
+
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="229f1bb2ecfdf7f1a9c2a0d6364fd578" />
@@ -126,10 +142,6 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.CustomRoomActivity"
-            android:label=""
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activity.AddRoomActivity"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar" />
         <activity

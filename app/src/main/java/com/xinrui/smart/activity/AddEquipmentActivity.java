@@ -217,6 +217,11 @@ public class AddEquipmentActivity extends Activity implements EquipmentAdapter.C
                         int masterControllerUserId = object.getInt("masterControllerUserId");
                         int isUnlock = object.getInt("isUnlock");
 
+                        if(type == 1){
+                            type = R.drawable.equipment_warmer;
+                        }else if(type == 2){
+                            type = R.drawable.equipment_external_sensor;
+                        }
                         Equipment equipment = new Equipment(id, deviceName, type, houseId, masterControllerUserId, isUnlock, false);
                         equipment_list.add(equipment);
                     }

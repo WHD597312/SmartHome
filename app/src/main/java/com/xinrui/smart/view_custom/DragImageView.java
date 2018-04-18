@@ -22,7 +22,10 @@ import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import com.xinrui.smart.pojo.Equipment;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by win7 on 2018/4/16.
@@ -62,18 +65,18 @@ public class DragImageView extends RecyclerView {
                         +" top:"+mDragOriTop);
             }
 
-            @Override
-            public void onEdgeDragStarted(int edgeFlags, int pointerId) {
-                super.onEdgeDragStarted(edgeFlags, pointerId);
-                Log.d(TAG, "onEdgeDragStarted: "+edgeFlags);
-                mDragHelper.captureChildView(getChildAt(getChildCount()-1),pointerId);
-            }
-
-            @Override
-            public void onEdgeTouched(int edgeFlags, int pointerId) {
-                super.onEdgeTouched(edgeFlags, pointerId);
-                Log.d(TAG, "onEdgeTouched: "+edgeFlags);
-            }
+//            @Override
+//            public void onEdgeDragStarted(int edgeFlags, int pointerId) {
+//                super.onEdgeDragStarted(edgeFlags, pointerId);
+//                Log.d(TAG, "onEdgeDragStarted: "+edgeFlags);
+//                mDragHelper.captureChildView(getChildAt(getChildCount()-1),pointerId);
+//            }
+//
+//            @Override
+//            public void onEdgeTouched(int edgeFlags, int pointerId) {
+//                super.onEdgeTouched(edgeFlags, pointerId);
+//                Log.d(TAG, "onEdgeTouched: "+edgeFlags);
+//            }
 
             @Override
             public int clampViewPositionHorizontal(View child, int left, int dx) {
@@ -85,6 +88,7 @@ public class DragImageView extends RecyclerView {
                 return top;
             }
 
+            //拖拽后回弹
             @Override
             public void onViewReleased(View releasedChild, float xvel, float yvel) {
                 super.onViewReleased(releasedChild, xvel, yvel);
@@ -127,20 +131,23 @@ public class DragImageView extends RecyclerView {
     }
 
 
-    public void testSmoothSlide(boolean isReverse) {
+    public void testSmoothSlide(List<Equipment> equipment, boolean isReverse) {
         if ( mDragHelper != null ) {
-            View child = getChildAt(1);
-            if ( child != null ) {
-                if ( isReverse ) {
-                    mDragHelper.smoothSlideViewTo(child,
-                            getLeft(),getTop());
-                } else {
-                    mDragHelper.smoothSlideViewTo(child,
-                            getRight()-child.getWidth(),
-                            getBottom()-child.getHeight());
+            for (int i = 0; i < equipment.size(); i++) {
+                View child = getChildAt(i);
+                if ( child != null ) {
+                    if ( isReverse ) {
+                        mDragHelper.smoothSlideViewTo(child,
+                                getLeft(),getTop());
+                    } else {
+                        mDragHelper.smoothSlideViewTo(child,
+                                getRight()-child.getWidth(),
+                                getBottom()-child.getHeight());
+                    }
+                    invalidate();
                 }
-                invalidate();
             }
+
         }
     }
 

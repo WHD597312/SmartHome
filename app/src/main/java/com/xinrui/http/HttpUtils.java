@@ -206,14 +206,14 @@ public class HttpUtils {
     public static String upLoadFile(String url, String fileNmae, File file) {
         String result = null;
         try {
-            com.squareup.okhttp.Response response = OkHttpUtils.post()
+            com.squareup.okhttp.Response response=OkHttpUtils.post()
+                    .addHeader(" content-type","multipart/form-data")
                     .addFile("file", fileNmae, file)
                     .url(url)
                     .build()
                     .execute();
-            if (response.isSuccessful()) {
-                result = response.body().string();
-                Log.d("result", result);
+            if (response.isSuccessful()){
+                result=response.code()+"";
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -12,7 +12,10 @@
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">#3d3c38</item>
     </style>
-
+    <style name="Popupwindow">
+        <item name="android:windowEnterAnimation">@anim/window_out</item>
+        <item name="android:windowExitAnimation">@anim/window_back</item>
+    </style>
     <style name="position_dialog_theme" parent="android:Theme.Dialog">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">false</item>

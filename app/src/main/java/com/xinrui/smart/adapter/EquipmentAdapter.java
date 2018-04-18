@@ -58,31 +58,33 @@ public class EquipmentAdapter extends RecyclerView.Adapter<EquipmentAdapter.View
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         //根据设备type显示不同的图片
         int device_image = 0;
-        for (int i = 0; i < equipment_list.size(); i++) {
-            if (equipment_list.get(i).getType() == 1){
-                device_image = R.drawable.live_action_equipment1;
-            }else if(equipment_list.get(i).getType() == 0){
-                device_image= R.drawable.live_action_equipment4;
-            }
-        }
-        final Equipment equipment = equipment_list.get(position);
-        holder.equipment_Name.setText(equipment.getDeviceName());
-        holder.equipment_image.setImageResource(device_image);
-        holder.CheckBox.setChecked(equipment.isChecked());
-        holder.CheckBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //点击某个CheckBox就将当前设备的isChecked属性设为相反
-                equipment.setChecked(!equipment.isChecked());
-                //设置点击的CheckBox状态为当前设备的isChecked属性所显示的状态
-                holder.CheckBox.setChecked(equipment.isChecked());
-                if (null != mCheckListener) {
-                    mCheckListener.itemChecked(equipment, holder.CheckBox.isChecked());
+//        for (int i = 0; i < equipment_list.size(); i++) {
+//            if (equipment_list.get(i).getType() == 1) {//取暖器
+//                device_image = R.drawable.equipment_warmer;
+//                break;
+//            } else if (equipment_list.get(i).getType() == 2) {//外置传感器
+//                device_image = R.drawable.equipment_external_sensor;
+//                break;
+//            }
+//        }
+            final Equipment equipment = equipment_list.get(position);
+            holder.equipment_Name.setText(equipment.getDeviceName());
+            holder.equipment_image.setImageResource(equipment.getType());
+            holder.CheckBox.setChecked(equipment.isChecked());
+            holder.CheckBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //点击某个CheckBox就将当前设备的isChecked属性设为相反
+                    equipment.setChecked(!equipment.isChecked());
+                    //设置点击的CheckBox状态为当前设备的isChecked属性所显示的状态
+                    holder.CheckBox.setChecked(equipment.isChecked());
+                    if (null != mCheckListener) {
+                        mCheckListener.itemChecked(equipment, holder.CheckBox.isChecked());
+                    }
+                    //刷新适配器
+                    notifyDataSetChanged();
                 }
-                //刷新适配器
-                notifyDataSetChanged();
-            }
-        });
+            });
 
     }
 

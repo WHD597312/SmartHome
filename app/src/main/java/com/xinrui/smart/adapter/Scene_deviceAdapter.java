@@ -33,17 +33,21 @@ public class Scene_deviceAdapter extends RecyclerView.Adapter<Scene_deviceAdapte
 
     @Override
     public void onBindViewHolder(MyHolder holder, int postion) {
-        Equipment scene_device = list.get(postion);
-        int device_image = 0;
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getType() == 1){//取暖器
-                device_image = R.drawable.new_equipment_warmer;
-            }else if(list.get(i).getType() == 2){//外置传感器
-                device_image= R.drawable.equipment_external_sensor;
-            }
-        }
-        final Equipment equipment = list.get(postion);
-        holder.device_image.setImageResource(device_image);
+//        Equipment scene_device = list.get(postion);
+//        int device_image = 0;
+//        for (int i = 0; i < list.size(); i++) {
+//            if (list.get(i).getType() == 1){//取暖器
+//                device_image = R.drawable.new_equipment_warmer;
+//                final Equipment equipment = list.get(postion);
+//                holder.device_image.setImageResource(device_image);
+//            }else if(list.get(i).getType() == 2){//外置传感器
+//                device_image= R.drawable.equipment_external_sensor;
+//                final Equipment equipment = list.get(postion);
+//                holder.device_image.setImageResource(device_image);
+//            }
+//        }
+                final Equipment equipment = list.get(postion);
+                holder.device_image.setImageResource(equipment.getType());
     }
 
     static class MyHolder extends RecyclerView.ViewHolder {

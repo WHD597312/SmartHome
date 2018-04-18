@@ -1,6 +1,7 @@
 package com.xinrui.smart.pojo;
 
 import android.graphics.drawable.Drawable;
+import android.widget.ImageView;
 
 import java.io.Serializable;
 
@@ -18,6 +19,10 @@ public class Equipment implements Serializable{
     public String macAddress;
     public int controlled;
     private boolean isChecked;
+
+    public Equipment(int type) {
+        this.type = type;
+    }
 
     public Equipment(int id, String deviceName, int type, String macAddress, int controlled) {
         this.id = id;

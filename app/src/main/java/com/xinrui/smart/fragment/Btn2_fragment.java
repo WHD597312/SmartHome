@@ -36,6 +36,7 @@ import com.xinrui.smart.pojo.Equipment;
 import com.xinrui.smart.pojo.Room;
 import com.xinrui.smart.pojo.RoomEntry;
 import com.xinrui.smart.util.GetUrl;
+import com.xinrui.smart.util.ItemDecoration.GridSpacingItemDecoration;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.view_custom.RoomViewGroup;
 
@@ -129,7 +130,7 @@ public class Btn2_fragment extends Fragment{
     }
 
     //从服务器获取数据创建房间异步请求
-    class QueryAllRoomAsyncTask extends AsyncTask<Void,Void,String>{
+    class QueryAllRoomAsyncTask extends AsyncTask<Void,Void,List<Room>>{
         WindowManager wm = (WindowManager) getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
         final int width = wm.getDefaultDisplay().getWidth();
@@ -147,18 +148,75 @@ public class Btn2_fragment extends Fragment{
         }
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected List<Room> doInBackground(Void... voids) {
             deviceGroupDao = new DeviceGroupDaoImpl(getActivity());
             DeviceGroup = deviceGroupDao.findAllDevices();
+            List<Room> roomList = new ArrayList<>();
+
             Map<String, Object> params = new HashMap<>();
             params.put("houseId", house_id);
             String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/findAllRoom", params);
             String result = HttpUtils.getOkHpptRequest(url);
             try {
-                JSONObject jsonObject = new JSONObject(result);
-                int code = jsonObject.getInt("code");
-                if (code == 2000) {
-                    return result;
+                if(!Utils.isEmpty(result)) {
+                    JSONObject jsonObject = new JSONObject(result);
+                    JSONObject content = jsonObject.getJSONObject("content");
+                    JSONArray array = content.getJSONArray(2 + "");
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject object = array.getJSONObject(i);
+                        int roomId = object.getInt("roomId");
+                        String roomName = object.getString("roomName");
+                        int startPoint = object.getInt("startPoint");
+                        JSONArray points = object.getJSONArray("points");
+                        int houseId = object.getInt("houseId");
+                        JSONArray devices = object.getJSONArray("devices");
+                        int layer = object.getInt("layer");
+
+                        for (int j = 0; j < points.length(); j++) {
+                            String point_string = points.getString(j);
+                            int point_int = Integer.parseInt(point_string) - 100;
+                        }
+                        int devices_length = devices.length();
+                        for (int j = 0; j < devices.length(); j++) {
+                            String device = devices.getString(j);
+                            JSONObject devices_object = devices.getJSONObject(j);
+                            int id = devices_object.getInt("id");
+                            String deviceName = devices_object.getString("deviceName");
+                            int type = devices_object.getInt("type");
+                            String macAddress = devices_object.getString("macAddress");
+                            int controlled = devices_object.getInt("controlled");
+                        }
+
+
+                        if (startPoint_list.contains(startPoint - 100)) {
+                            Log.i("startPoint_list", startPoint_list.get(0) + "");
+                            roomId_list.add(roomId);
+                        }
+                        JSONArray jsonArray = object.getJSONArray("points");
+                        List<Integer> list_point = new ArrayList<>();
+                        for (int j = 0; j < jsonArray.length(); j++) {
+                            String s = jsonArray.getString(j);
+                            list_point.add(Integer.parseInt(s));
+                        }
+                        int point_min = Collections.min(list_point) - 100;
+                        int point_max = Collections.max(list_point) - 100;
+
+                        int yu_min = point_min % 4;
+                        int shang_min = point_min / 4;
+                        int x_min = item_width * yu_min;
+                        int y_min = item_width * shang_min;
+
+                        int yu_max = point_max % 4;
+                        int shang_max = point_max / 4;
+                        int x_max = item_width * yu_max;
+                        int y_max = item_width * shang_max;
+
+                        int width_room = ((x_max - x_min) / item_width + 1) * (width / 4);
+                        int height_room = ((y_max - y_min) / item_width + 1) * (width / 4);
+                        room = new Room(roomId,roomName,startPoint,points,houseId,devices,layer,x_min,y_min,width_room,height_room);
+                        roomList.add(room);
+                    }
+                    return roomList;
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -166,75 +224,18 @@ public class Btn2_fragment extends Fragment{
             return null;
         }
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(List<Room> roomList) {
             try{
-                if(!Utils.isEmpty(result)){
-                    JSONObject jsonObject = new JSONObject(result);
-                        JSONObject content = jsonObject.getJSONObject("content");
-                        JSONArray array = content.getJSONArray( 2+ "");
-                        for (int i = 0; i < array.length(); i++) {
-                            JSONObject object = array.getJSONObject(i);
-                            int roomId = object.getInt("roomId");
-                            String roomName = object.getString("roomName");
-                            int startPoint = object.getInt("startPoint");
-                            JSONArray points = object.getJSONArray("points");
-                            int houseId = object.getInt("houseId");
-                            JSONArray devices = object.getJSONArray("devices");
-                            int layer = object.getInt("layer");
-
-                            for (int j = 0; j <  points.length(); j++) {
-                                String point_string = points.getString(j);
-                                int point_int = Integer.parseInt(point_string)-100;
-                            }
-                            int devices_length = devices.length();
-                            for (int j = 0; j < devices.length(); j++) {
-                                String device = devices.getString(j);
-                                JSONObject devices_object = devices.getJSONObject(j);
-                                int id = devices_object.getInt("id");
-                                String deviceName = devices_object.getString("deviceName");
-                                int type = devices_object.getInt("type");
-                                String macAddress = devices_object.getString("macAddress");
-                                int controlled = devices_object.getInt("controlled");
-                            }
-
-
-                            if (startPoint_list.contains(startPoint - 100)) {
-                                Log.i("startPoint_list", startPoint_list.get(0) + "");
-                                roomId_list.add(roomId);
-                            }
-                            JSONArray jsonArray = object.getJSONArray("points");
-                            List<Integer> list_point = new ArrayList<>();
-                            for (int j = 0; j <jsonArray.length() ; j++) {
-                                String s=jsonArray.getString(j);
-                                list_point.add(Integer.parseInt(s));
-                            }
-                            int point_min = Collections.min(list_point)-100;
-                            int point_max = Collections.max(list_point)-100;
-
-                            int yu_min = point_min%4;
-                            int shang_min = point_min/4;
-                            int x_min = item_width *yu_min;
-                            int y_min = item_width *shang_min;
-
-                            int yu_max = point_max%4;
-                            int shang_max = point_max/4;
-                            int x_max = item_width *yu_max;
-                            int y_max = item_width *shang_max;
-
-                            int width_room = ((x_max-x_min)/ item_width +1)*(width/4);
-                            int height_room = ((y_max-y_min)/ item_width +1)*(width/4);
-                            roomEntry = new RoomEntry(x_min,y_min,width_room,height_room);
-
-                            View view = setLayout(devices,roomName,roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight());
-                            roomEntry_list.add(roomEntry);
-                            view.setTag(roomId);
-                             room = new Room(view,roomId,roomName,startPoint,points,houseId,devices,layer);
-                             room_list.add(room);
-                        }
-
-
+                if(roomList != null){
+                for (int i = 0; i < roomList.size(); i++) {
+                    roomEntry = new RoomEntry(roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
+                    View view = setLayout(roomList.get(i).getDevices(),roomList.get(i).getRoomName(),roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight());
+                    Room room1 = new Room(view,roomList.get(i).getRoomId(),roomList.get(i).getRoomName(),roomList.get(i).getStartPoint(),roomList.get(i).getPoints(),roomList.get(i).getHouseId(),roomList.get(i).getDevices(),roomList.get(i).getLayer(),roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
+                    room_list.add(room1);
+                    roomEntry_list.add(roomEntry);
+                    view.setTag(room1.getRoomId());
+                }
                     asyncResponse.onDataReceivedSuccess(room_list);
-
                         if (roomEntry_list.size() ==0) {
                             view_background.setOnTouchListener(new View.OnTouchListener() {
                                 @Override
@@ -259,9 +260,6 @@ public class Btn2_fragment extends Fragment{
                 e.printStackTrace();
             }
         }
-
-
-
     }
 
     //回调接口，用于异步返回数据
@@ -289,7 +287,9 @@ public class Btn2_fragment extends Fragment{
 
     }
 
-    public View setLayout(JSONArray devices,String roomName,int x, int y, int width, int height) {
+    //绘制房间view
+    @SuppressLint("ClickableViewAccessibility")
+    public View setLayout(JSONArray devices, String roomName, int x, int y, int width, int height) {
         List<Equipment> device_list = new ArrayList<>();
 
         WindowManager wm = (WindowManager) getActivity()
@@ -322,6 +322,11 @@ public class Btn2_fragment extends Fragment{
                 int isUnlock = devices_object.getInt("isUnlock");
                 int controlled = devices_object.getInt("controlled");
                 int masterControllerUserId = devices_object.getInt("masterControllerUserId");
+                if(type == 1){
+                    type = R.drawable.equipment_warmer;
+                }else if(type == 2){
+                    type = R.drawable.equipment_external_sensor;
+                }
                 Equipment equipment = new Equipment(id,deviceName,type,macAddress,controlled);
                 device_list.add(equipment);
             }
@@ -336,21 +341,20 @@ public class Btn2_fragment extends Fragment{
         childView.setLayoutParams(params);
         roomViewGroup.addView(childView);
         //获取rv控件
-        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), line);
+        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), line , GridLayoutManager.VERTICAL ,false);
         RecyclerView rv = (RecyclerView) childView.findViewById(R.id.scene_device_recyclerView);
         rv.setLayoutManager(layoutManager);
-        rv.setClickable(false);// 屏蔽主动获得点击
-        rv.setLongClickable(false);// 屏蔽主动获得长按
-        rv.setEnabled(false);
-        rv.setOnClickListener(null);
-        rv.setOnLongClickListener(null);
-        rv.setOnTouchListener(null);
+        rv.addItemDecoration(new GridSpacingItemDecoration(
+                line, getResources().getDimensionPixelSize(R.dimen.dp_6),true
+        ));
+        rv.setHasFixedSize(true);
         Scene_deviceAdapter scene_deviceAdapter = new Scene_deviceAdapter(device_list);
         rv.setAdapter(scene_deviceAdapter);
         saveViewInstance(roomName,childView);
         return childView;
     }
 
+    //每个房间里面的空间
     public void saveViewInstance(String roomName,final View childView){
         TextView room_Name = (TextView) childView.findViewById(R.id.room_name);
         ImageView add_equipment = (ImageView) childView.findViewById(R.id.add_equipment);
@@ -403,6 +407,17 @@ public class Btn2_fragment extends Fragment{
         childView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences.Editor sp = getActivity().getSharedPreferences("roomId", Activity.MODE_PRIVATE).edit();
+
+                for (int i = 0; i < room_list.size(); i++) {
+                    if (childView.getTag() == room_list.get(i).getView().getTag()) {
+                        int roomId = room_list.get(i).getRoomId();
+                        sp.putInt("roomId",roomId);
+                        sp.commit();
+                        break;
+                    }
+                }
+
                 Intent intent = new Intent(getActivity(), RoomContentActivity.class);
                 startActivity(intent);
             }
@@ -484,8 +499,6 @@ public class Btn2_fragment extends Fragment{
             Map<String,Object> params = new HashMap<>();
             params.put("roomName",roomName);
             params.put("roomId",roomId);
-//            String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/changeRoomType",params);
-//            String result = HttpUtils.getOkHpptRequest(url);
             try {
                 String url="http://120.77.36.206:8082/warmer/v1.0/room/changeRoomType?roomId="+roomId+"&roomName="
                         + URLEncoder.encode(roomName);
