@@ -13,6 +13,7 @@ public class DeviceChild {
     @Id(autoincrement = false)
     private Long id;
 
+    
     private String deviceName;
     private String macAddress;
     private int img;
