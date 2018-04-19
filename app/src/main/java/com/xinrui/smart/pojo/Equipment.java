@@ -19,17 +19,21 @@ public class Equipment implements Serializable{
     public String macAddress;
     public int controlled;
     private boolean isChecked;
+    private int device_type;
+
+
 
     public Equipment(int type) {
         this.type = type;
     }
 
-    public Equipment(int id, String deviceName, int type, String macAddress, int controlled) {
+    public Equipment(int id, String deviceName, int type, String macAddress, int controlled,int device_type) {
         this.id = id;
         this.deviceName = deviceName;
         this.type = type;
         this.macAddress = macAddress;
         this.controlled = controlled;
+        this.device_type = device_type;
     }
 
     public Equipment(int id, String deviceName, int type, int houseId, int masterControllerUserId, int isUnlock, boolean isChecked) {
@@ -96,5 +100,28 @@ public class Equipment implements Serializable{
 
     public void setChecked(boolean checked) {
         isChecked = checked;
+    }
+
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    public int getControlled() {
+        return controlled;
+    }
+
+    public void setControlled(int controlled) {
+        this.controlled = controlled;
+    }
+    public int getDevice_type() {
+        return device_type;
+    }
+
+    public void setDevice_type(int device_type) {
+        this.device_type = device_type;
     }
 }

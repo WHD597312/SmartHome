@@ -40,6 +40,10 @@ public class DeviceChild {
     private String machineFall;
     private int protectSetTemp;
     private int protectProTemp;
+    private int extTemp;
+    private int extHut;
+
+
 
 
     public DeviceChild() {
@@ -290,14 +294,30 @@ public class DeviceChild {
         this.MatTemp = MatTemp;
     }
 
-    @Generated(hash = 1714108533)
+    public int getExtHut() {
+        return this.extHut;
+    }
+
+    public void setExtHut(int extHut) {
+        this.extHut = extHut;
+    }
+
+    public int getExtTemp() {
+        return this.extTemp;
+    }
+
+    public void setExtTemp(int extTemp) {
+        this.extTemp = extTemp;
+    }
+
+    @Generated(hash = 1096957404)
     public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
             Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
             int version, int ratedPower, String MatTemp, String workMode, String LockScreen,
             String BackGroundLED, String deviceState, String tempState, String outputMod,
             int curTemp, String protectEnable, String ctrlMode, int powerValue,
             int voltageValue, int currentValue, String machineFall, int protectSetTemp,
-            int protectProTemp) {
+            int protectProTemp, int extTemp, int extHut) {
         this.id = id;
         this.deviceName = deviceName;
         this.macAddress = macAddress;
@@ -326,5 +346,7 @@ public class DeviceChild {
         this.machineFall = machineFall;
         this.protectSetTemp = protectSetTemp;
         this.protectProTemp = protectProTemp;
+        this.extTemp = extTemp;
+        this.extHut = extHut;
     }
 }

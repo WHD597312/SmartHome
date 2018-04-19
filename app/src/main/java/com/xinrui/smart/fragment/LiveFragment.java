@@ -2,13 +2,17 @@ package com.xinrui.smart.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -37,6 +41,7 @@ import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.CustomRoomActivity;
 import com.xinrui.smart.activity.MainActivity;
+import com.xinrui.smart.adapter.DeviceAdapter;
 import com.xinrui.smart.adapter.FragmentViewPagerAdapter;
 import com.xinrui.smart.adapter.Switch_houseAdapter;
 import com.xinrui.smart.pojo.DeviceGroup;
@@ -46,6 +51,7 @@ import com.xinrui.smart.util.CommonUtil;
 import com.xinrui.smart.util.GetUrl;
 import com.xinrui.smart.util.OnItemClickListener;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -164,10 +170,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
 
     @Override
     public void onStart() {
@@ -854,7 +856,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         }
         viewPager.setCurrentItem(0);
         savedState();
-        Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
     }
 
     public void method_btn_2() {
@@ -879,7 +880,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         }
         viewPager.setCurrentItem(1);
         savedState();
-        Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
 
     }
 
@@ -905,7 +905,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         }
         viewPager.setCurrentItem(2);
         savedState();
-        Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
     }
 
     public void method_btn_4() {
@@ -930,7 +929,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         }
         viewPager.setCurrentItem(3);
         savedState();
-        Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
 
     }
 
@@ -996,7 +994,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             add_key++;
         }
         savedState();
-        Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
     }
 
 //    public void method_delete_btn() {
@@ -1200,7 +1197,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             fragmentslist.add(btn4_fragment);
         }
         int postion = viewPager.getCurrentItem();
-        Toast.makeText(getActivity(), "postion:" + postion, Toast.LENGTH_LONG).show();
         fragmentViewPagerAdapter.notifyDataSetChanged();
     }
 
@@ -1212,7 +1208,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         btn4_fragment = new Btn4_fragment();
 
         if (add_key == 0) {
-            Toast.makeText(getActivity(), "无数据,不能复制!", Toast.LENGTH_LONG).show();
         } else if (add_key == 1) {
             Bundle bundle = new Bundle();
             bundle.putInt("group1", 1);
@@ -1254,7 +1249,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             }
         }
         int postion = viewPager.getCurrentItem();
-        Toast.makeText(getActivity(), "postion:" + postion, Toast.LENGTH_LONG).show();
         fragmentViewPagerAdapter.notifyDataSetChanged();
     }
 

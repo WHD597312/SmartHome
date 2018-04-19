@@ -52,6 +52,8 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         public final static Property MachineFall = new Property(25, String.class, "machineFall", false, "MACHINE_FALL");
         public final static Property ProtectSetTemp = new Property(26, int.class, "protectSetTemp", false, "PROTECT_SET_TEMP");
         public final static Property ProtectProTemp = new Property(27, int.class, "protectProTemp", false, "PROTECT_PRO_TEMP");
+        public final static Property ExtTemp = new Property(28, int.class, "extTemp", false, "EXT_TEMP");
+        public final static Property ExtHut = new Property(29, int.class, "extHut", false, "EXT_HUT");
     }
 
 
@@ -94,7 +96,9 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
                 "\"CURRENT_VALUE\" INTEGER NOT NULL ," + // 24: currentValue
                 "\"MACHINE_FALL\" TEXT," + // 25: machineFall
                 "\"PROTECT_SET_TEMP\" INTEGER NOT NULL ," + // 26: protectSetTemp
-                "\"PROTECT_PRO_TEMP\" INTEGER NOT NULL );"); // 27: protectProTemp
+                "\"PROTECT_PRO_TEMP\" INTEGER NOT NULL ," + // 27: protectProTemp
+                "\"EXT_TEMP\" INTEGER NOT NULL ," + // 28: extTemp
+                "\"EXT_HUT\" INTEGER NOT NULL );"); // 29: extHut
     }
 
     /** Drops the underlying database table. */
@@ -190,6 +194,8 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         }
         stmt.bindLong(27, entity.getProtectSetTemp());
         stmt.bindLong(28, entity.getProtectProTemp());
+        stmt.bindLong(29, entity.getExtTemp());
+        stmt.bindLong(30, entity.getExtHut());
     }
 
     @Override
@@ -279,6 +285,8 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         }
         stmt.bindLong(27, entity.getProtectSetTemp());
         stmt.bindLong(28, entity.getProtectProTemp());
+        stmt.bindLong(29, entity.getExtTemp());
+        stmt.bindLong(30, entity.getExtHut());
     }
 
     @Override
@@ -316,7 +324,9 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
             cursor.getInt(offset + 24), // currentValue
             cursor.isNull(offset + 25) ? null : cursor.getString(offset + 25), // machineFall
             cursor.getInt(offset + 26), // protectSetTemp
-            cursor.getInt(offset + 27) // protectProTemp
+            cursor.getInt(offset + 27), // protectProTemp
+            cursor.getInt(offset + 28), // extTemp
+            cursor.getInt(offset + 29) // extHut
         );
         return entity;
     }
@@ -351,6 +361,8 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         entity.setMachineFall(cursor.isNull(offset + 25) ? null : cursor.getString(offset + 25));
         entity.setProtectSetTemp(cursor.getInt(offset + 26));
         entity.setProtectProTemp(cursor.getInt(offset + 27));
+        entity.setExtTemp(cursor.getInt(offset + 28));
+        entity.setExtHut(cursor.getInt(offset + 29));
      }
     
     @Override

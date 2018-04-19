@@ -2,11 +2,15 @@ package com.xinrui.smart.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -35,12 +39,15 @@ import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.Equipment;
 import com.xinrui.smart.pojo.Room;
 import com.xinrui.smart.pojo.RoomEntry;
+import com.xinrui.smart.reveiver.MQTTMessageReveiver;
 import com.xinrui.smart.util.GetUrl;
 import com.xinrui.smart.util.ItemDecoration.GridSpacingItemDecoration;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.RoomViewGroup;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URLEncoder;
@@ -88,12 +95,7 @@ public class Btn1_fragment extends Fragment{
     GetUrl getUrl = new GetUrl();
     Room room;
     RoomEntry roomEntry;
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-
-        }
-    };
+    public static int running=0;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -118,9 +120,6 @@ public class Btn1_fragment extends Fragment{
             @Override
             public void onDataReceivedSuccess(List<Room> listData) {
                 room_list = listData;
-                for (int i = 0; i < room_list.size(); i++) {//如此，我们便把onPostExecute中的变量赋给了成员变量list_room
-                    Toast.makeText(getActivity(), room_list.size(),Toast.LENGTH_LONG).show();
-                }
             }
 
             @Override
@@ -143,7 +142,6 @@ public class Btn1_fragment extends Fragment{
 
         @Override
         protected void onPreExecute() {
-            Toast.makeText(getActivity(),"开始执行",Toast.LENGTH_SHORT).show();
             super.onPreExecute();
         }
 
@@ -286,7 +284,9 @@ public class Btn1_fragment extends Fragment{
         imageView.setMinimumHeight(view_background.getHeight());
 
     }
-
+    String topicName;
+    boolean open = false;
+    String mac;
     //绘制房间view
     @SuppressLint("ClickableViewAccessibility")
     public View setLayout(JSONArray devices, String roomName, int x, int y, int width, int height) {
@@ -298,7 +298,6 @@ public class Btn1_fragment extends Fragment{
          int item_width = width1/4;
 
         int line;//列
-        View childView = LayoutInflater.from(getActivity()).inflate(R.layout.scene_room_content, null);
 
         if(width == item_width || width < item_width){
             line = 2;
@@ -308,6 +307,14 @@ public class Btn1_fragment extends Fragment{
             line = 6;
         }else {
             line = 8;
+        }
+        View childView;
+        if(line == 2){
+             childView = LayoutInflater.from(getActivity()).inflate(R.layout.scene_room_content, null);
+
+        }else {
+             childView = LayoutInflater.from(getActivity()).inflate(R.layout.scene_room_content1, null);
+
         }
 
         try {
@@ -322,19 +329,46 @@ public class Btn1_fragment extends Fragment{
                 int isUnlock = devices_object.getInt("isUnlock");
                 int controlled = devices_object.getInt("controlled");
                 int masterControllerUserId = devices_object.getInt("masterControllerUserId");
+                int device_drawable = 0;
                 if(type == 1){
-                    type = R.drawable.equipment_warmer;
+                    device_drawable = R.drawable.equipment_warmer;
                 }else if(type == 2){
-                    type = R.drawable.equipment_external_sensor;
+                    device_drawable = R.drawable.equipment_external_sensor;
                 }
-                Equipment equipment = new Equipment(id,deviceName,type,macAddress,controlled);
+                Equipment equipment = new Equipment(id,deviceName,device_drawable,macAddress,controlled,type);
                 device_list.add(equipment);
+
             }
         }catch (Exception e){
             e.printStackTrace();
         }
 
+//        try {
+            for (int i = 0; i < device_list.size(); i++) {
+            int s1 = device_list.get(i).getDevice_type();
+            if(device_list.get(i).getDevice_type() == 2){
+//                    JSONObject maser = new JSONObject();
+//                    maser.put("extTemp",11);
+//                    maser.put("extHum",12);
+//                    mac = device_list.get(i).getMacAddress();
+//                    String s = maser.toString();
+//
+//                    topicName = "rango/dc412dcaa96e/transfer";
+//                    if (bound){
+//                        open = mqService.publish(topicName, 2, s);
+//                        if(open){
+//                            Toast.makeText(getActivity(),"asdfasd",Toast.LENGTH_LONG);
+//                        }
+//                    }
 
+
+                }
+
+            }
+//        }
+//        catch (JSONException e) {
+//            e.printStackTrace();
+//        }
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(width, height);
         childView.setTranslationX(x);
         childView.setTranslationY(y);
@@ -351,6 +385,8 @@ public class Btn1_fragment extends Fragment{
         Scene_deviceAdapter scene_deviceAdapter = new Scene_deviceAdapter(device_list);
         rv.setAdapter(scene_deviceAdapter);
         saveViewInstance(roomName,childView);
+
+
         return childView;
     }
 
@@ -370,7 +406,6 @@ public class Btn1_fragment extends Fragment{
                     if(childView.getTag() == room_list.get(i).getView().getTag()){
                         SharedPreferences sp = getActivity().getSharedPreferences("room_postion", MODE_PRIVATE);
                         sp.edit().putInt("room_postion", i);
-                        Toast.makeText(getActivity(),room_list.get(i).getRoomId()+"",Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(getActivity(),RoomTypesActivity.class);
                         int roomId = room_list.get(i).getRoomId();
                         sp.edit().putInt("roomId",roomId);
@@ -540,13 +575,6 @@ public class Btn1_fragment extends Fragment{
     }
 
     @Override
-    public void onResume() {
-
-        super.onResume();
-
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
         sharedPreferences =  getActivity().getSharedPreferences("roomType",Context.MODE_PRIVATE);
@@ -554,13 +582,50 @@ public class Btn1_fragment extends Fragment{
 
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
+    MQTTMessageReveiver receiver = new MQTTMessageReveiver();
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        running=2;
+        Intent intent=new Intent(getActivity(),MQService.class);
+        getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
+        IntentFilter intentFilter=new IntentFilter("Btn1_fragment");
+        getActivity().registerReceiver(receiver,intentFilter);
+        Intent intent1 = new Intent();
+        intent1.setAction("mqttmessage");
+        getActivity().sendBroadcast(intent1);
     }
+
+
+    MQService mqService;
+    boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (connection!=null){
+            getActivity().unbindService(connection);
+        }
+        if (receiver!=null){
+            getActivity().unregisterReceiver(receiver);
+        }
+        super.onDestroy();
+    }
+
 }

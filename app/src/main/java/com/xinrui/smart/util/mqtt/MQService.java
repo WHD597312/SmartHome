@@ -1,6 +1,11 @@
 package com.xinrui.smart.util.mqtt;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
@@ -10,6 +15,9 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
+import com.xinrui.smart.R;
+import com.xinrui.smart.activity.MainActivity;
+import com.xinrui.smart.fragment.LiveFragment;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.util.Utils;
 
@@ -49,6 +57,34 @@ public class MQService extends Service {
         return binder;
     }
 
+
+    //启动前台通知
+    private void showNotification(){
+        //创建通知详细信息
+        Notification.Builder mBuilder = new Notification.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("mqtt")
+                .setContentText("mqtt运行");
+        //创建点击跳转Intent
+        Intent intent = new Intent(this, MainActivity.class);
+        //创建任务栈Builder
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addNextIntent(intent);
+        PendingIntent pendingIntent = stackBuilder
+                .getPendingIntent(0,PendingIntent.FLAG_CANCEL_CURRENT);
+        //设置跳转Intent到通知中
+        mBuilder.setContentIntent(pendingIntent);
+        //获取通知服务
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        //构建通知
+        Notification notification = mBuilder.build();
+        //显示通知
+        nm.notify(0,notification);
+        //启动为前台服务
+        startForeground(0,notification);
+
+    }
     @Override
     public void onCreate() {
         super.onCreate();
@@ -56,6 +92,7 @@ public class MQService extends Service {
         Log.d(TAG,"onCreate");
         init();
         connect();
+        showNotification();
     }
 
     @Override
@@ -195,7 +232,7 @@ public class MQService extends Service {
         for (DeviceChild deviceChild :list){
             String macAddress=deviceChild.getMacAddress();
             if (!Utils.isEmpty(macAddress)){
-                String topicName="warmer1.0/"+macAddress+"/transfer";
+                String topicName="rango/"+"dc4f221cc96e"+"/transfer";
                 topicNames.add(topicName);
             }
         }

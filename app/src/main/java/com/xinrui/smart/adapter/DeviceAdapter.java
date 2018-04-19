@@ -321,7 +321,6 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                 if (entry.getImg() == imgs[0]) {
                     if (bound) {
                         try {
-
                             JSONObject maser = new JSONObject();
                             maser.put("ctrlMode", "master");
                             maser.put("workMode", "manual");

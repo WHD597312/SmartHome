@@ -1,5 +1,6 @@
 package com.xinrui.smart.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -206,6 +207,7 @@ public class DeviceFragment extends Fragment{
         }
     }
 
+    @SuppressLint("HandlerLeak")
     Handler handler=new Handler(){
         @Override
         public void handleMessage(Message msg) {

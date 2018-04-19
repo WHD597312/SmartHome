@@ -27,6 +27,25 @@ public class Room implements Serializable{
     private int y;
     private int width;
     private int height;
+    private int extTemp;
+    private int extHut;
+
+
+    public int getExtTemp() {
+        return extTemp;
+    }
+
+    public void setExtTemp(int extTemp) {
+        this.extTemp = extTemp;
+    }
+
+    public int getExtHut() {
+        return extHut;
+    }
+
+    public void setExtHut(int extHut) {
+        this.extHut = extHut;
+    }
 
     public View getView() {
         return view;

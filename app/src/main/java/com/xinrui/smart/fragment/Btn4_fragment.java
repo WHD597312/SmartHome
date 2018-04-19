@@ -100,8 +100,8 @@ public class Btn4_fragment extends Fragment{
 
         sharedPreferences = getActivity().getSharedPreferences("data",0);
         house_id = sharedPreferences.getLong("house_id",0);
-        view_background = (RoomViewGroup) inflater.inflate(R.layout.rooms_background1, container, false);
-        roomViewGroup = (FrameLayout) view_background.findViewById(R.id.fl);
+        view_background = (RoomViewGroup) inflater.inflate(R.layout.rooms_background4, container, false);
+        roomViewGroup = (FrameLayout) view_background.findViewById(R.id.f4);
         initView();
         ModificationAsyncTask();
         sendRequestForListData();
@@ -118,9 +118,6 @@ public class Btn4_fragment extends Fragment{
             @Override
             public void onDataReceivedSuccess(List<Room> listData) {
                 room_list = listData;
-                for (int i = 0; i < room_list.size(); i++) {//如此，我们便把onPostExecute中的变量赋给了成员变量list_room
-                    Toast.makeText(getActivity(), room_list.size(),Toast.LENGTH_LONG).show();
-                }
             }
 
             @Override
@@ -143,7 +140,6 @@ public class Btn4_fragment extends Fragment{
 
         @Override
         protected void onPreExecute() {
-            Toast.makeText(getActivity(),"开始执行",Toast.LENGTH_SHORT).show();
             super.onPreExecute();
         }
 
@@ -281,7 +277,7 @@ public class Btn4_fragment extends Fragment{
         int width =  wm.getDefaultDisplay().getWidth();
          item_width = width/4;
          height = wm.getDefaultDisplay().getHeight();
-        ImageView imageView = (ImageView) roomViewGroup.findViewById(R.id.empty_room_iv1);
+        ImageView imageView = (ImageView) roomViewGroup.findViewById(R.id.empty_room_iv4);
         imageView.setLayoutParams(new FrameLayout.LayoutParams(width,width*2));
         imageView.setMinimumHeight(view_background.getHeight());
 
@@ -322,12 +318,14 @@ public class Btn4_fragment extends Fragment{
                 int isUnlock = devices_object.getInt("isUnlock");
                 int controlled = devices_object.getInt("controlled");
                 int masterControllerUserId = devices_object.getInt("masterControllerUserId");
+                int device_drawable = 0;
+
                 if(type == 1){
-                    type = R.drawable.equipment_warmer;
+                    device_drawable = R.drawable.equipment_warmer;
                 }else if(type == 2){
-                    type = R.drawable.equipment_external_sensor;
+                    device_drawable = R.drawable.equipment_external_sensor;
                 }
-                Equipment equipment = new Equipment(id,deviceName,type,macAddress,controlled);
+                Equipment equipment = new Equipment(id,deviceName,device_drawable,macAddress,controlled,device_drawable);
                 device_list.add(equipment);
             }
         }catch (Exception e){
@@ -370,7 +368,6 @@ public class Btn4_fragment extends Fragment{
                     if(childView.getTag() == room_list.get(i).getView().getTag()){
                         SharedPreferences sp = getActivity().getSharedPreferences("room_postion", MODE_PRIVATE);
                         sp.edit().putInt("room_postion", i);
-                        Toast.makeText(getActivity(),room_list.get(i).getRoomId()+"",Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(getActivity(),RoomTypesActivity.class);
                         int roomId = room_list.get(i).getRoomId();
                         sp.edit().putInt("roomId",roomId);

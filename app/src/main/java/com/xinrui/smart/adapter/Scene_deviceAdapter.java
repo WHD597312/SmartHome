@@ -1,5 +1,8 @@
 package com.xinrui.smart.adapter;
 
+import android.content.ComponentName;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +12,10 @@ import android.widget.ImageView;
 
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.Equipment;
+import com.xinrui.smart.util.mqtt.MQService;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +40,7 @@ public class Scene_deviceAdapter extends RecyclerView.Adapter<Scene_deviceAdapte
 
     @Override
     public void onBindViewHolder(MyHolder holder, int postion) {
+
 //        Equipment scene_device = list.get(postion);
 //        int device_image = 0;
 //        for (int i = 0; i < list.size(); i++) {
@@ -46,8 +54,10 @@ public class Scene_deviceAdapter extends RecyclerView.Adapter<Scene_deviceAdapte
 //                holder.device_image.setImageResource(device_image);
 //            }
 //        }
+
                 final Equipment equipment = list.get(postion);
                 holder.device_image.setImageResource(equipment.getType());
+
     }
 
     static class MyHolder extends RecyclerView.ViewHolder {
@@ -71,5 +81,23 @@ public class Scene_deviceAdapter extends RecyclerView.Adapter<Scene_deviceAdapte
     public int getItemCount() {
         return list==null ? 0 : list.size();
     }
+
+
+
+    MQService mqService;
+    boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
 
 }
