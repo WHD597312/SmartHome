@@ -43,7 +43,9 @@
         <attr name="numcolor" format="color"/>
         <attr name="module" format="string"/>
         <attr name="slide" format="boolean"/>
-        <attr name="week" format="string"/>
+        <attr name="week" format="integer"/>
+        <attr name="deviceId" format="string"/>
+        <attr name="mCurrentAngle" format="integer"/>
     </declare-styleable>
     <declare-styleable name="SemicircleBar">
         <attr name="semicircle_max_precess" format="integer"/>

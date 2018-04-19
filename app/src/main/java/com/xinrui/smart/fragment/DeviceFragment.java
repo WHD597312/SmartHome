@@ -92,7 +92,6 @@ public class DeviceFragment extends Fragment{
     private AMapLocationClientOption locationOption = null;
     private View view;
     private Unbinder unbinder;
-    public static int running=0;
     /** children items with a key and value list */
     @BindView(R.id.rv_list) RecyclerView rv_list;
 
@@ -126,6 +125,7 @@ public class DeviceFragment extends Fragment{
     ServiceConnection connection;
     DeviceAdapter.MessageReceiver  receiver;
     int sum=0;
+    public static int running=0;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -248,6 +248,7 @@ public class DeviceFragment extends Fragment{
                 }
             }
         });
+
     }
 
     @Override
@@ -339,17 +340,33 @@ public class DeviceFragment extends Fragment{
                     JSONObject object=new JSONObject(result);
                     code=object.getInt("code");
                     if (code==2000){
-                        DeviceGroup deviceGroup=deviceGroups.get(updateGroupPosition);
-                        if (deviceGroup!=null){
+                        DeviceGroup deviceGroup2=deviceGroups.get(updateGroupPosition);
+                        if (deviceGroup2!=null){
 
-                           List<DeviceChild> deviceChildren3=childern.get(updateGroupPosition);
-                           if (!deviceChildren3.isEmpty()){
-                               deviceChildDao.deleteGroupDevice(deviceChildren3);
-                               childern.removeAll(deviceChildren3);
-                           }
-                           deviceGroupDao.delete(deviceGroup);
-                           deviceGroups.remove(deviceGroup);
+                            List<DeviceChild> deviceChildren3=childern.get(updateGroupPosition);
+                            if (!deviceChildren3.isEmpty()){
+                                deviceChildDao.deleteGroupDevice(deviceChildren3);
 
+                            }
+                            deviceGroupDao.delete(deviceGroup2);
+                        }
+                        deviceGroups.clear();
+                        childern.clear();
+                        List<DeviceGroup> groups=deviceGroupDao.findAllDevices();
+
+
+                        for (DeviceGroup group:groups){
+                            deviceGroups.add(group);
+                        }
+                        for (DeviceGroup deviceGroup:deviceGroups){
+                            if (deviceGroup!=null){
+                                List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
+                                for (DeviceChild deviceChild :deviceChildren){
+                                    long id=deviceChild.getId();
+                                    String name=deviceChild.getDeviceName();
+                                }
+                                childern.add(deviceChildren);
+                            }
                         }
                     }
                 }
@@ -610,6 +627,12 @@ public class DeviceFragment extends Fragment{
         }
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        running=0;
+    }
+
     public ArrayList<JsonBean> parseData(String result) {//Gson 解析
         ArrayList<JsonBean> detail = new ArrayList<>();
         try {
@@ -700,6 +723,7 @@ public class DeviceFragment extends Fragment{
         mOption.setLocationCacheEnable(true); //可选，设置是否使用缓存定位，默认为true
         return mOption;
     }
+
     /**
      * 定位监听
      */
@@ -820,14 +844,13 @@ public class DeviceFragment extends Fragment{
     public void onDestroy() {
         super.onDestroy();
         destroyLocation();
-        running=0;
+
         if (connection!=null){
             getActivity().unbindService(connection);
         }
         if (receiver!=null){
             getActivity().unregisterReceiver(receiver);
         }
-
     }
 
     /**

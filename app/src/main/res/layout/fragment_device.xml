@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#33302b"
+    android:id="@+id/layout_body"
     android:orientation="vertical">
 
     <android.support.v7.widget.RecyclerView
@@ -14,7 +15,7 @@
         android:layout_marginLeft="@dimen/dp_5"
         android:layout_marginRight="@dimen/dp_5"
         android:layout_marginBottom="@dimen/dp_5"
-         />
+        />
 
     <Button
         android:id="@+id/btn_add_residence"

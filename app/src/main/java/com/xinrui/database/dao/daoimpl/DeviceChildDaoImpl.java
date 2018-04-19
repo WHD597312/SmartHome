@@ -25,7 +25,7 @@ public class DeviceChildDaoImpl {
         db= DBManager.getInstance(context).getWritableDasebase();
         master=new DaoMaster(db);
         DaoSession session=master.newSession();
-        deviceChildDao=session.getDeviceChildDao();
+       deviceChildDao=session.getDeviceChildDao();
     }
 
     public void insert(DeviceChild deviceChild){
@@ -49,6 +49,9 @@ public class DeviceChildDaoImpl {
     }
     public void delete(DeviceChild deviceChild){
         deviceChildDao.delete(deviceChild);
+    }
+    public void deleteGroup(List<DeviceChild> deviceChildren){
+        deviceChildDao.deleteInTx(deviceChildren);
     }
     public DeviceChild findDeviceChild(Long id){
         return deviceChildDao.load(id);

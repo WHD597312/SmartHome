@@ -1,6 +1,7 @@
 package com.xinrui.smart.activity;
 
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,6 +9,7 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -16,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -121,9 +124,6 @@ public class TimeTaskActivity extends AppCompatActivity{
 //        listview.setOnItemClickListener(this);
         timeTaskDao=new TimeTaskDaoImpl(this);
 
-        deviceChildDao=new DeviceChildDaoImpl(this);
-        deviceChild=deviceChildDao.findDeviceChild(deviceId);
-
 //        week.setOnItemClickListener(this);
 
 
@@ -161,10 +161,11 @@ public class TimeTaskActivity extends AppCompatActivity{
 
         mSelectedWeek=mWeek;
         int week3=ChineseNumber.chineseNumber2Int(mWeek);
-        seekbar.setWeek(week3+"");
+        seekbar.setWeek(week3);
+        seekbar.setDeviceId(deviceId+"");
 
         /**初始化时间适配器*/
-        list=timeTaskDao.findWeekAll(week3+"");/**查询一周某一天的定时数据*/
+        list=timeTaskDao.findWeekAll(deviceId,week3);/**查询某个设备，一周某一天的定时数据*/
         timeTaskAdapter=new TimeTaskAdapter(this,list,myClickListener);
         listview.setAdapter(timeTaskAdapter);
 
@@ -230,7 +231,9 @@ public class TimeTaskActivity extends AppCompatActivity{
     }
     //    private void setPaster
     int [] tvBack={R.color.color_black,R.color.white};
-    @OnClick({R.id.btn_add,R.id.open_time,R.id.btn_cancle2,R.id.btn_ensure2,R.id.close_time,R.id.tv_temp_num,R.id.img_back,R.id.btn_copy,R.id.tv_mon,R.id.tv_tue,R.id.tv_wen,R.id.tv_thu,R.id.tv_fri,R.id.tv_sta,R.id.tv_sun})
+    @OnClick({R.id.btn_add,R.id.open_time,R.id.btn_cancle2,R.id.btn_ensure2,R.id.close_time,R.id.tv_temp_num,
+            R.id.img_back,R.id.btn_copy,R.id.tv_mon,R.id.tv_tue,R.id.tv_wen,R.id.tv_thu,R.id.tv_fri,R.id.tv_sta,R.id.tv_sun
+            ,R.id.btn_publish})
     public void onClick(View view){
         switch (view.getId()){
             case R.id.tv_mon:
@@ -274,52 +277,34 @@ public class TimeTaskActivity extends AppCompatActivity{
                 }
                 break;
             case R.id.btn_add:/**添加开始设定时间和结束设定时间，温度*/
-
-
                 String open=open_time.getText().toString();
                 String close=close_time.getText().toString();
                 String temp=tv_temp_num.getText().toString();
-                if(!Utils.isEmpty(open) && !Utils.isEmpty(close)&& !Utils.isEmpty(temp)){
-                    open=open.substring(0,open.indexOf(":"));
-                    close=close.substring(0,close.indexOf(":"));
-                    temp=close.substring(0,temp.indexOf("℃"));
-                    int mWeek= ChineseNumber.chineseNumber2Int(mSelectedWeek);
-                    TaskTime taskTime2=new TaskTime(Integer.parseInt(open), Integer.parseInt(close), Integer.parseInt(temp), mWeek+"");
-                    List<TaskTime> taskTimes=timeTaskDao.findWeekAll(mWeek+"");
-                    for (TaskTime taskTime:taskTimes){
-                        if (taskTime2.equals(taskTime)){
-                            Utils.showToast(this,"该时间段已存在");
-                            return;
-                        }
+                if(!Utils.isEmpty(open) && !Utils.isEmpty(close)&& !Utils.isEmpty(temp)) {
+                    open = open.substring(0, open.indexOf(":"));
+                    close = close.substring(0, close.indexOf(":"));
+                    temp = close.substring(0, temp.indexOf("℃"));
+                    int start=Integer.parseInt(open);
+                    int end=Integer.parseInt(close);
+
+                    int week = ChineseNumber.chineseNumber2Int(mSelectedWeek);
+                    TaskTime taskTime=new TaskTime(deviceId, week, start, end, Integer.parseInt(temp));
+                    if (taskTime!=null){
+                        timeTaskDao.insert(taskTime);
+                        list.add(taskTime);
+                        timeTaskAdapter.notifyDataSetChanged();
+                        listview.setVisibility(View.VISIBLE);
+                        seekbar.setDeviceId(deviceId+"");
+                        seekbar.setWeek(week);
+                        seekbar.invalidate();
+
                     }
-                    try {
-                        JSONObject device=new JSONObject();
-                        device.put("deviceId",deviceId);
-                        JSONArray deviceTimeControlDtos=new JSONArray();
-
-                        JSONObject week=new JSONObject();
-
-                        week.put("week",mWeek);
-                        JSONArray deviceTimeControlList=new JSONArray();
-                        JSONObject object=new JSONObject();
-                        object.put("temp",temp);
-                        object.put("openTime",open);
-                        object.put("closeTime",close);
-                        deviceTimeControlList.put(object);
-
-                        week.put("deviceTimeControlList",deviceTimeControlList);
-                        deviceTimeControlDtos.put(week);
-                        device.put("deviceTimeControlDtos",deviceTimeControlDtos);
-                        new TaskTimeAsync().execute(device);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-
-//                    int openTime=Integer.parseInt(open.substring(0,open.indexOf(":")));
-//                    int closeTime=Integer.parseInt(close.substring(0,close.indexOf(":")));
-
                 }
                 break;
+            case R.id.btn_publish:
+                Toast.makeText(this,"ssss",Toast.LENGTH_LONG).show();
+                break;
+
             case R.id.open_time:/**设定开始时间*/
                 linearout.setVisibility(View.VISIBLE);
                 tv_clock.setText("开始时间");
@@ -382,16 +367,15 @@ public class TimeTaskActivity extends AppCompatActivity{
             String mWeek= (String) msg.obj;
             switch (msg.what){
                 case 1:
-
                     if (!Utils.isEmpty(mSelectedWeek)){
                         int selectedWeek=ChineseNumber.chineseNumber2Int(mSelectedWeek);
-                        list=timeTaskDao.findWeekAll(selectedWeek+"");
+                        list=timeTaskDao.findWeekAll(deviceId,selectedWeek);
                         if (list.isEmpty()){
-                            seekbar.setWeek(mSelectedWeek);
+                            seekbar.setWeek(selectedWeek);
                             seekbar.invalidate();
                             listview.setVisibility(View.GONE);
                         }else {
-                            seekbar.setWeek(selectedWeek+"");
+                            seekbar.setWeek(selectedWeek);
                             seekbar.invalidate();
                             listview.setVisibility(View.VISIBLE);
                             timeTaskAdapter.notifyDataSetChanged();
@@ -401,7 +385,7 @@ public class TimeTaskActivity extends AppCompatActivity{
                 case 2:
                     copyWeek= (String) msg.obj;
                     int copy=ChineseNumber.chineseNumber2Int(copyWeek);
-                    List<TaskTime> mCopyList=timeTaskDao.findWeekAll(copy+"");
+                    List<TaskTime> mCopyList=timeTaskDao.findWeekAll(deviceId,copy);
                     if (mCopyList.isEmpty()){
                         Utils.showToast(TimeTaskActivity.this,"没有复制的数据");
                         btn_copy.setText("复制");
@@ -411,18 +395,19 @@ public class TimeTaskActivity extends AppCompatActivity{
                     pasteWeek= (String) msg.obj;
                     int copy2=ChineseNumber.chineseNumber2Int(copyWeek);
                     int paster=ChineseNumber.chineseNumber2Int(pasteWeek);
-                    List<TaskTime> mCopyList2=timeTaskDao.findWeekAll(copy2+"");
+                    List<TaskTime> mCopyList2=timeTaskDao.findWeekAll(deviceId,copy2);
                     if (mCopyList2!=null && !mCopyList2.isEmpty()){
                         if (pasteWeek.equals(copyWeek)){
                             return;
                         }
                         List<TaskTime> pasteList=new ArrayList<>();
                         for (TaskTime taskTime : mCopyList2){
-                            TaskTime taskTime2=new TaskTime(taskTime.getStart(),taskTime.getEnd(),taskTime.getTemp(),paster+"");
-                            pasteList.add(taskTime2);
+//                            TaskTime taskTime2=new TaskTime(taskTime.getDeviceId(), taskTime.getWeek(), taskTime.getStart(), taskTime.getEnd(),taskTime.getTemp());
+//                            pasteList.add(taskTime2);
                         }
                         timeTaskDao.insertTaskTimeList(pasteList);
-                        seekbar.setWeek(paster+"");
+                        seekbar.setWeek(paster);
+                        seekbar.setDeviceId(deviceId+"");
 
                         seekbar.invalidate();
                         listview.setVisibility(View.VISIBLE);
@@ -433,115 +418,23 @@ public class TimeTaskActivity extends AppCompatActivity{
                 case 4:
                     String deleteWeek= (String) msg.obj;
                     int delete=ChineseNumber.chineseNumber2Int(deleteWeek);
-                    list=timeTaskDao.findWeekAll(delete+"");
+                    list=timeTaskDao.findWeekAll(deviceId,delete);
                     if (list.isEmpty()){
-                        seekbar.setWeek(delete+"");
+                        seekbar.setWeek(delete);
                         seekbar.invalidate();
                         listview.setVisibility(View.GONE);
                     }else {
-                        seekbar.setWeek(delete+"");
+                        seekbar.setWeek(delete);
                         seekbar.invalidate();
                         listview.setVisibility(View.VISIBLE);
                         timeTaskAdapter.notifyDataSetChanged();
                     }
                     break;
+                case 5:
+
+                    break;
             }
 
         }
     };
-
-    class GetTaskTimeAsync extends AsyncTask<Void,Void,Integer>{
-
-        @Override
-        protected Integer doInBackground(Void... voids) {
-            int code=0;
-            try {
-                String taskTimeUrl="http://120.77.36.206:8082/warmer/v1.0/device/timeControl?deviceId="+ URLEncoder.encode(deviceId+"","utf-8");
-                String result=HttpUtils.getOkHpptRequest(taskTimeUrl);
-                if (!Utils.isEmpty(result)){
-                    JSONObject jsonObject=new JSONObject(result);
-                    code=jsonObject.getInt("code");
-                    if (code==2000){
-                        JSONObject content=jsonObject.getJSONObject("content");
-                        int deviceId=content.getInt("deviceId");
-                        JSONArray deviceTimeControlDtos=content.getJSONArray("deviceTimeControlDtos");
-                        for (int i = 0; i < deviceTimeControlDtos.length(); i++) {
-                            JSONObject week=deviceTimeControlDtos.getJSONObject(i);
-                            int  mWeek=week.getInt("week");
-                            JSONArray deviceTimeControlList=week.getJSONArray("deviceTimeControlList");
-                            for (int j = 0; j < deviceTimeControlList.length(); j++) {
-                                JSONObject object1=deviceTimeControlList.getJSONObject(j);
-                                String openTime=object1.getString("openTime");
-                                String closeTime=object1.getString("closeTime");
-                                String temp=object1.getString("temp");
-                                TaskTime taskTime=new TaskTime(Integer.parseInt(openTime), Integer.parseInt(closeTime), Integer.parseInt(temp),mWeek+"");
-                                if (timeTaskDao.insert(taskTime)){
-                                    list.add(taskTime);
-                                }
-                            }
-                        }
-                    }
-                }
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-    }
-
-    class TaskTimeAsync extends AsyncTask<JSONObject,Void,Integer>{
-
-        @Override
-        protected Integer doInBackground(JSONObject... jsonObjects) {
-            int code=0;
-            JSONObject jsonObject=jsonObjects[0];
-            String result=HttpUtils.postOkHpptRequest3(taskTimeUrl,jsonObject);
-            if (!Utils.isEmpty(result)){
-                try {
-                    JSONObject object=new JSONObject(result);
-                    code=object.getInt("code");
-                    if (code==2000){
-//                        long jsonObject.getLong("deviceId");
-                        JSONArray deviceTimeControlDtos=jsonObject.getJSONArray("deviceTimeControlDtos");
-                        for (int i = 0; i < deviceTimeControlDtos.length(); i++) {
-                            JSONObject week=deviceTimeControlDtos.getJSONObject(i);
-                            int  mWeek=week.getInt("week");
-                            JSONArray deviceTimeControlList=week.getJSONArray("deviceTimeControlList");
-                            for (int j = 0; j < deviceTimeControlList.length(); j++) {
-                                JSONObject object1=deviceTimeControlList.getJSONObject(j);
-                                String openTime=object1.getString("openTime");
-                                String closeTime=object1.getString("closeTime");
-                                String temp=object1.getString("temp");
-                                TaskTime taskTime=new TaskTime(Integer.parseInt(openTime), Integer.parseInt(closeTime), Integer.parseInt(temp),mWeek+"");
-                                if (timeTaskDao.insert(taskTime)){
-                                    list.add(taskTime);
-                                }
-                            }
-                        }
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-            return code;
-        }
-
-        @Override
-        protected void onPostExecute(Integer code) {
-            super.onPostExecute(code);
-            switch (code){
-                case 2000:
-                    Utils.showToast(TimeTaskActivity.this, "添加成功");
-                    timeTaskAdapter.notifyDataSetChanged();
-                    listview.setVisibility(View.VISIBLE);
-                    seekbar.invalidate();
-                    break;
-                default:
-                    Utils.showToast(TimeTaskActivity.this, "添加失败");
-                    break;
-            }
-        }
-    }
-
 }

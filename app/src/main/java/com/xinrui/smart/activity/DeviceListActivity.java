@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -64,6 +65,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     @BindView(R.id.tv_clock) TextView tv_clock;
     MyApplication application;
     private String childPosition;
+    private DeviceChildDaoImpl deviceChildDao;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,10 +81,14 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.img_back:
-                finish();
+                Intent intent=new Intent(this,MainActivity.class);
+                intent.putExtra("deviceList","deviceList");
+                startActivity(intent);
                 break;
             case R.id.image_home:
-                finish();
+                Intent intent2=new Intent(this,MainActivity.class);
+                intent2.putExtra("deviceList","deviceList");
+                startActivity(intent2);
                 break;
             case R.id.btn_cancle:
                 linearout2.setVisibility(View.GONE);
@@ -103,16 +109,21 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     @Override
     protected void onStart() {
         super.onStart();
-
+        deviceChildDao=new DeviceChildDaoImpl(this);
         Intent intent = getIntent();
         String content = intent.getStringExtra("content");
         childPosition=intent.getStringExtra("childPosition");
 
+        DeviceChild deviceChild=deviceChildDao.findDeviceById(Long.parseLong(childPosition));
 
         tv_name.setText(content);
         fragmentManager =getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.linearout, new HeaterFragment());
+        HeaterFragment heaterFragment=new HeaterFragment();
+        Bundle bundle=new Bundle();
+        bundle.putString("deviceId",childPosition);
+        heaterFragment.setArguments(bundle);
+        fragmentTransaction.replace(R.id.linearout, heaterFragment);
         fragmentTransaction.commit();
 
         list = new ArrayList<>();
@@ -158,7 +169,17 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         super.onResume();
 
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            application.removeActivity(this);
+            Intent intent=new Intent(this,MainActivity.class);
+            intent.putExtra("deviceList","deviceList");
+            startActivity(intent);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
 
     @Override

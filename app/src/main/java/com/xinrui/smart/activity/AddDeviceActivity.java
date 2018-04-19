@@ -41,9 +41,12 @@ import com.xinrui.smart.fragment.AddDeviceWifiFragment;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.udp.Client;
 
 import org.json.JSONObject;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
@@ -474,6 +477,7 @@ public class AddDeviceActivity extends AppCompatActivity {
         }
     };
 
+    private int type;
     private class EsptouchAsyncTask3 extends AsyncTask<String, Void, List<IEsptouchResult>> {
 
         private ProgressDialog mProgressDialog;
@@ -522,6 +526,7 @@ public class AddDeviceActivity extends AppCompatActivity {
             int taskResultCount = -1;
             synchronized (mLock) {
                 // !!!NOTICE
+               
                 String apSsid = mWifiAdmin.getWifiConnectedSsidAscii(params[0]);
                 String apBssid = params[1];
                 String apPassword = params[2];
@@ -555,6 +560,34 @@ public class AddDeviceActivity extends AppCompatActivity {
                         //                String ssid=et_ssid.getText().toString();
                         DeviceChild deviceChild = new DeviceChild();
                         String ssid = resultInList.getBssid();
+                        if (!Utils.isEmpty(ssid)){
+                            DatagramPacket datagramPacket = null;
+                            DatagramSocket datagramSocket=null;
+                            String result2=null;
+                            try {
+                                datagramSocket=new DatagramSocket(1112);
+                                while(true){
+                                    byte[] buffer=new byte[50];
+                                    datagramPacket=new DatagramPacket(buffer, buffer.length);
+                                    datagramSocket.receive(datagramPacket);
+                                    byte[] bytes=datagramPacket.getData();
+                                    String data=new String(bytes, 0, bytes.length);
+                                    result2=data;
+                                    if (!Utils.isEmpty(result2)) {
+//                                        result2.substring()
+                                        if (result2.contains(ssid)){
+                                            String type2=result2.charAt(22)+"";
+                                            type=Integer.parseInt(type2);
+                                            Client.send("255.255.255.255","mac:"+ssid+";ok", 2525);
+                                            break;
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
 
                         if (deviceGroupDao != null) {
                             DeviceGroup deviceGroup = deviceGroupDao.findById(houseId);
@@ -563,10 +596,10 @@ public class AddDeviceActivity extends AppCompatActivity {
                                 params.put("deviceName", ssid);
                                 params.put("houseId", houseId);
                                 params.put("masterControllerUserId", userId);
-                                params.put("type", 1);
+                                params.put("type", type);
                                 params.put("macAddress", ssid);
                                 SharedPreferences wifi = getSharedPreferences("wifi", MODE_PRIVATE);
-                                boolean success = wifi.edit().putString(et_ssid.getText().toString(), et_ssid.getText().toString()).commit();
+                                boolean success = wifi.edit().putString(et_ssid.getText().toString(), et_pswd.getText().toString()).commit();
                                 if (success) {
                                     new WifiConectionAsync().execute(params);
                                 }

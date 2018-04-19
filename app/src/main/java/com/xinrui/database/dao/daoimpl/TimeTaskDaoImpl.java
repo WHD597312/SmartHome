@@ -9,6 +9,8 @@ import com.xinrui.database.dao.DaoSession;
 import com.xinrui.database.dao.TaskTimeDao;
 import com.xinrui.smart.pojo.TaskTime;
 
+import org.greenrobot.greendao.query.WhereCondition;
+
 import java.util.List;
 
 /**
@@ -19,55 +21,46 @@ public class TimeTaskDaoImpl {
     private Context context;
     private SQLiteDatabase db;
     private DaoMaster master;
+    private TaskTimeDao timeDao;
 
     public TimeTaskDaoImpl(Context context){
         this.context=context;
-        db=DBManager.getInstance(context).getReadableDatabase();
+        db=DBManager.getInstance(context).getWritableDasebase();
         master=new DaoMaster(db);
+        DaoSession session=master.newSession();
+        timeDao=session.getTaskTimeDao();
+
     }
     /**
      * 插入时间段
      * @param timeTask
      * @return
      */
-    public boolean insert(TaskTime timeTask){
-        long n=0;
-        DaoSession session=master.newSession();
-        TaskTimeDao timeDao=session.getTaskTimeDao();
-        n=timeDao.insert(timeTask);
-        return n>0?true:false;
+    public void insert(TaskTime timeTask){
+        timeDao.insert(timeTask);
     }
 
     public void insertTaskTimeList(List<TaskTime> list){
         if (list==null || list.isEmpty()){
             return;
         }
-        DaoSession session=master.newSession();
-        TaskTimeDao timeDao=session.getTaskTimeDao();
         timeDao.insertInTx(list);
     }
     public TaskTime getTaskTime(Long id){
-        DaoSession session=master.newSession();
-        TaskTimeDao timeDao=session.getTaskTimeDao();
         return timeDao.load(id);
     }
     public void delete(TaskTime taskTime){
-        DaoSession session=master.newSession();
-        TaskTimeDao timeDao=session.getTaskTimeDao();
         timeDao.delete(taskTime);
     }
-    public List<TaskTime> findWeekAll(String week){
-        DaoSession session=master.newSession();
-        TaskTimeDao timeDao=session.getTaskTimeDao();
-        return timeDao.queryBuilder().where(TaskTimeDao.Properties.Week.eq(week)).list();
+    public List<TaskTime> findWeekAll(long device,int week){
+        WhereCondition whereCondition=timeDao.queryBuilder().and(TaskTimeDao.Properties.DeviceId.eq(device),TaskTimeDao.Properties.Week.eq(week));
+        return timeDao.queryBuilder().where(whereCondition).list();
     }
     /**
      * 查询所有的TaskTime
      * @return
      */
     public List<TaskTime> findAll(){
-        DaoSession session=master.newSession();
-        TaskTimeDao taskTimeDao=session.getTaskTimeDao();
-        return taskTimeDao.loadAll();
+        return timeDao.loadAll();
     }
 }

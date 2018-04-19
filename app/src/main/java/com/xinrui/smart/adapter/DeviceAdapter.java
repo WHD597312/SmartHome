@@ -339,10 +339,10 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             boolean open = false;
                             String topicName;
                             if (entry.getType() == 1 && entry.getControlled() == 2) {
-                                topicName = "warmer1.0/" + mac + "/masterController/set";
+                                topicName = "rango/" + mac + "/masterController/set";
                                 open = mqService.publish(topicName, 2, s);
                             } else {
-                                topicName = "warmer1.0/" + mac + "/set";
+                                topicName = "rango/" + mac + "/set";
                                 open = mqService.publish(topicName, 2, s);
                             }
                             if (open) {
@@ -364,7 +364,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             boolean open = false;
                             String topicName;
                             if (entry.getType() == 1 && entry.getControlled() == 2) {
-                                topicName = "warmer1.0/" + mac + "/masterController/set";
+                                topicName = "rango/" + mac + "/masterController/set";
                                 open = mqService.publish(topicName, 2, s);
                             } else {
                                 topicName = "warmer1.0/" + mac + "/set";
@@ -551,19 +551,24 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
             int childPosition = intent.getIntExtra("childPosition", 0);
             String deviceState = intent.getStringExtra("deviceState");
             changeChild(groupPosition, childPosition);
-
             DeviceChild child = childern.get(groupPostion).get(childPosition);
-            child=deviceChildDao.findDeviceChild(child.getId());
+
             if ("close".equals(deviceState)) {
                 if (child != null) {
                     child.setImg(imgs[0]);
-                    deviceChildDao.update(child);
-                    changeChild(groupPosition, childPosition);
+                    DeviceChild child2=deviceChildDao.findDeviceById(child.getId());
+                    child2.setImg(imgs[0]);
+                    
+                    child.setRatedPower(child2.getRatedPower());
+                    deviceChildDao.update(child2);
                 }
             } else if ("open".equals(deviceState)) {
                 if (child != null) {
                     child.setImg(imgs[1]);
-                    deviceChildDao.update(child);
+                    DeviceChild child2=deviceChildDao.findDeviceById(child.getId());
+                    child.setRatedPower(child2.getRatedPower());
+                    child2.setImg(imgs[1]);
+                    deviceChildDao.update(child2);
                     changeChild(groupPosition, childPosition);
                 }
             }

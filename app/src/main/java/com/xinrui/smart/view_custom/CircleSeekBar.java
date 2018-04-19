@@ -22,6 +22,7 @@ import android.view.View;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.TaskTime;
+import com.xinrui.smart.util.Utils;
 
 import java.util.List;
 
@@ -68,7 +69,9 @@ public class CircleSeekBar extends View {
     private float mPointerRadius;
     private float start_angle;
     private float cur_angle;
-    private String week;
+    private int week;/**某一周的星期*/
+    private String deviceId;/**设备Id*/
+
 
     private double mCurAngle;
     private float mWheelCurX, mWheelCurY;
@@ -173,7 +176,9 @@ public class CircleSeekBar extends View {
         mPointColor=a.getColor(R.styleable.CircleSeekBar_pointcolor, Color.WHITE);
         start_angle=a.getFloat(R.styleable.CircleSeekBar_wheel_start_angle,0);
         cur_angle=a.getFloat(R.styleable.CircleSeekBar_wheel_current_angle,0);
-        week=a.getString(R.styleable.CircleSeekBar_week);
+        deviceId=a.getString(R.styleable.CircleSeekBar_deviceId);
+        week=a.getInt(R.styleable.CircleSeekBar_week,0);
+
 
 
         mNumColor=a.getColor(R.styleable.CircleSeekBar_numcolor, Color.BLACK);
@@ -270,24 +275,25 @@ public class CircleSeekBar extends View {
 
 
 
-        List<TaskTime> list=timeTaskDao.findWeekAll(week);
-        for (TaskTime taskTime :list){
-            int start=taskTime.getStart();
-            int end=taskTime.getEnd();
-            if (start==24){
-                start=0;
-            }
-            float startAngle= (360/24)*start-90;
-            float endAngle=(360/24)*end-90;
+            if (!Utils.isEmpty(deviceId)){
+                long device=Long.parseLong(deviceId);
+                List<TaskTime> list=timeTaskDao.findWeekAll(device,week);
+                for (TaskTime taskTime :list){
+                    int start=taskTime.getStart();
+                    int end=taskTime.getEnd();
+                    if (start==24){
+                        start=0;
+                    }
+                    float startAngle= (360/24)*start-90;
+                    float endAngle=(360/24)*end-90;
+                    if (startAngle>180){
+                        startAngle=startAngle-360;
+                    }
+                    mCurAngle=endAngle-startAngle;
 
-            if (startAngle>180){
-                startAngle=startAngle-360;
-            }
-            mCurAngle=endAngle-startAngle;
-
-            //画选中区域
-            canvas.drawArc(new RectF(left, top, right, bottom), startAngle, (float)mCurAngle, false, mReachedPaint);
-            canvas.save();
+                    //画选中区域
+                    canvas.drawArc(new RectF(left, top, right, bottom), startAngle, (float)mCurAngle, false, mReachedPaint);
+                    canvas.save();
 
 //            double cos = -Math.cos(Math.toRadians((360/24)*start));
 //            mWheelCurX = calcXLocationInWheel((360/24)*start, cos);
@@ -301,12 +307,16 @@ public class CircleSeekBar extends View {
 //            //画锚点
 //            canvas.drawCircle(mWheelCurX, mWheelCurY, mPointerRadius, mPointerPaint);
 //            canvas.save();
-        }
+
+                }
+            }
+
+
+
 
         mPaint.setAntiAlias(true);//去除边缘锯齿，优化绘制效果
         mPaint.setColor(getResources().getColor(R.color.color_white));
         canvas.save();//保存当前的状态
-
 
         for (int i = 0; i < 24; i++) {//总共24个点  所以绘制24次  //绘制一圈的小黑点
             if (i % 2 == 0) {
@@ -637,13 +647,22 @@ public class CircleSeekBar extends View {
         invalidate();
     }
 
-    public String getWeek() {
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public int getWeek() {
         return week;
     }
 
-    public void setWeek(String week) {
+    public void setWeek(int week) {
         this.week = week;
     }
+
 
     public float getWheelShadowRadius() {
         return mWheelShadowRadius;
