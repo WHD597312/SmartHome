@@ -27,6 +27,7 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
             String macAddress=topicName.substring(topicName.indexOf("/"),topicName.lastIndexOf("/"));
             if (!Utils.isEmpty(macAddress)){
                 JSONObject device=new JSONObject(message);
+                
                 String wifiVersion=device.getString("wifiVersion");/**版本*/
                 String MCUVerion=device.getString("MCUVerion");
                 int MatTemp=device.getInt("MatTemp");/**手动/定时模式下的温度*/
