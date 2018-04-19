@@ -15,6 +15,7 @@ public class DeviceChild implements Serializable{
     @Id(autoincrement = false)
     private Long id;
 
+    
     private String deviceName;
     private String macAddress;
     private int img;
