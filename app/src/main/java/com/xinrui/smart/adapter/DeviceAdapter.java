@@ -558,6 +558,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     child.setImg(imgs[0]);
                     DeviceChild child2=deviceChildDao.findDeviceById(child.getId());
                     child2.setImg(imgs[0]);
+                    
                     child.setRatedPower(child2.getRatedPower());
                     deviceChildDao.update(child2);
                 }

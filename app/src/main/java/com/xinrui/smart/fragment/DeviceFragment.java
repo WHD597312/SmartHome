@@ -246,6 +246,7 @@ public class DeviceFragment extends Fragment{
                 }
             }
         });
+
     }
 
     @Override

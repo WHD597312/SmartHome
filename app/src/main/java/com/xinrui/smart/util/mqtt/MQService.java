@@ -38,6 +38,7 @@ public class MQService extends Service {
 
     public String myTopic = "rango/dc4f220aa96e/transfer";
 
+
     private DeviceChildDaoImpl deviceChildDao;
     private MqttConnectOptions options;
 

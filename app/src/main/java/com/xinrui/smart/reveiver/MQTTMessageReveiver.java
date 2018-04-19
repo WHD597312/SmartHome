@@ -98,6 +98,7 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                         child.setProtectSetTemp(protectSetTemp);
                         child.setProtectProTemp(protectProTemp);
 
+
                         deviceChildDao.update(child);
 
                     }
