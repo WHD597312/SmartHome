@@ -195,7 +195,7 @@ public class MQService extends Service {
         for (DeviceChild deviceChild :list){
             String macAddress=deviceChild.getMacAddress();
             if (!Utils.isEmpty(macAddress)){
-                String topicName="warmer1.0/"+macAddress+"/transfer";
+                String topicName="rango/"+"dc4f221cc96e"+"/transfer";
                 topicNames.add(topicName);
             }
         }

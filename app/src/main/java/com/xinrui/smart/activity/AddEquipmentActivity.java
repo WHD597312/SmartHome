@@ -217,12 +217,13 @@ public class AddEquipmentActivity extends Activity implements EquipmentAdapter.C
                         int masterControllerUserId = object.getInt("masterControllerUserId");
                         int isUnlock = object.getInt("isUnlock");
 
+                        int device_drawable = 0;
                         if(type == 1){
-                            type = R.drawable.equipment_warmer;
+                            device_drawable = R.drawable.equipment_warmer;
                         }else if(type == 2){
-                            type = R.drawable.equipment_external_sensor;
+                            device_drawable = R.drawable.equipment_external_sensor;
                         }
-                        Equipment equipment = new Equipment(id, deviceName, type, houseId, masterControllerUserId, isUnlock, false);
+                        Equipment equipment = new Equipment(type,id, deviceName, device_drawable, houseId, masterControllerUserId, isUnlock, false);
                         equipment_list.add(equipment);
                     }
                     asyncResponse.onDataReceivedSuccess(equipment_list);
@@ -240,7 +241,7 @@ public class AddEquipmentActivity extends Activity implements EquipmentAdapter.C
     private void initDatas(List<Equipment> equipment) {
         dataArray = new ArrayList<>();
         for (int i = 0; i < equipment.size(); i++) {
-            Equipment equipment1 = new Equipment(equipment.get(i).getId(), equipment.get(i).getDeviceName(), equipment.get(i).getType(), 0, 0, 0, false);
+            Equipment equipment1 = new Equipment(equipment.get(i).getType(),equipment.get(i).getId(), equipment.get(i).getDeviceName(), equipment.get(i).getDevice_type(), 0, 0, 0, false);
             dataArray.add(equipment1);
         }
     }
