@@ -4,18 +4,16 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
 
+import java.io.Serializable;
+
 /**
  * Created by win7 on 2018/3/12.
  */
 
 @Entity
-public class DeviceChild {
+public class DeviceChild  implements Serializable{
     @Id(autoincrement = false)
     private Long id;
-
-
-    
-
     private String deviceName;
     private String macAddress;
     private int img;
@@ -27,8 +25,8 @@ public class DeviceChild {
     private int isUnlock;
     private int version;
     private int ratedPower;//额定功率
-    private String MatTemp;/**手动/定时模式下的温度*/
-    private String workMode;/**manual:手动模式	timer:定时模式*/
+    private int MatTemp;/**手动/定时模式下的温度*/
+    private String workMode;/**manual:手动模式 timer:定时模式*/
     private String LockScreen;/** open:上锁  close:解锁*/
     private String BackGroundLED;/**open:照明  close:节能*/
     private String deviceState;/**open:开机  close：关机*/
@@ -43,6 +41,8 @@ public class DeviceChild {
     private String machineFall;
     private int protectSetTemp;
     private int protectProTemp;
+    private String wifiVersion;
+    private String MCUVerion;
 
 
     public DeviceChild() {
@@ -69,100 +69,20 @@ public class DeviceChild {
         this.isUnlock = isUnlock;
     }
 
-    public int getVersion() {
-        return this.version;
+    public String getMCUVerion() {
+        return this.MCUVerion;
     }
 
-    public void setVersion(int version) {
-        this.version = version;
+    public void setMCUVerion(String MCUVerion) {
+        this.MCUVerion = MCUVerion;
     }
 
-    public int getIsUnlock() {
-        return this.isUnlock;
+    public String getWifiVersion() {
+        return this.wifiVersion;
     }
 
-    public void setIsUnlock(int isUnlock) {
-        this.isUnlock = isUnlock;
-    }
-
-    public int getType() {
-        return this.type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    public int getControlled() {
-        return this.controlled;
-    }
-
-    public void setControlled(int controlled) {
-        this.controlled = controlled;
-    }
-
-    public int getMasterControllerUserId() {
-        return this.masterControllerUserId;
-    }
-
-    public void setMasterControllerUserId(int masterControllerUserId) {
-        this.masterControllerUserId = masterControllerUserId;
-    }
-
-    public Long getHouseId() {
-        return this.houseId;
-    }
-
-    public void setHouseId(Long houseId) {
-        this.houseId = houseId;
-    }
-
-    public int getDirection() {
-        return this.direction;
-    }
-
-    public void setDirection(int direction) {
-        this.direction = direction;
-    }
-
-    public int getImg() {
-        return this.img;
-    }
-
-    public void setImg(int img) {
-        this.img = img;
-    }
-
-    public String getMacAddress() {
-        return this.macAddress;
-    }
-
-    public void setMacAddress(String macAddress) {
-        this.macAddress = macAddress;
-    }
-
-    public String getDeviceName() {
-        return this.deviceName;
-    }
-
-    public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getRatedPower() {
-        return this.ratedPower;
-    }
-
-    public void setRatedPower(int ratedPower) {
-        this.ratedPower = ratedPower;
+    public void setWifiVersion(String wifiVersion) {
+        this.wifiVersion = wifiVersion;
     }
 
     public int getProtectProTemp() {
@@ -285,22 +205,118 @@ public class DeviceChild {
         this.workMode = workMode;
     }
 
-    public String getMatTemp() {
+    public int getMatTemp() {
         return this.MatTemp;
     }
 
-    public void setMatTemp(String MatTemp) {
+    public void setMatTemp(int MatTemp) {
         this.MatTemp = MatTemp;
     }
 
-    @Generated(hash = 1714108533)
+    public int getRatedPower() {
+        return this.ratedPower;
+    }
+
+    public void setRatedPower(int ratedPower) {
+        this.ratedPower = ratedPower;
+    }
+
+    public int getVersion() {
+        return this.version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
+    public int getIsUnlock() {
+        return this.isUnlock;
+    }
+
+    public void setIsUnlock(int isUnlock) {
+        this.isUnlock = isUnlock;
+    }
+
+    public int getType() {
+        return this.type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public int getControlled() {
+        return this.controlled;
+    }
+
+    public void setControlled(int controlled) {
+        this.controlled = controlled;
+    }
+
+    public int getMasterControllerUserId() {
+        return this.masterControllerUserId;
+    }
+
+    public void setMasterControllerUserId(int masterControllerUserId) {
+        this.masterControllerUserId = masterControllerUserId;
+    }
+
+    public Long getHouseId() {
+        return this.houseId;
+    }
+
+    public void setHouseId(Long houseId) {
+        this.houseId = houseId;
+    }
+
+    public int getDirection() {
+        return this.direction;
+    }
+
+    public void setDirection(int direction) {
+        this.direction = direction;
+    }
+
+    public int getImg() {
+        return this.img;
+    }
+
+    public void setImg(int img) {
+        this.img = img;
+    }
+
+    public String getMacAddress() {
+        return this.macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    public String getDeviceName() {
+        return this.deviceName;
+    }
+
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    @Generated(hash = 915543967)
     public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
             Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
-            int version, int ratedPower, String MatTemp, String workMode, String LockScreen,
+            int version, int ratedPower, int MatTemp, String workMode, String LockScreen,
             String BackGroundLED, String deviceState, String tempState, String outputMod,
             int curTemp, String protectEnable, String ctrlMode, int powerValue,
             int voltageValue, int currentValue, String machineFall, int protectSetTemp,
-            int protectProTemp) {
+            int protectProTemp, String wifiVersion, String MCUVerion) {
         this.id = id;
         this.deviceName = deviceName;
         this.macAddress = macAddress;
@@ -329,5 +345,9 @@ public class DeviceChild {
         this.machineFall = machineFall;
         this.protectSetTemp = protectSetTemp;
         this.protectProTemp = protectProTemp;
+        this.wifiVersion = wifiVersion;
+        this.MCUVerion = MCUVerion;
     }
+
+    
 }
