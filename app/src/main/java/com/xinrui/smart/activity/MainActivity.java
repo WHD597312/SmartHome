@@ -149,34 +149,33 @@ public class MainActivity extends AppCompatActivity {
         List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
 
 
-
-
         List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
         fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
         Intent intent = getIntent();
-        Bundle bundle=intent.getExtras();
+        Bundle bundle = intent.getExtras();
         String mainControl = intent.getStringExtra("mainControl");
         DeviceChildDaoImpl deviceChildDao = new DeviceChildDaoImpl(this);
 
         fragmentPreferences = getSharedPreferences("fragment", Context.MODE_PRIVATE);
+        String deviceList=intent.getStringExtra("deviceList");
         SharedPreferences.Editor editor = preferences.edit();
-        if (Utils.isEmpty(mainControl) &&bundle==null) {
+        if (Utils.isEmpty(mainControl) && bundle == null && Utils.isEmpty(deviceList)) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
             new LoadDeviceAsync().execute();
-        } else {
+        } else if (!Utils.isEmpty((deviceList))){
+            fragmentPreferences.edit().putString("fragment", "1").commit();
+        }else {
             fragmentPreferences.edit().putString("fragment", "2").commit();
-
         }
 
-        if (bundle!=null){
-            String Activity_return=bundle.getString("Activity_return");
-            String return_homepage=bundle.getString("return_homepage");
-            if (!Utils.isEmpty(Activity_return)){
+        if (bundle != null) {
+            String Activity_return = bundle.getString("Activity_return");
+            String return_homepage = bundle.getString("return_homepage");
+            if (!Utils.isEmpty(Activity_return)) {
                 fragmentPreferences.edit().putString("fragment", "3").commit();
-            }else if(!Utils.isEmpty(return_homepage)){
+            } else if (!Utils.isEmpty(return_homepage)) {
                 fragmentPreferences.edit().putString("fragment", "1").commit();
-
             }
         }
 
@@ -250,7 +249,6 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
-
                 break;
             case R.id.tv_device:
                 FragmentTransaction fragmentTransaction3 = fragmentManager.beginTransaction();//开启碎片事务
@@ -297,11 +295,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
-
 
 
     class LoadDeviceAsync extends AsyncTask<String, Void, Integer> {
@@ -318,8 +313,8 @@ public class MainActivity extends AppCompatActivity {
                     code = jsonObject.getInt("code");
                     JSONObject content = jsonObject.getJSONObject("content");
                     if (code == 2000) {
-                        deviceChildDao.deleteAll();
-                        deviceGroupDao.deleteAll();
+//                        deviceChildDao.deleteAll();
+//                        deviceGroupDao.deleteAll();
                         JSONArray houses = content.getJSONArray("houses");
 
                         for (int i = 0; i < houses.length(); i++) {
@@ -354,22 +349,22 @@ public class MainActivity extends AppCompatActivity {
 
                                         int masterControllerUserId = device.getInt("masterControllerUserId");
                                         int isUnlock = device.getInt("isUnlock");
-                                        int version=device.getInt("version");
-                                        String macAddress=device.getString("macAddress");
-                                        int controlled=device.getInt("controlled");
+                                        int version = device.getInt("version");
+                                        String macAddress = device.getString("macAddress");
+                                        int controlled = device.getInt("controlled");
 
-                                        DeviceChild child=deviceChildDao.findDeviceChild((long)deviceId);
-                                        if (child!=null){
+                                        DeviceChild child = deviceChildDao.findDeviceChild((long) deviceId);
+                                        if (child != null) {
                                             child.setType(type);
                                             child.setDeviceName(deviceName);
-                                            child.setHouseId((long)groupId);
+                                            child.setHouseId((long) groupId);
                                             child.setMasterControllerUserId(masterControllerUserId);
                                             child.setIsUnlock(isUnlock);
                                             child.setVersion(version);
                                             child.setMacAddress(macAddress);
                                             child.setControlled(controlled);
                                             deviceChildDao.update(child);
-                                        }else {
+                                        } else {
                                             DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
                                             deviceChild.setVersion(version);
                                             deviceChild.setMacAddress(macAddress);
@@ -381,13 +376,19 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
-                        JSONObject  sharedDevice = content.getJSONObject("sharedDevice");
-                        JSONArray deviceList=sharedDevice.getJSONArray("deviceList");
-
-                        DeviceGroup deviceGroup= new DeviceGroup();
-                        deviceGroup.setHeader("分享的设备");
-                        deviceGroup.setId(shareHouseId);
-                        deviceGroupDao.insert(deviceGroup);
+                        shareHouseId=Integer.MAX_VALUE;
+                        JSONObject sharedDevice = content.getJSONObject("sharedDevice");
+                        JSONArray deviceList = sharedDevice.getJSONArray("deviceList");
+                        DeviceGroup deviceGroup=deviceGroupDao.findById(shareHouseId);
+                        if (deviceGroup!=null){
+                            deviceGroup.setHeader("分享的设备");
+                            deviceGroupDao.update(deviceGroup);
+                        }else {
+                            deviceGroup = new DeviceGroup();
+                            deviceGroup.setId(shareHouseId);
+                            deviceGroup.setHeader("分享的设备");
+                            deviceGroupDao.insert(deviceGroup);
+                        }
 
                         for (int x = 0; x < deviceList.length(); x++) {
                             JSONObject device = deviceList.getJSONObject(x);
@@ -398,9 +399,9 @@ public class MainActivity extends AppCompatActivity {
                                 long groupId = shareHouseId;
                                 int masterControllerUserId = device.getInt("masterControllerUserId");
                                 int isUnlock = device.getInt("isUnlock");
-                                int version=device.getInt("version");
-                                String macAddress=device.getString("macAddress");
-                                int controlled=device.getInt("controlled");
+                                int version = device.getInt("version");
+                                String macAddress = device.getString("macAddress");
+                                int controlled = device.getInt("controlled");
                                 DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, groupId, type, masterControllerUserId, isUnlock);
                                 deviceChild.setVersion(version);
                                 deviceChild.setMacAddress(macAddress);
@@ -408,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
                                 DeviceChild deviceChild2 = deviceChildDao.findDeviceChild((long) deviceId);
                                 if (deviceChild2 == null) {
                                     deviceChildDao.insert(deviceChild);
-                                } else {
+                                }else {
                                     deviceChildDao.update(deviceChild);
                                 }
                             }

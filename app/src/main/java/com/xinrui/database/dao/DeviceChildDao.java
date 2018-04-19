@@ -36,7 +36,7 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         public final static Property IsUnlock = new Property(9, int.class, "isUnlock", false, "IS_UNLOCK");
         public final static Property Version = new Property(10, int.class, "version", false, "VERSION");
         public final static Property RatedPower = new Property(11, int.class, "ratedPower", false, "RATED_POWER");
-        public final static Property MatTemp = new Property(12, String.class, "MatTemp", false, "MAT_TEMP");
+        public final static Property MatTemp = new Property(12, int.class, "MatTemp", false, "MAT_TEMP");
         public final static Property WorkMode = new Property(13, String.class, "workMode", false, "WORK_MODE");
         public final static Property LockScreen = new Property(14, String.class, "LockScreen", false, "LOCK_SCREEN");
         public final static Property BackGroundLED = new Property(15, String.class, "BackGroundLED", false, "BACK_GROUND_LED");
@@ -52,6 +52,8 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         public final static Property MachineFall = new Property(25, String.class, "machineFall", false, "MACHINE_FALL");
         public final static Property ProtectSetTemp = new Property(26, int.class, "protectSetTemp", false, "PROTECT_SET_TEMP");
         public final static Property ProtectProTemp = new Property(27, int.class, "protectProTemp", false, "PROTECT_PRO_TEMP");
+        public final static Property WifiVersion = new Property(28, String.class, "wifiVersion", false, "WIFI_VERSION");
+        public final static Property MCUVerion = new Property(29, String.class, "MCUVerion", false, "MCUVERION");
     }
 
 
@@ -79,7 +81,7 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
                 "\"IS_UNLOCK\" INTEGER NOT NULL ," + // 9: isUnlock
                 "\"VERSION\" INTEGER NOT NULL ," + // 10: version
                 "\"RATED_POWER\" INTEGER NOT NULL ," + // 11: ratedPower
-                "\"MAT_TEMP\" TEXT," + // 12: MatTemp
+                "\"MAT_TEMP\" INTEGER NOT NULL ," + // 12: MatTemp
                 "\"WORK_MODE\" TEXT," + // 13: workMode
                 "\"LOCK_SCREEN\" TEXT," + // 14: LockScreen
                 "\"BACK_GROUND_LED\" TEXT," + // 15: BackGroundLED
@@ -94,7 +96,9 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
                 "\"CURRENT_VALUE\" INTEGER NOT NULL ," + // 24: currentValue
                 "\"MACHINE_FALL\" TEXT," + // 25: machineFall
                 "\"PROTECT_SET_TEMP\" INTEGER NOT NULL ," + // 26: protectSetTemp
-                "\"PROTECT_PRO_TEMP\" INTEGER NOT NULL );"); // 27: protectProTemp
+                "\"PROTECT_PRO_TEMP\" INTEGER NOT NULL ," + // 27: protectProTemp
+                "\"WIFI_VERSION\" TEXT," + // 28: wifiVersion
+                "\"MCUVERION\" TEXT);"); // 29: MCUVerion
     }
 
     /** Drops the underlying database table. */
@@ -134,11 +138,7 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         stmt.bindLong(10, entity.getIsUnlock());
         stmt.bindLong(11, entity.getVersion());
         stmt.bindLong(12, entity.getRatedPower());
- 
-        String MatTemp = entity.getMatTemp();
-        if (MatTemp != null) {
-            stmt.bindString(13, MatTemp);
-        }
+        stmt.bindLong(13, entity.getMatTemp());
  
         String workMode = entity.getWorkMode();
         if (workMode != null) {
@@ -190,6 +190,16 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         }
         stmt.bindLong(27, entity.getProtectSetTemp());
         stmt.bindLong(28, entity.getProtectProTemp());
+ 
+        String wifiVersion = entity.getWifiVersion();
+        if (wifiVersion != null) {
+            stmt.bindString(29, wifiVersion);
+        }
+ 
+        String MCUVerion = entity.getMCUVerion();
+        if (MCUVerion != null) {
+            stmt.bindString(30, MCUVerion);
+        }
     }
 
     @Override
@@ -223,11 +233,7 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         stmt.bindLong(10, entity.getIsUnlock());
         stmt.bindLong(11, entity.getVersion());
         stmt.bindLong(12, entity.getRatedPower());
- 
-        String MatTemp = entity.getMatTemp();
-        if (MatTemp != null) {
-            stmt.bindString(13, MatTemp);
-        }
+        stmt.bindLong(13, entity.getMatTemp());
  
         String workMode = entity.getWorkMode();
         if (workMode != null) {
@@ -279,6 +285,16 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         }
         stmt.bindLong(27, entity.getProtectSetTemp());
         stmt.bindLong(28, entity.getProtectProTemp());
+ 
+        String wifiVersion = entity.getWifiVersion();
+        if (wifiVersion != null) {
+            stmt.bindString(29, wifiVersion);
+        }
+ 
+        String MCUVerion = entity.getMCUVerion();
+        if (MCUVerion != null) {
+            stmt.bindString(30, MCUVerion);
+        }
     }
 
     @Override
@@ -301,7 +317,7 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
             cursor.getInt(offset + 9), // isUnlock
             cursor.getInt(offset + 10), // version
             cursor.getInt(offset + 11), // ratedPower
-            cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12), // MatTemp
+            cursor.getInt(offset + 12), // MatTemp
             cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13), // workMode
             cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14), // LockScreen
             cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15), // BackGroundLED
@@ -316,7 +332,9 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
             cursor.getInt(offset + 24), // currentValue
             cursor.isNull(offset + 25) ? null : cursor.getString(offset + 25), // machineFall
             cursor.getInt(offset + 26), // protectSetTemp
-            cursor.getInt(offset + 27) // protectProTemp
+            cursor.getInt(offset + 27), // protectProTemp
+            cursor.isNull(offset + 28) ? null : cursor.getString(offset + 28), // wifiVersion
+            cursor.isNull(offset + 29) ? null : cursor.getString(offset + 29) // MCUVerion
         );
         return entity;
     }
@@ -335,7 +353,7 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         entity.setIsUnlock(cursor.getInt(offset + 9));
         entity.setVersion(cursor.getInt(offset + 10));
         entity.setRatedPower(cursor.getInt(offset + 11));
-        entity.setMatTemp(cursor.isNull(offset + 12) ? null : cursor.getString(offset + 12));
+        entity.setMatTemp(cursor.getInt(offset + 12));
         entity.setWorkMode(cursor.isNull(offset + 13) ? null : cursor.getString(offset + 13));
         entity.setLockScreen(cursor.isNull(offset + 14) ? null : cursor.getString(offset + 14));
         entity.setBackGroundLED(cursor.isNull(offset + 15) ? null : cursor.getString(offset + 15));
@@ -351,6 +369,8 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         entity.setMachineFall(cursor.isNull(offset + 25) ? null : cursor.getString(offset + 25));
         entity.setProtectSetTemp(cursor.getInt(offset + 26));
         entity.setProtectProTemp(cursor.getInt(offset + 27));
+        entity.setWifiVersion(cursor.isNull(offset + 28) ? null : cursor.getString(offset + 28));
+        entity.setMCUVerion(cursor.isNull(offset + 29) ? null : cursor.getString(offset + 29));
      }
     
     @Override

@@ -24,12 +24,12 @@ public class TaskTimeDao extends AbstractDao<TaskTime, Long> {
      * Can be used for QueryBuilder and for referencing column names.
      */
     public static class Properties {
-        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property Start = new Property(1, int.class, "start", false, "START");
-        public final static Property End = new Property(2, int.class, "end", false, "END");
-        public final static Property Temp = new Property(3, int.class, "temp", false, "TEMP");
-        public final static Property DeviceId = new Property(4, long.class, "deviceId", false, "DEVICE_ID");
-        public final static Property Week = new Property(5, String.class, "week", false, "WEEK");
+        public final static Property Id = new Property(0, long.class, "id", true, "_id");
+        public final static Property DeviceId = new Property(1, long.class, "deviceId", false, "DEVICE_ID");
+        public final static Property Week = new Property(2, int.class, "week", false, "WEEK");
+        public final static Property Start = new Property(3, int.class, "start", false, "START");
+        public final static Property End = new Property(4, int.class, "end", false, "END");
+        public final static Property Temp = new Property(5, int.class, "temp", false, "TEMP");
     }
 
 
@@ -45,12 +45,12 @@ public class TaskTimeDao extends AbstractDao<TaskTime, Long> {
     public static void createTable(Database db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"TASK_TIME\" (" + //
-                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "\"START\" INTEGER NOT NULL ," + // 1: start
-                "\"END\" INTEGER NOT NULL ," + // 2: end
-                "\"TEMP\" INTEGER NOT NULL ," + // 3: temp
-                "\"DEVICE_ID\" INTEGER NOT NULL ," + // 4: deviceId
-                "\"WEEK\" TEXT);"); // 5: week
+                "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ," + // 0: id
+                "\"DEVICE_ID\" INTEGER NOT NULL ," + // 1: deviceId
+                "\"WEEK\" INTEGER NOT NULL ," + // 2: week
+                "\"START\" INTEGER NOT NULL ," + // 3: start
+                "\"END\" INTEGER NOT NULL ," + // 4: end
+                "\"TEMP\" INTEGER NOT NULL );"); // 5: temp
     }
 
     /** Drops the underlying database table. */
@@ -62,67 +62,51 @@ public class TaskTimeDao extends AbstractDao<TaskTime, Long> {
     @Override
     protected final void bindValues(DatabaseStatement stmt, TaskTime entity) {
         stmt.clearBindings();
- 
-        Long id = entity.getId();
-        if (id != null) {
-            stmt.bindLong(1, id);
-        }
-        stmt.bindLong(2, entity.getStart());
-        stmt.bindLong(3, entity.getEnd());
-        stmt.bindLong(4, entity.getTemp());
-        stmt.bindLong(5, entity.getDeviceId());
- 
-        String week = entity.getWeek();
-        if (week != null) {
-            stmt.bindString(6, week);
-        }
+        stmt.bindLong(1, entity.getId());
+        stmt.bindLong(2, entity.getDeviceId());
+        stmt.bindLong(3, entity.getWeek());
+        stmt.bindLong(4, entity.getStart());
+        stmt.bindLong(5, entity.getEnd());
+        stmt.bindLong(6, entity.getTemp());
     }
 
     @Override
     protected final void bindValues(SQLiteStatement stmt, TaskTime entity) {
         stmt.clearBindings();
- 
-        Long id = entity.getId();
-        if (id != null) {
-            stmt.bindLong(1, id);
-        }
-        stmt.bindLong(2, entity.getStart());
-        stmt.bindLong(3, entity.getEnd());
-        stmt.bindLong(4, entity.getTemp());
-        stmt.bindLong(5, entity.getDeviceId());
- 
-        String week = entity.getWeek();
-        if (week != null) {
-            stmt.bindString(6, week);
-        }
+        stmt.bindLong(1, entity.getId());
+        stmt.bindLong(2, entity.getDeviceId());
+        stmt.bindLong(3, entity.getWeek());
+        stmt.bindLong(4, entity.getStart());
+        stmt.bindLong(5, entity.getEnd());
+        stmt.bindLong(6, entity.getTemp());
     }
 
     @Override
     public Long readKey(Cursor cursor, int offset) {
-        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
+        return cursor.getLong(offset + 0);
     }    
 
     @Override
     public TaskTime readEntity(Cursor cursor, int offset) {
         TaskTime entity = new TaskTime( //
-            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.getInt(offset + 1), // start
-            cursor.getInt(offset + 2), // end
-            cursor.getInt(offset + 3), // temp
-            cursor.getLong(offset + 4), // deviceId
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5) // week
+            cursor.getLong(offset + 0), // id
+            cursor.getLong(offset + 1), // deviceId
+            cursor.getInt(offset + 2), // week
+            cursor.getInt(offset + 3), // start
+            cursor.getInt(offset + 4), // end
+            cursor.getInt(offset + 5) // temp
         );
         return entity;
     }
      
     @Override
     public void readEntity(Cursor cursor, TaskTime entity, int offset) {
-        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setStart(cursor.getInt(offset + 1));
-        entity.setEnd(cursor.getInt(offset + 2));
-        entity.setTemp(cursor.getInt(offset + 3));
-        entity.setDeviceId(cursor.getLong(offset + 4));
-        entity.setWeek(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setId(cursor.getLong(offset + 0));
+        entity.setDeviceId(cursor.getLong(offset + 1));
+        entity.setWeek(cursor.getInt(offset + 2));
+        entity.setStart(cursor.getInt(offset + 3));
+        entity.setEnd(cursor.getInt(offset + 4));
+        entity.setTemp(cursor.getInt(offset + 5));
      }
     
     @Override
@@ -142,7 +126,7 @@ public class TaskTimeDao extends AbstractDao<TaskTime, Long> {
 
     @Override
     public boolean hasKey(TaskTime entity) {
-        return entity.getId() != null;
+        throw new UnsupportedOperationException("Unsupported for entities with a non-null key");
     }
 
     @Override

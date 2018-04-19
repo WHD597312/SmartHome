@@ -36,7 +36,7 @@ public class MQService extends Service {
 
     private MqttClient client;
 
-    public String myTopic = "warmer1.0/dc4f220aa96e/transfer";
+    public String myTopic = "rango/dc4f220aa96e/transfer";
 
     private DeviceChildDaoImpl deviceChildDao;
     private MqttConnectOptions options;
@@ -195,7 +195,7 @@ public class MQService extends Service {
         for (DeviceChild deviceChild :list){
             String macAddress=deviceChild.getMacAddress();
             if (!Utils.isEmpty(macAddress)){
-                String topicName="warmer1.0/"+macAddress+"/transfer";
+                String topicName="rango/"+macAddress+"/transfer";
                 topicNames.add(topicName);
             }
         }

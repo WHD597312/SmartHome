@@ -88,6 +88,7 @@ public class SemicircleBar extends View {
 
     private Paint mPaint;
     private OnSeekBarChangeListener mChangListener;
+    private int mCurrentAngle;//当前角度
 
     public SemicircleBar(Context context) {
         this(context, null);
@@ -162,7 +163,7 @@ public class SemicircleBar extends View {
         isHasWheelShadow = a.getBoolean(R.styleable.CircleSeekBar_wheel_has_wheel_shadow, false);
         mPointColor=a.getColor(R.styleable.CircleSeekBar_pointcolor, Color.WHITE);
         module=a.getString(R.styleable.CircleSeekBar_module);
-
+        mCurrentAngle=a.getInt(R.styleable.CircleSeekBar_mCurrentAngle,0);
         mNumColor=a.getColor(R.styleable.CircleSeekBar_numcolor, Color.BLACK);
         mNumSize=a.getInt(R.styleable.CircleSeekBar_numsize,14);
         if (isHasWheelShadow) {
@@ -337,6 +338,7 @@ public class SemicircleBar extends View {
 
 
 //        mCurAngle=getmCurAngle();
+
         if (slide){
             if (mCurAngle >= 0) {
                 if (mCurAngle>=272){
@@ -348,8 +350,6 @@ public class SemicircleBar extends View {
                     }
                 }
 
-                //画选中区域
-                Log.d("dsads", mCurAngle + "");
                 for (int i = 0; i < (mCurAngle) / 7; i++) {
                     if ((i - 1) % 7 == 0) {
 
@@ -376,6 +376,46 @@ public class SemicircleBar extends View {
                 canvas.save();
             }
         }
+
+//        if (mCurrentAngle>0){
+//
+//
+//            if (mCurrentAngle >= 0) {
+//                if (mCurrentAngle>=272){
+//                    if (mCurrentAngle>272 && mCurrentAngle<=310){
+//                        mCurAngle=272;
+//                    }else if (mCurrentAngle> 310 && mCurrentAngle<=360){
+//                        mCurrentAngle=0;
+//                        return;
+//                    }
+//                }
+//                for (int i = 0; i < (mCurrentAngle) / 7; i++) {
+//                    if ((i - 1) % 7 == 0) {
+//
+//                        mPaint.setColor(getResources().getColor(R.color.color_orange));
+//
+//                        canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()),
+//                                getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
+//                                centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
+//
+//                                getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, getResources().getDisplayMetrics()), mPaint);
+//                    } else {
+//                        if (i == 0) {
+//                            mPaint.setColor(getResources().getColor(R.color.color_black3));
+//                        } else {
+//                            mPaint.setColor(getResources().getColor(R.color.color_orange));
+//                        }
+//                        canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()),
+//                                getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
+//                                centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
+//                                getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, getResources().getDisplayMetrics()), mPaint);
+//                    }
+//                    canvas.rotate(8, centerX, centerY);//360度  绘制60次   每次旋转6度
+//                }
+//                canvas.save();
+//            }
+
+//        }
     }
     private void buildCache(float centerX, float centerY, float wheelRadius) {
         mCacheBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
@@ -525,6 +565,14 @@ public class SemicircleBar extends View {
         if (mChangListener != null) {
             mChangListener.onChanged(this, mCurProcess);
         }
+    }
+
+    public void setmCurrentAngle(int mCurrentAngle) {
+        this.mCurrentAngle = mCurrentAngle;
+    }
+
+    public int getmCurrentAngle() {
+        return mCurrentAngle;
     }
 
     public void setModule(String module) {

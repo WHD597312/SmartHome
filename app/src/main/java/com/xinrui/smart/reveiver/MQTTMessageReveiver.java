@@ -3,10 +3,12 @@ package com.xinrui.smart.reveiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.smart.fragment.DeviceFragment;
+import com.xinrui.smart.fragment.HeaterFragment;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Utils;
@@ -25,8 +27,9 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
             String macAddress=topicName.substring(topicName.indexOf("/"),topicName.lastIndexOf("/"));
             if (!Utils.isEmpty(macAddress)){
                 JSONObject device=new JSONObject(message);
-                int version=device.getInt("version");/**版本*/
-                String MatTemp=device.getString("MatTemp");/**手动/定时模式下的温度*/
+                String wifiVersion=device.getString("wifiVersion");/**版本*/
+                String MCUVerion=device.getString("MCUVerion");
+                int MatTemp=device.getInt("MatTemp");/**手动/定时模式下的温度*/
                 String workMode=device.getString("workMode");/**manual:手动模式	timer:定时模式*/
                 String LockScreen=device.getString("LockScreen");/** open:上锁  close:解锁*/
                 String BackGroundLED=device.getString("BackGroundLED");/**open:照明  close:节能*/
@@ -36,7 +39,7 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                 int curTemp=device.getInt("curTemp");
                 int ratedPower=device.getInt("ratedPower");
                 String protectEnable=device.getString("protectEnable");
-                String ctrlMode=device.getString("ctrlMode ");
+                String ctrlMode=device.getString("ctrlMode");
                 int powerValue=device.getInt("powerValue");
                 int voltageValue=device.getInt("voltageValue");
                 int currentValue=device.getInt("currentValue");
@@ -74,7 +77,9 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                         groupPostion++;
                     }
                     if (child!=null){
-                        child.setVersion(version);
+//                        child.setVersion(version);
+                        child.setWifiVersion(wifiVersion);
+                        child.setMCUVerion(MCUVerion);
                         child.setMatTemp(MatTemp);
                         child.setWorkMode(workMode);
                         child.setLockScreen(LockScreen);
@@ -92,7 +97,9 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                         child.setMachineFall(machineFall);
                         child.setProtectSetTemp(protectSetTemp);
                         child.setProtectProTemp(protectProTemp);
+
                         deviceChildDao.update(child);
+
                     }
                     if (DeviceFragment.running==1){
                         Intent mqttIntent=new Intent("DeviceFragment");
@@ -101,10 +108,19 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                         mqttIntent.putExtra("deviceState",deviceState);
                         context.sendBroadcast(mqttIntent);
                     }
+                    if (HeaterFragment.running){
+                        child=deviceChildDao.findDeviceById(child.getId());
+                        long houseId=child.getHouseId();
+                        long deviceId=child.getId();
+                        Intent mqttIntent=new Intent("HeaterFragment");
+//                        mqttIntent.putExtra("houseId",houseId);
+//                        mqttIntent.putExtra("deviceId",deviceId);
+                        mqttIntent.putExtra("deviceChild",child);
+                        context.sendBroadcast(mqttIntent);
+                    }
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-
             }
 
 
