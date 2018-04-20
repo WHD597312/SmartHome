@@ -1284,13 +1284,8 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         editor1.putInt("btn2", btn2.getVisibility());
         editor1.putInt("btn3", btn3.getVisibility());
         editor1.putInt("btn4", btn4.getVisibility());
-        editor1.putInt("btn1_group", 1);
-        editor1.putInt("btn2_group", 2);
-        editor1.putInt("btn3_group", 3);
-        editor1.putInt("btn4_group", 4);
         editor1.putLong("house_id", house_id);
         editor1.putString("house_Name", house_Name);
-        editor1.putInt("viewpage_current", viewPager.getCurrentItem());
         editor1.putInt("fragmentlist_size", fragmentslist.size());
         editor1.apply();
     }
@@ -1303,7 +1298,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         house_id = sharedPreferences.getLong("house_id", 0);
         house_Name = sharedPreferences.getString("house_Name", "我的家");
         current_key = sharedPreferences.getInt("current_key", 1);
-        int viewpage_current = sharedPreferences.getInt("viewpage_current", 0);
         int fragmentlist_size = sharedPreferences.getInt("fragmentlist_size", 1);
         String airCondition = sharedPreferences.getString("airCondition", "良好");
         String humidity1 = sharedPreferences.getString("humidity", "60%").substring(3);
@@ -1312,12 +1306,10 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         airQuality.setText("室外空气:" + airCondition);
         humidity.setText(humidity1);
         temperature.setText(temperature1);
-        int f = fragmentslist.size();
         for (int i = 1; i < fragmentlist_size; i++) {
             addPage(i);
         }
-        int f1 = fragmentslist.size();
-        viewPager.setCurrentItem(viewpage_current);
+        viewPager.setCurrentItem(current_key-1);
         houseId.setText(house_Name);
         int i1 = sharedPreferences.getInt("btn1", btn1.getVisibility());
         int i2 = sharedPreferences.getInt("btn2", btn2.getVisibility());

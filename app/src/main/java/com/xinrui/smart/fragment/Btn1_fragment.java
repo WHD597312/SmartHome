@@ -581,10 +581,6 @@ public class Btn1_fragment extends Fragment{
                 if(!Utils.isEmpty(result)){
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
-                    if(code == 2000){
-                        JSONArray content=jsonObject.getJSONArray("content");
-                    }
-
                 }
             }catch (Exception e){
                 e.printStackTrace();

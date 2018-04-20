@@ -170,7 +170,7 @@ public class AddEquipmentActivity extends Activity implements EquipmentAdapter.C
         }
     }
     //查询住所内未绑定房间的设备
-    class GetUnboundDeviceAsyncTask extends AsyncTask<Void, Void, String> {
+    class GetUnboundDeviceAsyncTask extends AsyncTask<Void, Void, List<Equipment>> {
         SharedPreferences sharedPreferences = getSharedPreferences("data", Context.MODE_PRIVATE);
         AsyncResponse asyncResponse;
 
@@ -179,32 +179,17 @@ public class AddEquipmentActivity extends Activity implements EquipmentAdapter.C
         }
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected List<Equipment> doInBackground(Void... voids) {
             int code = 0;
-            int houseId = (int) sharedPreferences.getLong("house_id", 0);
+            int house_Id = (int) sharedPreferences.getLong("house_id", 0);
             Map<String, Object> map = new HashMap<>();
-            map.put("houseId", houseId);
+            map.put("houseId", house_Id);
             String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/getUnboundDevice", map);
             String result = HttpUtils.getOkHpptRequest(url);
             try {
                 JSONObject jsonObject = new JSONObject(result);
                 code = jsonObject.getInt("code");
                 if (code == 2000) {
-                    return result;
-                } else if (code == -4003) {
-                    Toast.makeText(mContext, "暂无可以查询的设备", Toast.LENGTH_LONG).show();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            try {
-                if (!Utils.isEmpty(s)) {
-                    JSONObject jsonObject = new JSONObject(s);
                     JSONArray jsonArray = jsonObject.getJSONArray("content");
                     //把设备数据保存起来
                     List<Equipment> equipment_list = new ArrayList<>();
@@ -226,6 +211,20 @@ public class AddEquipmentActivity extends Activity implements EquipmentAdapter.C
                         Equipment equipment = new Equipment(type,id, deviceName, device_drawable, houseId, masterControllerUserId, isUnlock, false);
                         equipment_list.add(equipment);
                     }
+                    return equipment_list;
+                } else if (code == -4003) {
+                    Toast.makeText(mContext, "暂无可以查询的设备", Toast.LENGTH_LONG).show();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<Equipment> equipment_list) {
+            try {
+                if (null != equipment_list &&equipment_list.size() != 0) {
                     asyncResponse.onDataReceivedSuccess(equipment_list);
                 } else {
                     asyncResponse.onDataReceivedFailed();
@@ -233,7 +232,7 @@ public class AddEquipmentActivity extends Activity implements EquipmentAdapter.C
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            super.onPostExecute(s);
+            super.onPostExecute(equipment_list);
         }
 
     }

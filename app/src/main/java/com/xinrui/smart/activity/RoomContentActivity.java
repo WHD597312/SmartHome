@@ -53,6 +53,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.Picasso;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.MyAdapter;
@@ -138,36 +140,7 @@ public class RoomContentActivity extends Activity {
     private static final int SUCCESS = 1;
     private static final int FALL = 2;
     private static final String TAG = "RoomContentActivity";
-
-
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                //加载网络成功进行UI的更新,处理得到的图片资源
-                case SUCCESS:
-                    //通过message，拿到字节数组
-                    byte[] Picture = (byte[]) msg.obj;
-                    //使用BitmapFactory工厂，把字节数组转化为bitmap
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(Picture, 0, Picture.length);
-                    //通过imageview，设置图片
-                    if (bitmap == null) {
-                        Toast.makeText(RoomContentActivity.this, "no pictures", Toast.LENGTH_LONG).show();
-                    } else {
-                        background.setImageBitmap(bitmap);
-                        Toast.makeText(RoomContentActivity.this, "Have a picture", Toast.LENGTH_LONG).show();
-
-                    }
-
-                    break;
-                //当加载网络失败执行的逻辑代码
-                case FALL:
-                    Toast.makeText(RoomContentActivity.this, "网络出现了问题", Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    };
+    String url;
 
     MessageReceiver receiver = new MessageReceiver();
 
@@ -175,16 +148,12 @@ public class RoomContentActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", MODE_PRIVATE);
         int roomId = sharedPreferences.getInt("roomId", 0);
-        String url = "http://120.77.36.206:8082/warmer/v1.0/room/" + roomId + "/background";
-
+         url = "http://120.77.36.206:8082/warmer/v1.0/room/" + roomId + "/background";
         running=2;
         Intent intent=new Intent(this,MQService.class);
         bindService(intent,connection,Context.BIND_AUTO_CREATE);
         IntentFilter intentFilter=new IntentFilter("Btn1_fragment");
         registerReceiver(receiver,intentFilter);
-        //        Intent intent1 = new Intent();
-//        intent1.setAction("mqttmessage");
-//        getActivity().sendBroadcast(intent1);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.room_content);
@@ -194,156 +163,14 @@ public class RoomContentActivity extends Activity {
         initViews();
         getRoomAllDevices();
 
-//        new LoadPicture().execute(url);
-
-        //1.创建一个okhttpclient对象
-        OkHttpClient okHttpClient = new OkHttpClient();
-        //2.创建Request.Builder对象，设置参数，请求方式如果是Get，就不用设置，默认就是Get
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        //3.创建一个Call对象，参数是request对象，发送请求
-        Call call = okHttpClient.newCall(request);
-        //4.异步请求，请求加入调度
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                //得到从网上获取资源，转换成我们想要的类型
-                byte[] Picture_bt = response.body().bytes();
-                //通过handler更新UI
-                Message message = handler.obtainMessage();
-                message.obj = Picture_bt;
-                message.what = SUCCESS;
-                handler.sendMessage(message);
-            }
-        });
-    }
-
-    class LoadPicture extends AsyncTask<String, Void, String> {
-
-
-        @Override
-        protected String doInBackground(String... strings) {
-            String result2 = null;
-            String url = strings[0];
-            String result = HttpUtils.getOkHpptRequest(url);
-            if (!Utils.isEmpty(result)) {
-                result2 = result;
-            }
-            return result2;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-
-            super.onPostExecute(s);
-            if (s != null) {
-                //使用BitmapFactory工厂，把字节数组转化为bitmap
-                Bitmap bitmap = decodeImg(s);
-                //通过imageview，设置图片
-                if (bitmap == null) {
-                    Toast.makeText(RoomContentActivity.this, "no pictures", Toast.LENGTH_LONG).show();
-                } else {
-                    background.setImageBitmap(bitmap);
-                    Toast.makeText(RoomContentActivity.this, "Have a picture", Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-
-        /**
-         * 将从Message中获取的，表示图片的字符串解析为Bitmap对象
-         *
-         * @param picStrInMsg
-         * @return
-         */
-        public Bitmap decodeImg(String picStrInMsg) {
-            Bitmap bitmap = null;
-
-            byte[] imgByte = null;
-            InputStream input = null;
-            try {
-                imgByte = Base64.decode(picStrInMsg, Base64.DEFAULT);
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = 8;
-                input = new ByteArrayInputStream(imgByte);
-                SoftReference softRef = new SoftReference(BitmapFactory.decodeStream(input, null, options));
-                bitmap = (Bitmap) softRef.get();
-                ;
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (imgByte != null) {
-                    imgByte = null;
-                }
-
-                if (input != null) {
-                    try {
-                        input.close();
-                    } catch (IOException e) {
-// TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-//
-// byte[] imgByte = Base64.decode(picStrInMsg, Base64.DEFAULT);
-//
-// try {
-// bitmap = BitmapFactory.decodeByteArray(imgByte, 0, imgByte.length);
-// imgByte = null;
-// } catch (OutOfMemoryError e) {
-// e.printStackTrace();
-// try {
-// bitmap = BitmapFactory.decodeByteArray(imgByte, 0,
-// imgByte.length);
-// } catch (OutOfMemoryError e1) {
-// e.printStackTrace();
-// } catch (Exception e1) {
-// e.printStackTrace();
-// }
-// } catch (Exception e) {
-// e.printStackTrace();
-// }
-
-
-            return bitmap;
-        }
-
-        public Bitmap byteToBitmap(byte[] imgByte) {
-            InputStream input = null;
-            Bitmap bitmap = null;
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 8;
-            input = new ByteArrayInputStream(imgByte);
-            SoftReference softRef = new SoftReference(BitmapFactory.decodeStream(
-                    input, null, options));
-            bitmap = (Bitmap) softRef.get();
-            if (imgByte != null) {
-                imgByte = null;
-            }
-
-            try {
-                if (input != null) {
-                    input.close();
-                }
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return bitmap;
-        }
     }
 
     private void initViews() {
         GetBackgroundAsyncTask getBackgroundAsyncTask = new GetBackgroundAsyncTask();
         getBackgroundAsyncTask.execute();
         dragImageView = (DragImageView) findViewById(R.id.dragGridView1);
+        Picasso.with(RoomContentActivity.this).load(url).placeholder(R.drawable.ic_launcher).error(R.drawable.bedroom1).into(background);
+
     }
 
     public void initData(List<Equipment> equipmentList) {
@@ -405,7 +232,6 @@ public class RoomContentActivity extends Activity {
                 break;
             case R.id.return_scene:
                 //回退到MainActivity判断是哪个fragment，并切换回之前的fragment
-                Toast.makeText(this, "ok", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(this, MainActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("Activity_return", "Activity_return");
@@ -456,7 +282,7 @@ public class RoomContentActivity extends Activity {
 
     }
 
-    class GainAllEquipmentAsyncTask extends AsyncTask<Void, Void, String> {
+    class GainAllEquipmentAsyncTask extends AsyncTask<Void, Void, List<Equipment>> {
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", Context.MODE_PRIVATE);
         AsyncResponse asyncResponse;
 
@@ -465,11 +291,12 @@ public class RoomContentActivity extends Activity {
         }
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected List<Equipment> doInBackground(Void... voids) {
             int code = 0;
             int roomId = sharedPreferences.getInt("roomId", 0);
             Map<String, Object> params = new HashMap<>();
             params.put("roomId", roomId);
+            List<Equipment> list = new ArrayList<>();
             try {
                 String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/getRoomDevices", params);
                 String result = HttpUtils.getOkHpptRequest(url);
@@ -478,23 +305,8 @@ public class RoomContentActivity extends Activity {
                 code = jsonObject.getInt("code");
                 if (code == 2000) {
                     JSONArray jsonArray = jsonObject.getJSONArray("content");
-                    return result;
-                }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
 
-        @Override
-        protected void onPostExecute(String s) {
-            try {
-                if (!Utils.isEmpty(s)) {
-                    JSONObject jsonObject = new JSONObject(s);
-                    JSONArray jsonArray = jsonObject.getJSONArray("content");
-
-                    List<Equipment> equipment_list = new ArrayList<>();
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject object = jsonArray.getJSONObject(i);
                         int id = object.getInt("id");
@@ -511,16 +323,30 @@ public class RoomContentActivity extends Activity {
                             device_drawable = R.drawable.equipment_external_sensor;
                         }
                         Equipment equipment = new Equipment(type,id, deviceName, device_drawable, houseId, masterControllerUserId, isUnlock, false);
-                        equipment_list.add(equipment);
+                        list.add(equipment);
                     }
-                    asyncResponse.onDataReceivedSuccess(equipment_list);
+                    return list;
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<Equipment> list) {
+            List<Equipment> equipment_list = new ArrayList<>();
+            try {
+                if (null != list&& list.size() != 0) {
+                    asyncResponse.onDataReceivedSuccess(list);
                 } else {
                     asyncResponse.onDataReceivedFailed();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            super.onPostExecute(s);
+            super.onPostExecute(list);
         }
     }
 
@@ -610,10 +436,6 @@ public class RoomContentActivity extends Activity {
                     e.printStackTrace();
                 }
                 upImage(imageFile);
-//                getFileRequest(url,imageFile,null);
-                Log.d("chenzhu", "imagePath" + imagePath);
-
-                break;
             case ICON:
                 //设置图片的宽高
                 int height = fl.getHeight();
@@ -632,12 +454,8 @@ public class RoomContentActivity extends Activity {
                     break;
                 }
                 background.setImageBitmap(bitmapdown);
-//                getFileRequest(url,imageFile,null);
 
                 upImage(imageFile);
-
-
-                Log.d("chenzhu", "imagePath" + imagePath);
 
                 break;
 
@@ -868,7 +686,7 @@ public class RoomContentActivity extends Activity {
                         //android 6.0权限问题
                         if (ContextCompat.checkSelfPermission(RoomContentActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                                 ContextCompat.checkSelfPermission(RoomContentActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                            Toast.makeText(mContext, "执行了权限请求", Toast.LENGTH_LONG).show();
+//                            Toast.makeText(mContext, "执行了权限请求", Toast.LENGTH_LONG).show();
                             ActivityCompat.requestPermissions(RoomContentActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERAPRESS);
                         } else {
                             startIcon();
@@ -981,54 +799,6 @@ public class RoomContentActivity extends Activity {
             super.onPostExecute(s);
         }
     }
-
-//    //换景
-//    class ChangeBackgroundAsyncTask extends AsyncTask<JSONArray,Void,Integer>{
-//        SharedPreferences sharedPreferences = getSharedPreferences("roomId", Context.MODE_PRIVATE);
-//
-//        @Override
-//        protected Integer doInBackground(JSONArray... jsonArrays) {
-//           int coid = 0;
-//           JSONArray params = jsonArrays[0];
-//            int roomId = sharedPreferences.getInt("roomId",0);
-//            Map<String, Object> map = new HashMap<>();
-//            map.put("roomId", roomId);
-//            map.put("background",bitmapdown);
-//            String url = "http://120.77.36.206:8082/warmer/v1.0/room/"+roomId+"/background";
-//            String result = HttpUtils.postOkHpptRequest2(url,params);
-//            return null;
-//        }
-//    }
-
-
-    public static Request getFileRequest(String url, File file, Map<String, String> maps) {
-        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-        if (maps == null) {
-            builder.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"file.jpg\""), RequestBody.create(MediaType.parse("image/png"), file)
-            ).build();
-
-        } else {
-            for (String key : maps.keySet()) {
-                builder.addFormDataPart(key, maps.get(key));
-            }
-
-            builder.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"file.jpg\""), RequestBody.create(MediaType.parse("image/png"), file)
-            );
-
-        }
-
-//        MultipartBody body = new MultipartBody.Builder("AaB03x")
-//                .setType(MultipartBody.FORM)
-//                .addFormDataPart("files", null, new MultipartBody.Builder("BbC04y")
-//                        .addPart(Headers.of("Content-Disposition", "form-data; filename=\"img.png\""),
-//                                RequestBody.create(MediaType.parse("image/png"), new File(url)))
-//                        .build())
-//                .build();
-        RequestBody body = builder.build();
-        return new Request.Builder().url(url).post(body).build();
-
-    }
-
     private void upImage(File file) {
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", MODE_PRIVATE);
         int roomId = sharedPreferences.getInt("roomId", 0);
@@ -1037,46 +807,6 @@ public class RoomContentActivity extends Activity {
         if (file != null) {
             new AddPicuterAsync().execute(url, file);
         }
-
-
-//        OkHttpClient mOkHttpClent = new OkHttpClient();
-////        File file = new File(Environment.getExternalStorageDirectory()+"/HeadPortrait.jpg");
-//        MultipartBody.Builder builder = new MultipartBody.Builder()
-//                .setType(MultipartBody.FORM)
-//                .addFormDataPart("file", "HeadPortrait.jpg",
-//                        RequestBody.create(MediaType.parse("image/png"), file));
-//
-//        RequestBody requestBody = builder.build();
-//
-//        Request request = new Request.Builder()
-//                .url(url)
-//                .post(requestBody)
-//                .build();
-//        Call call = mOkHttpClent.newCall(request);
-//        call.enqueue(new Callback() {
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                Log.e(TAG, "onFailure: "+e );
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Toast.makeText(RoomContentActivity.this, "失败", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//                response.body().toString();
-//                Log.e(TAG, "成功"+response);
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Toast.makeText(RoomContentActivity.this, "成功", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//            }
-//        });
 
     }
 
@@ -1102,6 +832,8 @@ public class RoomContentActivity extends Activity {
             switch (code) {
                 case 201:
                     Toast.makeText(RoomContentActivity.this, "成功", Toast.LENGTH_SHORT).show();
+                    Picasso.with(RoomContentActivity.this).load(url).placeholder(R.drawable.ic_launcher).error(R.drawable.bedroom1).memoryPolicy(MemoryPolicy.NO_CACHE).into(background);
+
                     break;
                 default:
                     Toast.makeText(RoomContentActivity.this, "失败", Toast.LENGTH_SHORT).show();
@@ -1137,9 +869,9 @@ public class RoomContentActivity extends Activity {
         }
     };
 
+
     String extTemp;
     String extHut;
-
     public class MessageReceiver extends BroadcastReceiver {
 
         @Override

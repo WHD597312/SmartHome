@@ -69,7 +69,7 @@ public class EquipmentAdapter extends RecyclerView.Adapter<EquipmentAdapter.View
 //        }
             final Equipment equipment = equipment_list.get(position);
             holder.equipment_Name.setText(equipment.getDeviceName());
-            holder.equipment_image.setImageResource(equipment.getType());
+            holder.equipment_image.setImageResource(equipment.getDevice_type());
             holder.CheckBox.setChecked(equipment.isChecked());
             holder.CheckBox.setOnClickListener(new View.OnClickListener() {
                 @Override
