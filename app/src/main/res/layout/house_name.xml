@@ -3,7 +3,10 @@
     android:layout_width="match_parent"
     android:background="#FFFFFF"
     android:layout_height="wrap_content">
-
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:background="#000000"/>
     <TextView
         android:id="@+id/houseName"
         android:layout_width="match_parent"
@@ -14,6 +17,6 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="0.5dp"
+        android:layout_height="@dimen/dp_1"
         android:background="#000000"/>
 </RelativeLayout>

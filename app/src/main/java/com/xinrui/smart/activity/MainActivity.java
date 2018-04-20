@@ -207,6 +207,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
     private LocationManager locationManager;
     private String provider;
 

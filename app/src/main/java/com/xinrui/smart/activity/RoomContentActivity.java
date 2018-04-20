@@ -60,6 +60,7 @@ import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.MyAdapter;
 import com.xinrui.smart.fragment.Btn1_fragment;
 import com.xinrui.smart.pojo.Equipment;
+import com.xinrui.smart.util.BitmapCompressUtils;
 import com.xinrui.smart.util.GetUrl;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
@@ -203,6 +204,7 @@ public class RoomContentActivity extends Activity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
 
         //将File对象转换为Uri并启动照相程序
         imageUri = Uri.fromFile(imageFile);
@@ -415,6 +417,7 @@ public class RoomContentActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        File file;
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", MODE_PRIVATE);
         int roomId = sharedPreferences.getInt("roomId", 0);
         String url = "http://120.77.36.206:8082/warmer/v1.0/room/" + roomId + "/background";
@@ -424,18 +427,23 @@ public class RoomContentActivity extends Activity {
             case CAMERA:
                 Bitmap bitmap1 = null;
                 try {
-                    bitmap1 = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inSampleSize = 8;
+                    options.inPreferredConfig = Bitmap.Config.RGB_565;
+                    options.inPurgeable = true;
+
+                    bitmap1 = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri),null, options);
                     imagePath = getPath(this, imageUri);
                     bitmapdown = bitmap1;
                     if (bitmapdown == null) {
                         break;
                     }
-                    background.setImageBitmap(bitmapdown);
                 } catch (FileNotFoundException e) {
                     imageFile = null;
                     e.printStackTrace();
                 }
-                upImage(imageFile);
+                File file1 = BitmapCompressUtils.compressImage(bitmapdown);
+                upImage(file1);
             case ICON:
                 //设置图片的宽高
                 int height = fl.getHeight();
@@ -453,10 +461,9 @@ public class RoomContentActivity extends Activity {
                 if (bitmapdown == null) {
                     break;
                 }
-                background.setImageBitmap(bitmapdown);
+
 
                 upImage(imageFile);
-
                 break;
 
         }

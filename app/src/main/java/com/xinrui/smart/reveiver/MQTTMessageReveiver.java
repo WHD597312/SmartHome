@@ -27,7 +27,7 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
         String message=intent.getStringExtra("message");
         String topicName=intent.getStringExtra("topicName");
         try {
-            String macAddress=topicName.substring(topicName.indexOf("/"),topicName.lastIndexOf("/"));
+            String macAddress=topicName.substring(6,topicName.lastIndexOf("/"));
             if (!Utils.isEmpty(macAddress)){
                 JSONObject device=new JSONObject(message);
 
@@ -120,8 +120,8 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                         long houseId=child.getHouseId();
                         long deviceId=child.getId();
                         Intent mqttIntent=new Intent("HeaterFragment");
-//                        mqttIntent.putExtra("houseId",houseId);
-//                        mqttIntent.putExtra("deviceId",deviceId);
+                        mqttIntent.putExtra("houseId",houseId);
+                        mqttIntent.putExtra("deviceId",deviceId);
                         mqttIntent.putExtra("deviceChild",child);
                         context.sendBroadcast(mqttIntent);
                     }

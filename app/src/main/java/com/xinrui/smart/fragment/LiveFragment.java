@@ -1,9 +1,11 @@
 package com.xinrui.smart.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -66,6 +68,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by win7 on 2018/3/19.
@@ -146,7 +150,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
     private ArrayAdapter<String> adapter;
     Switch_houseAdapter switch_houseAdapter;
     String location;//住所地址
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -154,10 +157,18 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         unbinder = ButterKnife.bind(this, view);
         roomEntryDao = new RoomEntryDaoImpl(getActivity());
         pref = getActivity().getSharedPreferences("myActivityName", 0);
-        editor1 = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE).edit();
+        editor1 = getActivity().getSharedPreferences("data", MODE_PRIVATE).edit();
         //取得相应的值，如果没有该值，说明还未写入，用true作为默认值
         isFirstIn = pref.getBoolean("isFirstIn", true);
         initData();
+        WindowManager wm = (WindowManager) getActivity()
+                .getSystemService(Context.WINDOW_SERVICE);
+        item_width = wm.getDefaultDisplay().getWidth() / 4;
+        fragmentslist = new ArrayList<>();
+        fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentTransaction = fragmentManager.beginTransaction();
+        getActivity().getSupportFragmentManager().findFragmentByTag("");
+
         return view;
     }
 
@@ -173,15 +184,15 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
     @Override
     public void onStart() {
-        super.onStart();
-        WindowManager wm = (WindowManager) getActivity()
-                .getSystemService(Context.WINDOW_SERVICE);
-        item_width = wm.getDefaultDisplay().getWidth() / 4;
-        fragmentslist = new ArrayList<>();
-        fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentTransaction = fragmentManager.beginTransaction();
-        getActivity().getSupportFragmentManager().findFragmentByTag("");
         initView();
+        super.onStart();
+
+    }
+
+    @Override
+    public void onResume() {
+
+        super.onResume();
     }
 
     private void initData() {
@@ -217,7 +228,15 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         viewPager.setAdapter(fragmentViewPagerAdapter);
         saveViewPage();
         restore_Data();
-        if (isFirstIn) {
+        if (isFirstIn ) {
+//            house_id = DeviceGroup.get(0).getId();
+//            DeviceGroup deviceGroup = deviceGroupDao.findById(house_id);
+//            house_Name = deviceGroup.getHouseName() + "(" + house_id + ")";
+//            location = deviceGroup.getLocation().replace("市", "");
+//            houseId.setText(house_Name);
+//            WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
+//            weatherAsyncTask.execute();
+//            cut_houseId();
             showDialog();
         }
     }
@@ -270,7 +289,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
         weatherAsyncTask.execute();
         cut_houseId();
-        viewPager.setCurrentItem(0);
         dialog.dismiss();
     }
 
@@ -354,6 +372,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         QueryAllRoomAsyncTask1 queryAllRoomAsyncTask1 = new QueryAllRoomAsyncTask1(handler);
 
         queryAllRoomAsyncTask1.execute();
+        viewPager.setCurrentItem(0);
     }
 
     class NewRoomAsyncTask extends AsyncTask<Void, Void, Integer> {
@@ -495,12 +514,27 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                 method_btn_4();
                 break;
             case R.id.new_btn:
-                method_new_btn();
-                if (house_id == null) {
-
-                } else {
-                    new NewRoomAsyncTask().execute();
+                if(add_key > 3){
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("返回:");
+                builder.setMessage("无法继续新建!");
+                //设置正面按钮
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }else {
+                    method_new_btn();
                 }
+//                if (house_id == null) {
+//
+//                } else {
+//                    new NewRoomAsyncTask().execute();
+//                }
                 break;
             case R.id.custom_house_type:
                 savedState();
@@ -682,51 +716,13 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         dialog.setTitle("切换住所");
         dialog.show();
         WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
-//        layoutParams.width = CommonUtil.getScreenWidth(getActivity());
-//        layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         layoutParams.height = CommonUtil.getScreenHeight(getActivity()) / 3;
-//                layoutParams.gravity = Gravity.BOTTOM;
         dialog.getWindow().setAttributes(layoutParams);
+
+
     }
 
-    //    public void setRoomType(){
-//
-//        Intent custom_house_type = new Intent(getActivity(),CustomRoomActivity.class);
-//        Bundle bundle = new Bundle();
-//        List<RoomEntry> list=roomEntryDao.findAllByGroup(current_key);
-//        List<List<Integer>> list_all = new ArrayList<>();
-//        List<Integer> list_allRoomPostion = new ArrayList<>();//所有房间的postion个数
-//        Log.i("list",list.size()+"");
-//        for (int i = 0; i < list.size(); i++) {
-//            List<Integer>  list_roomPostion = new ArrayList<>();//每间房间的postion
-//            RoomEntry roomEntry_list = list.get(i);
-//            int x = roomEntry_list.getX();
-//            int y = roomEntry_list.getY();
-//            int width = roomEntry_list.getWidth();
-//            int height = roomEntry_list.getHeight();
-//            int postion_left_top = x/270+4*(y/270);
-//            int postion_right_bottom = (x+width)/270+4*((y+height)/270);
-//            int postion = 0;
-//            for (int k = 0; k <width/270; k++) {
-//                postion = postion_left_top++;
-//                for (int l = 0; l<(height/270)-1; l++) {
-//                    list_roomPostion.add(postion);
-//                    postion = postion+4;
-//                }
-//                list_roomPostion.add(postion);
-//
-//            }
-//            list_all.add(list_roomPostion);
-//            list_allRoomPostion.addAll(list_roomPostion);
-//        }
-//        for (int i = 0; i < list_all.size(); i++) {
-//            bundle.putIntegerArrayList("list_"+i, (ArrayList<Integer>) list_all.get(i));//所有房间放到list集合里
-//        }
-//        bundle.putInt("list_all_size", list_all.size());//传递所有房间
-//        bundle.putInt("current_key", current_key);//第几层传过来的房间
-//        custom_house_type.putExtras(bundle);
-//        getActivity().startActivity(custom_house_type);
-//    }
+
     List<RoomEntry> roomEntries = new ArrayList<>();
 
     //从服务器获取数据创建房间的形状
@@ -934,6 +930,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
     }
 
     public void method_new_btn() {
+        Toast.makeText(getActivity(),"current_key:"+current_key+"  "+"add_key:"+add_key,Toast.LENGTH_LONG).show();
         if (!isestablied) {
             if (add_key == 0) {
                 btn1.setVisibility(View.VISIBLE);
@@ -992,192 +989,14 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             }
             addPage(add_key);
             viewPager.setCurrentItem(add_key);
-            add_key++;
+            if(add_key > 3){
+
+            }else {
+                add_key++;
+            }
         }
         savedState();
     }
-
-//    public void method_delete_btn() {
-//        int postion_delete = current_key - 1; //删除页面的序号
-//        if(add_key == 0){
-//            Toast.makeText(getActivity(), "数据全部清除，无法再继续删除", Toast.LENGTH_LONG).show();
-//        }else if (add_key == 1) {
-//            btn1.setVisibility(View.GONE);
-//            delPage(postion_delete);
-//            add_key = 0;
-//        } else if (add_key == 2) {
-//            if (current_key == 1) {
-//                btn2.setVisibility(View.GONE);
-//                current_key = 1;
-//                add_key--;
-//                isestablied = false;
-//                delPage(postion_delete);
-//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-//            } else if (current_key == 2) {
-//                btn2.setVisibility(View.GONE);
-//                btn1.setBackgroundResource(R.drawable.new_floor_button_colour);
-//                btn1.setTextColor(getResources().getColor(R.color.white));
-//                current_key = 1;
-//                add_key--;
-//                isestablied = false;
-//                delPage(postion_delete);
-//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-//            }
-//
-//        } else if (add_key == 3) {
-//            if (current_key == 1) {
-//                btn3.setVisibility(View.GONE);
-//                current_key = 1;
-//                add_key--;
-//                isestablied = false;
-//                delPage(postion_delete);
-//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-//            } else if (current_key == 2) {
-//                btn3.setVisibility(View.GONE);
-//                current_key = 2;
-//                add_key--;
-//                isestablied = false;
-//                delPage(postion_delete);
-//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-//
-//            } else if (current_key == 3) {
-//                btn3.setVisibility(View.GONE);
-//                btn2.setBackgroundResource(R.drawable.new_floor_button_colour);
-//                btn2.setTextColor(getResources().getColor(R.color.white));
-//                current_key = 2;
-//                add_key--;
-//                isestablied = false;
-//                delPage(postion_delete);
-//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-//            }
-//        } else if (add_key == 4) {
-//            if (current_key == 1) {
-//                btn4.setVisibility(View.GONE);
-//                current_key = 1;
-//                add_key--;
-//                isestablied = false;
-//                delPage(postion_delete);
-//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-//
-//            } else if (current_key == 2) {
-//                btn4.setVisibility(View.GONE);
-//                current_key = 2;
-//                add_key--;
-//                isestablied = false;
-//                delPage(postion_delete);
-//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-//
-//            } else if (current_key == 3) {
-//                btn4.setVisibility(View.GONE);
-//                current_key = 3;
-//                add_key--;
-//                isestablied = false;
-//                delPage(postion_delete);
-//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-//
-//            } else if (current_key == 4) {
-//                btn4.setVisibility(View.GONE);
-//                btn3.setBackgroundResource(R.drawable.new_floor_button_colour);
-//                btn3.setTextColor(getResources().getColor(R.color.white));
-//                current_key = 3;
-//                add_key--;
-//                isestablied = false;
-//                delPage(postion_delete);
-//                Toast.makeText(getActivity(), "current_key:" + current_key + "isestablied:" + isestablied + ";" + "add_key:" + add_key, Toast.LENGTH_LONG).show();
-//            }
-//        }
-//        savedState();
-//    }
-
-//    public void method_copy_paste_btn() {
-//        postion_current = add_key;//当前页面序号
-//        if(add_key == 0){
-//            Toast.makeText(getActivity(),"没有数据，无法复制，请创建",Toast.LENGTH_LONG).show();
-//        }else if (add_key == 1) {
-//            btn2.setVisibility(View.VISIBLE);
-//            btn1.setBackgroundResource(R.drawable.floor_button_colour);
-//            btn1.setTextColor(Color.WHITE);
-//            btn2.setBackgroundResource(R.drawable.new_floor_button_colour);
-//            btn2.setTextColor(getResources().getColor(R.color.white));
-////            addPage(add_key);
-//            copyPage(add_key);
-//            viewPager.setCurrentItem(add_key);
-//
-//            current_key = 2;
-//            add_key++;
-//        } else if (add_key == 2) {
-//            if (current_key == 1) {
-//                btn3.setVisibility(View.VISIBLE);
-//                btn1.setBackgroundResource(R.drawable.floor_button_colour);
-//                btn1.setTextColor(Color.WHITE);
-//                btn2.setBackgroundResource(R.drawable.new_floor_button_colour);
-//                btn2.setTextColor(getResources().getColor(R.color.white));
-//                copyPage(add_key);
-//                viewPager.setCurrentItem(add_key);
-//                current_key = 3;
-//                add_key++;
-//            } else if (current_key == 2) {
-//                btn3.setVisibility(View.VISIBLE);
-//                btn2.setBackgroundResource(R.drawable.floor_button_colour);
-//                btn2.setTextColor(Color.WHITE);
-//                btn3.setBackgroundResource(R.drawable.new_floor_button_colour);
-//                btn3.setTextColor(getResources().getColor(R.color.white));
-//
-////                copyPage(postion_current);
-//                copyPage(add_key);
-//
-//                viewPager.setCurrentItem(add_key);
-//                current_key = 3;
-//                add_key++;
-//            }
-//        } else if (add_key == 3) {
-//            if (current_key == 1) {
-//                btn4.setVisibility(View.VISIBLE);
-//                btn1.setBackgroundResource(R.drawable.floor_button_colour);
-//                btn1.setTextColor(Color.WHITE);
-//                btn4.setBackgroundResource(R.drawable.new_floor_button_colour);
-//                btn4.setTextColor(getResources().getColor(R.color.white));
-//
-////                copyPage(postion_current);
-//                copyPage(add_key);
-//                viewPager.setCurrentItem(add_key);
-//
-//                current_key = 4;
-//                add_key++;
-//            } else if (current_key == 2) {
-//                btn4.setVisibility(View.VISIBLE);
-//                btn2.setBackgroundResource(R.drawable.floor_button_colour);
-//                btn2.setTextColor(Color.WHITE);
-//                btn4.setBackgroundResource(R.drawable.new_floor_button_colour);
-//                btn4.setTextColor(getResources().getColor(R.color.white));
-//
-//
-////                copyPage(postion_current);
-//                addPage(add_key);
-//                viewPager.setCurrentItem(add_key);
-//
-//                current_key = 4;
-//                add_key++;
-//            } else if (current_key == 3) {
-//                btn4.setVisibility(View.VISIBLE);
-//                btn3.setBackgroundResource(R.drawable.floor_button_colour);
-//                btn3.setTextColor(Color.WHITE);
-//                btn4.setBackgroundResource(R.drawable.new_floor_button_colour);
-//                btn4.setTextColor(getResources().getColor(R.color.white));
-//
-//
-//                addPage(add_key);
-//                viewPager.setCurrentItem(add_key);
-//
-//                current_key = 4;
-//                add_key++;
-//            }
-//            isestablied = true;
-//        } else if (add_key == 4) {
-//            Toast.makeText(getActivity(), "无法继续增加", Toast.LENGTH_LONG).show();
-//        }
-//        savedState();
-//    }
 
     /**
      * 新增一层页面
@@ -1288,6 +1107,8 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         editor1.putString("house_Name", house_Name);
         editor1.putInt("fragmentlist_size", fragmentslist.size());
         editor1.apply();
+
+
     }
 
     //恢复数据,只能在进入页面时执行一次，切记
@@ -1393,4 +1214,12 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        savedState();
+
+        SharedPreferences.Editor fragmentPreferences = (SharedPreferences.Editor) getActivity().getSharedPreferences("fragment", MODE_PRIVATE).edit();
+        fragmentPreferences.putString("fragment","3");
+        super.onSaveInstanceState(outState);
+    }
 }
