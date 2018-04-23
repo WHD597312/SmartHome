@@ -53,7 +53,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
@@ -62,9 +64,11 @@ import com.xinrui.smart.fragment.Btn1_fragment;
 import com.xinrui.smart.pojo.Equipment;
 import com.xinrui.smart.util.BitmapCompressUtils;
 import com.xinrui.smart.util.GetUrl;
+import com.xinrui.smart.util.ImageDownLoader;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.DragImageView;
+import com.zhy.http.okhttp.OkHttpUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,9 +81,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -89,7 +95,7 @@ import okhttp3.Callback;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -167,12 +173,12 @@ public class RoomContentActivity extends Activity {
     }
 
     private void initViews() {
-        GetBackgroundAsyncTask getBackgroundAsyncTask = new GetBackgroundAsyncTask();
-        getBackgroundAsyncTask.execute();
         dragImageView = (DragImageView) findViewById(R.id.dragGridView1);
-        Picasso.with(RoomContentActivity.this).load(url).placeholder(R.drawable.ic_launcher).error(R.drawable.bedroom1).into(background);
 
+        Picasso.with(RoomContentActivity.this).load(url).placeholder(R.drawable.ic_launcher).error(R.drawable.bedroom1).into(background);
     }
+
+
 
     public void initData(List<Equipment> equipmentList) {
 
@@ -687,22 +693,23 @@ public class RoomContentActivity extends Activity {
         gallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (popupWindow != null && popupWindow.isShowing()) {
-                    if (Build.VERSION.SDK_INT >= 23) {
-                        Toast.makeText(RoomContentActivity.this, "当前的版本号" + Build.VERSION.SDK_INT, Toast.LENGTH_LONG).show();
-                        //android 6.0权限问题
-                        if (ContextCompat.checkSelfPermission(RoomContentActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                                ContextCompat.checkSelfPermission(RoomContentActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-//                            Toast.makeText(mContext, "执行了权限请求", Toast.LENGTH_LONG).show();
-                            ActivityCompat.requestPermissions(RoomContentActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERAPRESS);
-                        } else {
-                            startIcon();
-                        }
-
-                    } else {
-                        startIcon();
-                    }
-                }
+//                if (popupWindow != null && popupWindow.isShowing()) {
+//                    if (Build.VERSION.SDK_INT >= 23) {
+//                        Toast.makeText(RoomContentActivity.this, "当前的版本号" + Build.VERSION.SDK_INT, Toast.LENGTH_LONG).show();
+//                        //android 6.0权限问题
+//                        if (ContextCompat.checkSelfPermission(RoomContentActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+//                                ContextCompat.checkSelfPermission(RoomContentActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+////                            Toast.makeText(mContext, "执行了权限请求", Toast.LENGTH_LONG).show();
+//                            ActivityCompat.requestPermissions(RoomContentActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERAPRESS);
+//                        } else {
+//                            startIcon();
+//                        }
+//
+//                    } else {
+//                        startIcon();
+//                    }
+//                }
+                startIcon();
                 popupWindow.dismiss();
             }
         });
@@ -847,6 +854,18 @@ public class RoomContentActivity extends Activity {
                     break;
             }
         }
+    }
+
+    @Override
+    protected void onPause() {
+        OkHttpUtils.getInstance().cancelTag(1);
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        OkHttpUtils.getInstance().cancelTag(1);
+        super.onStop();
     }
 
     @Override

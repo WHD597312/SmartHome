@@ -2,14 +2,21 @@ package com.xinrui.smart;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.StrictMode;
 
 
+import com.squareup.picasso.Picasso;
+import com.xinrui.smart.util.ImageDownLoader;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cn.smssdk.SMSSDK;
+import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 
 
 /**
@@ -19,9 +26,21 @@ import cn.smssdk.SMSSDK;
 public class MyApplication extends Application {
     private int count = 0;
     private List<Activity> activities;
+    private static Context mContext;
+    public static Context getContext(){
+        return mContext;
+
+    }
     @Override
     public void onCreate() {
         super.onCreate();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .protocols(Collections.singletonList(Protocol.HTTP_1_1))
+                .build();
+        Picasso.setSingletonInstance(new Picasso.Builder(this).
+                downloader(new ImageDownLoader(client))
+                .build());
+        mContext = getApplicationContext();
         // android 7.0系统解决拍照的问题
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());

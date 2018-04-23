@@ -67,6 +67,9 @@ public class Scene_deviceAdapter extends RecyclerView.Adapter<Scene_deviceAdapte
 //        }
 
                 final Equipment equipment = list.get(postion);
+        for (int i = 0; i < list.size(); i++) {
+            int r = list.get(i).getType();
+        }
                 holder.device_image.setImageResource(equipment.getType());
 
     }

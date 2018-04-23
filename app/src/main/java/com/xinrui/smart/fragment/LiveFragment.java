@@ -150,6 +150,8 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
     private ArrayAdapter<String> adapter;
     Switch_houseAdapter switch_houseAdapter;
     String location;//住所地址
+    int userId;
+    int user_Id;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -168,7 +170,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         fragmentManager = getActivity().getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         getActivity().getSupportFragmentManager().findFragmentByTag("");
-
+        initView();
         return view;
     }
 
@@ -184,7 +186,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
     @Override
     public void onStart() {
-        initView();
+
         super.onStart();
 
     }
@@ -220,15 +222,17 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
     //初始化View
     public void initView() {
-        fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
-                getChildFragmentManager(), fragmentslist);
-        btn1_fragment = new Btn1_fragment();
-        fragmentslist.add(btn1_fragment);
-        viewPager = (ViewPager) view.findViewById(R.id.fragment_viewPager);
-        viewPager.setAdapter(fragmentViewPagerAdapter);
-        saveViewPage();
-        restore_Data();
-        if (isFirstIn ) {
+//        fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
+//                getChildFragmentManager(), fragmentslist);
+//        btn1_fragment = new Btn1_fragment();
+//        fragmentslist.add(btn1_fragment);
+//        viewPager = (ViewPager) view.findViewById(R.id.fragment_viewPager);
+//        viewPager.setAdapter(fragmentViewPagerAdapter);
+//        saveViewPage();
+//        restore_Data();
+
+
+//        if (isFirstIn ) {
 //            house_id = DeviceGroup.get(0).getId();
 //            DeviceGroup deviceGroup = deviceGroupDao.findById(house_id);
 //            house_Name = deviceGroup.getHouseName() + "(" + house_id + ")";
@@ -237,9 +241,50 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 //            WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
 //            weatherAsyncTask.execute();
 //            cut_houseId();
-            showDialog();
+//            showDialog();
+//        }else {
+
+            DeviceGroup = deviceGroupDao.findAllDevices();
+            List<DeviceGroup> deviceGroups=deviceGroupDao.findAllDevices();
+
+            DeviceGroup deviceGroup = deviceGroups.get(0);
+        SharedPreferences preferences = getActivity().getSharedPreferences("my", MODE_PRIVATE);
+        String s = preferences.getString("userId","");
+        userId=Integer.parseInt(s);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data",MODE_PRIVATE);
+        user_Id = sharedPreferences.getInt("user_Id",0);
+            if(user_Id != userId){
+                house_id = deviceGroup.getId();
+                house_Name = deviceGroup.getHouseName() + "(" + house_id + ")";
+                String s1=deviceGroup.getLayers();
+//                String rr = s.substring(s.length()-1,s.length());
+                add_key= Integer.parseInt(s1.substring(s1.length()-1,s1.length()));
+                location = deviceGroup.getLocation().replace("市", "");
+                houseId.setText(house_Name);
+                WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
+                weatherAsyncTask.execute();
+                fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
+                        getChildFragmentManager(), fragmentslist);
+                viewPager = (ViewPager) view.findViewById(R.id.fragment_viewPager);
+                viewPager.setAdapter(fragmentViewPagerAdapter);
+                savefloor(add_key);
+                saveViewPage();
+                savedState();
+                fragmentslist.add(btn1_fragment);
+                restore_Data();
+            }else {
+                fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
+                        getChildFragmentManager(), fragmentslist);
+                btn1_fragment = new Btn1_fragment();
+                fragmentslist.add(btn1_fragment);
+                viewPager = (ViewPager) view.findViewById(R.id.fragment_viewPager);
+                viewPager.setAdapter(fragmentViewPagerAdapter);
+                saveViewPage();
+                restore_Data();
+            }
+
         }
-    }
+//    }
 
     //初始化viewpage
     public void saveViewPage() {
@@ -375,6 +420,43 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         viewPager.setCurrentItem(0);
     }
 
+    public void savefloor(int add_key){
+        btn1_fragment = new Btn1_fragment();
+        btn2_fragment = new Btn2_fragment();
+        btn3_fragment = new Btn3_fragment();
+        btn4_fragment = new Btn4_fragment();
+        fragmentslist.clear();
+        if (add_key == 1) {
+            btn1.setVisibility(View.VISIBLE);
+            btn2.setVisibility(View.GONE);
+            btn3.setVisibility(View.GONE);
+            btn4.setVisibility(View.GONE);
+        } else if (add_key == 2) {
+            btn1.setVisibility(View.VISIBLE);
+            btn2.setVisibility(View.VISIBLE);
+            btn3.setVisibility(View.GONE);
+            btn4.setVisibility(View.GONE);
+        } else if (add_key == 3) {
+            fragmentslist.add(btn1_fragment);
+            fragmentslist.add(btn2_fragment);
+            fragmentslist.add(btn3_fragment);
+            btn1.setVisibility(View.VISIBLE);
+            btn2.setVisibility(View.VISIBLE);
+            btn3.
+                    setVisibility(View.VISIBLE);
+            btn4.setVisibility(View.GONE);
+        } else if (add_key == 4) {
+            btn1.setVisibility(View.VISIBLE);
+            btn2.setVisibility(View.VISIBLE);
+            btn3.setVisibility(View.VISIBLE);
+            btn4.setVisibility(View.VISIBLE);
+        }
+        current_key = 1;
+        btn1.setBackgroundResource(R.drawable.new_floor_button_colour);
+        btn2.setBackgroundResource(R.drawable.floor_button_colour);
+        btn3.setBackgroundResource(R.drawable.floor_button_colour);
+        btn4.setBackgroundResource(R.drawable.floor_button_colour);
+    }
     class NewRoomAsyncTask extends AsyncTask<Void, Void, Integer> {
 
         @Override
@@ -530,11 +612,11 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             }else {
                     method_new_btn();
                 }
-//                if (house_id == null) {
-//
-//                } else {
-//                    new NewRoomAsyncTask().execute();
-//                }
+                if (house_id == null) {
+
+                } else {
+                    new NewRoomAsyncTask().execute();
+                }
                 break;
             case R.id.custom_house_type:
                 savedState();
@@ -1105,10 +1187,9 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         editor1.putInt("btn4", btn4.getVisibility());
         editor1.putLong("house_id", house_id);
         editor1.putString("house_Name", house_Name);
-        editor1.putInt("fragmentlist_size", fragmentslist.size());
+        editor1.putInt("fragmentlist_size", add_key);
+        editor1.putInt("user_Id",userId);
         editor1.apply();
-
-
     }
 
     //恢复数据,只能在进入页面时执行一次，切记
@@ -1123,6 +1204,9 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         String airCondition = sharedPreferences.getString("airCondition", "良好");
         String humidity1 = sharedPreferences.getString("humidity", "60%").substring(3);
         String temperature1 = sharedPreferences.getString("temperature", "28℃");
+         user_Id = sharedPreferences.getInt("user_Id",0);
+
+
 
         airQuality.setText("室外空气:" + airCondition);
         humidity.setText(humidity1);
@@ -1217,7 +1301,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         savedState();
-
         SharedPreferences.Editor fragmentPreferences = (SharedPreferences.Editor) getActivity().getSharedPreferences("fragment", MODE_PRIVATE).edit();
         fragmentPreferences.putString("fragment","3");
         super.onSaveInstanceState(outState);

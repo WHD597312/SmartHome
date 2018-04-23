@@ -16,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -28,6 +29,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.okhttp.Interceptor;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.database.dao.daoimpl.RoomEntryDaoImpl;
 import com.xinrui.http.HttpUtils;
@@ -51,14 +56,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.Unbinder;
+import okhttp3.Cache;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -97,6 +106,7 @@ public class Btn1_fragment extends Fragment{
     Room room;
     RoomEntry roomEntry;
     public static int running=0;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -108,6 +118,7 @@ public class Btn1_fragment extends Fragment{
         initView();
         ModificationAsyncTask();
         sendRequestForListData();
+
         return view_background;
     }
 
@@ -129,6 +140,7 @@ public class Btn1_fragment extends Fragment{
         });
     }
 
+
     //从服务器获取数据创建房间异步请求
     class QueryAllRoomAsyncTask extends AsyncTask<Void,Void,List<Room>>{
         WindowManager wm = (WindowManager) getActivity()
@@ -148,6 +160,7 @@ public class Btn1_fragment extends Fragment{
 
         @Override
         protected List<Room> doInBackground(Void... voids) {
+
             deviceGroupDao = new DeviceGroupDaoImpl(getActivity());
             DeviceGroup = deviceGroupDao.findAllDevices();
             List<Room> roomList = new ArrayList<>();
@@ -226,33 +239,33 @@ public class Btn1_fragment extends Fragment{
         protected void onPostExecute(List<Room> roomList) {
             try{
                 if(roomList != null){
-                for (int i = 0; i < roomList.size(); i++) {
-                    roomEntry = new RoomEntry(roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
-                    View view = setLayout(roomList.get(i).getDevices(),roomList.get(i).getRoomName(),roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight());
-                    Room room1 = new Room(view,roomList.get(i).getRoomId(),roomList.get(i).getRoomName(),roomList.get(i).getStartPoint(),roomList.get(i).getPoints(),roomList.get(i).getHouseId(),roomList.get(i).getDevices(),roomList.get(i).getLayer(),roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
-                    room_list.add(room1);
-                    roomEntry_list.add(roomEntry);
-                    view.setTag(room1.getRoomId());
-                }
+                    for (int i = 0; i < roomList.size(); i++) {
+                        roomEntry = new RoomEntry(roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
+                        View view = setLayout(roomList.get(i).getDevices(),roomList.get(i).getRoomName(),roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight());
+                        Room room1 = new Room(view,roomList.get(i).getRoomId(),roomList.get(i).getRoomName(),roomList.get(i).getStartPoint(),roomList.get(i).getPoints(),roomList.get(i).getHouseId(),roomList.get(i).getDevices(),roomList.get(i).getLayer(),roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
+                        room_list.add(room1);
+                        roomEntry_list.add(roomEntry);
+                        view.setTag(room1.getRoomId());
+                    }
                     asyncResponse.onDataReceivedSuccess(room_list);
-                        if (roomEntry_list.size() ==0) {
-                            view_background.setOnTouchListener(new View.OnTouchListener() {
-                                @Override
-                                public boolean onTouch(View v, MotionEvent event) {
-                                    return true;
-                                }
-                            });
-                            view_background.setVerticalScrollBarEnabled(false);
-                        }else{
-                            view_background.setOnTouchListener(new View.OnTouchListener() {
-                                @Override
-                                public boolean onTouch(View v, MotionEvent event) {
-                                    return false;
-                                }
-                            });
-                            view_background.setVerticalScrollBarEnabled(true);
-                        }
-                    }else {
+                    if (roomEntry_list.size() ==0) {
+                        view_background.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
+                                return true;
+                            }
+                        });
+                        view_background.setVerticalScrollBarEnabled(false);
+                    }else{
+                        view_background.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
+                                return false;
+                            }
+                        });
+                        view_background.setVerticalScrollBarEnabled(true);
+                    }
+                }else {
                     asyncResponse.onDataReceivedFailed();
                 }
             }catch (Exception e){
@@ -693,5 +706,6 @@ public class Btn1_fragment extends Fragment{
 
         }
     }
+
 
 }

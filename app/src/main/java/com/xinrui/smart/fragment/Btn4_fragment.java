@@ -2,11 +2,16 @@ package com.xinrui.smart.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -21,7 +26,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.database.dao.daoimpl.RoomEntryDaoImpl;
@@ -38,9 +42,11 @@ import com.xinrui.smart.pojo.RoomEntry;
 import com.xinrui.smart.util.GetUrl;
 import com.xinrui.smart.util.ItemDecoration.GridSpacingItemDecoration;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.RoomViewGroup;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URLEncoder;
@@ -88,12 +94,8 @@ public class Btn4_fragment extends Fragment{
     GetUrl getUrl = new GetUrl();
     Room room;
     RoomEntry roomEntry;
-    private View.OnClickListener onClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
+    public static int running=0;
 
-        }
-    };
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -105,6 +107,7 @@ public class Btn4_fragment extends Fragment{
         initView();
         ModificationAsyncTask();
         sendRequestForListData();
+
         return view_background;
     }
 
@@ -126,6 +129,7 @@ public class Btn4_fragment extends Fragment{
         });
     }
 
+
     //从服务器获取数据创建房间异步请求
     class QueryAllRoomAsyncTask extends AsyncTask<Void,Void,List<Room>>{
         WindowManager wm = (WindowManager) getActivity()
@@ -145,6 +149,7 @@ public class Btn4_fragment extends Fragment{
 
         @Override
         protected List<Room> doInBackground(Void... voids) {
+
             deviceGroupDao = new DeviceGroupDaoImpl(getActivity());
             DeviceGroup = deviceGroupDao.findAllDevices();
             List<Room> roomList = new ArrayList<>();
@@ -223,33 +228,33 @@ public class Btn4_fragment extends Fragment{
         protected void onPostExecute(List<Room> roomList) {
             try{
                 if(roomList != null){
-                for (int i = 0; i < roomList.size(); i++) {
-                    roomEntry = new RoomEntry(roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
-                    View view = setLayout(roomList.get(i).getDevices(),roomList.get(i).getRoomName(),roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight());
-                    Room room1 = new Room(view,roomList.get(i).getRoomId(),roomList.get(i).getRoomName(),roomList.get(i).getStartPoint(),roomList.get(i).getPoints(),roomList.get(i).getHouseId(),roomList.get(i).getDevices(),roomList.get(i).getLayer(),roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
-                    room_list.add(room1);
-                    roomEntry_list.add(roomEntry);
-                    view.setTag(room1.getRoomId());
-                }
+                    for (int i = 0; i < roomList.size(); i++) {
+                        roomEntry = new RoomEntry(roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
+                        View view = setLayout(roomList.get(i).getDevices(),roomList.get(i).getRoomName(),roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight());
+                        Room room1 = new Room(view,roomList.get(i).getRoomId(),roomList.get(i).getRoomName(),roomList.get(i).getStartPoint(),roomList.get(i).getPoints(),roomList.get(i).getHouseId(),roomList.get(i).getDevices(),roomList.get(i).getLayer(),roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
+                        room_list.add(room1);
+                        roomEntry_list.add(roomEntry);
+                        view.setTag(room1.getRoomId());
+                    }
                     asyncResponse.onDataReceivedSuccess(room_list);
-                        if (roomEntry_list.size() ==0) {
-                            view_background.setOnTouchListener(new View.OnTouchListener() {
-                                @Override
-                                public boolean onTouch(View v, MotionEvent event) {
-                                    return true;
-                                }
-                            });
-                            view_background.setVerticalScrollBarEnabled(false);
-                        }else{
-                            view_background.setOnTouchListener(new View.OnTouchListener() {
-                                @Override
-                                public boolean onTouch(View v, MotionEvent event) {
-                                    return false;
-                                }
-                            });
-                            view_background.setVerticalScrollBarEnabled(true);
-                        }
-                    }else {
+                    if (roomEntry_list.size() ==0) {
+                        view_background.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
+                                return true;
+                            }
+                        });
+                        view_background.setVerticalScrollBarEnabled(false);
+                    }else{
+                        view_background.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
+                                return false;
+                            }
+                        });
+                        view_background.setVerticalScrollBarEnabled(true);
+                    }
+                }else {
                     asyncResponse.onDataReceivedFailed();
                 }
             }catch (Exception e){
@@ -282,6 +287,9 @@ public class Btn4_fragment extends Fragment{
         imageView.setMinimumHeight(view_background.getHeight());
 
     }
+    String topicName;
+    boolean open = false;
+    String mac;
 
     //绘制房间view
     @SuppressLint("ClickableViewAccessibility")
@@ -294,7 +302,6 @@ public class Btn4_fragment extends Fragment{
          int item_width = width1/4;
 
         int line;//列
-        View childView = LayoutInflater.from(getActivity()).inflate(R.layout.scene_room_content, null);
 
         if(width == item_width || width < item_width){
             line = 2;
@@ -304,6 +311,14 @@ public class Btn4_fragment extends Fragment{
             line = 6;
         }else {
             line = 8;
+        }
+        final View childView;
+        if(line == 2){
+             childView = LayoutInflater.from(getActivity()).inflate(R.layout.scene_room_content, null);
+
+        }else {
+             childView = LayoutInflater.from(getActivity()).inflate(R.layout.scene_room_content1, null);
+
         }
 
         try {
@@ -319,20 +334,45 @@ public class Btn4_fragment extends Fragment{
                 int controlled = devices_object.getInt("controlled");
                 int masterControllerUserId = devices_object.getInt("masterControllerUserId");
                 int device_drawable = 0;
-
                 if(type == 1){
                     device_drawable = R.drawable.equipment_warmer;
                 }else if(type == 2){
                     device_drawable = R.drawable.equipment_external_sensor;
                 }
-                Equipment equipment = new Equipment(id,deviceName,device_drawable,macAddress,controlled,device_drawable);
+                Equipment equipment = new Equipment(id,deviceName,device_drawable,macAddress,controlled,type);
                 device_list.add(equipment);
+
             }
         }catch (Exception e){
             e.printStackTrace();
         }
 
+//        try {
+            for (int i = 0; i < device_list.size(); i++) {
+            int s1 = device_list.get(i).getDevice_type();
+            if(device_list.get(i).getDevice_type() == 2){
+//                    JSONObject maser = new JSONObject();
+//                    maser.put("extTemp",11);
+//                    maser.put("extHum",12);
+//                    mac = device_list.get(i).getMacAddress();
+//                    String s = maser.toString();
+//
+//                    topicName = "rango/dc412dcaa96e/transfer";
+//                    if (bound){
+//                        open = mqService.publish(topicName, 2, s);
+//                        if(open){
+//                            Toast.makeText(getActivity(),"asdfasd",Toast.LENGTH_LONG);
+//                        }
+//                    }
 
+
+                }
+
+            }
+//        }
+//        catch (JSONException e) {
+//            e.printStackTrace();
+//        }
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(width, height);
         childView.setTranslationX(x);
         childView.setTranslationY(y);
@@ -347,8 +387,47 @@ public class Btn4_fragment extends Fragment{
         ));
         rv.setHasFixedSize(true);
         Scene_deviceAdapter scene_deviceAdapter = new Scene_deviceAdapter(device_list);
+
+        scene_deviceAdapter.setOnItemClickListener(new Scene_deviceAdapter.OnRecyclerViewItemClickListener() {
+            @Override
+            public void onItemClick(View view, int data) {
+                SharedPreferences.Editor sp = getActivity().getSharedPreferences("roomId", Activity.MODE_PRIVATE).edit();
+
+                for (int i = 0; i < room_list.size(); i++) {
+                    if (childView.getTag() == room_list.get(i).getView().getTag()) {
+                        int roomId = room_list.get(i).getRoomId();
+                        sp.putInt("roomId",roomId);
+                        sp.commit();
+                        break;
+                    }
+                }
+
+                Intent intent = new Intent(getActivity(), RoomContentActivity.class);
+                startActivity(intent);
+            }
+        });
+        scene_deviceAdapter.setOnItemLongClickListener(new Scene_deviceAdapter.OnRecyclerItemLongListener() {
+            boolean isSelected = false;//房间选中状态
+            @Override
+            public void onItemLongClick(View view, int position) {
+
+
+                int i = (int) childView.getTag();
+                if(isSelected){
+                    childView.setBackgroundResource(R.drawable.mergeroom_background);
+                    childView_list.remove(childView);
+                    isSelected = false;
+                }else {
+                    childView.setBackgroundResource(R.drawable.select_mergeroom_background);
+                    childView_list.add(childView);
+                    isSelected = true;
+                }
+            }
+        });
         rv.setAdapter(scene_deviceAdapter);
         saveViewInstance(roomName,childView);
+
+
         return childView;
     }
 
@@ -357,6 +436,7 @@ public class Btn4_fragment extends Fragment{
         TextView room_Name = (TextView) childView.findViewById(R.id.room_name);
         ImageView add_equipment = (ImageView) childView.findViewById(R.id.add_equipment);
         room_Name.setText(roomName);
+
 
         //注册监听事件
             room_Name.setOnClickListener(new View.OnClickListener() {
@@ -503,8 +583,6 @@ public class Btn4_fragment extends Fragment{
                 if(!Utils.isEmpty(result)){
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
-
-
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -535,12 +613,6 @@ public class Btn4_fragment extends Fragment{
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
         sharedPreferences =  getActivity().getSharedPreferences("roomType",Context.MODE_PRIVATE);
@@ -548,13 +620,81 @@ public class Btn4_fragment extends Fragment{
 
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
+    MessageReceiver receiver = new MessageReceiver();
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        running=2;
+        Intent intent=new Intent(getActivity(),MQService.class);
+        getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
+        IntentFilter intentFilter=new IntentFilter("Btn1_fragment");
+        getActivity().registerReceiver(receiver,intentFilter);
+//        Intent intent1 = new Intent();
+//        intent1.setAction("mqttmessage");
+//        getActivity().sendBroadcast(intent1);
     }
+
+
+    MQService mqService;
+    boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (connection!=null){
+            getActivity().unbindService(connection);
+        }
+        if (receiver!=null){
+            getActivity().unregisterReceiver(receiver);
+        }
+        super.onDestroy();
+    }
+    String extTemp ;
+    String extHut ;
+    public class MessageReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+             extTemp = String.valueOf(intent.getIntExtra("extTemp",8));
+             extHut = String.valueOf(intent.getIntExtra("extHut",10));
+            for (int i = 0; i < room_list.size(); i++) {
+                JSONArray jsonArray = room_list.get(i).getDevices();
+                for (int j = 0; j < jsonArray.length(); j++) {
+                    try {
+                        JSONObject jsonObject1 = jsonArray.getJSONObject(j);
+                        int type = (int) jsonObject1.get("type");
+                        if(type == 2){
+                            TextView extTemp1 = (TextView) room_list.get(i).getView().findViewById(R.id.extTemp);
+                            TextView extHut1 = (TextView) room_list.get(i).getView().findViewById(R.id.extHut);
+                            extTemp1.setText(extTemp+"℃");
+                            extHut1.setText(extHut+"％");
+                            break;
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+
+        }
+    }
+
+
 }

@@ -1,22 +1,39 @@
 package com.xinrui.http;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.xinrui.smart.MyApplication;
+import com.xinrui.smart.util.NetWorkUtil;
+import com.xinrui.smart.util.OkHttp;
 import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.builder.GetBuilder;
 
 
 import org.json.JSONArray;
+import org.jsoup.helper.HttpConnection;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.Cache;
+import okhttp3.CacheControl;
 import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.FormBody;
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -29,6 +46,7 @@ import okhttp3.Response;
  */
 
 public class HttpUtils {
+
     public static String getInputStream(InputStream is) {
         String result = null;
         byte[] buffer = new byte[1024 * 10];
@@ -183,6 +201,10 @@ public class HttpUtils {
         return result;
     }
     public static String getOkHpptRequest(String url) {
+        File httpCacheDirectory = new File(MyApplication.getContext().getCacheDir(), "HttpCache");//这里为了方便直接把文件放在了SD卡根目录的HttpCache中，一般放在context.getCacheDir()中
+        int cacheSize = 10 * 1024 * 1024;//设置缓存文件大小为10M
+        Cache cache = new Cache(httpCacheDirectory, cacheSize);
+
         String result=null;
         try{
 
@@ -190,8 +212,17 @@ public class HttpUtils {
                     .addHeader("client","android-xr")
                     .url(url)
                     .get()
+                    .tag(1)
                     .build();
-            OkHttpClient okHttpClient=new OkHttpClient();
+
+            OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .connectTimeout(3, TimeUnit.SECONDS)//设置连接超时
+                    .readTimeout(5, TimeUnit.SECONDS)//读取超时
+                    .writeTimeout(5, TimeUnit.SECONDS)//写入超时
+                    .addNetworkInterceptor(REWRITE_CACHE_CONTROL_INTERCEPTOR)//添加自定义缓存拦截器（后面讲解），注意这里需要使用.addNetworkInterceptor
+                    .cache(cache)//把缓存添加进来
+                    .build();
+//            OkHttpClient okHttpClient = new OkHttpClient();
             Response response=okHttpClient.newCall(request).execute();
 
             if(response.isSuccessful()){
@@ -219,5 +250,43 @@ public class HttpUtils {
             e.printStackTrace();
         }
         return result;
+    }
+
+    static Interceptor REWRITE_CACHE_CONTROL_INTERCEPTOR = new Interceptor() {
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+
+            Request request = chain.request();
+            //网上很多示例代码都对在request请求前对其进行无网的判断，其实无需判断，无网自动访问缓存
+//            if(!NetworkUtil.getInstance().isConnected()){
+//                request = request.newBuilder()
+//                        .cacheControl(CacheControl.FORCE_CACHE)//只访问缓存
+//                        .build();
+//            }
+            Response response = chain.proceed(request);
+
+            if (NetWorkUtil.isConn(MyApplication.getContext())) {
+                int maxAge = 3;//缓存失效时间，单位为秒
+                return response.newBuilder()
+                        .removeHeader("Pragma")//清除头信息，因为服务器如果不支持，会返回一些干扰信息，不清除下面无法生效
+                        .header("Cache-Control", "public ,max-age=" + maxAge)
+                        .build();
+            } else {
+                //这段代码设置无效
+//                int maxStale = 60 * 60 * 24 * 28; // 无网络时，设置超时为4周
+//                return response.newBuilder()
+//                        .header("Cache-Control", "public, only-if-cached, max-stale=" + maxStale)
+//                        .removeHeader("Pragma")
+//                        .build();
+            }
+            return response;
+        }
+    };
+    private static GetBuilder getBuilder;
+    public static GetBuilder getBuilder(){
+        if (getBuilder == null){
+            getBuilder = OkHttpUtils.get();
+        }
+        return getBuilder;
     }
 }

@@ -7,14 +7,23 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.xinrui.http.HttpUtils;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.EquipmentAdapter;
 import com.xinrui.smart.pojo.Equipment;
@@ -38,9 +47,15 @@ import butterknife.OnClick;
  * Created by win7 on 2018/3/29.
  */
 
-public class AddEquipmentActivity extends Activity implements EquipmentAdapter.CheckItemListener {
+public class AddEquipmentActivity extends AppCompatActivity implements EquipmentAdapter.CheckItemListener {
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawer;
+    @BindView(R.id.listview)
+    ListView listview;
     @BindView(R.id.return_button)
-    ImageButton returnButton;
+    ImageView returnButton;
     GetUrl getUrl = new GetUrl();
     @BindView(R.id.sure)
     Button sure;
@@ -67,12 +82,36 @@ public class AddEquipmentActivity extends Activity implements EquipmentAdapter.C
         intent.putExtras(bundle);
         startActivity(intent);
     }
-
+    MyApplication application;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_equipment);
         ButterKnife.bind(this);
+        setSupportActionBar(toolbar);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+        //设置左上角的图标响应
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+        toggle.setDrawerIndicatorEnabled(false);//修改DrawerLayout侧滑菜单图标
+        //这样修改了图标，但是这个图标的点击事件会消失，点击图标不能打开侧边栏
+        //所以还要加上如下代码
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawer.openDrawer(GravityCompat.START);
+            }
+        });
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
         getUnboundDevice();
     }
 
