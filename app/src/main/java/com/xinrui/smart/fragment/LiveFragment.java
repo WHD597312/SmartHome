@@ -162,7 +162,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         editor1 = getActivity().getSharedPreferences("data", MODE_PRIVATE).edit();
         //取得相应的值，如果没有该值，说明还未写入，用true作为默认值
         isFirstIn = pref.getBoolean("isFirstIn", true);
-        initData();
+//        initData();
         WindowManager wm = (WindowManager) getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
         item_width = wm.getDefaultDisplay().getWidth() / 4;
@@ -197,23 +197,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         super.onResume();
     }
 
-    private void initData() {
-        deviceGroupDao = new DeviceGroupDaoImpl(getActivity());
-        DeviceGroup = deviceGroupDao.findAllDevices();
-        if (DeviceGroup == null || DeviceGroup.isEmpty()) {
-
-        } else {
-            house_id = DeviceGroup.get(0).getId();
-            house_Name = DeviceGroup.get(0).getHouseName() + "(" + house_id + ")";
-            editor1.putString("house_Name", house_Name);
-            editor1.putLong("house_id", house_id);
-        }
-        SharedPreferences pref1 = getActivity().getSharedPreferences("myActivityName", 0);
-        SharedPreferences.Editor editor = pref1.edit();
-        editor.putBoolean("isFirstIn", false);
-        editor.commit();
-    }
-
     @Override
     public void onPause() {
         savedState();
@@ -222,38 +205,19 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
     //初始化View
     public void initView() {
-//        fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
-//                getChildFragmentManager(), fragmentslist);
-//        btn1_fragment = new Btn1_fragment();
-//        fragmentslist.add(btn1_fragment);
-//        viewPager = (ViewPager) view.findViewById(R.id.fragment_viewPager);
-//        viewPager.setAdapter(fragmentViewPagerAdapter);
-//        saveViewPage();
-//        restore_Data();
-
-
-//        if (isFirstIn ) {
-//            house_id = DeviceGroup.get(0).getId();
-//            DeviceGroup deviceGroup = deviceGroupDao.findById(house_id);
-//            house_Name = deviceGroup.getHouseName() + "(" + house_id + ")";
-//            location = deviceGroup.getLocation().replace("市", "");
-//            houseId.setText(house_Name);
-//            WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
-//            weatherAsyncTask.execute();
-//            cut_houseId();
-//            showDialog();
-//        }else {
-
-            DeviceGroup = deviceGroupDao.findAllDevices();
-            List<DeviceGroup> deviceGroups=deviceGroupDao.findAllDevices();
+            List<DeviceGroup> deviceGroups=new DeviceGroupDaoImpl(getActivity()).findAllDevices();
 
             DeviceGroup deviceGroup = deviceGroups.get(0);
+
         SharedPreferences preferences = getActivity().getSharedPreferences("my", MODE_PRIVATE);
         String s = preferences.getString("userId","");
         userId=Integer.parseInt(s);
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data",MODE_PRIVATE);
         user_Id = sharedPreferences.getInt("user_Id",0);
-            if(user_Id != userId){
+                WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
+        viewPager = (ViewPager) view.findViewById(R.id.fragment_viewPager);
+
+        if(user_Id != userId){
                 house_id = deviceGroup.getId();
                 house_Name = deviceGroup.getHouseName() + "(" + house_id + ")";
                 String s1=deviceGroup.getLayers();
@@ -261,11 +225,10 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                 add_key= Integer.parseInt(s1.substring(s1.length()-1,s1.length()));
                 location = deviceGroup.getLocation().replace("市", "");
                 houseId.setText(house_Name);
-                WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
+
                 weatherAsyncTask.execute();
                 fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
                         getChildFragmentManager(), fragmentslist);
-                viewPager = (ViewPager) view.findViewById(R.id.fragment_viewPager);
                 viewPager.setAdapter(fragmentViewPagerAdapter);
                 savefloor(add_key);
                 saveViewPage();
@@ -277,10 +240,10 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                         getChildFragmentManager(), fragmentslist);
                 btn1_fragment = new Btn1_fragment();
                 fragmentslist.add(btn1_fragment);
-                viewPager = (ViewPager) view.findViewById(R.id.fragment_viewPager);
                 viewPager.setAdapter(fragmentViewPagerAdapter);
                 saveViewPage();
                 restore_Data();
+                weatherAsyncTask.execute();
             }
 
         }
@@ -298,7 +261,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             @Override
             public void onPageSelected(int position) {
                 Button btns[] = {btn1, btn2, btn3, btn4};
-                int f = fragmentslist.size();
                 for (int i = 0; i < fragmentslist.size(); i++) {
                     if (position == i) {
                         btns[i].setBackgroundResource(R.drawable.new_floor_button_colour);
@@ -309,6 +271,8 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                     }
                 }
                 current_key = position + 1;
+                editor1 = getActivity().getSharedPreferences("data", MODE_PRIVATE).edit();
+                editor1.putLong("house_id", house_id);
             }
 
             @Override
@@ -375,8 +339,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                                         fragmentslist.add(btn3_fragment);
                                         btn1.setVisibility(View.VISIBLE);
                                         btn2.setVisibility(View.VISIBLE);
-                                        btn3.
-                                                setVisibility(View.VISIBLE);
+                                        btn3.setVisibility(View.VISIBLE);
                                         btn4.setVisibility(View.GONE);
                                     } else if (floor == 4) {
                                         fragmentslist.add(btn1_fragment);
@@ -620,12 +583,8 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                 break;
             case R.id.custom_house_type:
                 savedState();
-//                setRoomType();
                 From_server_make_room();
                 break;
-//            case R.id.copy_and_paste:
-//                method_copy_paste_btn();
-//                break;
             case R.id.delete:
                 final List<Integer> startPoint_list = new ArrayList<>();
                 final List<Integer> roomId_list = new ArrayList<>();
@@ -651,7 +610,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                         }
                     }
                 } else if (current_key == 2) {
-                    Log.i("uuu2", "dsf");
                     Btn2_fragment btn2_fragment = (Btn2_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
                     for (int i = 0; i < btn2_fragment.getListViews().size(); i++) {
                         if (btn2_fragment.getListViews().isEmpty() || btn2_fragment.getListViews() == null) {
@@ -660,11 +618,8 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                             View childView = btn2_fragment.getListViews().get(i);
                             int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
                             startPoint_list.add(startPoint);
-                            Log.i("btn2_fragment", btn2_fragment.getListViews().size() + "");
                             FrameLayout roomViewGroup = (FrameLayout) btn2_fragment.getView().findViewById(R.id.f2);
                             roomViewGroup.removeView(childView);
-//                        RoomEntry roomEntry_list = new RoomEntry((int) childView.getX(),(int) childView.getY(),childView.getWidth(),childView.getHeight());
-//                        roomEntryDao.delete(roomEntry_list);
 
                             RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
                             for (int j = 0; j < roomEntryDao.findAllByGroup(2).size(); j++) {
@@ -675,7 +630,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                         }
                     }
                 } else if (current_key == 3) {
-                    Log.i("uuu3", "dsf");
                     Btn3_fragment btn3_fragment = (Btn3_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
                     for (int i = 0; i < btn3_fragment.getListViews().size(); i++) {
                         if (btn3_fragment.getListViews().isEmpty() || btn3_fragment.getListViews() == null) {
@@ -686,18 +640,15 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                             startPoint_list.add(startPoint);
                             FrameLayout roomViewGroup = (FrameLayout) btn3_fragment.getView().findViewById(R.id.f3);
                             roomViewGroup.removeView(childView);
-                            Log.i("uuu33", "dsf" + ";" + roomEntryDao.findAllByGroup(3).size());
                             RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
                             for (int j = 0; j < roomEntryDao.findAllByGroup(3).size(); j++) {
                                 if ((roomEntry.getX() == roomEntryDao.findAllByGroup(3).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(3).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(3).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(3).get(j).getHeight())) {
                                     roomEntryDao.delete(roomEntryDao.findAllByGroup(3).get(j));
-                                    Log.i("uuu333", "dsf");
                                 }
                             }
                         }
                     }
                 } else if (current_key == 4) {
-                    Log.i("uuu4", "dsf");
                     Btn4_fragment btn4_fragment = (Btn4_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
                     for (int i = 0; i < btn4_fragment.getListViews().size(); i++) {
                         if (btn4_fragment.getListViews().isEmpty() || btn4_fragment.getListViews() == null) {
@@ -740,7 +691,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                                                     roomId_list.add(roomId);
                                                 }
                                             }
-//                                        }
                                         }
                                     } catch (Exception e) {
                                         e.printStackTrace();
@@ -861,7 +811,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                                     }
                                     List<List<Integer>> list_all = new ArrayList<>();
                                     List<Integer> list_allRoomPostion = new ArrayList<>();//所有房间的postion个数
-                                    Log.i("list", roomEntries.size() + "");
                                     for (int i = 0; i < roomEntries.size(); i++) {
                                         List<Integer> list_roomPostion = new ArrayList<>();//每间房间的postion
                                         RoomEntry roomEntry = roomEntries.get(i);
@@ -869,12 +818,12 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                                         int y = roomEntry.getY();
                                         int width = roomEntry.getWidth();
                                         int height = roomEntry.getHeight();
-                                        int postion_left_top = x / 270 + 4 * (y / 270);
-                                        int postion_right_bottom = (x + width) / 270 + 4 * ((y + height) / 270);
+                                        int postion_left_top = x / item_width + 4 * (y / item_width);
+                                        int postion_right_bottom = (x + width) / item_width + 4 * ((y + height) / item_width);
                                         int postion = 0;
-                                        for (int k = 0; k < width / 270; k++) {
+                                        for (int k = 0; k < width / item_width; k++) {
                                             postion = postion_left_top++;
-                                            for (int l = 0; l < (height / 270) - 1; l++) {
+                                            for (int l = 0; l < (height / item_width) - 1; l++) {
                                                 list_roomPostion.add(postion);
                                                 postion = postion + 4;
                                             }
@@ -889,6 +838,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                                     }
                                     bundle.putInt("list_all_size", list_all.size());//传递所有房间
                                     bundle.putInt("current_key", current_key);//第几层传过来的房间
+                                    bundle.putLong("house_Id",house_id);//传递houseId
                                     custom_house_type.putExtras(bundle);
                                     getActivity().startActivity(custom_house_type);
                                 }
@@ -1012,7 +962,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
     }
 
     public void method_new_btn() {
-        Toast.makeText(getActivity(),"current_key:"+current_key+"  "+"add_key:"+add_key,Toast.LENGTH_LONG).show();
+        long h = house_id;
         if (!isestablied) {
             if (add_key == 0) {
                 btn1.setVisibility(View.VISIBLE);
@@ -1070,7 +1020,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                 isestablied = true;
             }
             addPage(add_key);
-            viewPager.setCurrentItem(add_key);
+             viewPager.setCurrentItem(add_key);
             if(add_key > 3){
 
             }else {
@@ -1084,10 +1034,10 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
      * 新增一层页面
      */
     public void addPage(int add_key) {
-        btn1_fragment = new Btn1_fragment();
-        btn2_fragment = new Btn2_fragment();
-        btn3_fragment = new Btn3_fragment();
-        btn4_fragment = new Btn4_fragment();
+        Btn1_fragment btn1_fragment = new Btn1_fragment();
+        Btn2_fragment btn2_fragment = new Btn2_fragment();
+        Btn3_fragment btn3_fragment = new Btn3_fragment();
+        Btn4_fragment btn4_fragment = new Btn4_fragment();
 
         if (add_key == 0) {
             fragmentslist.add(btn1_fragment);
@@ -1196,7 +1146,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
     public void restore_Data() {
         sharedPreferences = getActivity().getSharedPreferences("data", 0);
         add_key = sharedPreferences.getInt("add_key", 1);
-        location = sharedPreferences.getString("lication", "北京");
+        location = sharedPreferences.getString("location", "北京");
         house_id = sharedPreferences.getLong("house_id", 0);
         house_Name = sharedPreferences.getString("house_Name", "我的家");
         current_key = sharedPreferences.getInt("current_key", 1);
@@ -1273,25 +1223,34 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                             }
                         }
                         return result;
+                    }else if(code == 20402){
+                        String error = "查询不到该城市的天气";
+                        return error;
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return null;
+            return result;
         }
 
         @Override
         protected void onPostExecute(String s) {
-            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data", 0);
-            String airCondition = sharedPreferences.getString("airCondition", "良好");
-            String humidity1 = sharedPreferences.getString("humidity", "60%").substring(3);
-            String city1 = sharedPreferences.getString("city", "北京");
-            String temperature1 = sharedPreferences.getString("temperature", "28℃");
-            airQuality.setText("室外空气:" + airCondition);
-            humidity.setText(humidity1);
-            temperature.setText(temperature1);
-            city.setText(city1);
+            if(s.equals("查询不到该城市的天气")){
+                Toast.makeText(getActivity(),s,Toast.LENGTH_LONG).show();
+                airQuality.setText("" );
+                humidity.setText("无数据");
+                temperature.setText("无数据");
+                city.setText(location);
+            }else { SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data", 0);
+                String airCondition = sharedPreferences.getString("airCondition", "良好");
+                String humidity1 = sharedPreferences.getString("humidity", "60%").substring(3);
+                String city1 = sharedPreferences.getString("city", "北京");
+                String temperature1 = sharedPreferences.getString("temperature", "28℃");
+                airQuality.setText("室外空气:" + airCondition);
+                humidity.setText(humidity1);
+                temperature.setText(temperature1);
+                city.setText(city1);}
             super.onPostExecute(s);
         }
 

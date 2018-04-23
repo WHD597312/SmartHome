@@ -167,6 +167,7 @@ public class Btn1_fragment extends Fragment{
 
             Map<String, Object> params = new HashMap<>();
             params.put("houseId", house_id);
+            long h  = house_id;
             String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/findAllRoom", params);
             String result = HttpUtils.getOkHpptRequest(url);
             try {

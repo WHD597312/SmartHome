@@ -2,6 +2,7 @@ package com.xinrui.smart.activity;
 
 import android.Manifest;
 import android.app.ActionBar;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -42,9 +43,11 @@ import com.xinrui.location.CheckPermissionsActivity;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.FunctionAdapter;
+import com.xinrui.smart.fragment.Btn1_fragment;
 import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.fragment.LiveFragment;
 import com.xinrui.smart.fragment.NoDeviceFragment;
+import com.xinrui.smart.fragment.SmartFragment;
 import com.xinrui.smart.fragment.SmartFragmentManager;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
@@ -94,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     private int[] colors = {R.color.color_blue, R.color.color_dark_gray};
     private DeviceGroupDaoImpl deviceGroupDao;
     private DeviceChildDaoImpl deviceChildDao;
-
+    private long exitTime = 0;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,6 +156,8 @@ public class MainActivity extends AppCompatActivity {
 
         List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
         fragmentManager = getSupportFragmentManager();
+
+
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
         Intent intent = getIntent();
         Bundle bundle=intent.getExtras();
@@ -239,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
         FunctionAdapter adapter = new FunctionAdapter(this, functions);
         listview.setAdapter(adapter);
     }
-
+    android.support.v4.app.Fragment fragment = new android.support.v4.app.Fragment();
     @OnClick({R.id.tv_exit, R.id.tv_device, R.id.tv_smart, R.id.tv_live})
     public void onClick(View view) {
         switch (view.getId()) {
@@ -257,7 +262,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
 
                 break;
+
+
             case R.id.tv_device:
+                if(fragment instanceof NoDeviceFragment){//如果第二次点击是相同的直接break;
+                    break;
+                }else {
+                    fragment =  new NoDeviceFragment();
+
+                }
                 FragmentTransaction fragmentTransaction3 = fragmentManager.beginTransaction();//开启碎片事务
                 List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
                 if (deviceGroups.size() == 1 && deviceChildDao.findAllDevice().size() == 0) {
@@ -272,6 +285,12 @@ public class MainActivity extends AppCompatActivity {
                 live_view.setVisibility(View.GONE);
                 break;
             case R.id.tv_smart:
+                if(fragment instanceof SmartFragment){
+                    break;
+                }else {
+                    fragment =  new SmartFragment();
+
+                }
                 fragmentPreferences.edit().putString("fragment", "2").commit();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.layout_body, new SmartFragmentManager());
@@ -281,6 +300,12 @@ public class MainActivity extends AppCompatActivity {
                 live_view.setVisibility(View.GONE);
                 break;
             case R.id.tv_live:
+                if(fragment instanceof LiveFragment){
+                    break;
+                }else {
+                    fragment =  new LiveFragment();
+
+                }
                 fragmentPreferences.edit().putString("fragment", "3").commit();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.replace(R.id.layout_body, new LiveFragment());
@@ -288,6 +313,8 @@ public class MainActivity extends AppCompatActivity {
                 device_view.setVisibility(View.GONE);
                 smart_view.setVisibility(View.GONE);
                 live_view.setVisibility(View.VISIBLE);
+
+
                 break;
         }
     }
@@ -295,13 +322,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            application.removeAllActivity();
+            moveTaskToBack(true);
             return true;
         }
         return super.onKeyDown(keyCode, event);
     }
 
-
+    public void exit() {
+        if ((System.currentTimeMillis() - exitTime) > 2000) {
+            Toast.makeText(getApplicationContext(), "再按一次退出程序",
+                    Toast.LENGTH_SHORT).show();
+            exitTime = System.currentTimeMillis();
+        } else {
+            finish();
+            System.exit(0);
+        }
+    }
 
 
     long shareHouseId = 0;

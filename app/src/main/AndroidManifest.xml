@@ -147,7 +147,7 @@
         <activity
             android:name=".activity.CustomRoomActivity"
             android:label=""
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activity.TimeTaskActivity"
             android:label=""

@@ -24,6 +24,7 @@ import com.google.gson.GsonBuilder;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.database.dao.daoimpl.RoomEntryDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.CustomAdapter;
 import com.xinrui.smart.pojo.Room;
@@ -37,8 +38,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import butterknife.BindView;
@@ -119,6 +122,7 @@ public class CustomRoomActivity extends AppCompatActivity {
     List<List<Double>> list_resolution1;
 
     int current_key;
+    long house_id;
 
     String url = "http://120.77.36.206:8082/warmer/v1.0/room/registerRoom";
 
@@ -187,6 +191,7 @@ public class CustomRoomActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         current_key = intent.getIntExtra("current_key", 0);//是第几层传过来的房间
+        house_id = intent.getLongExtra("house_Id",0);//传递过来的houseId
         Bundle bundle = this.getIntent().getExtras();
         int list_all_size = bundle.getInt("list_all_size");//获取到所有房间个数
         for (int i = 0; i < list_all_size; i++) {
@@ -247,13 +252,13 @@ public class CustomRoomActivity extends AppCompatActivity {
             setHandle();
         }
 
+
     }
 
     public void setHandle() {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-
                 /**
                  * 延时执行的代码
                  */
@@ -274,7 +279,6 @@ public class CustomRoomActivity extends AppCompatActivity {
                     roomEntry.setGroup(current_key);
                     roomEntries_list.add(roomEntry);
                 }
-                Log.i("jjy", roomEntries_list.size() + ";" + list_all.size());
                 customAdapter.notifyDataSetChanged();
             }
         }, 100); // 延时0.1秒
@@ -342,11 +346,9 @@ public class CustomRoomActivity extends AppCompatActivity {
                             View view = customRooms.getChildAt(longTemp);
                             int x = view.getLeft() + view.getWidth() / 2;
                             int y = view.getTop() + view.getHeight() / 2;
-                            Log.i("roomEntries_list1", roomEntries_list.size() + "");
                             for (int j = 0; j < roomEntries_list.size(); j++) {
                                 if (roomEntries_list.get(j).getX() < x && x < (roomEntries_list.get(j).getX() + roomEntries_list.get(j).getWidth()) && roomEntries_list.get(j).getY() < y && y < (roomEntries_list.get(j).getY() + roomEntries_list.get(j).getHeight())) {
                                     roomEntries_list.remove(j);
-                                    Log.i("long4", longTemp + "");
                                 }
                             }
                         }
@@ -423,7 +425,33 @@ public class CustomRoomActivity extends AppCompatActivity {
         }
     }
 
+    class DeleteRoomAsyncTask extends AsyncTask<JSONArray, Void, Integer> {
+        @Override
+        protected Integer doInBackground(JSONArray... jsonArrays) {
+            int code = 0;
+            Map<String, Object> params = new HashMap<>();
+            long houseId = house_id;
+            int layer = current_key;
+            params.put("houseId", houseId);
+            params.put("layer", layer);
+            String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/cleanRoom", params);
+            String result = HttpUtils.getOkHpptRequest(url);
 
+            if (!Utils.isEmpty(result)) {
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    code = jsonObject.getInt("code");
+                    String message = jsonObject.getString("message");
+                    if (code == 2000) {
+                        JSONObject content = jsonObject.getJSONObject("content");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return code;
+        }
+    }
     //新建房间并提交服务器
     class CustomRoomAsyncTask extends AsyncTask<JSONArray, Void, Integer> {
         @Override
@@ -431,12 +459,12 @@ public class CustomRoomActivity extends AppCompatActivity {
             int code = 0;
             JSONArray params = s[0];
             String result = HttpUtils.postOkHpptRequest2(url, params);
+
             if (!Utils.isEmpty(result)) {
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
                     String message = jsonObject.getString("message");
-                    Log.i("message", message);
                     if (code == 2000) {
                         JSONObject content = jsonObject.getJSONObject("content");
                     } else if (code == 4001) {
@@ -445,6 +473,9 @@ public class CustomRoomActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }else {
+                DeleteRoomAsyncTask deleteRoomAsyncTask = new DeleteRoomAsyncTask();
+                deleteRoomAsyncTask.execute();
             }
             return code;
         }
@@ -513,12 +544,10 @@ public class CustomRoomActivity extends AppCompatActivity {
     public void merge() {
         List<Integer> list_color1 = new ArrayList<>();//由于list_color对象固定，所以用list_color1替代list_color，每次合并new一个新的list_color1对象
 
-        Log.i("jjy", list_resolution + ";" + list_color);
         for (int i = 0; i < list_color.size(); i++) {
             list_color1.add(list_color.get(i));
         }
         list_resolution.add(list_color1);
-        Log.i("jjy", list_resolution + ";" + list_color);
 
 
         for (int i = 0; i < list_color.size(); i++) {
@@ -529,7 +558,6 @@ public class CustomRoomActivity extends AppCompatActivity {
 
 
         if (ismerge) {
-            Log.i("a3", "sdaf" + ismerge);
             for (int i = 0; i < list_color.size(); i++) {
                 View view4 = customRooms.getChildAt(list_color.get(i));
                 view4.findViewById(R.id.cusromroom_text).setBackgroundResource(list_colors_remove.get(a));
@@ -570,7 +598,6 @@ public class CustomRoomActivity extends AppCompatActivity {
                             list_no_blink.removeAll(list_blink);
                             removeDuplicate(list_blink);
                             removeDuplicate(list_no_blink);
-                            Log.i("this", list_blink + "" + list_no_blink);
                             View view_start_blink = customRooms.getChildAt(list_resolution.get(i).get(k));
                             customRooms.startFlick(view_start_blink);
                         }
@@ -585,7 +612,6 @@ public class CustomRoomActivity extends AppCompatActivity {
                         break tag;
                     } else if (blinkList[postion] == 1) {
                         for (int k = 0; k < list_blink.size(); k++) {
-                            Log.i("this1", list_blink + "" + list_no_blink);
                             View view_stop_blink = customRooms.getChildAt(list_resolution.get(i).get(k));
                             customRooms.stopFlick(view_stop_blink);
                         }
@@ -653,11 +679,9 @@ public class CustomRoomActivity extends AppCompatActivity {
         int sum = Math.abs(x) * Math.abs(y);
 
         if (sum == list_color.size() && list_color.size() > 1) {
-            Log.i("a", "sdf");
             for (int i = 0; i < list_color.size(); i++) {
                 if (list_color.contains(list_color.get(i) + 1) | list_color.contains(list_color.get(i) - 1) |
                         list_color.contains(list_color.get(i) + 4) | list_color.contains(list_color.get(i) - 4)) {
-                    Log.i("tt", "sd");
                 } else {
                     dialog(list_color1);
                     for (int k = 0; k < list_color.size(); k++) {
@@ -668,13 +692,11 @@ public class CustomRoomActivity extends AppCompatActivity {
                     for (int l = 0; l < list_color.size(); l++) {
                         clickedList[list_color.get(l)] = 0;
                     }
-                    Log.i("tt", "sd");
                     list_color.clear();
                     ismerge = false;
                 }
             }
         } else if (list_color.size() < 2) {
-            Log.i("a1", "sdf");
             dialog(list_color1);
             for (int i = 0; i < list_color.size(); i++) {
                 View view4 = customRooms.getChildAt(list_color.get(i));
@@ -687,7 +709,6 @@ public class CustomRoomActivity extends AppCompatActivity {
             list_color.clear();
             ismerge = false;
         } else {
-            Log.i("a2", "sdf");
             dialog(list_color1);
             for (int i = 0; i < list_color.size(); i++) {
                 View view4 = customRooms.getChildAt(list_color.get(i));
@@ -699,8 +720,6 @@ public class CustomRoomActivity extends AppCompatActivity {
             }
             list_color.clear();
             ismerge = false;
-            Log.i("us", list_color + "" + ismerge);
-            Log.i("us", list_color + "");
         }
     }
 
@@ -736,7 +755,6 @@ public class CustomRoomActivity extends AppCompatActivity {
         RoomEntry roomEntry = new RoomEntry(x, y, width, height);
         roomEntry.setGroup(current_key);
         roomEntries_list.add(roomEntry);
-        Log.i("roomEntries_list=", roomEntries_list.size() + "");
 
     }
 
