@@ -154,7 +154,7 @@ public class MQService extends Service {
             });
         } catch (Exception e) {
             e.printStackTrace();
-            
+
         }
     }
 
