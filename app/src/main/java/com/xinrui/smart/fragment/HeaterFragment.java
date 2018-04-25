@@ -699,7 +699,7 @@ public class HeaterFragment extends Fragment {
         } else if ("close".equals(deviceState)) {
             animationDrawable.stop();
             image_switch.setTag("关");
-            
+
             image_switch.setImageResource(R.mipmap.img_close);
             semicBar.setCanTouch(false);
             relative4.setVisibility(View.GONE);
