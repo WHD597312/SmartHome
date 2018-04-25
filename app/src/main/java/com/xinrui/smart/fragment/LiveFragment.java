@@ -22,6 +22,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -162,7 +163,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         editor1 = getActivity().getSharedPreferences("data", MODE_PRIVATE).edit();
         //取得相应的值，如果没有该值，说明还未写入，用true作为默认值
         isFirstIn = pref.getBoolean("isFirstIn", true);
-//        initData();
         WindowManager wm = (WindowManager) getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
         item_width = wm.getDefaultDisplay().getWidth() / 4;
@@ -561,8 +561,8 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             case R.id.new_btn:
                 if(add_key > 3){
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("返回:");
-                builder.setMessage("无法继续新建!");
+                builder.setTitle("错误");
+                builder.setMessage("楼层最多只能新建四层!");
                 //设置正面按钮
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
@@ -740,6 +740,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         mRecyclerView = (RecyclerView) view1.findViewById(R.id.recyclerview);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(manager);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),DividerItemDecoration.VERTICAL));
         mRecyclerView.setAdapter(switch_houseAdapter);
         dialog = new Dialog(getActivity(), R.style.position_dialog_theme);
         switch_houseAdapter.refreshDatas(houseName_list);
@@ -1050,69 +1051,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         }
         int postion = viewPager.getCurrentItem();
         fragmentViewPagerAdapter.notifyDataSetChanged();
-    }
-
-
-    public void copyPage(int add_key) {
-        btn1_fragment = new Btn1_fragment();
-        btn2_fragment = new Btn2_fragment();
-        btn3_fragment = new Btn3_fragment();
-        btn4_fragment = new Btn4_fragment();
-
-        if (add_key == 0) {
-        } else if (add_key == 1) {
-            Bundle bundle = new Bundle();
-            bundle.putInt("group1", 1);
-            btn2_fragment.setArguments(bundle);
-            fragmentslist.add(btn2_fragment);
-        } else if (add_key == 2) {
-            if (current_key == 1) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("group1", 1);
-                bundle.putInt("current_key", 1);
-                btn2_fragment.setArguments(bundle);
-                fragmentslist.add(btn3_fragment);
-            } else if (current_key == 2) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("group2", 2);
-                bundle.putInt("current_key", 2);
-                btn2_fragment.setArguments(bundle);
-                fragmentslist.add(btn3_fragment);
-            }
-        } else if (add_key == 3) {
-            if (current_key == 1) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("group1", 1);
-                bundle.putInt("current_key", 1);
-                btn2_fragment.setArguments(bundle);
-                fragmentslist.add(btn3_fragment);
-            } else if (current_key == 2) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("group2", 2);
-                bundle.putInt("current_key", 2);
-                btn2_fragment.setArguments(bundle);
-                fragmentslist.add(btn3_fragment);
-            } else if (current_key == 3) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("group3", 3);
-                bundle.putInt("current_key", 3);
-                btn2_fragment.setArguments(bundle);
-                fragmentslist.add(btn4_fragment);
-            }
-        }
-        int postion = viewPager.getCurrentItem();
-        fragmentViewPagerAdapter.notifyDataSetChanged();
-    }
-
-    /**
-     * 删除当前页面
-     */
-    public void delPage(int postion_delete) {
-        int position = viewPager.getCurrentItem();//获取当前页面位置
-        fragmentslist.remove(position);//删除一项数据源中的数据
-        viewPager.setCurrentItem(postion_delete);//postion_delete当前页面的序号，删除后跳转到
-        fragmentViewPagerAdapter.notifyDataSetChanged();//通知UI更新
-
     }
 
     @Override

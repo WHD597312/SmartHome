@@ -78,7 +78,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <provider
-            android:authorities="com.xinrui.smart.fileprovider"
+            android:authorities="com.hm.camerademo.fileprovider"
             android:name="android.support.v4.content.FileProvider"
             android:grantUriPermissions="true"
             android:exported="false">
@@ -102,7 +102,7 @@
             android:enabled="true"
             android:exported="true"
             >
-            <intent-filter>
+            <intent-filter >
                 <action android:name="mqttmessage"/>
             </intent-filter>
         </receiver>

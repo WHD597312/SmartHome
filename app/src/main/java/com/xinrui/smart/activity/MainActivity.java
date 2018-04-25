@@ -269,7 +269,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }else {
                     fragment =  new NoDeviceFragment();
-
                 }
                 FragmentTransaction fragmentTransaction3 = fragmentManager.beginTransaction();//开启碎片事务
                 List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();

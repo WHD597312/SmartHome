@@ -146,33 +146,32 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
 
     @OnClick(R.id.sure)
     public void onViewClicked(){
-        SharedPreferences sharedPreferences1 = getSharedPreferences("roomId",Activity.MODE_PRIVATE);
-        int roomId = sharedPreferences1.getInt("roomId",0);
-        JSONArray jsonArray = new JSONArray();
-        for (int i = 0; i < checkedList.size(); i++) {
-            jsonArray.put(checkedList.get(i).getId());
+        if(null == checkedList||checkedList.size() == 0){
+
+        }else {
+            SharedPreferences sharedPreferences1 = getSharedPreferences("roomId",Activity.MODE_PRIVATE);
+            int roomId = sharedPreferences1.getInt("roomId",0);
+            JSONArray jsonArray = new JSONArray();
+            for (int i = 0; i < checkedList.size(); i++) {
+                jsonArray.put(checkedList.get(i).getId());
+            }
+            try{
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("roomId",roomId);
+                jsonObject.put("deviceIds",jsonArray);
+                new AddDevicesAsyncTask().execute(jsonObject);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            //回退到MainActivity判断是哪个fragment，并切换回之前的fragment
+            Intent intent = new Intent(AddEquipmentActivity.this,MainActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("Activity_return", "Activity_return");
+            intent.putExtras(bundle);
+            startActivity(intent);
         }
-//        JSONArray js = new JSONArray();
-        try{
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("roomId",roomId);
-            jsonObject.put("deviceIds",jsonArray);
-             new AddDevicesAsyncTask().execute(jsonObject);
 
-//            js.put(jsonObject);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-//        new AddDevicesAsyncTask().execute(js);
-
-//        jsonObject.put("roomId" )
-        //回退到MainActivity判断是哪个fragment，并切换回之前的fragment
-        Intent intent = new Intent(AddEquipmentActivity.this,MainActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("Activity_return", "Activity_return");
-        intent.putExtras(bundle);
-        startActivity(intent);
     }
 
     //回调接口，用于异步返回数据
