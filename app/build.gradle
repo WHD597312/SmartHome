@@ -69,5 +69,8 @@ dependencies {
     compile 'com.contrarywind:Android-PickerView:3.2.5'
     compile 'org.greenrobot:eventbus:3.0.0'
     compile files('libs/org.eclipse.paho.client.mqttv3-1.0.2.jar')
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.9.1'
+
 
 }
