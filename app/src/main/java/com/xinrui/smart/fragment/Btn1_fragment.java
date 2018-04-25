@@ -2,6 +2,7 @@ package com.xinrui.smart.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -287,6 +288,7 @@ public class Btn1_fragment extends Fragment{
     String topicName;
     boolean open = false;
     String mac;
+
     //绘制房间view
     @SuppressLint("ClickableViewAccessibility")
     public View setLayout(JSONArray devices, String roomName, int x, int y, int width, int height) {
@@ -308,7 +310,7 @@ public class Btn1_fragment extends Fragment{
         }else {
             line = 8;
         }
-        View childView;
+        final View childView;
         if(line == 2){
              childView = LayoutInflater.from(getActivity()).inflate(R.layout.scene_room_content, null);
 
@@ -383,6 +385,43 @@ public class Btn1_fragment extends Fragment{
         ));
         rv.setHasFixedSize(true);
         Scene_deviceAdapter scene_deviceAdapter = new Scene_deviceAdapter(device_list);
+
+        scene_deviceAdapter.setOnItemClickListener(new Scene_deviceAdapter.OnRecyclerViewItemClickListener() {
+            @Override
+            public void onItemClick(View view, int data) {
+                SharedPreferences.Editor sp = getActivity().getSharedPreferences("roomId", Activity.MODE_PRIVATE).edit();
+
+                for (int i = 0; i < room_list.size(); i++) {
+                    if (childView.getTag() == room_list.get(i).getView().getTag()) {
+                        int roomId = room_list.get(i).getRoomId();
+                        sp.putInt("roomId",roomId);
+                        sp.commit();
+                        break;
+                    }
+                }
+
+                Intent intent = new Intent(getActivity(), RoomContentActivity.class);
+                startActivity(intent);
+            }
+        });
+        scene_deviceAdapter.setOnItemLongClickListener(new Scene_deviceAdapter.OnRecyclerItemLongListener() {
+            boolean isSelected = false;//房间选中状态
+            @Override
+            public void onItemLongClick(View view, int position) {
+
+
+                int i = (int) childView.getTag();
+                if(isSelected){
+                    childView.setBackgroundResource(R.drawable.mergeroom_background);
+                    childView_list.remove(childView);
+                    isSelected = false;
+                }else {
+                    childView.setBackgroundResource(R.drawable.select_mergeroom_background);
+                    childView_list.add(childView);
+                    isSelected = true;
+                }
+            }
+        });
         rv.setAdapter(scene_deviceAdapter);
         saveViewInstance(roomName,childView);
 
@@ -395,6 +434,7 @@ public class Btn1_fragment extends Fragment{
         TextView room_Name = (TextView) childView.findViewById(R.id.room_name);
         ImageView add_equipment = (ImageView) childView.findViewById(R.id.add_equipment);
         room_Name.setText(roomName);
+
 
         //注册监听事件
             room_Name.setOnClickListener(new View.OnClickListener() {
@@ -582,7 +622,7 @@ public class Btn1_fragment extends Fragment{
 
     }
 
-    MQTTMessageReveiver receiver = new MQTTMessageReveiver();
+    MessageReceiver receiver = new MessageReceiver();
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -591,9 +631,9 @@ public class Btn1_fragment extends Fragment{
         getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
         IntentFilter intentFilter=new IntentFilter("Btn1_fragment");
         getActivity().registerReceiver(receiver,intentFilter);
-        Intent intent1 = new Intent();
-        intent1.setAction("mqttmessage");
-        getActivity().sendBroadcast(intent1);
+//        Intent intent1 = new Intent();
+//        intent1.setAction("mqttmessage");
+//        getActivity().sendBroadcast(intent1);
     }
 
 
@@ -626,6 +666,36 @@ public class Btn1_fragment extends Fragment{
             getActivity().unregisterReceiver(receiver);
         }
         super.onDestroy();
+    }
+    String extTemp ;
+    String extHut ;
+    public class MessageReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+             extTemp = String.valueOf(intent.getIntExtra("extTemp",8));
+             extHut = String.valueOf(intent.getIntExtra("extHut",10));
+            for (int i = 0; i < room_list.size(); i++) {
+                JSONArray jsonArray = room_list.get(i).getDevices();
+                for (int j = 0; j < jsonArray.length(); j++) {
+                    try {
+                        JSONObject jsonObject1 = jsonArray.getJSONObject(j);
+                        int type = (int) jsonObject1.get("type");
+                        if(type == 2){
+                            TextView extTemp1 = (TextView) room_list.get(i).getView().findViewById(R.id.extTemp);
+                            TextView extHut1 = (TextView) room_list.get(i).getView().findViewById(R.id.extHut);
+                            extTemp1.setText(extTemp+"℃");
+                            extHut1.setText(extHut+"％");
+                            break;
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+
+        }
     }
 
 }

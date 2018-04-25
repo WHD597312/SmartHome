@@ -40,23 +40,23 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/temperature"
+                android:id="@+id/extTemp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/sp_10"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
-                android:text="8℃" />
+                android:text="" />
 
             <TextView
-                android:id="@+id/humidity"
+                android:id="@+id/extHut"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/sp_10"
                 android:layout_weight="1"
                 android:layout_toRightOf="@+id/temperature"
                 android:gravity="center_horizontal"
-                android:text="10％" />
+                android:text="" />
 
         </LinearLayout>
 

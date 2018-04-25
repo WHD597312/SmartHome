@@ -270,6 +270,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
         weatherAsyncTask.execute();
         cut_houseId();
+        viewPager.setCurrentItem(0);
         dialog.dismiss();
     }
 

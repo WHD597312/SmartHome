@@ -3,9 +3,13 @@ package com.xinrui.smart.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -19,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.DocumentsContract;
@@ -45,28 +50,29 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.MyAdapter;
+import com.xinrui.smart.fragment.Btn1_fragment;
 import com.xinrui.smart.pojo.Equipment;
 import com.xinrui.smart.util.GetUrl;
-import com.xinrui.smart.util.OkHttp;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.DragImageView;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -115,7 +121,11 @@ public class RoomContentActivity extends Activity {
     ImageView background;
     @BindView(R.id.fl)
     FrameLayout fl;
-
+    @BindView(R.id.extTemp)
+    TextView extTemp1;
+    @BindView(R.id.extHut)
+    TextView extHut1;
+    public static int running=0;
     private List<Equipment> mDatas;
     private DragImageView dragImageView;
     private MyAdapter myAdapter;
@@ -131,10 +141,10 @@ public class RoomContentActivity extends Activity {
 
 
     @SuppressLint("HandlerLeak")
-    Handler handler = new Handler(Looper.getMainLooper()){
+    Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 //加载网络成功进行UI的更新,处理得到的图片资源
                 case SUCCESS:
                     //通过message，拿到字节数组
@@ -142,11 +152,11 @@ public class RoomContentActivity extends Activity {
                     //使用BitmapFactory工厂，把字节数组转化为bitmap
                     Bitmap bitmap = BitmapFactory.decodeByteArray(Picture, 0, Picture.length);
                     //通过imageview，设置图片
-                    if(bitmap == null){
-                        Toast.makeText(RoomContentActivity.this,"no pictures",Toast.LENGTH_LONG).show();
-                    }else {
+                    if (bitmap == null) {
+                        Toast.makeText(RoomContentActivity.this, "no pictures", Toast.LENGTH_LONG).show();
+                    } else {
                         background.setImageBitmap(bitmap);
-                        Toast.makeText(RoomContentActivity.this,"Have a picture",Toast.LENGTH_LONG).show();
+                        Toast.makeText(RoomContentActivity.this, "Have a picture", Toast.LENGTH_LONG).show();
 
                     }
 
@@ -159,12 +169,22 @@ public class RoomContentActivity extends Activity {
         }
     };
 
+    MessageReceiver receiver = new MessageReceiver();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", MODE_PRIVATE);
-        int roomId = sharedPreferences.getInt("roomId",0);
-        String url = "http://120.77.36.206:8082/warmer/v1.0/room/"+roomId+"/background";
+        int roomId = sharedPreferences.getInt("roomId", 0);
+        String url = "http://120.77.36.206:8082/warmer/v1.0/room/" + roomId + "/background";
+
+        running=2;
+        Intent intent=new Intent(this,MQService.class);
+        bindService(intent,connection,Context.BIND_AUTO_CREATE);
+        IntentFilter intentFilter=new IntentFilter("Btn1_fragment");
+        registerReceiver(receiver,intentFilter);
+        //        Intent intent1 = new Intent();
+//        intent1.setAction("mqttmessage");
+//        getActivity().sendBroadcast(intent1);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.room_content);
@@ -203,15 +223,16 @@ public class RoomContentActivity extends Activity {
             }
         });
     }
-    class LoadPicture extends AsyncTask<String,Void,String>{
+
+    class LoadPicture extends AsyncTask<String, Void, String> {
 
 
         @Override
         protected String doInBackground(String... strings) {
-            String result2=null;
-            String url=strings[0];
-            String result=HttpUtils.getOkHpptRequest(url);
-            if (!Utils.isEmpty(result)){
+            String result2 = null;
+            String url = strings[0];
+            String result = HttpUtils.getOkHpptRequest(url);
+            if (!Utils.isEmpty(result)) {
                 result2 = result;
             }
             return result2;
@@ -221,44 +242,46 @@ public class RoomContentActivity extends Activity {
         protected void onPostExecute(String s) {
 
             super.onPostExecute(s);
-            if (s!=null){
+            if (s != null) {
                 //使用BitmapFactory工厂，把字节数组转化为bitmap
                 Bitmap bitmap = decodeImg(s);
                 //通过imageview，设置图片
-                if(bitmap == null){
-                    Toast.makeText(RoomContentActivity.this,"no pictures",Toast.LENGTH_LONG).show();
-                }else {
+                if (bitmap == null) {
+                    Toast.makeText(RoomContentActivity.this, "no pictures", Toast.LENGTH_LONG).show();
+                } else {
                     background.setImageBitmap(bitmap);
-                    Toast.makeText(RoomContentActivity.this,"Have a picture",Toast.LENGTH_LONG).show();
+                    Toast.makeText(RoomContentActivity.this, "Have a picture", Toast.LENGTH_LONG).show();
                 }
             }
         }
+
         /**
          * 将从Message中获取的，表示图片的字符串解析为Bitmap对象
          *
          * @param picStrInMsg
          * @return
          */
-        public  Bitmap decodeImg(String picStrInMsg) {
+        public Bitmap decodeImg(String picStrInMsg) {
             Bitmap bitmap = null;
 
             byte[] imgByte = null;
             InputStream input = null;
-            try{
+            try {
                 imgByte = Base64.decode(picStrInMsg, Base64.DEFAULT);
-                BitmapFactory.Options options=new BitmapFactory.Options();
+                BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inSampleSize = 8;
                 input = new ByteArrayInputStream(imgByte);
                 SoftReference softRef = new SoftReference(BitmapFactory.decodeStream(input, null, options));
-                bitmap = (Bitmap)softRef.get();;
-            }catch(Exception e){
+                bitmap = (Bitmap) softRef.get();
+                ;
+            } catch (Exception e) {
                 e.printStackTrace();
-            }finally{
-                if(imgByte!=null){
+            } finally {
+                if (imgByte != null) {
                     imgByte = null;
                 }
 
-                if(input!=null){
+                if (input != null) {
                     try {
                         input.close();
                     } catch (IOException e) {
@@ -291,7 +314,8 @@ public class RoomContentActivity extends Activity {
 
             return bitmap;
         }
-        public  Bitmap byteToBitmap(byte[] imgByte) {
+
+        public Bitmap byteToBitmap(byte[] imgByte) {
             InputStream input = null;
             Bitmap bitmap = null;
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -480,12 +504,13 @@ public class RoomContentActivity extends Activity {
                         int masterControllerUserId = object.getInt("masterControllerUserId");
                         int isUnlock = object.getInt("isUnlock");
 
-                        if (type == 1) {
-                            type = R.drawable.equipment_warmer;
-                        } else if (type == 2) {
-                            type = R.drawable.equipment_external_sensor;
+                        int device_drawable = 0;
+                        if(type == 1){
+                            device_drawable = R.drawable.equipment_warmer;
+                        }else if(type == 2){
+                            device_drawable = R.drawable.equipment_external_sensor;
                         }
-                        Equipment equipment = new Equipment(id, deviceName, type, houseId, masterControllerUserId, isUnlock, false);
+                        Equipment equipment = new Equipment(type,id, deviceName, device_drawable, houseId, masterControllerUserId, isUnlock, false);
                         equipment_list.add(equipment);
                     }
                     asyncResponse.onDataReceivedSuccess(equipment_list);
@@ -565,8 +590,8 @@ public class RoomContentActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", MODE_PRIVATE);
-        int roomId = sharedPreferences.getInt("roomId",0);
-        String url = "http://120.77.36.206:8082/warmer/v1.0/room/"+roomId+"/background";
+        int roomId = sharedPreferences.getInt("roomId", 0);
+        String url = "http://120.77.36.206:8082/warmer/v1.0/room/" + roomId + "/background";
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("onActivityResult", "requestCode" + requestCode + "resultCode" + resultCode);
         switch (requestCode) {
@@ -576,7 +601,7 @@ public class RoomContentActivity extends Activity {
                     bitmap1 = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
                     imagePath = getPath(this, imageUri);
                     bitmapdown = bitmap1;
-                    if(bitmapdown == null){
+                    if (bitmapdown == null) {
                         break;
                     }
                     background.setImageBitmap(bitmapdown);
@@ -595,15 +620,15 @@ public class RoomContentActivity extends Activity {
                 int width = fl.getWidth();
                 DisplayMetrics metric = new DisplayMetrics();
                 getWindowManager().getDefaultDisplay().getMetrics(metric);
-                if(null == data){
+                if (null == data) {
                     break;
                 }
                 String dst = getPath(this, data.getData());
                 imageFile = new File(dst);
                 imagePath = dst;
-                Bitmap bitmap = ThumbnailUtils.extractThumbnail(getBitmapFromFile(imageFile), width, height+50);
+                Bitmap bitmap = ThumbnailUtils.extractThumbnail(getBitmapFromFile(imageFile), width, height + 50);
                 bitmapdown = bitmap;
-                if(bitmapdown == null){
+                if (bitmapdown == null) {
                     break;
                 }
                 background.setImageBitmap(bitmapdown);
@@ -783,6 +808,7 @@ public class RoomContentActivity extends Activity {
     public static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
+
     void bottomwindow(View view) {
         if (popupWindow != null && popupWindow.isShowing()) {
             return;
@@ -864,39 +890,42 @@ public class RoomContentActivity extends Activity {
             }
         });
     }
+
     /**
      * 设置添加屏幕的背景透明度
+     *
      * @param bgAlpha
      */
-    public void backgroundAlpha(float bgAlpha)
-    {
+    public void backgroundAlpha(float bgAlpha) {
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.alpha = bgAlpha; //0.0-1.0
-        getWindow().setAttributes(lp);           getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        getWindow().setAttributes(lp);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
     }
+
     /**
      * 返回或者点击空白位置的时候将背景透明度改回来
      */
-    class poponDismissListener implements PopupWindow.OnDismissListener{
+    class poponDismissListener implements PopupWindow.OnDismissListener {
 
         @Override
         public void onDismiss() {
             // TODO Auto-generated method stub
-            new Thread(new Runnable(){
+            new Thread(new Runnable() {
                 @Override
                 public void run() {
                     //此处while的条件alpha不能<= 否则会出现黑屏
-                    while(alpha<1f){
+                    while (alpha < 1f) {
                         try {
                             Thread.sleep(4);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        Log.d("HeadPortrait","alpha:"+alpha);
-                        Message msg =mHandler.obtainMessage();
+                        Log.d("HeadPortrait", "alpha:" + alpha);
+                        Message msg = mHandler.obtainMessage();
                         msg.what = 1;
-                        alpha+=0.01f;
-                        msg.obj =alpha ;
+                        alpha += 0.01f;
+                        msg.obj = alpha;
                         mHandler.sendMessage(msg);
                     }
                 }
@@ -905,38 +934,39 @@ public class RoomContentActivity extends Activity {
         }
 
     }
+
     @SuppressLint("HandlerLeak")
-    Handler mHandler = new Handler(){
+    Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case 1:
-                    backgroundAlpha((float)msg.obj);
+                    backgroundAlpha((float) msg.obj);
                     break;
             }
         }
     };
 
     //获取背景
-    class GetBackgroundAsyncTask extends AsyncTask<Void,Void,String>{
+    class GetBackgroundAsyncTask extends AsyncTask<Void, Void, String> {
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", Context.MODE_PRIVATE);
 
         @Override
         protected String doInBackground(Void... voids) {
             int code = 0;
-            int roomId = sharedPreferences.getInt("roomId",0);
+            int roomId = sharedPreferences.getInt("roomId", 0);
             Map<String, Object> map = new HashMap<>();
             map.put("roomId", roomId);
-            map.put("background",bitmapdown);
-            String url = "http://120.77.36.206:8082/warmer/v1.0/room/"+roomId+"/background";
+            map.put("background", bitmapdown);
+            String url = "http://120.77.36.206:8082/warmer/v1.0/room/" + roomId + "/background";
             String result = HttpUtils.getOkHpptRequest(url);
-            try{
+            try {
                 JSONObject jsonObject = new JSONObject(result);
                 code = jsonObject.getInt("code");
                 if (code == 2000) {
                     return result;
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -945,7 +975,7 @@ public class RoomContentActivity extends Activity {
 
         @Override
         protected void onPostExecute(String s) {
-            if(!Utils.isEmpty(s)){
+            if (!Utils.isEmpty(s)) {
 
             }
             super.onPostExecute(s);
@@ -971,18 +1001,18 @@ public class RoomContentActivity extends Activity {
 //    }
 
 
-    public static Request  getFileRequest(String url,File file,Map<String, String> maps){
-        MultipartBody.Builder builder=  new MultipartBody.Builder().setType(MultipartBody.FORM);
-        if(maps==null){
-            builder.addPart( Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"file.jpg\""), RequestBody.create(MediaType.parse("image/png"),file)
+    public static Request getFileRequest(String url, File file, Map<String, String> maps) {
+        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        if (maps == null) {
+            builder.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"file.jpg\""), RequestBody.create(MediaType.parse("image/png"), file)
             ).build();
 
-        }else{
+        } else {
             for (String key : maps.keySet()) {
                 builder.addFormDataPart(key, maps.get(key));
             }
 
-            builder.addPart( Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"file.jpg\""), RequestBody.create(MediaType.parse("image/png"),file)
+            builder.addPart(Headers.of("Content-Disposition", "form-data; name=\"file\";filename=\"file.jpg\""), RequestBody.create(MediaType.parse("image/png"), file)
             );
 
         }
@@ -994,20 +1024,19 @@ public class RoomContentActivity extends Activity {
 //                                RequestBody.create(MediaType.parse("image/png"), new File(url)))
 //                        .build())
 //                .build();
-        RequestBody body=builder.build();
-        return   new Request.Builder().url(url).post(body).build();
+        RequestBody body = builder.build();
+        return new Request.Builder().url(url).post(body).build();
 
     }
 
     private void upImage(File file) {
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", MODE_PRIVATE);
-        int roomId = sharedPreferences.getInt("roomId",0);
-        String url="http://120.77.36.206:8082/warmer/v1.0/room/"+roomId+"/background";
+        int roomId = sharedPreferences.getInt("roomId", 0);
+        String url = "http://120.77.36.206:8082/warmer/v1.0/room/" + roomId + "/background";
 
-        if (file!=null){
-            new AddPicuterAsync().execute(url,file);
+        if (file != null) {
+            new AddPicuterAsync().execute(url, file);
         }
-
 
 
 //        OkHttpClient mOkHttpClent = new OkHttpClient();
@@ -1050,26 +1079,27 @@ public class RoomContentActivity extends Activity {
 //        });
 
     }
-    class AddPicuterAsync extends AsyncTask<Object,Void,Integer>{
+
+    class AddPicuterAsync extends AsyncTask<Object, Void, Integer> {
 
         @Override
         protected Integer doInBackground(Object... files) {
-            int code=0;
-           String url= (String) files[0];
-           File file= (File) files[1];
-           if (file!=null){
-               String result=HttpUtils.upLoadFile(url,"HeadPortrait2.jpg",file);
-               if (!Utils.isEmpty(result)){
-                   code=Integer.parseInt(result);
-               }
-           }
+            int code = 0;
+            String url = (String) files[0];
+            File file = (File) files[1];
+            if (file != null) {
+                String result = HttpUtils.upLoadFile(url, "HeadPortrait2.jpg", file);
+                if (!Utils.isEmpty(result)) {
+                    code = Integer.parseInt(result);
+                }
+            }
             return code;
         }
 
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
-            switch (code){
+            switch (code) {
                 case 201:
                     Toast.makeText(RoomContentActivity.this, "成功", Toast.LENGTH_SHORT).show();
                     break;
@@ -1080,4 +1110,51 @@ public class RoomContentActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        if (connection!=null){
+            unbindService(connection);
+        }
+        if (receiver!=null){
+            unregisterReceiver(receiver);
+        }
+        super.onDestroy();
+    }
+
+    MQService mqService;
+    boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
+
+    String extTemp;
+    String extHut;
+
+    public class MessageReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            extTemp = String.valueOf(intent.getIntExtra("extTemp", 8));
+            extHut = String.valueOf(intent.getIntExtra("extHut", 10));
+            for (int i = 0; i < mDatas.size(); i++) {
+                int type = mDatas.get(i).getDevice_type();
+                if (type == 2) {
+                    extTemp1.setText(extTemp + "℃");
+                    extHut1.setText(extHut + "％");
+                    break;
+                }
+            }
+        }
+
+    }
 }

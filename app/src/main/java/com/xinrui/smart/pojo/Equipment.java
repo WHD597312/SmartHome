@@ -36,7 +36,8 @@ public class Equipment implements Serializable{
         this.device_type = device_type;
     }
 
-    public Equipment(int id, String deviceName, int type, int houseId, int masterControllerUserId, int isUnlock, boolean isChecked) {
+    public Equipment(int device_type,int id, String deviceName, int type, int houseId, int masterControllerUserId, int isUnlock, boolean isChecked) {
+        this.device_type = device_type;
         this.id = id;
         this.deviceName = deviceName;
         this.type = type;
