@@ -162,7 +162,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
      */
     @Override
     public void onBindHeaderViewHolder(final BaseViewHolder holder, final int groupPosition) {
-        DeviceGroup entry = groups.get(groupPosition);
+        final DeviceGroup entry = groups.get(groupPosition);
 
         if (groupPosition == groups.size() - 1) {
             holder.itemView.setBackgroundResource(R.drawable.shape_header_blue);
@@ -181,13 +181,21 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     try {
                         List<DeviceChild> list = childern.get(groupPosition);
                         if (list != null && list.size() > 0) {
-                            for (int i = 0; i < list.size(); i++) {
-                                DeviceChild childEntry = list.get(i);
-                                childEntry.setImg(imgs[1]);
+                            String topicName="rango/"+entry.getId()+"/onekey";
+                            JSONObject jsonObject=new JSONObject();
+                            jsonObject.put("heatState","open");
+                            String s=jsonObject.toString();
+                            boolean open = mqService.publish(topicName, 2, s);
+                            if (open){
+                                for (int i = 0; i < list.size(); i++) {
+                                    DeviceChild childEntry = list.get(i);
+                                    childEntry.setImg(imgs[1]);
+                                }
+                                holder.setTextColor(R.id.tv_close, context.getResources().getColor(colors[0]));
+                                holder.setTextColor(R.id.tv_open, context.getResources().getColor(colors[1]));
+                                changeChildren(groupPosition);
                             }
-                            holder.setTextColor(R.id.tv_close, context.getResources().getColor(colors[0]));
-                            holder.setTextColor(R.id.tv_open, context.getResources().getColor(colors[1]));
-                            changeChildren(groupPosition);
+
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -201,13 +209,20 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     try {
                         List<DeviceChild> list = childern.get(groupPosition);
                         if (list != null && list.size() > 0) {
-                            for (int i = 0; i < list.size(); i++) {
-                                DeviceChild childEntry = list.get(i);
-                                childEntry.setImg(imgs[0]);
+                            String topicName="rango/"+entry.getId()+"/onekey";
+                            JSONObject jsonObject=new JSONObject();
+                            jsonObject.put("heatState","close");
+                            String s=jsonObject.toString();
+                            boolean close=mqService.publish(topicName,2,s);
+                            if (close){
+                                for (int i = 0; i < list.size(); i++) {
+                                    DeviceChild childEntry = list.get(i);
+                                    childEntry.setImg(imgs[0]);
+                                }
+                                holder.setTextColor(R.id.tv_close, context.getResources().getColor(colors[1]));
+                                holder.setTextColor(R.id.tv_open, context.getResources().getColor(colors[0]));
+                                changeChildren(groupPosition);
                             }
-                            holder.setTextColor(R.id.tv_close, context.getResources().getColor(colors[1]));
-                            holder.setTextColor(R.id.tv_open, context.getResources().getColor(colors[0]));
-                            changeChildren(groupPosition);
                         }
 
                     } catch (Exception e) {
@@ -275,12 +290,18 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
         }
         holder.setText(R.id.tv_device_child, entry.getDeviceName());
         holder.setImageResource(R.id.image_switch, entry.getImg());
-        if (entry.getImg() == imgs[1]) {
-            holder.setText(R.id.tv_state, entry.getRatedPower() + "w");
-        } else {
-            holder.setText(R.id.tv_state, "离线");
-        }
+
+
+
         tv_device_child = (TextView) holder.itemView.findViewById(R.id.tv_device_child);
+        TextView tv_state= (TextView) holder.itemView.findViewById(R.id.tv_state);
+        if (entry.getOnLint()){
+            tv_state.setText(entry.getRatedPower()+"w");
+        }else {
+            tv_state.setText("离线");
+        }
+
+
 
         if (entry.getType() == 1) {
             if (entry.getControlled() == 2) {
@@ -297,91 +318,83 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
         tv_device_child.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (entry.getImg() == imgs[1]) {
-
+                if (entry.getOnLint()){
                     DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
                     long id = deviceChild.getId();
                     Intent intent = new Intent(context, DeviceListActivity.class);
                     intent.putExtra("content", "取暖器");
                     intent.putExtra("childPosition", id + "");
                     context.startActivity(intent);
-                } else {
-                    Utils.showToast(context, "设备不在线");
+                }else {
+                    Utils.showToast(context,"该设备离线");
                 }
+
+
             }
         });
         String mac = entry.getMacAddress();
-
-
         image_switch = (ImageView) holder.itemView.findViewById(R.id.image_switch);
         image_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String mac = entry.getMacAddress();
-                if (entry.getImg() == imgs[0]) {
-                    if (bound) {
-                        try {
-                            JSONObject maser = new JSONObject();
-                            maser.put("ctrlMode", "master");
-                            maser.put("workMode", "manual");
-                            maser.put("MatTemp", 12);
-                            maser.put("LockScreen", " open");
-                            maser.put("BackGroundLED", "open");
-                            maser.put("protectLock", "open");
-                            maser.put("deviceState", "open");
-                            maser.put("tempState", "nor");
-                            maser.put("outputMode", "fastHeat");
-                            maser.put("protectSetTemp", 12);
-                            maser.put("protectProTemp", 11);
-
-
-                            String s = maser.toString();
-                            boolean open = false;
-                            String topicName;
-                            if (entry.getType() == 1 && entry.getControlled() == 2) {
-                                topicName = "rango/" + mac + "/masterController/set";
-                                open = mqService.publish(topicName, 2, s);
-                            } else {
-                                topicName = "rango/" + mac + "/set";
-                                open = mqService.publish(topicName, 2, s);
+                if (entry.getOnLint()){
+                    String mac = entry.getMacAddress();
+                    if (entry.getImg() == imgs[0]) {
+                        if (bound) {
+                            try {
+                                JSONObject maser = new JSONObject();
+                                maser.put("deviceState", "open");
+                                String s = maser.toString();
+                                boolean open = false;
+                                String topicName;
+                                if (entry.getType() == 1 && entry.getControlled() == 2) {
+                                    topicName = "rango/" + mac + "/masterController/set";
+                                    open = mqService.publish(topicName, 2, s);
+                                } else {
+                                    topicName = "rango/" + mac + "/set";
+                                    open = mqService.publish(topicName, 2, s);
+                                }
+                                if (open) {
+                                    entry.setImg(imgs[1]);
+                                    entry.setDeviceState("open");
+                                    deviceChildDao.update(entry);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                            if (open) {
-                                entry.setImg(imgs[1]);
-                                holder.setText(R.id.tv_state, "在线");
-                                deviceChildDao.update(entry);
+                        }
+                    } else if (entry.getImg() == imgs[1]) {
+                        if (bound) {
+                            try {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("id", entry.getMacAddress());
+                                jsonObject.put("deviceState", "close");
+                                String s = jsonObject.toString();
+                                boolean open = false;
+                                String topicName;
+                                if (entry.getType() == 1 && entry.getControlled() == 2) {
+                                    topicName = "rango/" + mac + "/masterController/set";
+                                    open = mqService.publish(topicName, 2, s);
+                                } else {
+                                    topicName = "rango/" + mac + "/set";
+                                    open = mqService.publish(topicName, 2, s);
+                                }
+                                if (open) {
+                                    entry.setImg(imgs[0]);
+                                    entry.setDeviceState("close");
+                                    deviceChildDao.update(entry);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
                     }
-                } else if (entry.getImg() == imgs[1]) {
-                    if (bound) {
-                        try {
-                            JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("id", entry.getMacAddress());
-                            jsonObject.put("deviceState", "close");
-                            String s = jsonObject.toString();
-                            boolean open = false;
-                            String topicName;
-                            if (entry.getType() == 1 && entry.getControlled() == 2) {
-                                topicName = "rango/" + mac + "/masterController/set";
-                                open = mqService.publish(topicName, 2, s);
-                            } else {
-                                topicName = "warmer1.0/" + mac + "/set";
-                                open = mqService.publish(topicName, 2, s);
-                            }
-                            if (open) {
-                                entry.setImg(imgs[0]);
-                                holder.setText(R.id.tv_state, "离线");
-                                deviceChildDao.update(entry);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
 //                holder.setImageResource(R.id.image_switch,img);
-                changeChild(groupPosition, childPosition);
+                    changeChild(groupPosition, childPosition);
+                }else {
+                    Utils.showToast(context,"该设备离线");
+                }
+
             }
         });
         ImageView btn_editor = (ImageView) holder.itemView.findViewById(R.id.btn_editor);
@@ -550,26 +563,32 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
             int groupPostion = intent.getIntExtra("groupPostion", 0);
             int childPosition = intent.getIntExtra("childPosition", 0);
             String deviceState = intent.getStringExtra("deviceState");
-            changeChild(groupPosition, childPosition);
+//            DeviceChild child= (DeviceChild) intent.getSerializableExtra("deviceChild");
+//            changeChild(groupPosition, childPosition);
             DeviceChild child = childern.get(groupPostion).get(childPosition);
-
             if ("close".equals(deviceState)) {
                 if (child != null) {
-                    child.setImg(imgs[0]);
                     DeviceChild child2=deviceChildDao.findDeviceById(child.getId());
-                    child2.setImg(imgs[0]);
-
                     child.setRatedPower(child2.getRatedPower());
+                    child2.setImg(imgs[0]);
+                    child.setImg(imgs[0]);
+                    child.setOnLint(true);
+                    child2.setOnLint(true);
                     deviceChildDao.update(child2);
+//                    deviceChildDao.update(child);
+                    changeChild(groupPostion, childPosition);
                 }
             } else if ("open".equals(deviceState)) {
                 if (child != null) {
-                    child.setImg(imgs[1]);
                     DeviceChild child2=deviceChildDao.findDeviceById(child.getId());
                     child.setRatedPower(child2.getRatedPower());
                     child2.setImg(imgs[1]);
+                    child.setImg(imgs[1]);
+                    child.setOnLint(true);
+                    child2.setOnLint(true);
                     deviceChildDao.update(child2);
-                    changeChild(groupPosition, childPosition);
+//                    deviceChildDao.update(child);
+                    changeChild(groupPostion, childPosition);
                 }
             }
         }

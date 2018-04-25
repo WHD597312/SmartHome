@@ -1,6 +1,8 @@
 package com.xinrui.smart.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -106,6 +108,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     int year=0;
     int month;
     int day=0;
+    SharedPreferences preferences;
     @Override
     protected void onStart() {
         super.onStart();
@@ -116,12 +119,13 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
         DeviceChild deviceChild=deviceChildDao.findDeviceById(Long.parseLong(childPosition));
 
+
         tv_name.setText(content);
         fragmentManager =getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         HeaterFragment heaterFragment=new HeaterFragment();
         Bundle bundle=new Bundle();
-        bundle.putString("deviceId",childPosition);
+        bundle.putSerializable("deviceChild",deviceChild);
         heaterFragment.setArguments(bundle);
         fragmentTransaction.replace(R.id.linearout, heaterFragment);
         fragmentTransaction.commit();
@@ -214,7 +218,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 //                Toast.makeText(this,"我的订阅",Toast.LENGTH_SHORT).show();
                 break;
             case 3:
-                startActivity(new Intent(this,TempChartActivity.class));
+                Intent intent3=new Intent(this,TempChartActivity.class);
+                intent3.putExtra("deviceId",childPosition);
+                startActivity(intent3);
                 break;
             case 4:
                 Toast.makeText(this,"我的推荐",Toast.LENGTH_SHORT).show();
@@ -227,5 +233,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 break;
         }
     }
+
 
 }

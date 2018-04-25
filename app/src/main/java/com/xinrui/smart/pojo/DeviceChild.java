@@ -43,6 +43,9 @@ public class DeviceChild  implements Serializable{
     private int protectProTemp;
     private String wifiVersion;
     private String MCUVerion;
+    private int manualMatTemp;//手动模式下的温度
+    private int timerTemp;//定时模式下的温度
+    private boolean onLint;//判断用户是否在线
 
 
     public DeviceChild() {
@@ -309,14 +312,39 @@ public class DeviceChild  implements Serializable{
         this.id = id;
     }
 
-    @Generated(hash = 915543967)
+    public int getTimerTemp() {
+        return this.timerTemp;
+    }
+
+    public void setTimerTemp(int timerTemp) {
+        this.timerTemp = timerTemp;
+    }
+
+    public int getManualMatTemp() {
+        return this.manualMatTemp;
+    }
+
+    public void setManualMatTemp(int manualMatTemp) {
+        this.manualMatTemp = manualMatTemp;
+    }
+
+    public boolean getOnLint() {
+        return this.onLint;
+    }
+
+    public void setOnLint(boolean onLint) {
+        this.onLint = onLint;
+    }
+
+    @Generated(hash = 1284177604)
     public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
             Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
             int version, int ratedPower, int MatTemp, String workMode, String LockScreen,
             String BackGroundLED, String deviceState, String tempState, String outputMod,
             int curTemp, String protectEnable, String ctrlMode, int powerValue,
             int voltageValue, int currentValue, String machineFall, int protectSetTemp,
-            int protectProTemp, String wifiVersion, String MCUVerion) {
+            int protectProTemp, String wifiVersion, String MCUVerion, int manualMatTemp,
+            int timerTemp, boolean onLint) {
         this.id = id;
         this.deviceName = deviceName;
         this.macAddress = macAddress;
@@ -347,6 +375,9 @@ public class DeviceChild  implements Serializable{
         this.protectProTemp = protectProTemp;
         this.wifiVersion = wifiVersion;
         this.MCUVerion = MCUVerion;
+        this.manualMatTemp = manualMatTemp;
+        this.timerTemp = timerTemp;
+        this.onLint = onLint;
     }
 
     

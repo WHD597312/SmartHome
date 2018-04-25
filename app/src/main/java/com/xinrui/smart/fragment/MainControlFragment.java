@@ -70,6 +70,7 @@ public class MainControlFragment extends Fragment{
     private String houseName;
     private DeviceChildDaoImpl deviceChildDao;
     private DeviceGroupDaoImpl deviceGroupDao;
+    private int unbindPosition=-1;
 
     @Override
     public void onStart() {
@@ -113,6 +114,8 @@ public class MainControlFragment extends Fragment{
 
 
     private List<DeviceChild> selectedlist=new ArrayList<>();
+    private Map<String,Boolean> map=new HashMap<>();
+//    private Map<String,>
    public class MainControlAdapter extends BaseAdapter{
 
        private List<DeviceChild> children;
@@ -150,6 +153,7 @@ public class MainControlFragment extends Fragment{
           children.addAll(list);
        }
 
+
        @Override
        public View getView( final int position, View convertView, ViewGroup parent) {
           ViewHolder viewHolder=null;
@@ -162,7 +166,6 @@ public class MainControlFragment extends Fragment{
            }
            viewHolder.img_main.setImageResource(R.mipmap.master);
            DeviceChild control=getItem(position);
-
            viewHolder.check.setChecked(isSelected.get(position));
            if (control!=null){
                viewHolder.tv_main.setText(control.getDeviceName());
@@ -177,30 +180,31 @@ public class MainControlFragment extends Fragment{
            viewHolder.check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                @Override
                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
                }
            });
            final CheckBox check=viewHolder.check;
            check.setOnClickListener(new View.OnClickListener() {
                public void onClick(View v) {
+                   unbindPosition=position;
                    // 当前点击的CB
                    boolean cu = !isSelected.get(position);
                    // 先将所有的置为FALSE
 
                    for (Integer p : isSelected.keySet()) {
                        isSelected.put(p, false);
-                       children.get(p).setControlled(0);
-                       deviceChildDao.update(children.get(p));
+                       DeviceChild deviceChild=children.get(p);
+                       deviceChild.setControlled(1);
+                       deviceChildDao.update(deviceChild);
                    }
                    // 再将当前选择CB的实际状态
                    isSelected.put(position, cu);
-
                    notifyDataSetChanged();
                    beSelectedData.clear();
                    if (cu) {
                        beSelectedData.add(children.get(position));
-                       children.get(position).setControlled(2);
-                       deviceChildDao.update(children.get(position));
+                       DeviceChild deviceChild=children.get(position);
+                       deviceChild.setControlled(2);
+                       deviceChildDao.update(deviceChild);
                    }
                }
            });
@@ -290,18 +294,50 @@ public class MainControlFragment extends Fragment{
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_ensure:
-                if (beSelectedData.isEmpty()){
-                    Utils.showToast(getActivity(),"请选择一个主控设备");
-                }else {
-                    for (DeviceChild deviceChild:beSelectedData){
-                        long masterControllerDeviceId=deviceChild.getId();
-                        long id=deviceChild.getHouseId();
-                        Map<String,Object> params=new HashMap<>();
-                        params.put("masterControllerDeviceId",masterControllerDeviceId);
-                        params.put("id",id);
-                        new MasterAsync().execute(params);
+                List<DeviceChild> children=deviceChildDao.findGroupIdAllDevice(Long.parseLong(houseId));
+                if (children.size()>2){
+                    long masterControllerDeviceId;
+                    long id;
+                    if (isSelected!=null){
+                        DeviceChild mastetDevice=null;
+                        for (Map.Entry<Integer,Boolean> entry : isSelected.entrySet()){/**设置主控设备*/
+                            int postion=entry.getKey();
+                            mastetDevice=mainControls.get(postion);
+                            boolean value=entry.getValue();
+
+                            if (value==true){
+                                mastetDevice=mainControls.get(postion);
+                                break;
+                            }
+                        }
+
+
+                        for (Map.Entry<Integer,Boolean> entry : isSelected.entrySet()){
+                            int postion=entry.getKey();
+                            DeviceChild deviceChild=mainControls.get(postion);
+                            deviceChild=deviceChildDao.findDeviceById(deviceChild.getId());
+                            boolean value=entry.getValue();
+                            if (mastetDevice!=null){
+                                if (value==false && postion== unbindPosition && deviceChild.getType()==1 && deviceChild.getControlled()==1){
+                                    mastetDevice.setId(0L);
+                                    break;
+                                }
+                            }
+                        }
+                        if (mastetDevice!=null){
+                            masterControllerDeviceId=mastetDevice.getId();
+                            id=mastetDevice.getHouseId();
+                            Map<String,Object> params=new HashMap<>();
+                            params.put("masterControllerDeviceId",masterControllerDeviceId);
+                            params.put("id",id);
+                            new MasterAsync().execute(params);
+                        }
                     }
+
+                }else if (children.size()<2){
+                    Utils.showToast(getActivity(),"设备数量不足");
                 }
+
                 break;
         }
     }
@@ -329,7 +365,6 @@ public class MainControlFragment extends Fragment{
             int code=0;
             Map<String,Object> params=maps[0];
             long masterControllerDeviceId=(long)params.get("masterControllerDeviceId");
-
             String result=HttpUtils.postOkHpptRequest(masterUrl,params);
             if (!Utils.isEmpty(result)){
                 try {
@@ -352,13 +387,11 @@ public class MainControlFragment extends Fragment{
             super.onPostExecute(code);
             switch (code){
                 case 2000:
-                    Utils.showToast(getActivity(),"设置主控设备成功");
                     Intent intent=new Intent(getActivity(),MainActivity.class);
                     intent.putExtra("mainControl","mainControl");
                     startActivity(intent);
                     break;
                 case -3010:
-                    Utils.showToast(getActivity(),"设置主控设备失败");
                     Intent intent2=new Intent(getActivity(),MainActivity.class);
                     intent2.putExtra("mainControl","mainControl");
                     startActivity(intent2);

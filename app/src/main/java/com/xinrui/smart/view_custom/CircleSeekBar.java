@@ -21,7 +21,7 @@ import android.view.View;
 
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.smart.R;
-import com.xinrui.smart.pojo.TaskTime;
+import com.xinrui.smart.pojo.TimeTask;
 import com.xinrui.smart.util.Utils;
 
 import java.util.List;
@@ -274,13 +274,12 @@ public class CircleSeekBar extends View {
 //        canvas.drawArc(new RectF(left, top, right, bottom), 0, (float) 30, false, mReachedPaint);
 
 
-
             if (!Utils.isEmpty(deviceId)){
                 long device=Long.parseLong(deviceId);
-                List<TaskTime> list=timeTaskDao.findWeekAll(device,week);
-                for (TaskTime taskTime :list){
-                    int start=taskTime.getStart();
-                    int end=taskTime.getEnd();
+                List<TimeTask> list=timeTaskDao.findWeekAll(device,week);
+                for (TimeTask timeTask :list){
+                    int start= timeTask.getStart();
+                    int end= timeTask.getEnd();
                     if (start==24){
                         start=0;
                     }
