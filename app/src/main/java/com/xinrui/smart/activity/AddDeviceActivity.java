@@ -478,6 +478,7 @@ public class AddDeviceActivity extends AppCompatActivity {
     };
 
     private int type;
+    int count=0;
     private class EsptouchAsyncTask3 extends AsyncTask<String, Void, List<IEsptouchResult>> {
 
         private ProgressDialog mProgressDialog;
@@ -567,6 +568,7 @@ public class AddDeviceActivity extends AppCompatActivity {
                             try {
                                 datagramSocket=new DatagramSocket(1112);
                                 while(true){
+
                                     byte[] buffer=new byte[50];
                                     datagramPacket=new DatagramPacket(buffer, buffer.length);
                                     datagramSocket.receive(datagramPacket);
@@ -575,10 +577,18 @@ public class AddDeviceActivity extends AppCompatActivity {
                                     result2=data;
                                     if (!Utils.isEmpty(result2)) {
 //                                        result2.substring()
+
                                         if (result2.contains(ssid)){
                                             String type2=result2.charAt(22)+"";
                                             type=Integer.parseInt(type2);
+                                            Thread.sleep(500);
+                                            count++;
                                             Client.send("255.255.255.255","mac:"+ssid+";ok", 2525);
+                                        }
+                                    }
+                                    if (count>10){
+                                        if (datagramSocket!=null){
+                                            datagramSocket.close();
                                             break;
                                         }
                                     }

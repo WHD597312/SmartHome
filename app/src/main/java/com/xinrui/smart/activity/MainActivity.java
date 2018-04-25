@@ -2,8 +2,10 @@ package com.xinrui.smart.activity;
 
 import android.Manifest;
 import android.app.ActionBar;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
@@ -15,6 +17,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -35,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
+import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
@@ -50,6 +54,7 @@ import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.Function;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
@@ -123,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         function();
+
     }
 
     public void goLiveFragment() {
@@ -141,14 +147,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        /**启动服务并绑定状态*/
+        Intent  service= new Intent(this, MQService.class);
+        bindService(service, connection, Context.BIND_AUTO_CREATE);
+        startService(service);
 
         deviceGroupDao = new DeviceGroupDaoImpl(this);
         deviceChildDao = new DeviceChildDaoImpl(this);
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
+        if (!preferences.contains("first")){
+            preferences.edit().putString("first","1").commit();
+        }
         preferences.edit().putString("login", "login").commit();
         List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
-
-
 
 
         List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
@@ -161,12 +172,15 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentPreferences = getSharedPreferences("fragment", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        if (Utils.isEmpty(mainControl) &&bundle==null) {
+        String deviceList=intent.getStringExtra("deviceList");
+
+        if (Utils.isEmpty(mainControl) && Utils.isEmpty(deviceList)) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
             new LoadDeviceAsync().execute();
-        } else {
+        }else if (!Utils.isEmpty(deviceList)){
+            fragmentPreferences.edit().putString("fragment", "1").commit();
+        }else {
             fragmentPreferences.edit().putString("fragment", "2").commit();
-
         }
 
         if (bundle!=null){
@@ -176,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
                 fragmentPreferences.edit().putString("fragment", "3").commit();
             }else if(!Utils.isEmpty(return_homepage)){
                 fragmentPreferences.edit().putString("fragment", "1").commit();
-
             }
         }
 
@@ -296,13 +309,8 @@ public class MainActivity extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-
-
-
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
-
-
 
     class LoadDeviceAsync extends AsyncTask<String, Void, Integer> {
 
@@ -318,8 +326,6 @@ public class MainActivity extends AppCompatActivity {
                     code = jsonObject.getInt("code");
                     JSONObject content = jsonObject.getJSONObject("content");
                     if (code == 2000) {
-                        deviceChildDao.deleteAll();
-                        deviceGroupDao.deleteAll();
                         JSONArray houses = content.getJSONArray("houses");
 
                         for (int i = 0; i < houses.length(); i++) {
@@ -383,12 +389,13 @@ public class MainActivity extends AppCompatActivity {
 
                         JSONObject  sharedDevice = content.getJSONObject("sharedDevice");
                         JSONArray deviceList=sharedDevice.getJSONArray("deviceList");
-
-                        DeviceGroup deviceGroup= new DeviceGroup();
-                        deviceGroup.setHeader("分享的设备");
-                        deviceGroup.setId(shareHouseId);
-                        deviceGroupDao.insert(deviceGroup);
-
+                        DeviceGroup deviceGroup=deviceGroupDao.findById(shareHouseId);
+                        if (deviceGroup==null){
+                            deviceGroup= new DeviceGroup();
+                            deviceGroup.setHeader("分享的设备");
+                            deviceGroup.setId(shareHouseId);
+                            deviceGroupDao.insert(deviceGroup);
+                        }
                         for (int x = 0; x < deviceList.length(); x++) {
                             JSONObject device = deviceList.getJSONObject(x);
                             if (device != null) {
@@ -445,6 +452,29 @@ public class MainActivity extends AppCompatActivity {
                     live_view.setVisibility(View.GONE);
                     break;
             }
+        }
+    }
+
+    MQService mqService;
+    private boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (connection!=null){
+            unbindService(connection);
         }
     }
 }

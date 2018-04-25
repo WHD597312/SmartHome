@@ -115,18 +115,16 @@ public class ControlledFragment extends Fragment{
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_ensure:
-                if (controlledDeviceChildren.isEmpty()){
-                    Utils.showToast(getActivity(),"未选中受控机");
-                }else {
-                        Map<String,Object> params=new HashMap<>();
-                        params.put("houseId",houseId);
-                        long arr[]=new long[controlledDeviceChildren.size()];
-                        for (int i=0;i<controlledDeviceChildren.size();i++){
-                            arr[i]=controlledDeviceChildren.get(i).getId();
-                        }
-                        params.put("controlledId",arr);
-                        new ControlledAsync().execute(params);
+
+                Map<String,Object> params=new HashMap<>();
+                params.put("houseId",houseId);
+                long arr[]=new long[controlledDeviceChildren.size()];
+                for (int i=0;i<controlledDeviceChildren.size();i++){
+                    arr[i]=controlledDeviceChildren.get(i).getId();
                 }
+                params.put("controlledId",arr);
+                new ControlledAsync().execute(params);
+
                 break;
         }
     }
