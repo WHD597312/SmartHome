@@ -17,6 +17,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -425,18 +426,88 @@ public class Btn4_fragment extends Fragment{
             }
         });
         rv.setAdapter(scene_deviceAdapter);
-        saveViewInstance(roomName,childView);
+        final GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {
+            boolean isSelected = false;//房间选中状态
+            @Override
+            public boolean onDown(MotionEvent e) {
 
+                return false;
+            }
+
+            @Override
+            public void onShowPress(MotionEvent e) {
+
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                SharedPreferences.Editor sp = getActivity().getSharedPreferences("roomId", Activity.MODE_PRIVATE).edit();
+
+                for (int i = 0; i < room_list.size(); i++) {
+                    if (childView.getTag() == room_list.get(i).getView().getTag()) {
+                        int roomId = room_list.get(i).getRoomId();
+                        sp.putInt("roomId",roomId);
+                        sp.commit();
+                        break;
+                    }
+                }
+                Intent intent = new Intent(getActivity(), RoomContentActivity.class);
+                startActivity(intent);
+                return false;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                return false;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+                if(isSelected){
+                    childView.setBackgroundResource(R.drawable.mergeroom_background);
+                    childView_list.remove(childView);
+                    isSelected = false;
+                }else {
+                    childView.setBackgroundResource(R.drawable.select_mergeroom_background);
+                    childView_list.add(childView);
+                    isSelected = true;
+                }
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                return false;
+            }
+        });
+        rv.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
+        saveViewInstance(roomName,childView,device_list);
 
         return childView;
     }
 
     //每个房间里面的空间
-    public void saveViewInstance(String roomName,final View childView){
+    public void saveViewInstance(String roomName,final View childView,List<Equipment> device_list){
+        for (int i = 0; i < device_list.size(); i++) {
+            if(device_list.get(i).getDevice_type() == 2){
+                TextView extTemp = (TextView) childView.findViewById(R.id.extTemp);
+                TextView extHut = (TextView) childView.findViewById(R.id.extHut);
+                SharedPreferences sp = getActivity().getSharedPreferences("data", 0);
+
+                String et = sp.getString("extTemp1","");
+                String eh = sp.getString("extHut1","");
+                extTemp.setText(et);
+                extHut.setText(eh);
+            }
+        }
         TextView room_Name = (TextView) childView.findViewById(R.id.room_name);
         ImageView add_equipment = (ImageView) childView.findViewById(R.id.add_equipment);
-        room_Name.setText(roomName);
 
+        room_Name.setText(roomName);
 
         //注册监听事件
             room_Name.setOnClickListener(new View.OnClickListener() {
@@ -667,6 +738,7 @@ public class Btn4_fragment extends Fragment{
     }
     String extTemp ;
     String extHut ;
+
     public class MessageReceiver extends BroadcastReceiver{
 
         @Override
@@ -684,6 +756,9 @@ public class Btn4_fragment extends Fragment{
                             TextView extHut1 = (TextView) room_list.get(i).getView().findViewById(R.id.extHut);
                             extTemp1.setText(extTemp+"℃");
                             extHut1.setText(extHut+"％");
+                            String et = extTemp+"℃";
+                            String eh = extHut+"％";
+                            getData(et,eh);
                             break;
                         }
                     } catch (JSONException e) {
@@ -695,6 +770,13 @@ public class Btn4_fragment extends Fragment{
 
         }
     }
-
+    public void getData(String extTemp,String extHut){
+        this.extTemp = extTemp;
+        this.extHut = extHut;
+        SharedPreferences.Editor sp = getActivity().getSharedPreferences("data", 0).edit();
+        sp.putString("extTemp1", extTemp);
+        sp.putString("extHut1", extHut);
+        sp.commit();
+    }
 
 }

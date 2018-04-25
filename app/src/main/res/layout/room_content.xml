@@ -8,7 +8,7 @@
         android:id="@+id/rl1"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/dp_47"
-        android:background="@color/black"
+        android:background="#3D3C38"
         tools:ignore="InvalidId">
 
         <ImageButton
@@ -17,8 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:background="@color/black"
-            android:scaleType="fitCenter"
+            android:background="#3D3C38"
             android:src="@drawable/nav_back" />
         <TextView
             android:layout_width="wrap_content"
@@ -33,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:scaleType="fitCenter"
-            android:background="@color/black"
+            android:background="#3D3C38"
             android:layout_alignParentRight="true"
             android:src="@drawable/homepage"/>
     </RelativeLayout>
@@ -111,6 +110,7 @@
            android:layout_marginRight="@dimen/dp_35"
            android:layout_height="wrap_content">
            <Button
+               android:layout_gravity="center_vertical"
                android:id="@+id/change_scene"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"

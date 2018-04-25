@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v7.widget.RecyclerView;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,21 +52,6 @@ public class Scene_deviceAdapter extends RecyclerView.Adapter<Scene_deviceAdapte
 
     @Override
     public void onBindViewHolder(MyHolder holder, int postion) {
-
-//        Equipment scene_device = list.get(postion);
-//        int device_image = 0;
-//        for (int i = 0; i < list.size(); i++) {
-//            if (list.get(i).getType() == 1){//取暖器
-//                device_image = R.drawable.new_equipment_warmer;
-//                final Equipment equipment = list.get(postion);
-//                holder.device_image.setImageResource(device_image);
-//            }else if(list.get(i).getType() == 2){//外置传感器
-//                device_image= R.drawable.equipment_external_sensor;
-//                final Equipment equipment = list.get(postion);
-//                holder.device_image.setImageResource(device_image);
-//            }
-//        }
-
                 final Equipment equipment = list.get(postion);
         for (int i = 0; i < list.size(); i++) {
             int r = list.get(i).getType();
@@ -73,7 +59,6 @@ public class Scene_deviceAdapter extends RecyclerView.Adapter<Scene_deviceAdapte
                 holder.device_image.setImageResource(equipment.getType());
 
     }
-
     public static class MyHolder extends RecyclerView.ViewHolder implements View.OnClickListener,View.OnLongClickListener{
         public int device_id;
         public int type;
@@ -112,7 +97,6 @@ public class Scene_deviceAdapter extends RecyclerView.Adapter<Scene_deviceAdapte
     public int getItemCount() {
         return list==null ? 0 : list.size();
     }
-
 
 
 

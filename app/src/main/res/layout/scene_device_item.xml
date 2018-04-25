@@ -8,8 +8,6 @@
         android:id="@+id/scren_device"
         android:layout_width="@dimen/dp_30"
         android:layout_height="@dimen/dp_30"
-        android:focusable="false"
-        android:clickable="false"
         />
 
 

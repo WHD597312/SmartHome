@@ -27,7 +27,7 @@
             />
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             >
             <RelativeLayout
@@ -61,19 +61,20 @@
                     android:layout_marginRight="@dimen/dp_20"
                     />
             </RelativeLayout>
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:background="#33302b"
-                >
+                android:background="#33302b">
                 <RelativeLayout
+                    android:id="@+id/rl1"
+                    android:layout_alignParentTop="true"
+                    android:layout_above="@+id/sure"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="@dimen/dp_5"
                     android:layout_marginLeft="@dimen/dp_5"
-                    android:layout_marginBottom="@dimen/dp_30"
-                    >
+                    android:layout_marginBottom="@dimen/dp_30">
                     <TextView
                         android:id="@+id/tv_home"
                         android:layout_width="match_parent"
@@ -110,32 +111,30 @@
                         android:layout_marginRight="@dimen/dp_3"
                         android:layout_marginLeft="@dimen/dp_2"
                         />
-                    <Button
-                        android:id="@+id/sure"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
-                        android:text="@string/ensure"
-                        android:textColor="@color/color_orange"
-                        android:textSize="@dimen/sp_16"
-                        android:gravity="center"
-                        android:background="@drawable/shape_white_button"
-                        android:layout_gravity="bottom"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginRight="@dimen/dp_5"
-                        android:layout_marginLeft="@dimen/dp_5"
-                        />
                 </RelativeLayout>
-            </LinearLayout>
+                <Button
+                    android:id="@+id/sure"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:text="@string/ensure"
+                    android:textColor="@color/color_orange"
+                    android:textSize="@dimen/sp_16"
+                    android:gravity="center"
+                    android:background="@drawable/shape_white_button"
+                    android:layout_gravity="bottom"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:layout_marginLeft="@dimen/dp_5"/>
+            </RelativeLayout>
+
         </LinearLayout>
-
-
     </FrameLayout>
 
     <RelativeLayout
         android:id="@+id/nav_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:background="@android:color/white"
         android:fitsSystemWindows="true">

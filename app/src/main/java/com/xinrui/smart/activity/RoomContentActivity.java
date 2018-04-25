@@ -2,6 +2,7 @@ package com.xinrui.smart.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -32,6 +33,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -122,10 +124,11 @@ public class RoomContentActivity extends Activity {
     File imageFile; //图片文件
     String imagePath;
     Bitmap bitmapdown;
-    final static int CAMERA = 1;
-    final static int ICON = 2;
-    final static int CAMERAPRESS = 3;
-    final static int ICONPRESS = 4;
+    final static int CAMERA = 1;//拍照
+    final static int ICON = 2;//相册
+    final static int CAMERAPRESS = 3;//拍照权限
+    final static int ICONPRESS = 4;//相册权限
+    final static int PICTURE_CUT = 5;//剪切图片
     @BindView(R.id.background)
     ImageView background;
     @BindView(R.id.fl)
@@ -140,6 +143,7 @@ public class RoomContentActivity extends Activity {
     private MyAdapter myAdapter;
     private Context mContext;
     private PopupWindow popupWindow;
+    private boolean isClickCamera;//是否是拍照裁剪
     //网络返回的数据
     List<Equipment> equipment_network = new ArrayList<>();
     final int REQUEST_TAKE_PHOTO_PERMISSION = 1;
@@ -147,14 +151,17 @@ public class RoomContentActivity extends Activity {
     private static final int SUCCESS = 1;
     private static final int FALL = 2;
     private static final String TAG = "RoomContentActivity";
+    private Uri outputUri;//裁剪万照片保存地址
     String url;
 
     MessageReceiver receiver = new MessageReceiver();
+    SharedPreferences sharedPreferences1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", MODE_PRIVATE);
         int roomId = sharedPreferences.getInt("roomId", 0);
+        sharedPreferences1 = this.getSharedPreferences("data",0);
          url = "http://120.77.36.206:8082/warmer/v1.0/room/" + roomId + "/background";
         running=2;
         Intent intent=new Intent(this,MQService.class);
@@ -171,18 +178,15 @@ public class RoomContentActivity extends Activity {
         getRoomAllDevices();
 
     }
-
     private void initViews() {
-        dragImageView = (DragImageView) findViewById(R.id.dragGridView1);
 
+        dragImageView = (DragImageView) findViewById(R.id.dragGridView1);
         Picasso.with(RoomContentActivity.this).load(url).placeholder(R.drawable.ic_launcher).error(R.drawable.bedroom1).into(background);
     }
 
 
 
     public void initData(List<Equipment> equipmentList) {
-
-
         mDatas = equipmentList;
         myAdapter = new MyAdapter(mDatas);
         dragImageView.setLayoutManager(new GridLayoutManager(this, 4));
@@ -195,13 +199,24 @@ public class RoomContentActivity extends Activity {
         });
         dragImageView.setItemAnimator(new DefaultItemAnimator());
 
+        TextView extTemp = (TextView) extTemp1.findViewById(R.id.extTemp);
+        TextView extHut = (TextView)extHut1.findViewById(R.id.extHut);
+        for (int i = 0; i < mDatas.size(); i++) {
+            if(mDatas.get(i).getDevice_type() == 2){
+                SharedPreferences sp = getSharedPreferences("data", 0);
+                String et = sp.getString("extTemp1","");
+                String eh = sp.getString("extHut1","");
+                extTemp.setText(et);
+                extHut.setText(eh);
+            }
+        }
+
     }
 
     //拍照
     public void startCamera() {
-
         File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        imageFile = new File(path, "background.png");
+        imageFile = new File(getExternalCacheDir(), "background.png");
         try {
             if (imageFile.exists()) {
                 imageFile.delete();
@@ -210,11 +225,16 @@ public class RoomContentActivity extends Activity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if (Build.VERSION.SDK_INT < 24) {
+            imageUri = Uri.fromFile(imageFile);
+        } else {
+            //Android 7.0系统开始 使用本地真实的Uri路径不安全,使用FileProvider封装共享Uri
+            //参数二:fileprovider绝对路径 com.dyb.testcamerademo：项目包名
+            imageUri = FileProvider.getUriForFile(RoomContentActivity.this, "com.hm.camerademo.fileprovider", imageFile);
+        }
 
-
-        //将File对象转换为Uri并启动照相程序
-        imageUri = Uri.fromFile(imageFile);
-        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE"); //照相
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //照相
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri); //指定图片输出地址
         startActivityForResult(intent, CAMERA); //启动照相
     }
@@ -431,52 +451,78 @@ public class RoomContentActivity extends Activity {
         Log.d("onActivityResult", "requestCode" + requestCode + "resultCode" + resultCode);
         switch (requestCode) {
             case CAMERA:
-                Bitmap bitmap1 = null;
+                if(resultCode == RESULT_OK){
+                    cropPhoto(imageUri);
+                }
+//                Bitmap bitmap1 = null;
+//                try {
+//                    BitmapFactory.Options options = new BitmapFactory.Options();
+//                    options.inSampleSize = 8;
+//                    options.inPreferredConfig = Bitmap.Config.RGB_565;
+//                    options.inPurgeable = true;
+//
+//                    bitmap1 = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri),null, options);
+//                    imagePath = getPath(this, imageUri);
+//                    bitmapdown = bitmap1;
+//                    if (bitmapdown == null) {
+//                        break;
+//                    }
+//                } catch (FileNotFoundException e) {
+//                    imageFile = null;
+//                    e.printStackTrace();
+//                }
+//                File file1 = BitmapCompressUtils.compressImage(bitmapdown);
+//                upImage(file1);
+                break;
+            case ICON:
+//                //设置图片的宽高
+//                int height = fl.getHeight();
+//                int width = fl.getWidth();
+//                DisplayMetrics metric = new DisplayMetrics();
+//                getWindowManager().getDefaultDisplay().getMetrics(metric);
+//                if (null == data) {
+//                    break;
+//                }
+//                String dst = getPath(this, data.getData());
+//                imageFile = new File(dst);
+//                imagePath = dst;
+//                Bitmap bitmap = ThumbnailUtils.extractThumbnail(getBitmapFromFile(imageFile), width, height + 50);
+//                bitmapdown = bitmap;
+//                if (bitmapdown == null) {
+//                    break;
+//                }
+//                upImage(imageFile);
+                // 判断手机系统版本号
+                if (Build.VERSION.SDK_INT >= 19) {
+                    // 4.4及以上系统使用这个方法处理图片
+                    handleImageOnKitKat(data);
+                } else {
+                    // 4.4以下系统使用这个方法处理图片
+                    handleImageBeforeKitKat(data);
+                }
+                break;
+            case PICTURE_CUT://裁剪完成
+                isClickCamera = true;
+                Bitmap bitmap2 = null;
                 try {
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inSampleSize = 8;
-                    options.inPreferredConfig = Bitmap.Config.RGB_565;
-                    options.inPurgeable = true;
-
-                    bitmap1 = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri),null, options);
-                    imagePath = getPath(this, imageUri);
-                    bitmapdown = bitmap1;
-                    if (bitmapdown == null) {
-                        break;
+                    if (isClickCamera) {
+                        bitmap2 = BitmapFactory.decodeStream(getContentResolver().openInputStream(outputUri));
+                    } else {
+                        bitmap2 = BitmapFactory.decodeFile(imagePath);
                     }
                 } catch (FileNotFoundException e) {
-                    imageFile = null;
                     e.printStackTrace();
                 }
-                File file1 = BitmapCompressUtils.compressImage(bitmapdown);
-                upImage(file1);
-            case ICON:
-                //设置图片的宽高
-                int height = fl.getHeight();
-                int width = fl.getWidth();
-                DisplayMetrics metric = new DisplayMetrics();
-                getWindowManager().getDefaultDisplay().getMetrics(metric);
-                if (null == data) {
+                if(bitmap2 == null){
                     break;
                 }
-                String dst = getPath(this, data.getData());
-                imageFile = new File(dst);
-                imagePath = dst;
-                Bitmap bitmap = ThumbnailUtils.extractThumbnail(getBitmapFromFile(imageFile), width, height + 50);
-                bitmapdown = bitmap;
-                if (bitmapdown == null) {
-                    break;
-                }
-
-
-                upImage(imageFile);
+                File file2 = BitmapCompressUtils.compressImage(bitmap2);
+                upImage(file2);
                 break;
-
         }
 
+
     }
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -693,23 +739,21 @@ public class RoomContentActivity extends Activity {
         gallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                if (popupWindow != null && popupWindow.isShowing()) {
-//                    if (Build.VERSION.SDK_INT >= 23) {
-//                        Toast.makeText(RoomContentActivity.this, "当前的版本号" + Build.VERSION.SDK_INT, Toast.LENGTH_LONG).show();
-//                        //android 6.0权限问题
-//                        if (ContextCompat.checkSelfPermission(RoomContentActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-//                                ContextCompat.checkSelfPermission(RoomContentActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-////                            Toast.makeText(mContext, "执行了权限请求", Toast.LENGTH_LONG).show();
-//                            ActivityCompat.requestPermissions(RoomContentActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERAPRESS);
-//                        } else {
-//                            startIcon();
-//                        }
-//
-//                    } else {
-//                        startIcon();
-//                    }
-//                }
-                startIcon();
+                if (popupWindow != null && popupWindow.isShowing()) {
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        Toast.makeText(RoomContentActivity.this, "当前的版本号" + Build.VERSION.SDK_INT, Toast.LENGTH_LONG).show();
+                        //android 6.0权限问题
+                        if (ContextCompat.checkSelfPermission(RoomContentActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                                ContextCompat.checkSelfPermission(RoomContentActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(RoomContentActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, ICONPRESS);
+                        } else {
+                            startIcon();
+                        }
+
+                    } else {
+                        startIcon();
+                    }
+                }
                 popupWindow.dismiss();
             }
         });
@@ -896,23 +940,104 @@ public class RoomContentActivity extends Activity {
     };
 
 
-    String extTemp;
-    String extHut;
+    String extTemp2;
+    String extHut2;
     public class MessageReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            extTemp = String.valueOf(intent.getIntExtra("extTemp", 8));
-            extHut = String.valueOf(intent.getIntExtra("extHut", 10));
+            extTemp2 = String.valueOf(intent.getIntExtra("extTemp", 8));
+            extHut2 = String.valueOf(intent.getIntExtra("extHut", 10));
             for (int i = 0; i < mDatas.size(); i++) {
                 int type = mDatas.get(i).getDevice_type();
                 if (type == 2) {
-                    extTemp1.setText(extTemp + "℃");
-                    extHut1.setText(extHut + "％");
+                    extTemp1.setText(extTemp2 + "℃");
+                    extHut1.setText(extHut2 + "％");
                     break;
                 }
             }
         }
 
+    }
+    /**
+     * 裁剪图片
+     */
+    private void cropPhoto(Uri uri) {
+        // 创建File对象，用于存储裁剪后的图片，避免更改原图
+        File file = new File(getExternalCacheDir(), "crop_image.jpg");
+        try {
+            if (file.exists()) {
+                file.delete();
+            }
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        outputUri = Uri.fromFile(file);
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+        intent.setDataAndType(uri, "image/*");
+        //裁剪图片的宽高比例
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+        intent.putExtra("crop", "true");//可裁剪
+        // 裁剪后输出图片的尺寸大小
+        //intent.putExtra("outputX", 400);
+        //intent.putExtra("outputY", 200);
+        intent.putExtra("scale", true);//支持缩放
+        intent.putExtra("return-data", false);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
+        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());//输出图片格式
+        intent.putExtra("noFaceDetection", true);//取消人脸识别
+        startActivityForResult(intent, PICTURE_CUT);
+    }
+
+    // 4.4及以上系统使用这个方法处理图片 相册图片返回的不再是真实的Uri,而是分装过的Uri
+    @TargetApi(19)
+    private void handleImageOnKitKat(Intent data) {
+        imagePath = null;
+        Uri uri = data.getData();
+        Log.d("TAG", "handleImageOnKitKat: uri is " + uri);
+        if (DocumentsContract.isDocumentUri(this, uri)) {
+            // 如果是document类型的Uri，则通过document id处理
+            String docId = DocumentsContract.getDocumentId(uri);
+            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
+                String id = docId.split(":")[1]; // 解析出数字格式的id
+                String selection = MediaStore.Images.Media._ID + "=" + id;
+                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
+            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
+                imagePath = getImagePath(contentUri, null);
+            }
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            // 如果是content类型的Uri，则使用普通方式处理
+            imagePath = getImagePath(uri, null);
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            // 如果是file类型的Uri，直接获取图片路径即可
+            imagePath = uri.getPath();
+        }
+        cropPhoto(uri);
+    }
+
+    private String getImagePath(Uri uri, String selection) {
+        String path = null;
+        // 通过Uri和selection来获取真实的图片路径
+        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            }
+            cursor.close();
+        }
+        return path;
+    }
+
+    private void handleImageBeforeKitKat(Intent data) {
+        Uri uri = data.getData();
+        imagePath = getImagePath(uri, null);
+        cropPhoto(uri);
     }
 }
