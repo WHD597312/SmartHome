@@ -9,9 +9,9 @@ import org.greenrobot.greendao.annotation.Generated;
  */
 
 @Entity
-public class TaskTime {
+public class TimeTask {
     @Id(autoincrement = true)
-    private long id;
+    private Long id;
     private  long deviceId;/**对应设备的Id*/
     private int week;/**一周的星期几*/
     private int start;
@@ -47,14 +47,14 @@ public class TaskTime {
     public void setDeviceId(long deviceId) {
         this.deviceId = deviceId;
     }
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
-    @Generated(hash = 446432775)
-    public TaskTime(long id, long deviceId, int week, int start, int end, int temp) {
+    @Generated(hash = 957618815)
+    public TimeTask(Long id, long deviceId, int week, int start, int end, int temp) {
         this.id = id;
         this.deviceId = deviceId;
         this.week = week;
@@ -62,18 +62,29 @@ public class TaskTime {
         this.end = end;
         this.temp = temp;
     }
-    public TaskTime(long deviceId, int week, int start, int end, int temp){
+    public TimeTask(long deviceId, int week, int start, int end, int temp){
         this.deviceId = deviceId;
         this.week = week;
         this.start = start;
         this.end = end;
         this.temp = temp;
     }
-    @Generated(hash = 1763742976)
-    public TaskTime() {
+    @Generated(hash = 434847027)
+    public TimeTask() {
     }
 
-
-
-    
+    @Override
+    public boolean equals(Object obj) {
+        if (this==obj)
+            return true;
+        if (!(obj instanceof TimeTask))
+           return false;
+        else {
+            TimeTask timeTask= (TimeTask) obj;
+            if (this.deviceId==timeTask.deviceId && this.week==timeTask.getWeek() && this.start==timeTask.start && this.end==timeTask.end)
+                return true;
+            else
+                return false;
+        }
+    }
 }

@@ -36,7 +36,8 @@ public class MQService extends Service {
 
     private MqttClient client;
 
-    public String myTopic = "warmer1.0/dc4f220aa96e/transfer";
+    public String myTopic = "rango/dc4f220aa96e/transfer";
+
 
     private DeviceChildDaoImpl deviceChildDao;
     private MqttConnectOptions options;
@@ -115,6 +116,8 @@ public class MQService extends Service {
             options.setConnectionTimeout(10);
             // 设置会话心跳时间 单位为秒 服务器会每隔1.5*20秒的时间向客户端发送个消息判断客户端是否在线，但这个方法并没有重连的机制
             options.setKeepAliveInterval(20);
+
+
             //设置回调
             client.setCallback(new MqttCallback() {
 
@@ -134,18 +137,24 @@ public class MQService extends Service {
                 @Override
                 public void messageArrived(String topicName, MqttMessage message)
                         throws Exception {
+
 //                    //subscribe后得到的消息会执行到这里面
-                    System.out.println("messageArrived----------");
-                    System.out.println("topic:"+topicName+",message"+message.toString());
-                    Intent intent=new Intent();
-                    intent.setAction("mqttmessage");
-                    intent.putExtra("topicName",topicName);
-                    intent.putExtra("message",message.toString());
-                    sendBroadcast(intent);
+                    if (topicName.contains("/onekey")){
+                        System.out.println("topic:"+topicName+",message"+message.toString());
+                    }else {
+                        System.out.println("messageArrived----------");
+                        System.out.println("topic:"+topicName+",message"+message.toString());
+                        Intent intent=new Intent();
+                        intent.setAction("mqttmessage");
+                        intent.putExtra("topicName",topicName);
+                        intent.putExtra("message",message.toString());
+                        sendBroadcast(intent);
+                    }
                 }
             });
         } catch (Exception e) {
             e.printStackTrace();
+
         }
     }
 
@@ -193,15 +202,16 @@ public class MQService extends Service {
         List<String> topicNames=new ArrayList<>();
         List<DeviceChild> list=deviceChildDao.findAllDevice();
         for (DeviceChild deviceChild :list){
+            String groupsTopic="rango/"+deviceChild.getHouseId()+"/onekey";
+            topicNames.add(groupsTopic);
             String macAddress=deviceChild.getMacAddress();
             if (!Utils.isEmpty(macAddress)){
-                String topicName="rango/"+"dc4f221cc96e"+"/transfer";
+                String topicName="rango/"+macAddress+"/transfer";
                 topicNames.add(topicName);
             }
         }
         return topicNames;
     }
-
     public String getName(){
         return "ssss";
     }

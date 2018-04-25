@@ -3,12 +3,42 @@
     android:oneshot="false">
 
     <item
-        android:drawable="@mipmap/img_circle2"
+        android:drawable="@mipmap/img01"
         android:duration="200" />
 
     <item
-        android:drawable="@mipmap/img_circle5"
+        android:drawable="@mipmap/img02"
         android:duration="200" />
+    <item
+        android:drawable="@mipmap/img03"
+        android:duration="200" />
+
+    <item
+        android:drawable="@mipmap/img04"
+        android:duration="200" />
+    <item
+        android:drawable="@mipmap/img05"
+        android:duration="200" />
+
+    <item
+        android:drawable="@mipmap/img06"
+        android:duration="200" />
+
+
+    <item
+        android:drawable="@mipmap/img02"
+        android:duration="200" />
+    <item
+        android:drawable="@mipmap/img08"
+        android:duration="200" />
+
+    <item
+        android:drawable="@mipmap/img09"
+        android:duration="200" />
+    <item
+        android:drawable="@mipmap/img10"
+        android:duration="200" />
+
 
 
 </animation-list>

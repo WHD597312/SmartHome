@@ -16,14 +16,25 @@
         android:layout_centerVertical="true"
         android:layout_marginTop="@dimen/dp_5"
         >
+        <ImageView
+            android:id="@+id/image_temp"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:src="@mipmap/module_task"
+            android:scaleType="centerInside"
+            android:layout_marginLeft="@dimen/dp_30"
+            android:layout_centerVertical="true"
+            />
         <TextView
+            android:layout_toRightOf="@+id/image_temp"
             android:id="@+id/tv_cur"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/current"
-            android:textColor="@color/color_gray2"
-            android:layout_marginLeft="@dimen/dp_60"
+            android:textSize="@dimen/sp_16"
+            android:textColor="@color/white"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/dp_5"
             android:gravity="center"
             />
         <TextView
@@ -46,53 +57,43 @@
             android:layout_toRightOf="@+id/tv_cur_temp"
             android:layout_centerVertical="true"
             android:text="@string/set"
-            android:textColor="@color/color_gray2"
-            android:layout_marginLeft="@dimen/dp_30"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_16"
+            android:layout_marginLeft="@dimen/dp_10"
             android:gravity="center"
             />
+
         <TextView
             android:id="@+id/tv_set_temp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="19℃"
-            android:textColor="@color/color_orange"
-            android:textSize="@dimen/sp_20"
+            android:layout_centerVertical="true"
             android:gravity="center"
-            android:paddingBottom="@dimen/dp_5"
+            android:text="19℃"
+            android:textColor="@color/white"
             android:layout_toRightOf="@+id/tv_set"
             android:layout_marginLeft="@dimen/dp_10"
-            />
+            android:textSize="@dimen/sp_20" />
+
     </RelativeLayout>
-    <RelativeLayout
-        android:id="@+id/relative3"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/relative2"
-        android:layout_centerVertical="true"
+        android:orientation="horizontal"
         >
-        <ImageView
-            android:id="@+id/image_temp"
-            android:layout_width="@dimen/dp_40"
-            android:layout_height="@dimen/dp_40"
-            android:src="@mipmap/img_cur_temp"
-            android:scaleType="centerInside"
-            android:layout_marginLeft="@dimen/dp_60"
-            android:layout_centerVertical="true"
-            />
-
         <TextView
-            android:id="@+id/tv_mode"
+            android:id="@+id/tv_outmode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@+id/image_temp"
-            android:layout_toRightOf="@+id/image_temp"
-            android:text="手动"
-            android:textColor="@color/color_gray2"
+            android:text="输出模式"
+            android:textColor="@color/white"
             android:textSize="@dimen/sp_16"
-            android:layout_marginLeft="@dimen/dp_5"
+            android:gravity="center_vertical"
+            android:layout_marginTop="@dimen/dp_10"
+            android:layout_marginLeft="@dimen/dp_30"
             />
-    </RelativeLayout>
+    </LinearLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -105,8 +106,10 @@
             app:wheel_reached_width="0dp"
             app:wheel_unreached_color="#312728"
             app:wheel_unreached_width="20dp"
-            app:wheel_max_process="24"
+            app:wheel_max_process="360"
+            app:wheel_cur_process="1"
             app:semicircle_module="1"
+            app:mCurAngle="30"
             />
 
         <ImageView
@@ -115,7 +118,6 @@
             android:layout_height="@dimen/dp_80"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:src="@mipmap/img_switch"
             android:scaleType="centerInside"
             />
         <ImageView
@@ -149,7 +151,7 @@
             android:id="@+id/image_mode"
             android:layout_width="@dimen/dp_60"
             android:layout_height="@dimen/dp_60"
-            android:src="@mipmap/module_handle"
+            android:src="@mipmap/module_task"
             android:scaleType="centerInside"
             android:layout_below="@+id/tv_mode0"
             android:layout_centerVertical="true"
@@ -225,5 +227,22 @@
             android:visibility="gone"
             android:text="屏幕模式" />
     </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/relative5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/close"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_18"
+            android:text="关机状态!"
+            android:gravity="center"
+            />
+    </RelativeLayout>
+
 
 </LinearLayout>

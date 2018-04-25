@@ -46,6 +46,8 @@
         <attr name="week" format="integer"/>
         <attr name="deviceId" format="string"/>
         <attr name="mCurrentAngle" format="integer"/>
+        <attr name="first" format="boolean"/>
+        <attr name="mCurAngle" format="integer"/>
     </declare-styleable>
     <declare-styleable name="SemicircleBar">
         <attr name="semicircle_max_precess" format="integer"/>

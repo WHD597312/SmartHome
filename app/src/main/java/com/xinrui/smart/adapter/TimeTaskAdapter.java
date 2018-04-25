@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.xinrui.smart.R;
-import com.xinrui.smart.pojo.TaskTime;
+import com.xinrui.smart.pojo.TimeTask;
 
 import java.util.List;
 
@@ -21,9 +21,9 @@ import butterknife.ButterKnife;
 
 public class TimeTaskAdapter extends BaseAdapter {
     private Context context;
-    private List<TaskTime> list;
+    private List<TimeTask> list;
     private MyClickListener clickListener;
-    public TimeTaskAdapter(Context context, List<TaskTime> list,MyClickListener clickListener) {
+    public TimeTaskAdapter(Context context, List<TimeTask> list, MyClickListener clickListener) {
         this.context = context;
         this.list = list;
         this.clickListener=clickListener;
@@ -35,7 +35,7 @@ public class TimeTaskAdapter extends BaseAdapter {
     }
 
     @Override
-    public TaskTime getItem(int position) {
+    public TimeTask getItem(int position) {
         return list.get(position);
     }
 
@@ -54,11 +54,11 @@ public class TimeTaskAdapter extends BaseAdapter {
         }else {
             viewHolder= (ViewHolder) convertView.getTag();
         }
-        TaskTime taskTime=getItem(position);
-        if (taskTime!=null){
-            viewHolder.tv_open_time.setText(taskTime.getStart()+":00");
-            viewHolder.tv_close_time.setText(taskTime.getEnd()+":00");
-            viewHolder.tv_temp_num.setText(taskTime.getTemp()+"");
+        TimeTask timeTask =getItem(position);
+        if (timeTask !=null){
+            viewHolder.tv_open_time.setText(timeTask.getStart()+":00");
+            viewHolder.tv_close_time.setText(timeTask.getEnd()+":00");
+            viewHolder.tv_temp_num.setText(timeTask.getTemp()+"");
         }
         viewHolder.btn_delete.setOnClickListener(clickListener);
         viewHolder.btn_delete.setTag(position);
