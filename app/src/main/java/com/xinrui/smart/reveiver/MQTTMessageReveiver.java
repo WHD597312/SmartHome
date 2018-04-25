@@ -165,6 +165,7 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                             }
                         }
 
+
                         if (!Utils.isEmpty(LockScreen))
                             child.setLockScreen(LockScreen);
                         if (!Utils.isEmpty(BackGroundLED))
