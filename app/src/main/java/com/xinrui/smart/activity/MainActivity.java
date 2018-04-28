@@ -268,32 +268,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * 这里popupWindow用的是showAtLocation而不是showAsDropDown
-     * popupWindow.isShowing会一直返回false，所以要重新定义一个变量
-     * 要注意setOutsideTouchable的干扰
-     */
-    /**弹出一个底部窗口*/
-    private void showPopwindow() {
-
-        View popView = View.inflate(this, R.layout.layout_nonet, null);
-
-
-        int width = getResources().getDisplayMetrics().widthPixels;
-        int height = getResources().getDisplayMetrics().heightPixels;
-
-        PopupWindow popWindow = new PopupWindow(popView,width,height);
-        popWindow.setFocusable(true);
-        popWindow.setAnimationStyle(R.style.anim_menu_bottombar);
-//        popWindow.setOutsideTouchable(false);// 设置同意在外点击消失
-
-
-        ColorDrawable dw = new ColorDrawable(0x30000000);
-        popWindow.setBackgroundDrawable(dw);
-//        popWindow.showAtLocation(tv_device, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
-        popWindow.showAsDropDown(tv_device);
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -305,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        showPopwindow();
+//        showPopwindow();
 
     }
 
