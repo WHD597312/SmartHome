@@ -155,7 +155,7 @@ public class RoomTypesActivity extends Activity {
 
 
 
-            
+
 
             startActivity(intent);
 //        setResult(2, intent);//返回值调用函数，其中2为resultCode，返回值的标志
