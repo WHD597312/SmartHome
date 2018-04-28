@@ -144,6 +144,7 @@ public class Btn1_fragment extends Fragment{
             this.asyncResponse = asyncResponse;
         }
 
+        
         @Override
         protected void onPreExecute() {
             progressDialog.setMessage("请稍后...");
