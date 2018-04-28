@@ -51,6 +51,7 @@ public class Timer {
     }
     @Generated(hash = 1959398489)
     public Timer(Long id, long deviceId, int week, int temp, String open, int hour) {
+        
         this.id = id;
         this.deviceId = deviceId;
         this.week = week;
