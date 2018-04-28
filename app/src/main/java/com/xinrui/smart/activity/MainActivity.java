@@ -2,12 +2,12 @@ package com.xinrui.smart.activity;
 
 import android.Manifest;
 import android.app.ActionBar;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -17,6 +17,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -25,6 +26,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -71,6 +73,11 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
+    @BindView(R.id.tv_user)
+    TextView tv_user;
+    /**
+     * 用户
+     */
     MyApplication application;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -88,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
     ListView listview;
     private FragmentManager fragmentManager;//碎片管理者
     private DeviceFragment deviceFragment;//设备碎片
+    private NoDeviceFragment noDeviceFragment;
+    private SmartFragmentManager smartFragmentManager;
+    private LiveFragment liveFragment;
     @BindView(R.id.device_view)
     View device_view;//设备页
     @BindView(R.id.smart_view)
@@ -98,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
     private DeviceGroupDaoImpl deviceGroupDao;
     private DeviceChildDaoImpl deviceChildDao;
     private long exitTime = 0;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,7 +149,13 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences preferences;
     SharedPreferences fragmentPreferences;
+    SharedPreferences smart;
+    FragmentTransaction fragmentTransaction;
     public static int LOGIN = 1;
+
+    List<DeviceChild> deviceChildren;
+    List<Fragment> fragments;
+    List<DeviceGroup> deviceGroups;
 
     @Override
     protected void onStart() {
@@ -149,67 +166,132 @@ public class MainActivity extends AppCompatActivity {
         deviceChildDao = new DeviceChildDaoImpl(this);
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
         preferences.edit().putString("login", "login").commit();
-        List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
 
+        String phone = preferences.getString("phone", "");
+        if (!Utils.isEmpty(phone)) {
+            tv_user.setText(phone);
+        }
+        smart = getSharedPreferences("smart", Context.MODE_PRIVATE);
+        deviceChildren = deviceChildDao.findAllDevice();
 
-
-
-        List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
+        deviceGroups = deviceGroupDao.findAllDevices();
         fragmentManager = getSupportFragmentManager();
 
 
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
         Intent intent = getIntent();
-        Bundle bundle=intent.getExtras();
+        Bundle bundle = intent.getExtras();
         String mainControl = intent.getStringExtra("mainControl");
-        DeviceChildDaoImpl deviceChildDao = new DeviceChildDaoImpl(this);
+        String deviceList = intent.getStringExtra("deviceList");
 
         fragmentPreferences = getSharedPreferences("fragment", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        if (Utils.isEmpty(mainControl) &&bundle==null) {
+
+        if (smartFragmentManager == null) {
+            smartFragmentManager = new SmartFragmentManager();
+            application.addFragment(smartFragmentManager);
+        }
+        if (liveFragment == null) {
+            liveFragment = new LiveFragment();
+            application.addFragment(liveFragment);
+        }
+        fragments = application.getFragments();
+        if (Utils.isEmpty(mainControl) && Utils.isEmpty(deviceList)) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
             new LoadDeviceAsync().execute();
-        } else {
+        } else if (!Utils.isEmpty(deviceList)) {
+            if (noDeviceFragment == null) {
+                noDeviceFragment = new NoDeviceFragment();
+                application.addFragment(noDeviceFragment);
+            }
+            if (deviceFragment == null) {
+                deviceFragment = new DeviceFragment();
+                application.addFragment(deviceFragment);
+            }
+            fragmentPreferences.edit().putString("fragment", "1").commit();
+        } else if (!Utils.isEmpty(mainControl)) {
             fragmentPreferences.edit().putString("fragment", "2").commit();
-
         }
-
-        if (bundle!=null){
-            String Activity_return=bundle.getString("Activity_return");
-            String return_homepage=bundle.getString("return_homepage");
-            if (!Utils.isEmpty(Activity_return)){
+        if (bundle != null) {
+            String Activity_return = bundle.getString("Activity_return");
+            String return_homepage = bundle.getString("return_homepage");
+            if (!Utils.isEmpty(Activity_return)) {
                 fragmentPreferences.edit().putString("fragment", "3").commit();
-            }else if(!Utils.isEmpty(return_homepage)){
+            } else if (!Utils.isEmpty(return_homepage)) {
                 fragmentPreferences.edit().putString("fragment", "1").commit();
-
             }
         }
 
+
+
+
         String fragment = fragmentPreferences.getString("fragment", "");
         if ("1".equals(fragment)) {
-            deviceFragment = new DeviceFragment();
-            fragmentTransaction.replace(R.id.layout_body, deviceFragment);
-            fragmentTransaction.commit();
+            deviceGroups = deviceGroupDao.findAllDevices();
+            fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
+            if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
+                if (fragments.contains(noDeviceFragment)) {
+                    fragmentTransaction.replace(R.id.layout_body, noDeviceFragment).commit();
+                }
+            } else {
+                if (fragments.contains(deviceFragment)) {
+                    fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
+                }
+            }
             device_view.setVisibility(View.VISIBLE);
             smart_view.setVisibility(View.GONE);
             live_view.setVisibility(View.GONE);
+            smart.edit().clear().commit();
         } else if ("2".equals(fragment)) {
             fragmentTransaction = fragmentManager.beginTransaction();
-
-            fragmentTransaction.replace(R.id.layout_body, new SmartFragmentManager());
-            fragmentTransaction.commit();
+            if (fragments.contains(smartFragmentManager)) {
+                fragmentTransaction.replace(R.id.layout_body, smartFragmentManager).commit();
+            }
             device_view.setVisibility(View.GONE);
             smart_view.setVisibility(View.VISIBLE);
             live_view.setVisibility(View.GONE);
         } else if ("3".equals(fragment)) {
             fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.layout_body, new LiveFragment());
-            fragmentTransaction.commit();
+            if (fragments.contains(liveFragment)) {
+                fragmentTransaction.replace(R.id.layout_body, liveFragment).commit();
+            }
+
+            fragmentPreferences.edit().putString("fragment", "3").commit();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.replace(R.id.layout_body, new LiveFragment());
+            transaction.commit();
             device_view.setVisibility(View.GONE);
             smart_view.setVisibility(View.GONE);
             live_view.setVisibility(View.VISIBLE);
+            smart.edit().clear();
         }
 
+    }
+
+
+    /**
+     * 这里popupWindow用的是showAtLocation而不是showAsDropDown
+     * popupWindow.isShowing会一直返回false，所以要重新定义一个变量
+     * 要注意setOutsideTouchable的干扰
+     */
+    /**弹出一个底部窗口*/
+    private void showPopwindow() {
+
+        View popView = View.inflate(this, R.layout.layout_nonet, null);
+
+
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+
+        PopupWindow popWindow = new PopupWindow(popView,width,height);
+        popWindow.setFocusable(true);
+        popWindow.setAnimationStyle(R.style.anim_menu_bottombar);
+//        popWindow.setOutsideTouchable(false);// 设置同意在外点击消失
+
+
+        ColorDrawable dw = new ColorDrawable(0x30000000);
+        popWindow.setBackgroundDrawable(dw);
+//        popWindow.showAtLocation(tv_device, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
+        popWindow.showAsDropDown(tv_device);
     }
 
     @Override
@@ -223,6 +305,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        showPopwindow();
+
     }
 
     @Override
@@ -234,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
      * 设置功能菜单
      */
     private void function() {
-        int[] imgs = {R.drawable.example, R.drawable.example, R.drawable.example, R.drawable.example};
+        int[] imgs = {R.mipmap.leftbar_main, R.mipmap.leftbar_problum, R.mipmap.leftbar_commen, R.mipmap.leftbar_about};
         String[] strings = {"主页", "常见问题", "通用设置", "关于应用"};
         List<Function> functions = new ArrayList<>();
         for (int i = 0; i < imgs.length; i++) {
@@ -244,66 +328,82 @@ public class MainActivity extends AppCompatActivity {
         FunctionAdapter adapter = new FunctionAdapter(this, functions);
         listview.setAdapter(adapter);
     }
+
     android.support.v4.app.Fragment fragment = new android.support.v4.app.Fragment();
+
     @OnClick({R.id.tv_exit, R.id.tv_device, R.id.tv_smart, R.id.tv_live})
     public void onClick(View view) {
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
         switch (view.getId()) {
             case R.id.tv_exit:
+                smart.edit().clear().commit();
 //                preferences.edit().clear().commit();/**清空当前用户的所有数据*/
                 if (preferences.contains("password")) {
                     preferences.edit().remove("password").commit();
-                    fragmentPreferences.edit().clear();
+                    fragmentPreferences.edit().clear().commit();
+                    smart.edit().clear().commit();
                 }
+
                 fragmentPreferences.edit().clear().commit();
-//                deviceGroupDao.deleteAll();
-//                deviceChildDao.deleteAll();
+                deviceGroupDao.deleteAll();
+                deviceChildDao.deleteAll();
+                application.removeAllFragment();
 
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
 
+
                 break;
-
-
             case R.id.tv_device:
-                if(fragment instanceof NoDeviceFragment){//如果第二次点击是相同的直接break;
-                    break;
-                }else {
-                    fragment =  new NoDeviceFragment();
-                }
-                FragmentTransaction fragmentTransaction3 = fragmentManager.beginTransaction();//开启碎片事务
-                List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
-                if (deviceGroups.size() == 1 && deviceChildDao.findAllDevice().size() == 0) {
-                    fragmentTransaction3.replace(R.id.layout_body, new NoDeviceFragment()).commit();
+                fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
+                if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
+                    if (fragments.contains(noDeviceFragment)) {
+                        if (fragment instanceof NoDeviceFragment){
+                            break;
+                        }
+                        fragmentTransaction.replace(R.id.layout_body, noDeviceFragment).commit();
+                        fragment=noDeviceFragment;
+
+                    }
                 } else {
-                    fragmentPreferences.edit().putString("fragment", "1").commit();
-                    fragmentTransaction3.replace(R.id.layout_body, new DeviceFragment());
-                    fragmentTransaction3.commit();
+                    if (fragments.contains(deviceFragment)){
+                        if (fragment instanceof DeviceFragment){
+                            break;
+                        }
+                        fragmentTransaction.replace(R.id.layout_body,deviceFragment).commit();
+                        fragment=deviceFragment;
+                    }
                 }
+
+
                 device_view.setVisibility(View.VISIBLE);
                 smart_view.setVisibility(View.GONE);
                 live_view.setVisibility(View.GONE);
+                smart.edit().clear().commit();
                 break;
             case R.id.tv_smart:
-                if(fragment instanceof SmartFragment){
-                    break;
-                }else {
-                    fragment =  new SmartFragment();
 
+                fragmentTransaction = fragmentManager.beginTransaction();
+                if (fragments.contains(smartFragmentManager)) {
+                    if (fragment instanceof SmartFragmentManager){
+                        break;
+                    }
+                    fragmentTransaction.replace(R.id.layout_body, smartFragmentManager).commit();
+                    fragment=smartFragmentManager;
                 }
-                fragmentPreferences.edit().putString("fragment", "2").commit();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.layout_body, new SmartFragmentManager());
-                fragmentTransaction.commit();
                 device_view.setVisibility(View.GONE);
                 smart_view.setVisibility(View.VISIBLE);
                 live_view.setVisibility(View.GONE);
+                smart.edit().clear().commit();
                 break;
             case R.id.tv_live:
                 if(fragment instanceof LiveFragment){
+                    fragmentPreferences.edit().putString("fragment", "3").commit();
                     break;
                 }else {
                     fragment =  new LiveFragment();
-
                 }
                 fragmentPreferences.edit().putString("fragment", "3").commit();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -312,8 +412,7 @@ public class MainActivity extends AppCompatActivity {
                 device_view.setVisibility(View.GONE);
                 smart_view.setVisibility(View.GONE);
                 live_view.setVisibility(View.VISIBLE);
-
-
+                smart.edit().clear();
                 break;
         }
     }
@@ -321,11 +420,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            moveTaskToBack(true);
+            application.removeAllActivity();
             return true;
         }
         return super.onKeyDown(keyCode, event);
     }
+
 
     public void exit() {
         if ((System.currentTimeMillis() - exitTime) > 2000) {
@@ -342,8 +442,6 @@ public class MainActivity extends AppCompatActivity {
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
 
-
-
     class LoadDeviceAsync extends AsyncTask<String, Void, Integer> {
 
         @Override
@@ -358,10 +456,8 @@ public class MainActivity extends AppCompatActivity {
                     code = jsonObject.getInt("code");
                     JSONObject content = jsonObject.getJSONObject("content");
                     if (code == 2000) {
-                        deviceChildDao.deleteAll();
-                        deviceGroupDao.deleteAll();
-                        JSONArray houses = content.getJSONArray("houses");
 
+                        JSONArray houses = content.getJSONArray("houses");
                         for (int i = 0; i < houses.length(); i++) {
                             JSONObject house = houses.getJSONObject(i);
 
@@ -370,7 +466,6 @@ public class MainActivity extends AppCompatActivity {
                                 if (i == houses.length() - 1) {
                                     shareHouseId = houseId + 1;
                                 }
-
                                 String houseName = house.getString("houseName");
                                 String location = house.getString("location");
                                 int masterControllerDeviceId = house.getInt("masterControllerDeviceId");
@@ -394,22 +489,22 @@ public class MainActivity extends AppCompatActivity {
 
                                         int masterControllerUserId = device.getInt("masterControllerUserId");
                                         int isUnlock = device.getInt("isUnlock");
-                                        int version=device.getInt("version");
-                                        String macAddress=device.getString("macAddress");
-                                        int controlled=device.getInt("controlled");
+                                        int version = device.getInt("version");
+                                        String macAddress = device.getString("macAddress");
+                                        int controlled = device.getInt("controlled");
 
-                                        DeviceChild child=deviceChildDao.findDeviceChild((long)deviceId);
-                                        if (child!=null){
+                                        DeviceChild child = deviceChildDao.findDeviceChild((long) deviceId);
+                                        if (child != null) {
                                             child.setType(type);
                                             child.setDeviceName(deviceName);
-                                            child.setHouseId((long)groupId);
+                                            child.setHouseId((long) groupId);
                                             child.setMasterControllerUserId(masterControllerUserId);
                                             child.setIsUnlock(isUnlock);
                                             child.setVersion(version);
                                             child.setMacAddress(macAddress);
                                             child.setControlled(controlled);
                                             deviceChildDao.update(child);
-                                        }else {
+                                        } else {
                                             DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
                                             deviceChild.setVersion(version);
                                             deviceChild.setMacAddress(macAddress);
@@ -421,13 +516,20 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
-                        JSONObject  sharedDevice = content.getJSONObject("sharedDevice");
-                        JSONArray deviceList=sharedDevice.getJSONArray("deviceList");
+                        JSONObject sharedDevice = content.getJSONObject("sharedDevice");
+                        JSONArray deviceList = sharedDevice.getJSONArray("deviceList");
 
-                        DeviceGroup deviceGroup= new DeviceGroup();
-                        deviceGroup.setHeader("分享的设备");
-                        deviceGroup.setId(shareHouseId);
-                        deviceGroupDao.insert(deviceGroup);
+
+                        shareHouseId = Long.MAX_VALUE;
+                        DeviceGroup deviceGroup = deviceGroupDao.findById(shareHouseId);
+                        if (deviceGroup == null) {
+                            deviceGroup = new DeviceGroup();
+                            deviceGroup.setId(shareHouseId);
+                            deviceGroup.setHeader("分享的设备");
+                            deviceGroupDao.insert(deviceGroup);
+                        } else {
+                            deviceGroupDao.update(deviceGroup);
+                        }
 
                         for (int x = 0; x < deviceList.length(); x++) {
                             JSONObject device = deviceList.getJSONObject(x);
@@ -438,9 +540,9 @@ public class MainActivity extends AppCompatActivity {
                                 long groupId = shareHouseId;
                                 int masterControllerUserId = device.getInt("masterControllerUserId");
                                 int isUnlock = device.getInt("isUnlock");
-                                int version=device.getInt("version");
-                                String macAddress=device.getString("macAddress");
-                                int controlled=device.getInt("controlled");
+                                int version = device.getInt("version");
+                                String macAddress = device.getString("macAddress");
+                                int controlled = device.getInt("controlled");
                                 DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, groupId, type, masterControllerUserId, isUnlock);
                                 deviceChild.setVersion(version);
                                 deviceChild.setMacAddress(macAddress);
@@ -471,18 +573,24 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 2000:
                     List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
-                    List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
-                    if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
-                        fragmentTransaction.replace(R.id.layout_body, new NoDeviceFragment()).commit();
-                    } else {
-                        deviceFragment = new DeviceFragment();
-                        fragmentTransaction.replace(R.id.layout_body, deviceFragment);
-                        fragmentTransaction.commit();
+                    fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
+                    if (noDeviceFragment == null) {
+                        noDeviceFragment = new NoDeviceFragment();
+                        application.addFragment(noDeviceFragment);
                     }
-                    device_view.setVisibility(View.VISIBLE);
-                    smart_view.setVisibility(View.GONE);
-                    live_view.setVisibility(View.GONE);
+                    if (deviceFragment == null) {
+                        deviceFragment = new DeviceFragment();
+                        application.addFragment(deviceFragment);
+                    }
+                    if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
+                        if (fragments.contains(noDeviceFragment)){
+                            fragmentTransaction.replace(R.id.layout_body,noDeviceFragment).commit();
+                        }
+                    } else {
+                        if (fragments.contains(deviceFragment)){
+                            fragmentTransaction.replace(R.id.layout_body,new DeviceFragment()).commit();
+                        }
+                    }
                     break;
             }
         }

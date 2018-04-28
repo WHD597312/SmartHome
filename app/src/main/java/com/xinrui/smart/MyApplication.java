@@ -5,6 +5,7 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.support.v4.app.Fragment;
 
 
 import com.squareup.picasso.Picasso;
@@ -26,6 +27,7 @@ import okhttp3.Protocol;
 public class MyApplication extends Application {
     private int count = 0;
     private List<Activity> activities;
+    private List<Fragment> fragments;
     private static Context mContext;
     public static Context getContext(){
         return mContext;
@@ -34,6 +36,7 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        fragments=new ArrayList<>();
         OkHttpClient client = new OkHttpClient.Builder()
                 .protocols(Collections.singletonList(Protocol.HTTP_1_1))
                 .build();
@@ -48,6 +51,7 @@ public class MyApplication extends Application {
 
         SMSSDK.initSDK(this,"24c373291db44","eb329179014e3063ce241d718e8693da");
         activities=new ArrayList<>();
+        fragments=new ArrayList<>();
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
@@ -89,6 +93,24 @@ public class MyApplication extends Application {
             activities.add(activity);
         }
     }
+    public void addFragment(Fragment fragment){
+        if (!fragments.contains(fragment)){
+            fragments.add(fragment);
+        }
+    }
+
+    public List<Fragment> getFragments() {
+        return fragments;
+    }
+    public void removeFragment(Fragment fragment){
+        if (fragments.contains(fragment)){
+            fragments.remove(fragment);
+        }
+    }
+    public void removeAllFragment(){
+        fragments.clear();
+    }
+
     public void removeActivity(Activity activity){
         if (activities.contains(activity)){
             activities.remove(activity);
