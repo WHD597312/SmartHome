@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 
 import com.xinrui.smart.R;
-import com.xinrui.smart.view_custom.DragGridBaseAdapter;
+import com.xinrui.smart.adapter.scene.DragGridBaseAdapter;
 
 import java.util.Collections;
 import java.util.HashMap;

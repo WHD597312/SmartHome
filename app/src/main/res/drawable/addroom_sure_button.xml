@@ -7,13 +7,13 @@
 
     <!-- 边距 -->
     <padding
-        android:bottom="10dp"
-        android:left="10dp"
-        android:right="10dp"
-        android:top="10dp" />
+        android:bottom="@dimen/dp_10"
+        android:left="@dimen/dp_10"
+        android:right="@dimen/dp_10"
+        android:top="@dimen/dp_10" />
     <!-- 边框宽度,颜色 -->
     <stroke
-        android:width="2dp"
+        android:width="@dimen/dp_1"
         android:color="#BBBBBB"></stroke>
 
     <solid android:color="@color/white"></solid>

@@ -38,7 +38,7 @@
                 android:layout_centerInParent="true"
                 android:textColor="@color/color_white"
                 android:text="办公室"
-                android:textSize="@dimen/sp_20"
+                android:textSize="@dimen/x20"
                 />
             <ImageView
                 android:id="@+id/image_home"

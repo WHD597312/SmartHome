@@ -3,7 +3,7 @@
     android:shape="rectangle">
 
     <corners
-        android:radius="5dp"></corners>
+        android:radius="@dimen/dp_5"></corners>
     <!-- 边距 -->
     <!--<padding-->
         <!--android:bottom="10dp"-->

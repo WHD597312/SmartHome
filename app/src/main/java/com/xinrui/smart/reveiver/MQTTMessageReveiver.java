@@ -11,6 +11,7 @@ import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.smart.activity.TimeTaskActivity;
 import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.fragment.HeaterFragment;
+import com.xinrui.smart.fragment.scene.Btn1_fragment;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.TimeTask;
@@ -52,6 +53,8 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                 String machineFall="";
                 int protectSetTemp=0;
                 int protectProTemp=0;
+                int extTemp=0;
+                int extHut=0;
 
                 int timerTaskWeek=0;
 
@@ -114,6 +117,15 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                 if (device.has("protectProTemp")){
                     protectProTemp=device.getInt("protectProTemp");
                 }
+
+
+                if (device.has("extTemp")){
+                    extTemp=device.getInt("extTemp");
+                }
+                if (device.has("extHut")){
+                    extHut=device.getInt("extHut");
+                }
+
 
                 macAddress=macAddress.substring(1);
                 DeviceChild child=null;
@@ -286,13 +298,17 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                         mqttIntent.putExtra("deviceId",child.getId());
                         deviceChildDao.update(child);
                         context.sendBroadcast(mqttIntent);
+                    }else if(Btn1_fragment.running == 2){
+                        Intent mqttIntent=new Intent("Btn1_fragment");
+                        mqttIntent.putExtra("extTemp",extTemp);
+                        mqttIntent.putExtra("extHut",extHut);
+                        mqttIntent.putExtra("message","测试");
+                        context.sendBroadcast(mqttIntent);
                     }
                 }catch (Exception e){
                     e.printStackTrace();
                 }
             }
-
-
         }catch (Exception e){
             e.printStackTrace();
         }

@@ -4,10 +4,10 @@
 
     <!-- 边距 -->
     <padding
-        android:bottom="10dp"
-        android:left="10dp"
-        android:right="10dp"
-        android:top="10dp" />
+        android:bottom="@dimen/y10"
+        android:left="@dimen/x10"
+        android:right="@dimen/x10"
+        android:top="@dimen/y10" />
     <!-- 边框宽度,颜色 -->
     <stroke
         android:width="0dp"

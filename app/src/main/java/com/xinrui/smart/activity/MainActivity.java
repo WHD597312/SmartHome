@@ -2,10 +2,9 @@ package com.xinrui.smart.activity;
 
 import android.Manifest;
 import android.app.ActionBar;
-import android.content.ComponentName;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
@@ -17,7 +16,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -38,7 +36,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
-import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
@@ -47,14 +44,14 @@ import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.FunctionAdapter;
 import com.xinrui.smart.fragment.DeviceFragment;
-import com.xinrui.smart.fragment.LiveFragment;
 import com.xinrui.smart.fragment.NoDeviceFragment;
+import com.xinrui.smart.fragment.SmartFragment;
 import com.xinrui.smart.fragment.SmartFragmentManager;
+import com.xinrui.smart.fragment.scene.LiveFragment;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.Function;
 import com.xinrui.smart.util.Utils;
-import com.xinrui.smart.util.mqtt.MQService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
@@ -99,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     private int[] colors = {R.color.color_blue, R.color.color_dark_gray};
     private DeviceGroupDaoImpl deviceGroupDao;
     private DeviceChildDaoImpl deviceChildDao;
-
+    private long exitTime = 0;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         function();
-
     }
 
     public void goLiveFragment() {
@@ -147,23 +143,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        /**启动服务并绑定状态*/
-        Intent  service= new Intent(this, MQService.class);
-        bindService(service, connection, Context.BIND_AUTO_CREATE);
-        startService(service);
 
         deviceGroupDao = new DeviceGroupDaoImpl(this);
         deviceChildDao = new DeviceChildDaoImpl(this);
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
-        if (!preferences.contains("first")){
-            preferences.edit().putString("first","1").commit();
-        }
         preferences.edit().putString("login", "login").commit();
         List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
 
 
+
+
         List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
         fragmentManager = getSupportFragmentManager();
+
+
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
         Intent intent = getIntent();
         Bundle bundle=intent.getExtras();
@@ -172,15 +165,12 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentPreferences = getSharedPreferences("fragment", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        String deviceList=intent.getStringExtra("deviceList");
-
-        if (Utils.isEmpty(mainControl) && Utils.isEmpty(deviceList)) {
+        if (Utils.isEmpty(mainControl) &&bundle==null) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
             new LoadDeviceAsync().execute();
-        }else if (!Utils.isEmpty(deviceList)){
-            fragmentPreferences.edit().putString("fragment", "1").commit();
-        }else {
+        } else {
             fragmentPreferences.edit().putString("fragment", "2").commit();
+
         }
 
         if (bundle!=null){
@@ -190,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
                 fragmentPreferences.edit().putString("fragment", "3").commit();
             }else if(!Utils.isEmpty(return_homepage)){
                 fragmentPreferences.edit().putString("fragment", "1").commit();
+
             }
         }
 
@@ -220,6 +211,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
     private LocationManager locationManager;
     private String provider;
 
@@ -247,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
         FunctionAdapter adapter = new FunctionAdapter(this, functions);
         listview.setAdapter(adapter);
     }
-
+    android.support.v4.app.Fragment fragment = new android.support.v4.app.Fragment();
     @OnClick({R.id.tv_exit, R.id.tv_device, R.id.tv_smart, R.id.tv_live})
     public void onClick(View view) {
         switch (view.getId()) {
@@ -265,7 +261,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
 
                 break;
+
+
             case R.id.tv_device:
+                if(fragment instanceof NoDeviceFragment){//如果第二次点击是相同的直接break;
+                    break;
+                }else {
+                    fragment =  new NoDeviceFragment();
+
+                }
                 FragmentTransaction fragmentTransaction3 = fragmentManager.beginTransaction();//开启碎片事务
                 List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
                 if (deviceGroups.size() == 1 && deviceChildDao.findAllDevice().size() == 0) {
@@ -280,6 +284,12 @@ public class MainActivity extends AppCompatActivity {
                 live_view.setVisibility(View.GONE);
                 break;
             case R.id.tv_smart:
+                if(fragment instanceof SmartFragment){
+                    break;
+                }else {
+                    fragment =  new SmartFragment();
+
+                }
                 fragmentPreferences.edit().putString("fragment", "2").commit();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.layout_body, new SmartFragmentManager());
@@ -289,6 +299,12 @@ public class MainActivity extends AppCompatActivity {
                 live_view.setVisibility(View.GONE);
                 break;
             case R.id.tv_live:
+                if(fragment instanceof LiveFragment){
+                    break;
+                }else {
+                    fragment =  new LiveFragment();
+
+                }
                 fragmentPreferences.edit().putString("fragment", "3").commit();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.replace(R.id.layout_body, new LiveFragment());
@@ -296,6 +312,8 @@ public class MainActivity extends AppCompatActivity {
                 device_view.setVisibility(View.GONE);
                 smart_view.setVisibility(View.GONE);
                 live_view.setVisibility(View.VISIBLE);
+
+
                 break;
         }
     }
@@ -303,14 +321,28 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            application.removeAllActivity();
+            moveTaskToBack(true);
             return true;
         }
         return super.onKeyDown(keyCode, event);
     }
 
+    public void exit() {
+        if ((System.currentTimeMillis() - exitTime) > 2000) {
+            Toast.makeText(getApplicationContext(), "再按一次退出程序",
+                    Toast.LENGTH_SHORT).show();
+            exitTime = System.currentTimeMillis();
+        } else {
+            finish();
+            System.exit(0);
+        }
+    }
+
+
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
+
+
 
     class LoadDeviceAsync extends AsyncTask<String, Void, Integer> {
 
@@ -326,6 +358,8 @@ public class MainActivity extends AppCompatActivity {
                     code = jsonObject.getInt("code");
                     JSONObject content = jsonObject.getJSONObject("content");
                     if (code == 2000) {
+                        deviceChildDao.deleteAll();
+                        deviceGroupDao.deleteAll();
                         JSONArray houses = content.getJSONArray("houses");
 
                         for (int i = 0; i < houses.length(); i++) {
@@ -389,13 +423,20 @@ public class MainActivity extends AppCompatActivity {
 
                         JSONObject  sharedDevice = content.getJSONObject("sharedDevice");
                         JSONArray deviceList=sharedDevice.getJSONArray("deviceList");
+                        shareHouseId=Long.MAX_VALUE;
                         DeviceGroup deviceGroup=deviceGroupDao.findById(shareHouseId);
                         if (deviceGroup==null){
                             deviceGroup= new DeviceGroup();
                             deviceGroup.setHeader("分享的设备");
                             deviceGroup.setId(shareHouseId);
                             deviceGroupDao.insert(deviceGroup);
+                        }else {
+                            deviceGroupDao.update(deviceGroup);
                         }
+
+
+
+
                         for (int x = 0; x < deviceList.length(); x++) {
                             JSONObject device = deviceList.getJSONObject(x);
                             if (device != null) {
@@ -452,29 +493,6 @@ public class MainActivity extends AppCompatActivity {
                     live_view.setVisibility(View.GONE);
                     break;
             }
-        }
-    }
-
-    MQService mqService;
-    private boolean bound = false;
-    ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MQService.LocalBinder binder = (MQService.LocalBinder) service;
-            mqService = binder.getService();
-            bound = true;
-        }
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            bound = false;
-        }
-    };
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (connection!=null){
-            unbindService(connection);
         }
     }
 }

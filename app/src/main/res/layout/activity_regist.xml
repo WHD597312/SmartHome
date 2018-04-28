@@ -43,7 +43,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="@dimen/dp_120"
         android:ems="10"
         android:hint="手机号码"
         android:textColorHint="@color/white"
@@ -68,7 +68,7 @@
 
     <EditText
         android:id="@+id/et_code"
-        android:layout_width="190dp"
+        android:layout_width="@dimen/dp_190"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/et_phone"
         android:layout_below="@+id/view1"
@@ -83,7 +83,7 @@
     <View
         android:id="@+id/view2"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/dp_1"
         android:layout_below="@+id/et_code"
         android:background="@color/white"
         android:layout_alignLeft="@+id/et_code"
@@ -113,7 +113,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignLeft="@+id/et_phone"
         android:layout_alignRight="@+id/et_phone"
-        android:layout_marginBottom="75dp"
+        android:layout_marginBottom="@dimen/dp_75"
         android:text="@string/finish"
         android:textColor="@color/white"
         android:background="@drawable/shape_btn_next"
@@ -138,7 +138,7 @@
     <View
         android:id="@+id/view3"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/dp_1"
         android:layout_below="@+id/et_password"
         android:background="@color/white"
         android:layout_alignLeft="@+id/et_password"
