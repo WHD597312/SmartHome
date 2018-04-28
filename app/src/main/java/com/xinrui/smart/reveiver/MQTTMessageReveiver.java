@@ -9,6 +9,7 @@ import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.smart.activity.TimeTaskActivity;
+import com.xinrui.smart.fragment.Btn1_fragment;
 import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.fragment.HeaterFragment;
 import com.xinrui.smart.fragment.scene.Btn1_fragment;

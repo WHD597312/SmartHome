@@ -134,7 +134,7 @@
     <RelativeLayout
         android:id="@+id/nav_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:background="@android:color/white"
         android:fitsSystemWindows="true">
