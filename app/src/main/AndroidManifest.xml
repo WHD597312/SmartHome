@@ -71,6 +71,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <application
         android:name=".MyApplication"
@@ -148,7 +149,7 @@
             android:label=""
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".activity.scene.CustomRoomActivity"
+            android:name="com.xinrui.secen.scene_activity.CustomRoomActivity"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
@@ -164,11 +165,11 @@
             android:label=""
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".activity.scene.RoomTypesActivity"
+            android:name="com.xinrui.secen.scene_activity.RoomTypesActivity"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".activity.scene.AddEquipmentActivity"
+            android:name="com.xinrui.secen.scene.scene_activity.AddEquipmentActivity"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activity.ScanActivity" />
@@ -177,11 +178,18 @@
             android:label=""
             android:theme="@style/AppTheme.NoActionBar"
             />
-        <activity android:name=".activity.scene.RoomContentActivity"
+        <activity android:name="com.xinrui.secen.scene_activity.RoomContentActivity"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <!--监听网络变化广播-->
+        <receiver android:name="com.xinrui.secen.scene_receiver.NetStateReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
 
     </application>
+
 
 </manifest>

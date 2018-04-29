@@ -1,38 +1,23 @@
 package com.xinrui.http;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.os.Environment;
-import android.util.Log;
-import android.widget.Toast;
 
-
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.smart.MyApplication;
-import com.xinrui.smart.util.OkHttp;
-import com.xinrui.smart.util.scene.NetWorkUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.builder.GetBuilder;
 
 
 import org.json.JSONArray;
-import org.jsoup.helper.HttpConnection;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
-import okhttp3.CacheControl;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;

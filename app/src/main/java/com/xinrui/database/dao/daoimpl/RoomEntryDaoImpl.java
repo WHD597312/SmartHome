@@ -1,14 +1,13 @@
 package com.xinrui.database.dao.daoimpl;
 
 import android.content.Context;
-import android.content.Entity;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.xinrui.database.dao.DBManager;
 import com.xinrui.database.dao.DaoMaster;
 import com.xinrui.database.dao.DaoSession;
 import com.xinrui.database.dao.RoomEntryDao;
-import com.xinrui.smart.pojo.scene.RoomEntry;
+import com.xinrui.secen.scene.scene_pojo.RoomEntry;
 
 import java.util.List;
 

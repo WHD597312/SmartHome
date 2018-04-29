@@ -13,12 +13,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.xinrui.secen.scene_fragment.LiveFragment;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.FunctionAdapter;
 import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.fragment.SmartFragment;
-import com.xinrui.smart.fragment.scene.LiveFragment;
 import com.xinrui.smart.pojo.Function;
 
 import java.util.ArrayList;
