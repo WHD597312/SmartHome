@@ -234,7 +234,7 @@
                 android:layout_marginRight="@dimen/dp_10"
                 android:textColor="@color/color_black"
                 android:text="@string/ensure" />
-            <TimePicker
+            <NumberPicker
                 android:id="@+id/timePicker"
                 android:layout_width="@dimen/dp_100"
                 android:layout_height="wrap_content"

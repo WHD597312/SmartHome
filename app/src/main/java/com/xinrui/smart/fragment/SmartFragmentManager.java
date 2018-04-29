@@ -1,9 +1,15 @@
 package com.xinrui.smart.fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
@@ -24,6 +31,7 @@ import com.xinrui.smart.adapter.SmartFragmentAdapter;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.SmartSet;
+import com.xinrui.smart.util.mqtt.MQService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -41,7 +49,8 @@ import butterknife.Unbinder;
  */
 
 public class SmartFragmentManager extends Fragment {
-    @BindView(R.id.viewpager) ViewPager mPager;
+    @BindView(R.id.viewpager)
+    ViewPager mPager;
     List<Fragment> fragmentList;
 
     DeviceGroupDaoImpl deviceGroupDao;
@@ -50,22 +59,24 @@ public class SmartFragmentManager extends Fragment {
     ImageView[] imageViews;
     View view;
     Unbinder unbinder;
+    public static boolean running = false;
+    SharedPreferences preferences;
+
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        view=inflater.inflate(R.layout.fragment_smart_manager,container,false);
-        unbinder=ButterKnife.bind(this,view);
+        view = inflater.inflate(R.layout.fragment_smart_manager, container, false);
+        unbinder = ButterKnife.bind(this, view);
         return view;
     }
-
 
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (unbinder!=null){
+        if (unbinder != null) {
             unbinder.unbind();
         }
     }
@@ -75,36 +86,70 @@ public class SmartFragmentManager extends Fragment {
     public void onStart() {
         super.onStart();
         //初始化fragment
-        deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
-        deviceGroups=deviceGroupDao.findAllDevices();
-        deviceChildDao=new DeviceChildDaoImpl(getActivity());
-        fragmentList=new ArrayList<Fragment>();
-        for (DeviceGroup deviceGroup:deviceGroups){
+        deviceGroupDao = new DeviceGroupDaoImpl(getActivity());
+        deviceGroups = deviceGroupDao.findAllDevices();
+        deviceChildDao = new DeviceChildDaoImpl(getActivity());
+        fragmentList = new ArrayList<Fragment>();
+        for (int i = 0; i < deviceGroups.size() - 1; i++) {
             fragmentList.add(new SmartFragment());
         }
 
-        FragmentPagerAdapter fragmentPagerAdapter=new SmartFragmentAdapter(getChildFragmentManager(),fragmentList);
-        LinearLayout layout= (LinearLayout) view.findViewById(R.id.linearout);
+        preferences = getActivity().getSharedPreferences("smart", Context.MODE_PRIVATE);
+
+        FragmentPagerAdapter fragmentPagerAdapter = new SmartFragmentAdapter(getChildFragmentManager(), fragmentList);
+        LinearLayout layout = (LinearLayout) view.findViewById(R.id.linearout);
         mPager.setAdapter(fragmentPagerAdapter);
-        mPager.setCurrentItem(0);
-        MyOnPageChangeListener listener=new MyOnPageChangeListener(getActivity(),mPager,layout,fragmentList.size());
-        listener.onPageSelected(0);
+
+        MyOnPageChangeListener listener = new MyOnPageChangeListener(getActivity(), mPager, layout, fragmentList.size());
+
         mPager.setOnPageChangeListener(listener);
 
 
-        Message msg=handler.obtainMessage();
-        msg.what=0;
-        handler.sendMessage(msg);
+        if (preferences.contains("postion")) {
+            int postion = preferences.getInt("postion", 0);
+            listener.onPageSelected(postion);
+            Message msg = handler.obtainMessage();
+            msg.what = postion;
+            handler.sendMessage(msg);
+            mPager.setCurrentItem(postion);
+        } else {
+            mPager.setCurrentItem(0);
+            listener.onPageSelected(0);
+            Message msg = handler.obtainMessage();
+            msg.what = 0;
+            handler.sendMessage(msg);
+        }
     }
+
 
     @Override
     public void onResume() {
         super.onResume();
+        running = true;
+        Intent intent = new Intent(getActivity(), MQService.class);
+        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
+        IntentFilter intentFilter = new IntentFilter("SmartFragmentManager");
+        receiver = new MessageReceiver();
+        getActivity().registerReceiver(receiver, intentFilter);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        running = false;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (connection != null) {
+            getActivity().unbindService(connection);
+        }
+        if (receiver != null) {
+            getActivity().unregisterReceiver(receiver);
+        }
+
     }
 
 
@@ -117,6 +162,7 @@ public class SmartFragmentManager extends Fragment {
         private int img1 = R.drawable.shape_circle_point_selected, img2 = R.drawable.shape_circle_point_unselected;
         private int imgSize = 20;
         private List<ImageView> dotViewLists = new ArrayList<>();
+
         public MyOnPageChangeListener(Context context, ViewPager viewPager, LinearLayout dotLayout, int size) {
             this.context = context;
             this.viewPager = viewPager;
@@ -144,6 +190,7 @@ public class SmartFragmentManager extends Fragment {
                 dotViewLists.add(imageView);
             }
         }
+
         @Override
         //当页面在滑动的时候会调用此方法，在滑动被停止之前，此方法会一直得到调用。
         /**
@@ -180,35 +227,105 @@ public class SmartFragmentManager extends Fragment {
          * arg0是页面跳转完后得到的页面的Position（位置编号）。
          */
         public void onPageSelected(int poistion) {
-            Message msg=handler.obtainMessage();
-            msg.what=poistion;
+            preferences.edit().putInt("postion", poistion).commit();
+            Message msg = handler.obtainMessage();
+            msg.what = poistion;
             handler.sendMessage(msg);
         }
     }
-    Handler handler=new Handler(){
+
+    DeviceChild deviceChild;
+    Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            int postion=msg.what;
-            DeviceGroup deviceGroup=deviceGroups.get(postion);
-            if (deviceGroup!=null){
+            int postion = msg.what;
+            DeviceGroup deviceGroup = deviceGroups.get(postion);
+            if (deviceGroup != null) {
                 try {
-                    String header=deviceGroup.getHeader();
-                    SmartFragment smartFragment= (SmartFragment) fragmentList.get(postion);
-                    if (smartFragment!=null){
-                        smartFragment.houseId=deviceGroup.getId()+"";
+                    String header = deviceGroup.getHeader();
+                    SmartFragment smartFragment = (SmartFragment) fragmentList.get(postion);
+                    if (smartFragment != null) {
+                        smartFragment.houseId = deviceGroup.getId() + "";
                         smartFragment.tv_home.setText(header);
-                        List<DeviceChild> deviceChildren=deviceChildDao.findDeviceType(deviceGroup.getId(),2);//外置传感器
-                        if (deviceChildren.isEmpty()){
+
+                        DeviceChild estDeviceChild = null;
+                        List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(deviceGroup.getId(), 2);//外置传感器
+                        if (deviceChildren.isEmpty()) {
                             smartFragment.relative.setVisibility(View.GONE);
-                        }else {
-                            smartFragment.relative.setVisibility(View.VISIBLE);
+                        } else {
+                            for (DeviceChild child : deviceChildren) {
+                                if (child.getControlled() == 1) {
+                                    estDeviceChild = child;
+                                    break;
+                                }
+                            }
+                            deviceChild = estDeviceChild;
+                            if (deviceChild != null) {
+                                smartFragment.relative.setVisibility(View.VISIBLE);
+                                int extTemp = deviceChild.getTemp();
+                                int extHum = deviceChild.getHum();
+                                smartFragment.temp.setText(extTemp + "℃");
+                                smartFragment.tv_cur_temp.setText(extTemp + "℃");
+                                smartFragment.hum.setText(extHum + "%");
+                                smartFragment.tv_hum.setText(extHum + "%");
+                            } else {
+                                smartFragment.relative.setVisibility(View.GONE);
+                            }
+
                         }
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+        }
+    };
+
+    MessageReceiver receiver;
+
+    class MessageReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
+
+            try {
+                deviceChild = deviceChild2;
+                deviceChildDao.update(deviceChild);
+                if (deviceChild != null) {
+                    int postion = preferences.getInt("postion", 0);
+                    SmartFragment smartFragment = (SmartFragment) fragmentList.get(postion);
+                    if (smartFragment != null) {
+                        int extTemp = deviceChild.getTemp();
+                        int extHum = deviceChild.getHum();
+                        smartFragment.temp.setText(extTemp + "℃");
+                        smartFragment.tv_cur_temp.setText(extTemp + "℃");
+                        smartFragment.hum.setText(extHum + "%");
+                        smartFragment.tv_hum.setText(extHum + "%");
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    MQService mqService;
+    private boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
         }
     };
 }

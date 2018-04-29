@@ -199,14 +199,6 @@ public class MainActivity extends AppCompatActivity {
             fragmentPreferences.edit().putString("fragment", "1").commit();
             new LoadDeviceAsync().execute();
         } else if (!Utils.isEmpty(deviceList)) {
-            if (noDeviceFragment == null) {
-                noDeviceFragment = new NoDeviceFragment();
-                application.addFragment(noDeviceFragment);
-            }
-            if (deviceFragment == null) {
-                deviceFragment = new DeviceFragment();
-                application.addFragment(deviceFragment);
-            }
             fragmentPreferences.edit().putString("fragment", "1").commit();
         } else if (!Utils.isEmpty(mainControl)) {
             fragmentPreferences.edit().putString("fragment", "2").commit();
@@ -222,37 +214,39 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
-
-        String fragment = fragmentPreferences.getString("fragment", "");
-        if ("1".equals(fragment)) {
+        String fragmentS = fragmentPreferences.getString("fragment", "");
+        if ("1".equals(fragmentS)) {
             deviceGroups = deviceGroupDao.findAllDevices();
             fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
             if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
                 if (fragments.contains(noDeviceFragment)) {
                     fragmentTransaction.replace(R.id.layout_body, noDeviceFragment).commit();
+                    fragment = noDeviceFragment;
                 }
             } else {
                 if (fragments.contains(deviceFragment)) {
                     fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
+                    fragment = deviceFragment;
                 }
             }
             device_view.setVisibility(View.VISIBLE);
             smart_view.setVisibility(View.GONE);
             live_view.setVisibility(View.GONE);
             smart.edit().clear().commit();
-        } else if ("2".equals(fragment)) {
+        } else if ("2".equals(fragmentS)) {
             fragmentTransaction = fragmentManager.beginTransaction();
             if (fragments.contains(smartFragmentManager)) {
                 fragmentTransaction.replace(R.id.layout_body, smartFragmentManager).commit();
+                fragment = smartFragmentManager;
             }
             device_view.setVisibility(View.GONE);
             smart_view.setVisibility(View.VISIBLE);
             live_view.setVisibility(View.GONE);
-        } else if ("3".equals(fragment)) {
+        } else if ("3".equals(fragmentS)) {
             fragmentTransaction = fragmentManager.beginTransaction();
             if (fragments.contains(liveFragment)) {
                 fragmentTransaction.replace(R.id.layout_body, liveFragment).commit();
+                fragment = smartFragmentManager;
             }
 
             fragmentPreferences.edit().putString("fragment", "3").commit();
@@ -333,22 +327,23 @@ public class MainActivity extends AppCompatActivity {
             case R.id.tv_device:
                 fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
                 if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
-                    if (fragments.contains(noDeviceFragment)) {
-                        if (fragment instanceof NoDeviceFragment){
-                            break;
-                        }
-                        fragmentTransaction.replace(R.id.layout_body, noDeviceFragment).commit();
-                        fragment=noDeviceFragment;
 
+                    if (fragment instanceof NoDeviceFragment) {
+                        break;
                     }
+                    noDeviceFragment = new NoDeviceFragment();
+                    fragmentTransaction.replace(R.id.layout_body, noDeviceFragment).commit();
+                    fragment = noDeviceFragment;
+
                 } else {
-                    if (fragments.contains(deviceFragment)){
-                        if (fragment instanceof DeviceFragment){
-                            break;
-                        }
-                        fragmentTransaction.replace(R.id.layout_body,deviceFragment).commit();
-                        fragment=deviceFragment;
+
+                    if (fragment instanceof DeviceFragment) {
+                        break;
                     }
+                    deviceFragment = new DeviceFragment();
+                    fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
+                    fragment = deviceFragment;
+
                 }
 
 
@@ -360,24 +355,25 @@ public class MainActivity extends AppCompatActivity {
             case R.id.tv_smart:
 
                 fragmentTransaction = fragmentManager.beginTransaction();
-                if (fragments.contains(smartFragmentManager)) {
-                    if (fragment instanceof SmartFragmentManager){
-                        break;
-                    }
-                    fragmentTransaction.replace(R.id.layout_body, smartFragmentManager).commit();
-                    fragment=smartFragmentManager;
+
+                if (fragment instanceof SmartFragmentManager) {
+                    break;
                 }
+                smartFragmentManager = new SmartFragmentManager();
+                fragmentTransaction.replace(R.id.layout_body, smartFragmentManager).commit();
+                fragment = smartFragmentManager;
+
                 device_view.setVisibility(View.GONE);
                 smart_view.setVisibility(View.VISIBLE);
                 live_view.setVisibility(View.GONE);
                 smart.edit().clear().commit();
                 break;
             case R.id.tv_live:
-                if(fragment instanceof LiveFragment){
+                if (fragment instanceof LiveFragment) {
                     fragmentPreferences.edit().putString("fragment", "3").commit();
                     break;
-                }else {
-                    fragment =  new LiveFragment();
+                } else {
+                    fragment = new LiveFragment();
                 }
                 fragmentPreferences.edit().putString("fragment", "3").commit();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -412,7 +408,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
 
@@ -430,7 +425,6 @@ public class MainActivity extends AppCompatActivity {
                     code = jsonObject.getInt("code");
                     JSONObject content = jsonObject.getJSONObject("content");
                     if (code == 2000) {
-
                         JSONArray houses = content.getJSONArray("houses");
                         for (int i = 0; i < houses.length(); i++) {
                             JSONObject house = houses.getJSONObject(i);
@@ -548,21 +542,25 @@ public class MainActivity extends AppCompatActivity {
                 case 2000:
                     List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
                     fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
-                    if (noDeviceFragment == null) {
-                        noDeviceFragment = new NoDeviceFragment();
-                        application.addFragment(noDeviceFragment);
-                    }
-                    if (deviceFragment == null) {
-                        deviceFragment = new DeviceFragment();
-                        application.addFragment(deviceFragment);
-                    }
+
+
                     if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
-                        if (fragments.contains(noDeviceFragment)){
-                            fragmentTransaction.replace(R.id.layout_body,noDeviceFragment).commit();
+                        if (noDeviceFragment == null) {
+                            noDeviceFragment = new NoDeviceFragment();
+                            application.addFragment(noDeviceFragment);
+                        }
+                        if (fragments.contains(noDeviceFragment)) {
+                            fragmentTransaction.replace(R.id.layout_body, noDeviceFragment).commit();
+                            fragment=noDeviceFragment;
                         }
                     } else {
-                        if (fragments.contains(deviceFragment)){
-                            fragmentTransaction.replace(R.id.layout_body,new DeviceFragment()).commit();
+                        if (deviceFragment == null) {
+                            deviceFragment = new DeviceFragment();
+                            application.addFragment(deviceFragment);
+                        }
+                        if (fragments.contains(deviceFragment)) {
+                            fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
+                            fragment=deviceFragment;
                         }
                     }
                     break;

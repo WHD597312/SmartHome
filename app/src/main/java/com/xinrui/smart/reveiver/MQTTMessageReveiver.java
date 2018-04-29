@@ -3,26 +3,33 @@ package com.xinrui.smart.reveiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.util.Log;
 
+import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
+import com.xinrui.database.dao.daoimpl.TimeDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.smart.activity.TimeTaskActivity;
 import com.xinrui.smart.fragment.Btn1_fragment;
 import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.fragment.HeaterFragment;
+import com.xinrui.smart.fragment.SmartFragmentManager;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.TimeTask;
+import com.xinrui.smart.pojo.Timer;
 import com.xinrui.smart.util.Utils;
 
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimerTask;
 
 public class MQTTMessageReveiver extends BroadcastReceiver {
     @Override
@@ -55,6 +62,7 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                 int protectProTemp=0;
                 int extTemp=0;
                 int extHut=0;
+                int extHum=0;
 
                 int timerTaskWeek=0;
 
@@ -125,17 +133,23 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                 if (device.has("extHut")){
                     extHut=device.getInt("extHut");
                 }
+                if (device.has("extHum")){
+                    extHum=device.getInt("extHum");
+                }
 
 
-                macAddress=macAddress.substring(1);
+
+
                 DeviceChild child=null;
                 int groupPostion=0;
                 int childPosition=0;
 
                 DeviceGroupDaoImpl deviceGroupDao=new DeviceGroupDaoImpl(context);
                 DeviceChildDaoImpl deviceChildDao=new DeviceChildDaoImpl(context);
+                TimeDaoImpl timeDao=new TimeDaoImpl(context);
                 TimeTaskDaoImpl timeTaskDao=new TimeTaskDaoImpl(context);
                 List<DeviceGroup> deviceGroups=deviceGroupDao.findAllDevices();
+
                 List<List<DeviceChild>> childern=new ArrayList<>();
                 try {
                     for (DeviceGroup deviceGroup:deviceGroups){
@@ -210,67 +224,120 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                             child.setProtectProTemp(protectProTemp);
 
                         child.setOnLint(true);
+                        if (child.getType()==2 && child.getControlled()==1){
+                            child.setTemp(extTemp);
+                            child.setHum(extHum);
+                        }
                         deviceChildDao.update(child);
+
 
 
                         if (device.has("timerTaskWeek")){
                             timerTaskWeek=device.getInt("timerTaskWeek");
                             long deviceId=child.getId();
-
-
-                            Map<String,String> map=new HashMap<>();
-                            StringBuffer sb=new StringBuffer();
+                            List<Timer> timers=timeDao.findAll(deviceId,timerTaskWeek);
+                            if (!timers.isEmpty()){
+                                timeDao.deleteAll(deviceId,timerTaskWeek);
+                            }
+                            timeTaskDao.deleteAllTask(deviceId,timerTaskWeek);
                             for (int i = 0; i < 24; i++) {
+                                int temp=device.getInt("t"+i);
+                                String open=device.getString("h"+i);
+                                Timer timer=new Timer(deviceId, timerTaskWeek, temp,open ,i);
+                                timeDao.insert(timer);
+                                timers.add(timer);
+                            }
+                            timers=timeDao.findAll(deviceId,timerTaskWeek);
+//                            timers=timeDao.getTimers(deviceId,timerTaskWeek);
 
-                                TimeTask timeTask=new TimeTask();
+                            //设置开始时间、结束时间
+                            int start = 0;
+                            int end = 0;
+                            timeTaskDao.deleteAllTask(deviceId,timerTaskWeek);
+                            for(int i =start;i<24;i++) {
+                                if (start >= 24) {
+                                    break;
+                                }
+                                String o = timers.get(start).getOpen();
+                                int temp = timers.get(start).getTemp();
+                                if (o.equals("off")) {
+                                    end++;
+                                    start = end;
+                                    continue;
+                                }
+                                for (int j = start + 1; j < 24; j++) {
+                                    end++;
+                                    if (o.equals(timers.get(end).getOpen())) {
+                                        if (temp == timers.get(end).getTemp()) {
+                                            continue;
+                                        } else {
 
-                                while (i<24){
-                                    String h=device.getString("h"+i);//时间
-                                    int t=device.getInt("t"+i);
-                                    String h2=null;
-
-                                    if (device.has("h"+(i-1))){
-                                        h2=device.getString("h"+(i-1));
-                                    }
-
-
-                                    if (!(Utils.isEmpty(h2)) && "off".equals(h2) && "on".equals(h)){
-                                        timeTask.setDeviceId(deviceId);
-                                        timeTask.setStart(i);
-                                        i++;
-                                        continue;
-                                    }
-                                    else if ((!Utils.isEmpty(h2)) && "on".equals(h2) && "on".equals(h)){
-                                        i++;
-                                        continue;
-                                    }
-                                    else if ((!Utils.isEmpty(h2)) && "on".equals(h2) && "off".equals(h)){
-                                        timeTask.setEnd(i-1);
-                                        int temp=device.getInt("t"+(i-1));
-                                        timeTask.setTemp(temp);
-                                        timeTask.setWeek(timerTaskWeek);
-                                        List<TimeTask> timeTasks=timeTaskDao.findWeekAll(deviceId,timerTaskWeek);
-                                        TimeTask timeTask2=null;
-                                        if ( timeTasks!=null && !timeTasks.isEmpty()){
-                                            for (TimeTask task :timeTasks) {
-                                                if (timeTask.equals(task)){
-                                                    timeTask2=task;
-                                                    timeTask2.setTemp(timeTask.getTemp());
-                                                    break;
-                                                }
-                                            }
+                                            break;
                                         }
-                                        if (timeTask2!=null){
-                                            timeTaskDao.update(timeTask2);
-                                        }else {
-                                            timeTaskDao.insert(timeTask);
-                                        }
-                                        i++;
+                                    } else {
+
                                         break;
                                     }
-                                    i++;
                                 }
+
+                                TimeTask controller = new TimeTask(deviceId,timerTaskWeek,start, end,temp);
+                                start = end;
+                                System.out.println(start);
+                                timeTaskDao.insert(controller);
                             }
+
+
+//                            for (int i = 0; i < 24; i++) {
+//
+//                                TimeTask timeTask=new TimeTask();
+//
+//                                while (i<24){
+//                                    String h=device.getString("h"+i);//时间
+//                                    int t=device.getInt("t"+i);
+//                                    String h2=null;
+//
+//                                    if (device.has("h"+(i-1))){
+//                                        h2=device.getString("h"+(i-1));
+//                                    }
+//
+//
+//                                    if (!(Utils.isEmpty(h2)) && "off".equals(h2) && "on".equals(h)){
+//                                        timeTask.setDeviceId(deviceId);
+//                                        timeTask.setStart(i);
+//                                        i++;
+//                                        continue;
+//                                    }
+//                                    else if ((!Utils.isEmpty(h2)) && "on".equals(h2) && "on".equals(h)){
+//                                        i++;
+//                                        continue;
+//                                    }
+//                                    else if ((!Utils.isEmpty(h2)) && "on".equals(h2) && "off".equals(h)){
+//                                        timeTask.setEnd(i-1);
+//                                        int temp=device.getInt("t"+(i-1));
+//                                        timeTask.setTemp(temp);
+//                                        timeTask.setWeek(timerTaskWeek);
+//                                        List<TimeTask> timeTasks=timeTaskDao.findWeekAll(deviceId,timerTaskWeek);
+//                                        TimeTask timeTask2=null;
+//                                        if ( timeTasks!=null && !timeTasks.isEmpty()){
+//                                            for (TimeTask task :timeTasks) {
+//                                                if (timeTask.equals(task)){
+//                                                    timeTask2=task;
+//                                                    timeTask2.setTemp(timeTask.getTemp());
+//                                                    break;
+//                                                }
+//                                            }
+//                                        }
+//                                        if (timeTask2!=null){
+//                                            timeTaskDao.update(timeTask2);
+//                                        }else {
+//                                            timeTaskDao.insert(timeTask);
+//                                        }
+//                                        i++;
+//                                        break;
+//                                    }
+//                                    i++;
+//                                }
+//                            }
 
 
                         }
@@ -296,13 +363,24 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                         Intent mqttIntent=new Intent("TimeTaskActivity");
                         mqttIntent.putExtra("timerTaskWeek",timerTaskWeek);
                         mqttIntent.putExtra("deviceId",child.getId());
-                        deviceChildDao.update(child);
+                        List<TimeTask> timerTasks=timeTaskDao.findWeekAll(child.getId(),timerTaskWeek);
+                        mqttIntent.putExtra("list", (Serializable)timerTasks);
                         context.sendBroadcast(mqttIntent);
                     }else if(Btn1_fragment.running == 2){
                         Intent mqttIntent=new Intent("Btn1_fragment");
                         mqttIntent.putExtra("extTemp",extTemp);
                         mqttIntent.putExtra("extHut",extHut);
                         mqttIntent.putExtra("message","测试");
+                        context.sendBroadcast(mqttIntent);
+                    }else if (SmartFragmentManager.running){
+                        Intent mqttIntent=new Intent("SmartFragmentManager");
+                        child=deviceChildDao.findDeviceById(child.getId());
+                        long houseId=child.getHouseId();
+                        long deviceId=child.getId();
+                        mqttIntent.putExtra("houseId",houseId);
+                        mqttIntent.putExtra("deviceId",deviceId);
+                        mqttIntent.putExtra("deviceChild",child);
+                        context.sendBroadcast(mqttIntent);
                         context.sendBroadcast(mqttIntent);
                     }
                 }catch (Exception e){

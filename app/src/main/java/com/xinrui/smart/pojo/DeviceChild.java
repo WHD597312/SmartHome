@@ -46,6 +46,8 @@ public class DeviceChild  implements Serializable{
     private int manualMatTemp;//手动模式下的温度
     private int timerTemp;//定时模式下的温度
     private boolean onLint;//判断用户是否在线
+    private int temp;/**温度*/
+    private int hum;/**湿度*/
 
 
     public DeviceChild() {
@@ -336,7 +338,23 @@ public class DeviceChild  implements Serializable{
         this.onLint = onLint;
     }
 
-    @Generated(hash = 1284177604)
+    public int getHum() {
+        return this.hum;
+    }
+
+    public void setHum(int hum) {
+        this.hum = hum;
+    }
+
+    public int getTemp() {
+        return this.temp;
+    }
+
+    public void setTemp(int temp) {
+        this.temp = temp;
+    }
+
+    @Generated(hash = 1310199017)
     public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
             Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
             int version, int ratedPower, int MatTemp, String workMode, String LockScreen,
@@ -344,7 +362,7 @@ public class DeviceChild  implements Serializable{
             int curTemp, String protectEnable, String ctrlMode, int powerValue,
             int voltageValue, int currentValue, String machineFall, int protectSetTemp,
             int protectProTemp, String wifiVersion, String MCUVerion, int manualMatTemp,
-            int timerTemp, boolean onLint) {
+            int timerTemp, boolean onLint, int temp, int hum) {
         this.id = id;
         this.deviceName = deviceName;
         this.macAddress = macAddress;
@@ -378,6 +396,8 @@ public class DeviceChild  implements Serializable{
         this.manualMatTemp = manualMatTemp;
         this.timerTemp = timerTemp;
         this.onLint = onLint;
+        this.temp = temp;
+        this.hum = hum;
     }
 
     

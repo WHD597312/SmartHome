@@ -50,43 +50,43 @@
                android:layout_height="wrap_content"
                android:layout_marginLeft="@dimen/dp_5"
                android:layout_marginRight="@dimen/dp_5"
-               android:background="#42413f">
+               android:background="#42413f"
+               android:visibility="gone"
+               >
 
                <ImageView
                    android:id="@+id/img_temp"
-                   android:layout_width="@dimen/dp_80"
-                   android:layout_height="@dimen/dp_80"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
                    android:layout_alignParentLeft="true"
                    android:layout_alignParentStart="true"
                    android:layout_alignParentTop="true"
-                   android:layout_marginLeft="27dp"
-                   android:layout_marginStart="27dp"
+                   android:layout_marginLeft="@dimen/dp_30"
                    android:scaleType="centerInside"
-                   android:src="@mipmap/img_temp" />
+                   android:src="@mipmap/smart_temp" />
+
                <TextView
                    android:id="@+id/tv_temp"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:layout_above="@+id/image_temp"
-                   android:layout_marginBottom="19dp"
-                   android:layout_toEndOf="@+id/img_temp"
-                   android:layout_toRightOf="@+id/img_temp"
+                   android:layout_alignBottom="@+id/img_temp"
                    android:text="25℃"
                    android:textColor="@color/color_white"
-                   android:textSize="@dimen/sp_18" />
+                   android:layout_toRightOf="@+id/img_temp"
+                   android:textSize="@dimen/sp_14" />
                <ImageView
                    android:id="@+id/img_hum"
-                   android:layout_width="@dimen/dp_80"
-                   android:layout_height="@dimen/dp_80"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
                    android:layout_alignLeft="@+id/image_hum"
                    android:layout_alignParentTop="true"
                    android:layout_alignStart="@+id/image_hum"
                    android:scaleType="centerInside"
-                   android:src="@mipmap/img_hum" />
+                   android:src="@mipmap/smart_hum" />
                <ImageView
                    android:id="@+id/image_hum"
-                   android:layout_width="@dimen/dp_70"
-                   android:layout_height="@dimen/dp_70"
+                   android:layout_width="@dimen/dp_80"
+                   android:layout_height="@dimen/dp_80"
                    android:layout_alignParentEnd="true"
                    android:layout_alignParentRight="true"
                    android:layout_below="@+id/tv_temp"
@@ -102,8 +102,7 @@
                    android:layout_alignLeft="@+id/img_temp"
                    android:layout_alignStart="@+id/img_temp"
                    android:layout_below="@+id/img_temp"
-                   android:layout_marginLeft="35dp"
-                   android:layout_marginStart="35dp"
+
                    android:scaleType="centerInside"
                    android:src="@mipmap/img_temp_circle" />
 
@@ -112,7 +111,6 @@
                    android:layout_width="@dimen/dp_80"
                    android:layout_height="@dimen/dp_80"
                    android:layout_alignLeft="@+id/image_temp"
-                   android:layout_alignStart="@+id/image_temp"
                    android:layout_below="@+id/img_temp"
                    android:gravity="center"
                    android:text="25℃"
@@ -120,14 +118,47 @@
 
                <TextView
                    android:id="@+id/tv_hum"
-                   android:layout_width="@dimen/dp_70"
-                   android:layout_height="@dimen/dp_70"
+                   android:layout_width="@dimen/dp_80"
+                   android:layout_height="@dimen/dp_80"
                    android:layout_alignLeft="@+id/img_hum"
                    android:layout_alignStart="@+id/img_hum"
                    android:layout_below="@+id/img_hum"
                    android:gravity="center"
                    android:text="50%"
                    android:textColor="@color/white"
+                   />
+
+               <TextView
+                   android:id="@+id/temperature"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_alignTop="@+id/img_temp"
+                   android:layout_toRightOf="@+id/img_temp"
+                   android:text="温度"
+                   android:textSize="@dimen/sp_14"
+                   android:textColor="@color/white"
+                   />
+
+               <TextView
+                   android:id="@+id/textView3"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_alignParentTop="true"
+                   android:layout_toRightOf="@+id/img_hum"
+                   android:gravity="center_vertical"
+                   android:text="湿度"
+                   android:textColor="@color/white"
+                   android:textSize="@dimen/sp_14" />
+
+               <TextView
+                   android:id="@+id/hum"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_alignBottom="@+id/img_temp"
+                   android:layout_toRightOf="@+id/img_hum"
+                   android:text="50%"
+                   android:textColor="@color/color_white"
+                   android:textSize="@dimen/sp_14"
                    />
            </RelativeLayout>
        </LinearLayout>

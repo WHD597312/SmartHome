@@ -55,6 +55,10 @@ public class SmartFragment extends Fragment {
     private DeviceGroupDaoImpl deviceGroupDao;
     private DeviceChildDaoImpl deviceChildDao;
     String houseId;
+    @BindView(R.id.tv_temp) TextView temp;/**温度*/
+    @BindView(R.id.tv_cur_temp) TextView tv_cur_temp;/**温度*/
+    @BindView(R.id.hum) TextView hum;/**湿度*/
+    @BindView(R.id.tv_hum) TextView tv_hum;/**湿度*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,10 +79,27 @@ public class SmartFragment extends Fragment {
         smart_set.setAdapter(adapter);
         if (houseId!=null){
             DeviceGroup deviceGroup=deviceGroupDao.findById(Long.parseLong(houseId));
+            List<DeviceChild> deviceChildren=deviceChildDao.findDeviceType(Long.parseLong(houseId),2);
+
+            DeviceChild estDeviceChild=null;
+            if (deviceChildren!=null && !deviceChildren.isEmpty()){
+                for (DeviceChild deviceChild:deviceChildren){
+                    if (deviceChild.getControlled()==1){
+                        estDeviceChild=deviceChild;
+                        break;
+                    }
+                }
+                if (estDeviceChild==null){
+                    relative.setVisibility(View.GONE);
+                }else {
+                    relative.setVisibility(View.VISIBLE);
+                }
+            }
             if (deviceGroup!=null){
                 tv_home.setText(deviceGroup.getHeader());
             }
         }
+
 
         smart_set.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -87,10 +108,67 @@ public class SmartFragment extends Fragment {
                 TextView tv_smart= (TextView) view.findViewById(R.id.tv_smart);
                 String content=tv_smart.getText().toString();
                 Intent intent=new Intent(getActivity(), MainControlActivity.class);
-                if (!Utils.isEmpty(houseId)){
-                    intent.putExtra("houseId",houseId);
-                    intent.putExtra("content",content);
-                    startActivity(intent);
+                if ("主控制设置".equals(content)){
+
+                    if (!Utils.isEmpty(houseId)){
+                        List<DeviceChild> deviceChildren=deviceChildDao.findDeviceType(Long.parseLong(houseId),1);
+                        if (deviceChildren.size()<2){
+                            Utils.showToast(getActivity(),"设备数量不足");
+                        }else if (deviceChildren.size()>=2){
+                            intent.putExtra("houseId",houseId);
+                            intent.putExtra("content",content);
+                            startActivity(intent);
+                        }
+                    }
+                }else if ("受控机设置".equals(content)){
+                    if (!Utils.isEmpty(houseId)){
+                        List<DeviceChild> deviceChildren=deviceChildDao.findDeviceType(Long.parseLong(houseId),1);
+                        if (deviceChildren.size()<2){
+                            Utils.showToast(getActivity(),"设备数量不足");
+                        }else {
+                            DeviceChild masterDeviceChild=null;
+                            for (DeviceChild deviceChild:deviceChildren){
+                                if (deviceChild.getControlled()==2){
+                                    masterDeviceChild=deviceChild;
+                                    break;
+                                }
+                            }
+                            if (masterDeviceChild==null){
+                                Utils.showToast(getActivity(),"请先设置主控设备");
+                            }else {
+                                intent.putExtra("houseId",houseId);
+                                intent.putExtra("content",content);
+                                startActivity(intent);
+                            }
+                        }
+                    }
+                }else if ("外置传感器".equals(content)){
+                    if (!Utils.isEmpty(content)){
+                        List<DeviceChild> deviceChildren=deviceChildDao.findDeviceType(Long.parseLong(houseId),1);
+                        if (deviceChildren.size()<2){
+                            Utils.showToast(getActivity(),"设备数量不足");
+                        }else {
+                            DeviceChild masterDeviceChild=null;
+                            for (DeviceChild deviceChild:deviceChildren){
+                                if (deviceChild.getControlled()==2){
+                                    masterDeviceChild=deviceChild;
+                                    break;
+                                }
+                            }
+                            if (masterDeviceChild==null){
+                                Utils.showToast(getActivity(),"请先设置主控设备");
+                            }else {
+                                List<DeviceChild> estChildren=deviceChildDao.findDeviceType(Long.parseLong(houseId),2);
+                                if (estChildren.isEmpty()){
+                                    Utils.showToast(getActivity(),"没有外置传感器");
+                                }else {
+                                    intent.putExtra("houseId",houseId);
+                                    intent.putExtra("content",content);
+                                    startActivity(intent);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         });

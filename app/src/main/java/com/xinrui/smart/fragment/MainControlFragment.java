@@ -115,114 +115,114 @@ public class MainControlFragment extends Fragment{
 
     private List<DeviceChild> selectedlist=new ArrayList<>();
     private Map<String,Boolean> map=new HashMap<>();
-//    private Map<String,>
-   public class MainControlAdapter extends BaseAdapter{
+    //    private Map<String,>
+    public class MainControlAdapter extends BaseAdapter{
 
-       private List<DeviceChild> children;
-       private Context context;
+        private List<DeviceChild> children;
+        private Context context;
 
-       public MainControlAdapter(List<DeviceChild> children, Context context) {
-           this.children = children;
-           this.context = context;
-       }
+        public MainControlAdapter(List<DeviceChild> children, Context context) {
+            this.children = children;
+            this.context = context;
+        }
 
-       @Override
-       public int getCount() {
-           return children.size();
-       }
+        @Override
+        public int getCount() {
+            return children.size();
+        }
 
-       @Override
-       public DeviceChild getItem(int position) {
-           return children.get(position);
-       }
+        @Override
+        public DeviceChild getItem(int position) {
+            return children.get(position);
+        }
 
-       @Override
-       public long getItemId(int position) {
-           return position;
-       }
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
 
-       public void clear() {
-           children.clear();
-       }
+        public void clear() {
+            children.clear();
+        }
 
-       public void setList(List<DeviceChild> list) {
-           children = list;
-       }
+        public void setList(List<DeviceChild> list) {
+            children = list;
+        }
 
-       public void addAll(List<DeviceChild> list) {
-          children.addAll(list);
-       }
+        public void addAll(List<DeviceChild> list) {
+            children.addAll(list);
+        }
 
 
-       @Override
-       public View getView( final int position, View convertView, ViewGroup parent) {
-          ViewHolder viewHolder=null;
-           if (convertView==null){
-               convertView= View.inflate(context, R.layout.item_main_control,null);
-               viewHolder=new ViewHolder(convertView);
-               convertView.setTag(viewHolder);
-           }else {
-               viewHolder= (ViewHolder) convertView.getTag();
-           }
-           viewHolder.img_main.setImageResource(R.mipmap.master);
-           DeviceChild control=getItem(position);
-           viewHolder.check.setChecked(isSelected.get(position));
-           if (control!=null){
-               viewHolder.tv_main.setText(control.getDeviceName());
-               if (control.getControlled()==2){
-                   isSelected.put(position, true);
+        @Override
+        public View getView( final int position, View convertView, ViewGroup parent) {
+            ViewHolder viewHolder=null;
+            if (convertView==null){
+                convertView= View.inflate(context, R.layout.item_main_control,null);
+                viewHolder=new ViewHolder(convertView);
+                convertView.setTag(viewHolder);
+            }else {
+                viewHolder= (ViewHolder) convertView.getTag();
+            }
+            viewHolder.img_main.setImageResource(R.mipmap.master);
+            DeviceChild control=getItem(position);
+            viewHolder.check.setChecked(isSelected.get(position));
+            if (control!=null){
+                viewHolder.tv_main.setText(control.getDeviceName());
+                if (control.getControlled()==2){
+                    isSelected.put(position, true);
 //                   children.get(position).setControlled(2);
-               }else {
-                   isSelected.put(position, false);
-               }
-           }
+                }else {
+                    isSelected.put(position, false);
+                }
+            }
 
-           viewHolder.check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-               @Override
-               public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-               }
-           });
-           final CheckBox check=viewHolder.check;
-           check.setOnClickListener(new View.OnClickListener() {
-               public void onClick(View v) {
-                   unbindPosition=position;
-                   // 当前点击的CB
-                   boolean cu = !isSelected.get(position);
-                   // 先将所有的置为FALSE
+            viewHolder.check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                }
+            });
+            final CheckBox check=viewHolder.check;
+            check.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    unbindPosition=position;
+                    // 当前点击的CB
+                    boolean cu = !isSelected.get(position);
+                    // 先将所有的置为FALSE
 
-                   for (Integer p : isSelected.keySet()) {
-                       isSelected.put(p, false);
-                       DeviceChild deviceChild=children.get(p);
-                       deviceChild.setControlled(1);
-                       deviceChildDao.update(deviceChild);
-                   }
-                   // 再将当前选择CB的实际状态
-                   isSelected.put(position, cu);
-                   notifyDataSetChanged();
-                   beSelectedData.clear();
-                   if (cu) {
-                       beSelectedData.add(children.get(position));
-                       DeviceChild deviceChild=children.get(position);
-                       deviceChild.setControlled(2);
-                       deviceChildDao.update(deviceChild);
-                   }
-               }
-           });
+                    for (Integer p : isSelected.keySet()) {
+                        isSelected.put(p, false);
+                        DeviceChild deviceChild=children.get(p);
+                        deviceChild.setControlled(1);
+                        deviceChildDao.update(deviceChild);
+                    }
+                    // 再将当前选择CB的实际状态
+                    isSelected.put(position, cu);
+                    notifyDataSetChanged();
+                    beSelectedData.clear();
+                    if (cu) {
+                        beSelectedData.add(children.get(position));
+                        DeviceChild deviceChild=children.get(position);
+                        deviceChild.setControlled(2);
+                        deviceChildDao.update(deviceChild);
+                    }
+                }
+            });
 
-           return convertView;
-       }
-       class ViewHolder{
-           @BindView(R.id.img_main)
-           ImageView img_main;
-           @BindView(R.id.tv_main)
-           TextView tv_main;
-           @BindView(R.id.check)
-           CheckBox check;
-           public ViewHolder(View view){
-               ButterKnife.bind(this,view);
-           }
-       }
-   }
+            return convertView;
+        }
+        class ViewHolder{
+            @BindView(R.id.img_main)
+            ImageView img_main;
+            @BindView(R.id.tv_main)
+            TextView tv_main;
+            @BindView(R.id.check)
+            CheckBox check;
+            public ViewHolder(View view){
+                ButterKnife.bind(this,view);
+            }
+        }
+    }
 
     class GetMainControlAsync extends AsyncTask<Void,Void,Integer>{
         @Override
@@ -250,8 +250,9 @@ public class MainControlFragment extends Fragment{
                                 int isUnlock=device.getInt("isUnlock");
                                 int controlled=device.getInt("controlled");
 
-                                DeviceChild deviceChild = new DeviceChild((long)id, deviceName, imgs[0],0, (long)houseId,
-                                            masterControllerUserId, type,isUnlock);
+//                                DeviceChild deviceChild = new DeviceChild((long)id, deviceName, imgs[0],0, (long)houseId,
+//                                        masterControllerUserId, type,isUnlock);
+                                DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
                                 deviceChild.setControlled(controlled);
                                 deviceChildDao.update(deviceChild);
                                 mainControls.add(deviceChild);
@@ -295,7 +296,7 @@ public class MainControlFragment extends Fragment{
         switch (view.getId()){
             case R.id.btn_ensure:
                 List<DeviceChild> children=deviceChildDao.findGroupIdAllDevice(Long.parseLong(houseId));
-                if (children.size()>2){
+                if (children.size()>1){
                     long masterControllerDeviceId;
                     long id;
                     if (isSelected!=null){
@@ -392,9 +393,7 @@ public class MainControlFragment extends Fragment{
                     startActivity(intent);
                     break;
                 case -3010:
-                    Intent intent2=new Intent(getActivity(),MainActivity.class);
-                    intent2.putExtra("mainControl","mainControl");
-                    startActivity(intent2);
+
                     break;
             }
         }

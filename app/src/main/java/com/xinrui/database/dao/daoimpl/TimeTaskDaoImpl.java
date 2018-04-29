@@ -7,6 +7,7 @@ import com.xinrui.database.dao.DBManager;
 import com.xinrui.database.dao.DaoMaster;
 import com.xinrui.database.dao.DaoSession;
 import com.xinrui.database.dao.TimeTaskDao;
+import com.xinrui.smart.fragment.TaskTimeFragement;
 import com.xinrui.smart.pojo.TimeTask;
 
 import org.greenrobot.greendao.query.WhereCondition;
@@ -29,7 +30,6 @@ public class TimeTaskDaoImpl {
         master=new DaoMaster(db);
         DaoSession session=master.newSession();
         timeDao=session.getTimeTaskDao();
-
     }
     /**
      * 插入时间段
@@ -54,6 +54,12 @@ public class TimeTaskDaoImpl {
         }
         timeDao.insertInTx(list);
     }
+    public void updateTaskTimeList(List<TimeTask> list){
+        if (list==null || list.isEmpty()){
+            return;
+        }
+        timeDao.updateInTx(list);
+    }
     public TimeTask getTaskTime(Long id){
         return timeDao.load(id);
     }
@@ -63,6 +69,14 @@ public class TimeTaskDaoImpl {
     public List<TimeTask> findWeekAll(long device, int week){
         WhereCondition whereCondition=timeDao.queryBuilder().and(TimeTaskDao.Properties.DeviceId.eq(device),TimeTaskDao.Properties.Week.eq(week));
         return timeDao.queryBuilder().where(whereCondition).list();
+    }
+    public void deleteAllTask(long device, int week){
+        List<TimeTask> timeTasks=findWeekAll(device,week);
+        if (timeTasks==null && timeTasks.isEmpty()){
+            return;
+        }
+        timeDao.updateInTx(timeTasks);
+
     }
     /**
      * 查询所有的TaskTime

@@ -4,12 +4,14 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
 
+import java.io.Serializable;
+
 /**
  * Created by win7 on 2018/3/24.
  */
 
 @Entity
-public class TimeTask {
+public class TimeTask implements Serializable{
     @Id(autoincrement = true)
     private Long id;
     private  long deviceId;/**对应设备的Id*/

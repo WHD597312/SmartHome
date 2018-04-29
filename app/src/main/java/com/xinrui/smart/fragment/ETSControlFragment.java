@@ -100,9 +100,9 @@ public class ETSControlFragment extends Fragment{
         }
         if (masterChildren.isEmpty()){
             Utils.showToast(getActivity(),"请先设置主控设备");
-            Intent intent=new Intent(getActivity(),MainActivity.class);
-            intent.putExtra("mainControl","mainControl");
-            startActivity(intent);
+//            Intent intent=new Intent(getActivity(),MainActivity.class);
+//            intent.putExtra("mainControl","mainControl");
+//            startActivity(intent);
         }else{
             new GetExtSensorAsync().execute();
         }
@@ -121,14 +121,7 @@ public class ETSControlFragment extends Fragment{
     public void onResume() {
         super.onResume();
     }
-    private List<DeviceChild> getMainControls(){
-        long id=0;
-        if (!Utils.isEmpty(houseId)){
-            id=Long.parseLong(houseId);
-        }
-        List<DeviceChild> mainControls=deviceChildDao.findGroupIdAllDevice(id);
-        return mainControls;
-    }
+
 
     @OnClick({R.id.btn_ensure})
     public void onClick(View view){
@@ -317,8 +310,8 @@ public class ETSControlFragment extends Fragment{
                                     int isUnlock=device.getInt("isUnlock");
                                     int controlled=device.getInt("controlled");
 
-                                    DeviceChild deviceChild = new DeviceChild((long)id, deviceName, imgs[0],0, (long)houseId,
-                                            masterControllerUserId, type,isUnlock);
+                                    DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
+
                                     deviceChild.setControlled(controlled);
                                     deviceChildDao.update(deviceChild);
                                     mainControls.add(deviceChild);
@@ -339,7 +332,6 @@ public class ETSControlFragment extends Fragment{
                                 }
                             }
                         }
-
                     }
                 }
             }catch (Exception e){
@@ -370,6 +362,7 @@ public class ETSControlFragment extends Fragment{
                 try {
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -386,10 +379,8 @@ public class ETSControlFragment extends Fragment{
                     intent.putExtra("mainControl","mainControl");
                     startActivity(intent);
                     break;
-                case -3010:
-                    Intent intent2=new Intent(getActivity(),MainActivity.class);
-                    intent2.putExtra("mainControl","mainControl");
-                    startActivity(intent2);
+                case -3016:
+                    Utils.showToast(getActivity(),"请先设置主控设备");
                     break;
             }
         }

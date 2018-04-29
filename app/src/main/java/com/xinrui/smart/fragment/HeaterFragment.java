@@ -175,8 +175,6 @@ public class HeaterFragment extends Fragment {
                         } else {
                             tv_outmode.setText("节能模式");
                         }
-
-
                     }
 
                 } else if ("2".equals(module)) {

@@ -6,7 +6,7 @@ import org.greenrobot.greendao.annotation.Generated;
 
 @Entity
 public class Timer {
-    @Id
+    @Id(autoincrement = true)
     private Long id;
     private long deviceId;
     private int week;
@@ -61,5 +61,13 @@ public class Timer {
     }
     @Generated(hash = 872717714)
     public Timer() {
+    }
+
+    public Timer(long deviceId, int week, int temp, String open, int hour) {
+        this.deviceId = deviceId;
+        this.week = week;
+        this.temp = temp;
+        this.open = open;
+        this.hour = hour;
     }
 }

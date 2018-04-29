@@ -145,7 +145,9 @@ public class AddDeviceActivity extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.img_back:
-                finish();
+                Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
+                intent.putExtra("deviceList","deviceList");
+                startActivity(intent);
                 break;
             case R.id.btn_wifi:
                 wifi_drawable = wifi_drawables[1];
@@ -266,6 +268,7 @@ public class AddDeviceActivity extends AppCompatActivity {
                 case 2001:
                     Utils.showToast(AddDeviceActivity.this, "创建成功");
                     Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
+                    intent.putExtra("deviceList","deviceList");
                     startActivity(intent);
                     break;
                 case -3005:
@@ -562,50 +565,57 @@ public class AddDeviceActivity extends AppCompatActivity {
                         DeviceChild deviceChild = new DeviceChild();
                         String ssid = resultInList.getBssid();
                         if (!Utils.isEmpty(ssid)){
-                            DatagramPacket datagramPacket = null;
-                            DatagramSocket datagramSocket=null;
-                            String result2=null;
-                            try {
-                                datagramSocket=new DatagramSocket(1112);
-                                while(true){
-
-                                    byte[] buffer=new byte[50];
-                                    datagramPacket=new DatagramPacket(buffer, buffer.length);
-                                    datagramSocket.receive(datagramPacket);
-                                    byte[] bytes=datagramPacket.getData();
-                                    String data=new String(bytes, 0, bytes.length);
-                                    result2=data;
-                                    if (!Utils.isEmpty(result2)) {
-//                                        result2.substring()
-
-                                        if (result2.contains(ssid)){
-                                            String type2=result2.charAt(22)+"";
-                                            type=Integer.parseInt(type2);
-                                            Thread.sleep(500);
-                                            count++;
-                                            Client.send("255.255.255.255","mac:"+ssid+";ok", 2525);
-                                        }
-                                    }
-                                    if (count>10){
-                                        if (datagramSocket!=null){
-                                            datagramSocket.close();
-                                            break;
-                                        }
-                                    }
-                                }
-                            } catch (Exception e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
+                            String s=ssid.substring(0,1);
+                            type=Integer.parseInt(s);
+                            if (type==0)
+                                type=2;
                         }
+//                            DatagramPacket datagramPacket = null;
+//                            DatagramSocket datagramSocket=null;
+//                            String result2=null;
+//                            try {
+//                                datagramSocket=new DatagramSocket(1112);
+//                                while(true){
+//
+//                                    byte[] buffer=new byte[50];
+//                                    datagramPacket=new DatagramPacket(buffer, buffer.length);
+//                                    datagramSocket.receive(datagramPacket);
+//                                    byte[] bytes=datagramPacket.getData();
+//                                    String data=new String(bytes, 0, bytes.length);
+//                                    result2=data;
+//                                    if (!Utils.isEmpty(result2)) {
+////                                        result2.substring()
+//
+//                                        if (result2.contains(ssid)){
+//                                            String type2=result2.charAt(22)+"";
+//                                            type=Integer.parseInt(type2);
+//                                            Thread.sleep(500);
+//                                            count++;
+//                                            Client.send("255.255.255.255","mac:"+ssid+";ok", 2525);
+//                                        }
+//                                    }
+//                                    if (count>10){
+//                                        if (datagramSocket!=null){
+//                                            datagramSocket.close();
+//                                            break;
+//                                        }
+//                                    }
+//                                }
+//                            } catch (Exception e) {
+//                                // TODO Auto-generated catch block
+//                                e.printStackTrace();
+//                            }
+//                        }
 
                         if (deviceGroupDao != null) {
                             DeviceGroup deviceGroup = deviceGroupDao.findById(houseId);
                             if (deviceGroup != null) {
+                                String s=et_ssid.getText().toString().trim();
+                                String macAddress=s+ssid;
                                 Map<String, Object> params = new HashMap<>();
-                                params.put("deviceName", ssid);
+                                params.put("deviceName", "设备");
                                 params.put("houseId", houseId);
-                                params.put("masterControllerUserId", userId);
+                                params.put("masterControllerUserId", Integer.parseInt(userId));
                                 params.put("type", type);
                                 params.put("macAddress", ssid);
                                 SharedPreferences wifi = getSharedPreferences("wifi", MODE_PRIVATE);

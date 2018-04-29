@@ -25,6 +25,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
+import com.xinrui.database.dao.daoimpl.TimeDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
@@ -32,6 +33,7 @@ import com.xinrui.smart.adapter.TimeTaskAdapter;
 import com.xinrui.smart.adapter.WeekAdapter;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.TimeTask;
+import com.xinrui.smart.pojo.Timer;
 import com.xinrui.smart.util.ChineseNumber;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
@@ -84,7 +86,7 @@ public class TimeTaskActivity extends AppCompatActivity {
     @BindView(R.id.tv_clock)
     TextView tv_clock;
     @BindView(R.id.timePicker)
-    TimePicker timePicker;
+    NumberPicker timePicker;
     /**
      * 时间选择器
      */
@@ -154,6 +156,7 @@ public class TimeTaskActivity extends AppCompatActivity {
     SharedPreferences preferences;
     public static boolean running = false;
 
+    private TimeDaoImpl timeDao;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -191,11 +194,12 @@ public class TimeTaskActivity extends AppCompatActivity {
         timeTaskDao = new TimeTaskDaoImpl(this);
         deviceChildDao = new DeviceChildDaoImpl(this);
         deviceChild = deviceChildDao.findDeviceById(deviceId);
+        timeDao=new TimeDaoImpl(this);
 
 //        week.setOnItemClickListener(this);
 
 
-        timePicker.setIs24HourView(true);
+
 
         numberPicker.setMinValue(5);
         numberPicker.setMaxValue(42);
@@ -207,10 +211,18 @@ public class TimeTaskActivity extends AppCompatActivity {
                 temperature = newVal;
             }
         });
-        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+        timePicker.setMinValue(0);
+        timePicker.setMaxValue(24);
+        Calendar calendar = Calendar.getInstance();
+
+        hour=calendar.get(Calendar.HOUR_OF_DAY);
+        timePicker.setValue(hour);
+
+
+        timePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
-            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-                hour = hourOfDay;
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                hour = newVal;
             }
         });
     }
@@ -441,25 +453,22 @@ public class TimeTaskActivity extends AppCompatActivity {
                     TimeTask timeTask = new TimeTask(deviceId, week, start, end, Integer.parseInt(temp));
                     if (timeTask != null) {
                         List<TimeTask> timeTasks = timeTaskDao.findWeekAll(deviceId, week);
-                        TimeTask timeTask2 = null;
-                        if (timeTasks != null && !timeTasks.isEmpty()) {
-                            for (int i = 0; i < timeTasks.size(); i++) {
-                                TimeTask task = list.get(i);
-                                if (timeTask.equals(task)) {
-                                    timeTask2 = task;
-                                    timeTask2.setTemp(timeTask.getTemp());
-                                    list.set(i, timeTask2);
-                                    break;
-                                }
+                        int i = 0;
+                        //遍历所有的定时类
+                        for (TimeTask t : timeTasks) {
+                            //判断要添加的对象 开始结束点  是否 都小于等于开始时间 或者都大于等于结束时间
+                            if((timeTask.getStart()<=t.getStart()&&timeTask.getEnd()<=t.getStart())||(timeTask.getStart()>=t.getEnd()&&timeTask.getEnd()>=t.getEnd())){
+                                i++;
                             }
                         }
-                        if (timeTask2 != null) {
-                            timeTaskDao.update(timeTask2);
-                        } else {
+                        //如果i和list的长度相等 说明和以前添加的都不交叉 可以添加
+                        if (i==timeTasks.size()) {
                             timeTaskDao.insert(timeTask);
                             list.add(timeTask);
-                        }
 
+                        }else {
+                            Utils.showToast(this,"改时间段已存在");
+                        }
                         Collections.sort(list, new Comparator<TimeTask>() {
                             @Override
                             public int compare(TimeTask o1, TimeTask o2) {
@@ -481,69 +490,27 @@ public class TimeTaskActivity extends AppCompatActivity {
             case R.id.btn_publish:
                 try {
                     String jsonData = null;
-                    if (preferences.contains("first") && preferences.getString("first", "").equals("1")) {
-                        for (int j = 1; j <= 7; j++) {
-                            JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("timerTaskWeek", j);
-                            List<TimeTask> timeTasks = timeTaskDao.findWeekAll(deviceId, j);
 
-                            for (int i = 0; i < 24; i++) {
-                                if (timeTasks.isEmpty()) {
-                                    jsonObject.put("h" + i, "off");
-                                    jsonObject.put("t" + i, 16);
-                                } else {
-                                    for (TimeTask timeTask : timeTasks) {
-                                        if (i >= timeTask.getStart() && i <= timeTask.getEnd()) {
-                                            jsonObject.put("h" + i, "on");
-                                            jsonObject.put("t" + i, timeTask.getTemp());
-                                        } else {
-                                            jsonObject.put("h" + i, "off");
-                                            jsonObject.put("t" + i, 16);
-                                        }
-                                    }
-                                }
-                            }
-                            jsonData = jsonObject.toString();
-                            if (bound) {
-                                String mac = deviceChild.getMacAddress();
-                                String topicName;
-                                if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-                                    topicName = "rango/" + mac + "/masterController/set";
-                                    boolean success = mqService.publish(topicName, 2, jsonData);
-                                    if (success) {
-                                        Utils.showToast(this, "发送成功");
-                                    }
-                                } else {
-                                    topicName = "rango/" + mac + "/set";
-                                    boolean success = mqService.publish(topicName, 2, jsonData);
-                                    if (success) {
-                                        Utils.showToast(this, "发送成功");
-                                    }
-                                }
-                            }
-                        }
-                        preferences.edit().putString("first", "2").commit();
-                    } else {
                         JSONObject jsonObject = new JSONObject();
                         int selectedWeek = ChineseNumber.chineseNumber2Int(mSelectedWeek);
-                        List<TimeTask> timeTasks = timeTaskDao.findWeekAll(deviceId, selectedWeek);
+                        List<Timer> timers = timeDao.findAll(deviceId,selectedWeek);
+                        Collections.sort(timers, new Comparator<Timer>() {
+                            @Override
+                            public int compare(Timer o1, Timer o2) {
+                                if (o1.getHour()>o2.getHour())
+                                    return 1;
+                                else if (o1.getHour()<o2.getHour())
+                                    return -1;
+                                return 0;
+                            }
+                        });
                         jsonObject.put("timerTaskWeek", selectedWeek);
 
                         for (int i = 0; i < 24; i++) {
-                            if (timeTasks.isEmpty()) {
-                                jsonObject.put("h" + i, "off");
-                                jsonObject.put("t" + i, 16);
-                            } else {
-                                for (TimeTask timeTask : timeTasks) {
-                                    if (i >= timeTask.getStart() && i <= timeTask.getEnd()) {
-                                        jsonObject.put("h" + i, "on");
-                                        jsonObject.put("t" + i, timeTask.getTemp());
-                                    } else {
-                                        jsonObject.put("h" + i, "off");
-                                        jsonObject.put("t" + i, 16);
-                                    }
-                                }
-                            }
+                                Timer timer=timers.get(i);
+                                jsonObject.put("h" + i, timer.getOpen());
+                                jsonObject.put("t" + i, timer.getTemp());
+
                         }
                         jsonData = jsonObject.toString();
                         if (bound) {
@@ -563,7 +530,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                                 }
                             }
                         }
-                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -775,9 +742,13 @@ public class TimeTaskActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             long deviceId = intent.getLongExtra("deviceId", 0);
             int timerTaskWeek = intent.getIntExtra("timerTaskWeek", 0);
-            List<TimeTask> timeTasks = timeTaskDao.findWeekAll(deviceId, timerTaskWeek);
+            List<TimeTask> timeTasks = (List<TimeTask>) intent.getSerializableExtra("list");
+            DeviceChild deviceChild2=deviceChildDao.findDeviceById(deviceId);
+            if (deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())){}
             if (!timeTasks.isEmpty()) {
+                list.clear();
                 list.addAll(timeTasks);
+                timeTaskDao.updateTaskTimeList(list);
                 Collections.sort(list, new Comparator<TimeTask>() {
                     @Override
                     public int compare(TimeTask o1, TimeTask o2) {
@@ -788,13 +759,20 @@ public class TimeTaskActivity extends AppCompatActivity {
                         return -1;
                     }
                 });
+
+                if (list.isEmpty()) {
+                    seekbar.setWeek(timerTaskWeek);
+                    seekbar.invalidate();
+                    listview.setVisibility(View.GONE);
+                } else {
+                    seekbar.setWeek(timerTaskWeek);
+                    seekbar.invalidate();
+                    listview.setVisibility(View.VISIBLE);
+                    timeTaskAdapter.notifyDataSetChanged();
+                }
                 TextView tv_week = week[timerTaskWeek - 1];
                 for (int i = 0; i < week.length; i++) {
                     if (tv_week == week[i]) {
-                        Message msg = handler.obtainMessage();
-                        msg.obj = tv_week.getText().toString();
-                        msg.what = 1;
-                        handler.sendMessage(msg);
                         tv_copy = tv_week;
                         mSelectedWeek = tv_week.getText().toString();
                         if ("日".equals(mSelectedWeek)) {
