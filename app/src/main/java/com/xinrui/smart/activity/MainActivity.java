@@ -164,7 +164,8 @@ public class MainActivity extends AppCompatActivity {
         deviceGroupDao = new DeviceGroupDaoImpl(this);
         deviceChildDao = new DeviceChildDaoImpl(this);
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
-        preferences.edit().putString("login", "login").commit();
+
+
 
         String phone = preferences.getString("phone", "");
         if (!Utils.isEmpty(phone)) {
@@ -188,7 +189,11 @@ public class MainActivity extends AppCompatActivity {
 
         if (Utils.isEmpty(mainControl) && Utils.isEmpty(deviceList)) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
-            new LoadDeviceAsync().execute();
+            if (!preferences.contains("login")){
+                preferences.edit().putString("login", "login").commit();
+                new LoadDeviceAsync().execute();
+            }
+
         } else if (!Utils.isEmpty(deviceList)) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
         } else if (!Utils.isEmpty(mainControl)) {

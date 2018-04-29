@@ -112,6 +112,7 @@ public class HeaterFragment extends Fragment {
     private TimeTaskDaoImpl timeTaskDao;
 
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -225,7 +226,6 @@ public class HeaterFragment extends Fragment {
                             tv_set_temp.setText(mCurrent + "℃");
                         }
                     }
-
                 }
 
             }
@@ -237,78 +237,27 @@ public class HeaterFragment extends Fragment {
         try {
             if (deviceChild != null) {
                 JSONObject maser = new JSONObject();
-                int type = deviceChild.getType();
-                String ctrlMode = "normal";
-                String workMode = "manual";
-                String LockScreen = "open";
-                String deviceState = "close";
-                String BackGroundLED = "open";
-                String outputMode = "fastHeat";
 
-
-                int controlled = deviceChild.getControlled();
-                if (type == 1 && controlled == 2) {
-                    ctrlMode = "master";
-                } else if (type == 1 && controlled == 1) {
-                    ctrlMode = "slave";
-                } else {
-                    ctrlMode = "normal";
-                }
-
-                String tag = (String) image_hand_task.getTag();
-                if ("定时".equals(tag)) {
-                    workMode = "timer";
-                } else {
-                    workMode = "manual";
-                }
-
-
-                String tag2 = (String) model_protect.getTag();
-                if ("保护".equals(tag2)) {
-                    outputMode = "childProtect";
-                } else {
-                    outputMode = "fastHeat";
-                }
-
-                String tag3 = (String) image_lock.getTag();
-                if ("上锁".equals(tag3)) {
-                    LockScreen = "open";
-                } else {
-                    LockScreen = "close";
-                }
-                String open = (String) image_switch.getTag();
-                if ("关".equals(open)) {
-                    deviceState = "close";
-                } else {
-                    deviceState = "open";
-                }
-                String tag4 = (String) image_srceen.getTag();
-                if ("屏保关".equals(tag4)) {
-                    BackGroundLED = "close";
-                } else {
-                    BackGroundLED = "open";
-                }
-
-                deviceChild.setCtrlMode(ctrlMode);
-                deviceChild.setWorkMode(workMode);
-                deviceChild.setLockScreen(LockScreen);
-                deviceChild.setDeviceState(deviceState);
-                deviceChild.setBackGroundLED(BackGroundLED);
-                deviceChild.setOutputMod(outputMode);
-
-                maser.put("ctrlMode", deviceChild.getCtrlMode());
-                maser.put("workMode", deviceChild.getWorkMode());
+                maser.put("wifiVersion", deviceChild.getWifiVersion());
+                maser.put("MCUVerion", deviceChild.getMCUVerion());
                 maser.put("MatTemp", deviceChild.getMatTemp());
+                maser.put("workMode", deviceChild.getWorkMode());
                 maser.put("LockScreen", deviceChild.getLockScreen());
                 maser.put("BackGroundLED", deviceChild.getBackGroundLED());
                 maser.put("deviceState", deviceChild.getDeviceState());
                 maser.put("tempState", deviceChild.getTempState());
                 maser.put("outputMode", deviceChild.getOutputMod());
-                maser.put("MatTemp", deviceChild.getMatTemp());
+                maser.put("curTemp", deviceChild.getCurTemp());
+                maser.put("ratedPower", deviceChild.getRatedPower());
+                maser.put("protectEnable", deviceChild.getProtectEnable());
+                maser.put("ctrlMode", deviceChild.getCtrlMode());
+                maser.put("voltageValue", deviceChild.getVoltageValue());
+                maser.put("currentValue", deviceChild.getCurrentValue());
+                maser.put("machineFall", deviceChild.getMachineFall());
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
 
-                deviceChildDao.update(deviceChild);
+
                 String s = maser.toString();
                 boolean success = false;
                 String topicName;
@@ -433,6 +382,7 @@ public class HeaterFragment extends Fragment {
 
     private int mCurWeek=0;
     Calendar calendar;
+    List<DeviceChild> deviceChildList;
     @Override
     public void onResume() {
         super.onResume();
@@ -504,6 +454,7 @@ public class HeaterFragment extends Fragment {
                 }
                 deviceChildDao.update(deviceChild);
                 setMode(deviceChild);
+                send(deviceChild);
 //                semicBar.invalidate();
 
                 break;
@@ -548,6 +499,7 @@ public class HeaterFragment extends Fragment {
                         }
 //                    deviceChildDao.update(deviceChild);
                         setMode(deviceChild);
+                        send(deviceChild);
                     }
                 }
 
@@ -592,6 +544,7 @@ public class HeaterFragment extends Fragment {
                     }
 //                deviceChildDao.update(deviceChild);
                     setMode(deviceChild);
+                    send(deviceChild);
                 }
 
                 break;
@@ -607,6 +560,7 @@ public class HeaterFragment extends Fragment {
                     }
 //                deviceChildDao.update(deviceChild);
                     setMode(deviceChild);
+                    send(deviceChild);
                 }
 
                 break;
@@ -622,6 +576,7 @@ public class HeaterFragment extends Fragment {
                     }
 //                deviceChildDao.update(deviceChild);
                     setMode(deviceChild);
+                    send(deviceChild);
                 }
                 break;
         }

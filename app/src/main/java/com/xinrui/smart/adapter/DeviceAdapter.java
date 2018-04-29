@@ -175,12 +175,12 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     try {
                         List<DeviceChild> list = childern.get(groupPosition);
                         if (list != null && list.size() > 0) {
-                            String topicName="rango/"+entry.getId()+"/onekey";
-                            JSONObject jsonObject=new JSONObject();
-                            jsonObject.put("heatState","open");
-                            String s=jsonObject.toString();
+                            String topicName = "rango/" + entry.getId() + "/onekey";
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("heatState", "open");
+                            String s = jsonObject.toString();
                             boolean open = mqService.publish(topicName, 2, s);
-                            if (open){
+                            if (open) {
                                 for (int i = 0; i < list.size(); i++) {
                                     DeviceChild childEntry = list.get(i);
                                     childEntry.setImg(imgs[1]);
@@ -203,12 +203,12 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     try {
                         List<DeviceChild> list = childern.get(groupPosition);
                         if (list != null && list.size() > 0) {
-                            String topicName="rango/"+entry.getId()+"/onekey";
-                            JSONObject jsonObject=new JSONObject();
-                            jsonObject.put("heatState","close");
-                            String s=jsonObject.toString();
-                            boolean close=mqService.publish(topicName,2,s);
-                            if (close){
+                            String topicName = "rango/" + entry.getId() + "/onekey";
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("heatState", "close");
+                            String s = jsonObject.toString();
+                            boolean close = mqService.publish(topicName, 2, s);
+                            if (close) {
                                 for (int i = 0; i < list.size(); i++) {
                                     DeviceChild childEntry = list.get(i);
                                     childEntry.setImg(imgs[0]);
@@ -286,15 +286,13 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
         holder.setImageResource(R.id.image_switch, entry.getImg());
 
 
-
         tv_device_child = (TextView) holder.itemView.findViewById(R.id.tv_device_child);
-        TextView tv_state= (TextView) holder.itemView.findViewById(R.id.tv_state);
-        if (entry.getOnLint()){
-            tv_state.setText(entry.getRatedPower()+"w");
-        }else {
+        TextView tv_state = (TextView) holder.itemView.findViewById(R.id.tv_state);
+        if (entry.getOnLint()) {
+            tv_state.setText(entry.getRatedPower() + "w");
+        } else {
             tv_state.setText("离线");
         }
-
 
 
         if (entry.getType() == 1) {
@@ -312,15 +310,15 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
         tv_device_child.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (entry.getOnLint()){
+                if (entry.getOnLint()) {
                     DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
                     long id = deviceChild.getId();
                     Intent intent = new Intent(context, DeviceListActivity.class);
                     intent.putExtra("content", "取暖器");
                     intent.putExtra("childPosition", id + "");
                     context.startActivity(intent);
-                }else {
-                    Utils.showToast(context,"该设备离线");
+                } else {
+                    Utils.showToast(context, "该设备离线");
                 }
 
 
@@ -331,28 +329,15 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
         image_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (entry.getOnLint()){
+                if (entry.getOnLint()) {
                     String mac = entry.getMacAddress();
                     if (entry.getImg() == imgs[0]) {
                         if (bound) {
                             try {
-                                JSONObject maser = new JSONObject();
-                                maser.put("deviceState", "open");
-                                String s = maser.toString();
-                                boolean open = false;
-                                String topicName;
-                                if (entry.getType() == 1 && entry.getControlled() == 2) {
-                                    topicName = "rango/" + mac + "/masterController/set";
-                                    open = mqService.publish(topicName, 2, s);
-                                } else {
-                                    topicName = "rango/" + mac + "/set";
-                                    open = mqService.publish(topicName, 2, s);
-                                }
-                                if (open) {
-                                    entry.setImg(imgs[1]);
-                                    entry.setDeviceState("open");
-                                    deviceChildDao.update(entry);
-                                }
+                                entry.setImg(imgs[1]);
+                                entry.setDeviceState("open");
+                                deviceChildDao.update(entry);
+                                send(entry);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -360,24 +345,10 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     } else if (entry.getImg() == imgs[1]) {
                         if (bound) {
                             try {
-                                JSONObject jsonObject = new JSONObject();
-                                jsonObject.put("id", entry.getMacAddress());
-                                jsonObject.put("deviceState", "close");
-                                String s = jsonObject.toString();
-                                boolean open = false;
-                                String topicName;
-                                if (entry.getType() == 1 && entry.getControlled() == 2) {
-                                    topicName = "rango/" + mac + "/masterController/set";
-                                    open = mqService.publish(topicName, 2, s);
-                                } else {
-                                    topicName = "rango/" + mac + "/set";
-                                    open = mqService.publish(topicName, 2, s);
-                                }
-                                if (open) {
-                                    entry.setImg(imgs[0]);
-                                    entry.setDeviceState("close");
-                                    deviceChildDao.update(entry);
-                                }
+                                entry.setImg(imgs[0]);
+                                entry.setDeviceState("close");
+                                deviceChildDao.update(entry);
+                                send(entry);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -385,8 +356,8 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     }
 //                holder.setImageResource(R.id.image_switch,img);
                     changeChild(groupPosition, childPosition);
-                }else {
-                    Utils.showToast(context,"该设备离线");
+                } else {
+                    Utils.showToast(context, "该设备离线");
                 }
 
             }
@@ -562,7 +533,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
             DeviceChild child = childern.get(groupPostion).get(childPosition);
             if ("close".equals(deviceState)) {
                 if (child != null) {
-                    DeviceChild child2=deviceChildDao.findDeviceById(child.getId());
+                    DeviceChild child2 = deviceChildDao.findDeviceById(child.getId());
                     child.setRatedPower(child2.getRatedPower());
                     child2.setImg(imgs[0]);
                     child.setImg(imgs[0]);
@@ -574,7 +545,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                 }
             } else if ("open".equals(deviceState)) {
                 if (child != null) {
-                    DeviceChild child2=deviceChildDao.findDeviceById(child.getId());
+                    DeviceChild child2 = deviceChildDao.findDeviceById(child.getId());
                     child.setRatedPower(child2.getRatedPower());
                     child2.setImg(imgs[1]);
                     child.setImg(imgs[1]);
@@ -585,6 +556,54 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     changeChild(groupPostion, childPosition);
                 }
             }
+        }
+    }
+
+    public void send(DeviceChild deviceChild) {
+        try {
+            if (deviceChild != null) {
+
+
+                JSONObject maser = new JSONObject();
+
+                maser.put("wifiVersion", deviceChild.getWifiVersion());
+                maser.put("MCUVerion", deviceChild.getMCUVerion());
+                maser.put("MatTemp", deviceChild.getMatTemp());
+                maser.put("workMode", deviceChild.getWorkMode());
+                maser.put("LockScreen", deviceChild.getLockScreen());
+                maser.put("BackGroundLED", deviceChild.getBackGroundLED());
+                maser.put("deviceState", deviceChild.getDeviceState());
+                maser.put("tempState", deviceChild.getTempState());
+                maser.put("outputMode", deviceChild.getOutputMod());
+                maser.put("curTemp", deviceChild.getCurTemp());
+                maser.put("ratedPower", deviceChild.getRatedPower());
+                maser.put("protectEnable", deviceChild.getProtectEnable());
+                maser.put("ctrlMode", deviceChild.getCtrlMode());
+                maser.put("voltageValue", deviceChild.getVoltageValue());
+                maser.put("currentValue", deviceChild.getCurrentValue());
+                maser.put("machineFall", deviceChild.getMachineFall());
+                maser.put("protectProTemp", deviceChild.getProtectProTemp());
+                maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
+
+
+                String s = maser.toString();
+                boolean success = false;
+                String topicName;
+                String mac = deviceChild.getMacAddress();
+                if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
+                    topicName = "rango/" + mac + "/masterController/set";
+                    if (bound) {
+                        success = mqService.publish(topicName, 2, s);
+                    }
+                } else {
+                    topicName = "rango/" + mac + "/set";
+                    if (bound) {
+                        success = mqService.publish(topicName, 2, s);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

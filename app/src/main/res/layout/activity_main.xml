@@ -142,7 +142,7 @@
             android:id="@+id/image_user"
             android:layout_width="@dimen/dp_60"
             android:layout_height="@dimen/dp_60"
-            android:src="@drawable/example"
+            android:src="@mipmap/leftbar"
             android:scaleType="centerInside"
             />
         <TextView
