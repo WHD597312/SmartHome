@@ -10,8 +10,8 @@ import android.widget.Toast;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.xinrui.smart.MyApplication;
-import com.xinrui.smart.util.NetWorkUtil;
 import com.xinrui.smart.util.OkHttp;
+import com.xinrui.smart.util.scene.NetWorkUtil;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.builder.GetBuilder;
 
@@ -222,11 +222,13 @@ public class HttpUtils {
                     .addNetworkInterceptor(REWRITE_CACHE_CONTROL_INTERCEPTOR)//添加自定义缓存拦截器（后面讲解），注意这里需要使用.addNetworkInterceptor
                     .cache(cache)//把缓存添加进来
                     .build();
-//            OkHttpClient okHttpClient = new OkHttpClient();
+
             Response response=okHttpClient.newCall(request).execute();
 
             if(response.isSuccessful()){
                 result= response.body().string();
+            }else {
+                NetWorkUtil.showNoNetWorkDlg(MyApplication.getContext());
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -272,6 +274,7 @@ public class HttpUtils {
                         .header("Cache-Control", "public ,max-age=" + maxAge)
                         .build();
             } else {
+                NetWorkUtil.showNoNetWorkDlg(MyApplication.getContext());
                 //这段代码设置无效
 //                int maxStale = 60 * 60 * 24 * 28; // 无网络时，设置超时为4周
 //                return response.newBuilder()

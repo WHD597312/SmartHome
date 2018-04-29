@@ -13,8 +13,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/dbv"
-            app:zxing_framing_rect_width="200dp"
-            app:zxing_framing_rect_height="200dp"
+            app:zxing_framing_rect_width="@dimen/dp_200"
+            app:zxing_framing_rect_height="@dimen/dp_200"
             app:zxing_preview_scaling_strategy="fitXY"
             app:zxing_use_texture_view="true">
         </com.journeyapps.barcodescanner.DecoratedBarcodeView>

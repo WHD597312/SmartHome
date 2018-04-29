@@ -45,7 +45,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="主控制设备"
-                    android:textSize="@dimen/sp_20"
+                    android:textSize="@dimen/dp_20"
                     android:layout_centerHorizontal="true"
                     android:textColor="@color/white"
                     />

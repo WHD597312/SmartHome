@@ -14,10 +14,10 @@
     <TextView
         android:id="@+id/houseId"
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/dp_37"
+        android:layout_height="@dimen/y37"
         android:textColor="@color/white"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="@dimen/dp_12"
+        android:layout_marginLeft="@dimen/x12"
         android:gravity="center_vertical"
         android:text="我的家"/>
 </LinearLayout>
@@ -38,7 +38,7 @@
         android:layout_alignParentBottom="true"
         android:background="@color/central_background">
         <include layout="@layout/central_down"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"></include>
     </LinearLayout>

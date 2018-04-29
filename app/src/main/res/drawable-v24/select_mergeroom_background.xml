@@ -10,7 +10,7 @@
         <!--android:top="10dp" />-->
     <!-- 边框宽度,颜色 -->
     <stroke
-        android:width="2dp"
+        android:width="@dimen/dp_1"
         android:color="@color/black"></stroke>
 
     <solid

@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/dp_50"
         android:orientation="horizontal" >
 
         <TextView
@@ -15,13 +15,13 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="@string/tvApSsidTitle"
-            android:textSize="24sp" />
+            android:textSize="@dimen/dp_24" />
 
         <TextView
             android:id="@+id/tvApSssidConnected"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="24sp"
+            android:textSize="@dimen/dp_24"
             android:ems="10"
             android:singleLine="true" >
         </TextView>
@@ -29,7 +29,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/dp_50"
         android:orientation="horizontal" >
 
         <TextView
@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="@string/tvPasswordTitle"
-            android:textSize="24sp" />
+            android:textSize="@dimen/dp_24" />
 
         <EditText
             android:id="@+id/edtApPassword"
@@ -55,7 +55,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/dp_50"
         android:gravity="center_vertical"
         android:orientation="horizontal" >
 
@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/spinnerTaskResultCountTitle"
-            android:textSize="24sp" />
+            android:textSize="@dimen/dp_24" />
 
         <Space
             android:layout_width="0dp"
@@ -92,13 +92,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/btnConfirmTitle"
-            android:textSize="24sp" />
+            android:textSize="@dimen/dp_24" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/app_version"
-            android:textSize="16sp"/>
+            android:textSize="@dimen/dp_16"/>
 
     </LinearLayout>
 </LinearLayout>

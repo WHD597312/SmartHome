@@ -37,7 +37,7 @@
                 android:gravity="center"
                 android:text="添加新设备"
                 android:textColor="@color/white"
-                android:textSize="@dimen/sp_20" />
+                android:textSize="@dimen/dp_20" />
         </RelativeLayout>
 
         <LinearLayout
@@ -59,7 +59,7 @@
                 android:gravity="center"
                 android:text="wifi连接"
                 android:textColor="@color/white"
-                android:textSize="@dimen/sp_18" />
+                android:textSize="@dimen/dp_18" />
 
             <Button
                 android:id="@+id/btn_scan"
@@ -70,7 +70,7 @@
                 android:gravity="center"
                 android:text="二维码连接"
                 android:textColor="@color/color_blue"
-                android:textSize="@dimen/sp_18"
+                android:textSize="@dimen/dp_18"
 
                 />
         </LinearLayout>
@@ -80,8 +80,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginLeft="@dimen/dp_50"
-            android:layout_marginRight="@dimen/dp_50"
+            android:layout_marginLeft="@dimen/dp_15"
+            android:layout_marginRight="@dimen/dp_15"
             android:layout_gravity="center_horizontal"
             >
             <EditText

@@ -1,11 +1,13 @@
 package com.xinrui.smart.pojo;
 
+import android.support.annotation.NonNull;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
 
 @Entity
-public class DeviceGroup {
+public class DeviceGroup implements Comparable<DeviceGroup>{
     @Id(autoincrement = false)
     private Long id;
     private int userId;
@@ -124,4 +126,28 @@ public class DeviceGroup {
         this.userId = userId;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this==obj)
+            return true;
+        if (obj instanceof DeviceGroup){
+            DeviceGroup deviceGroup= (DeviceGroup) obj;
+            if (this.getId()==deviceGroup.getId())
+                return true;
+            else
+                return false;
+
+        }else
+            return false;
+
+    }
+
+    @Override
+    public int compareTo(@NonNull DeviceGroup o) {
+        if (this.getId()>o.getId())
+            return 1;
+        else if (this.getId()==o.getId())
+            return 0;
+        return 0;
+    }
 }
