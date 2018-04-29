@@ -81,12 +81,12 @@
             </LinearLayout>
         </RelativeLayout>
 
-        <com.xinrui.smart.view_custom.scene.DragImageView
+        <com.xinrui.secen.scene.scene_view_custom.DragImageView
             android:id="@+id/dragGridView1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             >
-        </com.xinrui.smart.view_custom.scene.DragImageView>
+        </com.xinrui.secen.scene.scene_view_custom.DragImageView>
 
     </FrameLayout>
     <RelativeLayout

@@ -8,8 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import com.xinrui.secen.scene_adapter.DragGridBaseAdapter;
 import com.xinrui.smart.R;
-import com.xinrui.smart.adapter.scene.DragGridBaseAdapter;
 
 import java.util.Collections;
 import java.util.HashMap;
