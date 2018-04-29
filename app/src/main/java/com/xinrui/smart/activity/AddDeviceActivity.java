@@ -607,6 +607,7 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                            }
 //                        }
 
+                        
                         if (deviceGroupDao != null) {
                             DeviceGroup deviceGroup = deviceGroupDao.findById(houseId);
                             if (deviceGroup != null) {
