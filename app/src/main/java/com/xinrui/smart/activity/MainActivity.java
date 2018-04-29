@@ -42,12 +42,11 @@ import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.location.CheckPermissionsActivity;
+import com.xinrui.secen.scene_fragment.LiveFragment;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.FunctionAdapter;
-import com.xinrui.smart.fragment.Btn1_fragment;
 import com.xinrui.smart.fragment.DeviceFragment;
-import com.xinrui.smart.fragment.LiveFragment;
 import com.xinrui.smart.fragment.NoDeviceFragment;
 import com.xinrui.smart.fragment.SmartFragment;
 import com.xinrui.smart.fragment.SmartFragmentManager;
@@ -186,15 +185,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentPreferences = getSharedPreferences("fragment", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
 
-        if (smartFragmentManager == null) {
-            smartFragmentManager = new SmartFragmentManager();
-            application.addFragment(smartFragmentManager);
-        }
-        if (liveFragment == null) {
-            liveFragment = new LiveFragment();
-            application.addFragment(liveFragment);
-        }
-        fragments = application.getFragments();
+
         if (Utils.isEmpty(mainControl) && Utils.isEmpty(deviceList)) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
             new LoadDeviceAsync().execute();
@@ -219,15 +210,12 @@ public class MainActivity extends AppCompatActivity {
             deviceGroups = deviceGroupDao.findAllDevices();
             fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
             if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
-                if (fragments.contains(noDeviceFragment)) {
-                    fragmentTransaction.replace(R.id.layout_body, noDeviceFragment).commit();
-                    fragment = noDeviceFragment;
-                }
+                fragmentTransaction.replace(R.id.layout_body,  new NoDeviceFragment()).commit();
+
             } else {
-                if (fragments.contains(deviceFragment)) {
-                    fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
-                    fragment = deviceFragment;
-                }
+
+                fragmentTransaction.replace(R.id.layout_body,  new DeviceFragment()).commit();
+
             }
             device_view.setVisibility(View.VISIBLE);
             smart_view.setVisibility(View.GONE);
@@ -235,24 +223,17 @@ public class MainActivity extends AppCompatActivity {
             smart.edit().clear().commit();
         } else if ("2".equals(fragmentS)) {
             fragmentTransaction = fragmentManager.beginTransaction();
-            if (fragments.contains(smartFragmentManager)) {
-                fragmentTransaction.replace(R.id.layout_body, smartFragmentManager).commit();
-                fragment = smartFragmentManager;
-            }
+            fragmentTransaction.replace(R.id.layout_body, new SmartFragmentManager()).commit();
+
             device_view.setVisibility(View.GONE);
             smart_view.setVisibility(View.VISIBLE);
             live_view.setVisibility(View.GONE);
         } else if ("3".equals(fragmentS)) {
             fragmentTransaction = fragmentManager.beginTransaction();
-            if (fragments.contains(liveFragment)) {
-                fragmentTransaction.replace(R.id.layout_body, liveFragment).commit();
-                fragment = smartFragmentManager;
-            }
+            fragmentTransaction.replace(R.id.layout_body, new LiveFragment()).commit();
+            fragment = smartFragmentManager;
 
             fragmentPreferences.edit().putString("fragment", "3").commit();
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.replace(R.id.layout_body, new LiveFragment());
-            transaction.commit();
             device_view.setVisibility(View.GONE);
             smart_view.setVisibility(View.GONE);
             live_view.setVisibility(View.VISIBLE);
@@ -545,23 +526,10 @@ public class MainActivity extends AppCompatActivity {
 
 
                     if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
-                        if (noDeviceFragment == null) {
-                            noDeviceFragment = new NoDeviceFragment();
-                            application.addFragment(noDeviceFragment);
-                        }
-                        if (fragments.contains(noDeviceFragment)) {
-                            fragmentTransaction.replace(R.id.layout_body, noDeviceFragment).commit();
-                            fragment=noDeviceFragment;
-                        }
+                        fragmentTransaction.replace(R.id.layout_body, new NoDeviceFragment()).commit();
+
                     } else {
-                        if (deviceFragment == null) {
-                            deviceFragment = new DeviceFragment();
-                            application.addFragment(deviceFragment);
-                        }
-                        if (fragments.contains(deviceFragment)) {
-                            fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
-                            fragment=deviceFragment;
-                        }
+                        fragmentTransaction.replace(R.id.layout_body, new DeviceFragment()).commit();
                     }
                     break;
             }
