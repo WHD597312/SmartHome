@@ -3,16 +3,14 @@ package com.xinrui.smart.reveiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
+import com.xinrui.secen.scene_fragment.Btn1_fragment;
 import com.xinrui.smart.activity.TimeTaskActivity;
-import com.xinrui.smart.fragment.Btn1_fragment;
 import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.fragment.HeaterFragment;
-import com.xinrui.smart.fragment.scene.Btn1_fragment;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.TimeTask;
