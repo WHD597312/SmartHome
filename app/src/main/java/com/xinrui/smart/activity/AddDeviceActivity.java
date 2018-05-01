@@ -212,15 +212,15 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                            + ", " + " mEdtApPassword = " + apPassword);
                 }
                 if (!Utils.isEmpty(ssid)) {
-                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
-//                    String macAddress=s+ssid;
-//                    Map<String, Object> params = new HashMap<>();
-//                    params.put("deviceName", "外置2");
-//                    params.put("houseId", houseId);
-//                    params.put("masterControllerUserId", Integer.parseInt(userId));
-//                    params.put("type", 2);
-//                    params.put("macAddress", "vlinks_test08c53ad6d03d");
-//                    new WifiConectionAsync().execute(params);
+//                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
+                    String macAddress="vlinks_test18c63ad6d3ce";
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("deviceName", "外置2");
+                    params.put("houseId", houseId);
+                    params.put("masterControllerUserId", Integer.parseInt(userId));
+                    params.put("type", 1);
+                    params.put("macAddress", macAddress);
+                    new WifiConectionAsync().execute(params);
 
                 } else if (!Utils.isEmpty(groupPosition) && !Utils.isEmpty(ssid)) {
                     long group = Long.parseLong(groupPosition);
@@ -290,8 +290,7 @@ public class AddDeviceActivity extends AppCompatActivity {
                             deviceChild3.setOnLint(true);
                             deviceChildDao.update(deviceChild3);
                         }
-                        Intent intent = new Intent(AddDeviceActivity.this, MQService.class);
-                        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -306,6 +305,7 @@ public class AddDeviceActivity extends AppCompatActivity {
             super.onPostExecute(code);
             switch (code) {
                 case 2001:
+
                     Utils.showToast(AddDeviceActivity.this, "创建成功");
                     Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
                     intent.putExtra("deviceList", "deviceList");
@@ -319,38 +319,7 @@ public class AddDeviceActivity extends AppCompatActivity {
     }
 
 
-    MQService mqService;
-    private boolean bound = false;
-    ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MQService.LocalBinder binder = (MQService.LocalBinder) service;
-            mqService = binder.getService();
-            bound = true;
-            if (bound) {
-                try {
-                    List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
-                    for (DeviceChild deviceChild : deviceChildren) {
-                        String macAddress = deviceChild.getMacAddress();
-                        String topicName = "rango/" + macAddress + "/set";
-                        JSONObject object = new JSONObject();
-                        object.put("loadDate", "on");
-                        String s = object.toString();
-                        mqService.publish(topicName, 2, s);
-                    }
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            bound = false;
-        }
-    };
 
     class QrCodeAsync extends AsyncTask<Map<String, Object>, Void, Integer> {
         @Override
@@ -722,8 +691,5 @@ public class AddDeviceActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (connection != null) {
-            unbindService(connection);
-        }
     }
 }

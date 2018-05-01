@@ -267,7 +267,6 @@ public class MainActivity extends AppCompatActivity {
 //        showPopwindow();
         Intent intent=new Intent(this,MQService.class);
         bindService(intent,connection,Context.BIND_AUTO_CREATE);
-
     }
 
     @Override
@@ -425,7 +424,7 @@ public class MainActivity extends AppCompatActivity {
                         String macAddress = deviceChild.getMacAddress();
                         String topicName = "rango/" + macAddress + "/set";
                         JSONObject object = new JSONObject();
-                        object.put("loadDate", "on");
+                        object.put("LoadData", "on");
                         String s = object.toString();
                         mqService.publish(topicName, 2, s);
                     }

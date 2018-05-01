@@ -124,8 +124,10 @@ public class HeaterFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        semicBar.setModule("1");
+        semicBar.setCanTouch(false);
 
-
+        semicBar.setEnd(0);
 
         semicBar.setOnSeekBarChangeListener(new SemicircleBar.OnSeekBarChangeListener() {
             @Override
@@ -134,6 +136,8 @@ public class HeaterFragment extends Fragment {
                 String handTask = (String) image_hand_task.getTag();
 
                 String open = (String) image_switch.getTag();
+                img_circle.setImageResource(R.drawable.lottery_animlist);
+                AnimationDrawable animationDrawable = (AnimationDrawable) img_circle.getDrawable();
                 String module = semicBar.getModule();
 
                 Log.i(TAG, "-->" + seekbar.getmCurAngle());
@@ -159,21 +163,29 @@ public class HeaterFragment extends Fragment {
                     }else if ("open".equals(deviceState)){
                         String workMode=deviceChild.getWorkMode();
                         if ("manual".equals(workMode)){
+                            deviceChild.setMatTemp(mCurrent);
                             deviceChild.setManualMatTemp(mCurrent);
                             deviceChildDao.update(deviceChild);
+                            if (seekbar.getEnd()==1){
+                                send(deviceChild);
+                            }
                         }else {
                             deviceChild.setTimerTemp(mCurrent);
                             deviceChildDao.update(deviceChild);
                         }
 
+
                         tv_set_temp.setText(mCurrent + "℃");
                         int curTemp = deviceChild.getCurTemp();
                         if (mCurrent >= (curTemp + 3)) {
                             tv_outmode.setText("速热模式");
+                            animationDrawable.start();
                         } else if (curTemp >= (mCurrent + 3)) {
                             tv_outmode.setText("保温模式");
+                            animationDrawable.stop();
                         } else {
                             tv_outmode.setText("节能模式");
+                            animationDrawable.start();
                         }
                     }
 
@@ -223,9 +235,13 @@ public class HeaterFragment extends Fragment {
                             deviceChild.setProtectSetTemp(mCurrent);
                             deviceChildDao.update(deviceChild);
                             tv_set_temp.setText(mCurrent + "℃");
+                            if (seekbar.getEnd()==1){
+                                send(deviceChild);
+                            }
                         }
                     }
                 }
+
             }
         });
 
@@ -248,7 +264,7 @@ public class HeaterFragment extends Fragment {
                 maser.put("outputMode", deviceChild.getOutputMod());
 //                maser.put("curTemp", deviceChild.getCurTemp());
 //                maser.put("ratedPower", deviceChild.getRatedPower());
-//                maser.put("protectEnable", deviceChild.getProtectEnable());
+                maser.put("protectEnable", deviceChild.getProtectEnable());
 
 //                maser.put("voltageValue", deviceChild.getVoltageValue());
 //                maser.put("currentValue", deviceChild.getCurrentValue());
@@ -401,9 +417,6 @@ public class HeaterFragment extends Fragment {
         }
         Bundle bundle = getArguments();
         deviceChild = (DeviceChild) bundle.get("deviceChild");
-        semicBar.setModule("1");
-        semicBar.setCanTouch(false);
-        semicBar.setDeviceId(deviceChild.getId()+"");
 
 //        String childPosiotn = bundle.getString("deviceId");
 
@@ -448,6 +461,7 @@ public class HeaterFragment extends Fragment {
                     image_switch.setTag("关");
                     deviceChild.setDeviceState("close");
                     deviceChild.setImg(imgs[0]);
+
 
                 } else {
                     image_switch.setTag("开");
@@ -684,6 +698,7 @@ public class HeaterFragment extends Fragment {
                 if (manualMatTemp >= (curTemp + 3)) {
                     deviceChild.setOutputMod("fastHeat");//速热模式
                     tv_outmode.setText("速热模式");
+                    animationDrawable.start();
                 } else if (curTemp >= (manualMatTemp + 3)) {
                     deviceChild.setOutputMod("saveTemp");//保温模式
                     tv_outmode.setText("保温模式");
@@ -691,6 +706,7 @@ public class HeaterFragment extends Fragment {
                 } else {
                     deviceChild.setOutputMod("savePwr");//节能模式
                     tv_outmode.setText("节能模式");
+                    animationDrawable.start();
                 }
             } else if ("timer".equals(workMode)) {
 
@@ -714,6 +730,7 @@ public class HeaterFragment extends Fragment {
                     if (timerTemp >= (curTemp + 3)) {
                         deviceChild.setOutputMod("fastHeat");//速热模式
                         tv_outmode.setText("速热模式");
+                        animationDrawable.start();
                     } else if (curTemp >= (timerTemp + 3)) {
                         deviceChild.setOutputMod("saveTemp");//保温模式
                         tv_outmode.setText("保温模式");
@@ -721,6 +738,7 @@ public class HeaterFragment extends Fragment {
                     } else {
                         deviceChild.setOutputMod("savePwr");//节能模式
                         tv_outmode.setText("节能模式");
+                        animationDrawable.start();
                     }
                 }
             }

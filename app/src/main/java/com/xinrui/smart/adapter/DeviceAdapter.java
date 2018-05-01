@@ -575,7 +575,14 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
 
 //                maser.put("wifiVersion", deviceChild.getWifiVersion());
 //                maser.put("MCUVerion", deviceChild.getMCUVerion());
-                maser.put("ctrlMode", deviceChild.getCtrlMode());
+
+                if (deviceChild.getType()==1 && deviceChild.getControlled()==2){
+                    maser.put("ctrlMode", "master");
+                }else if (deviceChild.getType()==1 && deviceChild.getControlled()==1){
+                    maser.put("ctrlMode", "slave");
+                }else if (deviceChild.getType()==1 && deviceChild.getControlled()==0){
+                    maser.put("ctrlMode", "normal");
+                }
                 maser.put("workMode", deviceChild.getWorkMode());
                 maser.put("MatTemp", deviceChild.getMatTemp());
                 maser.put("LockScreen", deviceChild.getLockScreen());
