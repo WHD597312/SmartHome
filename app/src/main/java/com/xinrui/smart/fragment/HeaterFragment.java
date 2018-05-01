@@ -124,8 +124,7 @@ public class HeaterFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        semicBar.setModule("1");
-        semicBar.setCanTouch(false);
+
 
 
         semicBar.setOnSeekBarChangeListener(new SemicircleBar.OnSeekBarChangeListener() {
@@ -227,7 +226,6 @@ public class HeaterFragment extends Fragment {
                         }
                     }
                 }
-
             }
         });
 
@@ -238,22 +236,23 @@ public class HeaterFragment extends Fragment {
             if (deviceChild != null) {
                 JSONObject maser = new JSONObject();
 
-                maser.put("wifiVersion", deviceChild.getWifiVersion());
-                maser.put("MCUVerion", deviceChild.getMCUVerion());
-                maser.put("MatTemp", deviceChild.getMatTemp());
+//                maser.put("wifiVersion", deviceChild.getWifiVersion());
+//                maser.put("MCUVerion", deviceChild.getMCUVerion());
+                maser.put("ctrlMode", deviceChild.getCtrlMode());
                 maser.put("workMode", deviceChild.getWorkMode());
+                maser.put("MatTemp", deviceChild.getMatTemp());
                 maser.put("LockScreen", deviceChild.getLockScreen());
                 maser.put("BackGroundLED", deviceChild.getBackGroundLED());
                 maser.put("deviceState", deviceChild.getDeviceState());
                 maser.put("tempState", deviceChild.getTempState());
                 maser.put("outputMode", deviceChild.getOutputMod());
-                maser.put("curTemp", deviceChild.getCurTemp());
-                maser.put("ratedPower", deviceChild.getRatedPower());
-                maser.put("protectEnable", deviceChild.getProtectEnable());
-                maser.put("ctrlMode", deviceChild.getCtrlMode());
-                maser.put("voltageValue", deviceChild.getVoltageValue());
-                maser.put("currentValue", deviceChild.getCurrentValue());
-                maser.put("machineFall", deviceChild.getMachineFall());
+//                maser.put("curTemp", deviceChild.getCurTemp());
+//                maser.put("ratedPower", deviceChild.getRatedPower());
+//                maser.put("protectEnable", deviceChild.getProtectEnable());
+
+//                maser.put("voltageValue", deviceChild.getVoltageValue());
+//                maser.put("currentValue", deviceChild.getCurrentValue());
+//                maser.put("machineFall", deviceChild.getMachineFall());
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
 
@@ -402,6 +401,9 @@ public class HeaterFragment extends Fragment {
         }
         Bundle bundle = getArguments();
         deviceChild = (DeviceChild) bundle.get("deviceChild");
+        semicBar.setModule("1");
+        semicBar.setCanTouch(false);
+        semicBar.setDeviceId(deviceChild.getId()+"");
 
 //        String childPosiotn = bundle.getString("deviceId");
 

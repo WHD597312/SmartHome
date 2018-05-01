@@ -2,8 +2,10 @@ package com.xinrui.smart.activity;
 
 import android.Manifest;
 import android.app.ActionBar;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
@@ -16,6 +18,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -54,6 +57,7 @@ import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.Function;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
@@ -167,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
         String phone = preferences.getString("phone", "");
         if (!Utils.isEmpty(phone)) {
             tv_user.setText(phone);
@@ -260,7 +265,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 //        showPopwindow();
+        Intent intent=new Intent(this,MQService.class);
+        bindService(intent,connection,Context.BIND_AUTO_CREATE);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (connection!=null){
+            unbindService(connection);
+        }
     }
 
     @Override
@@ -394,6 +409,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    MQService mqService;
+    private boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+            if (bound) {
+                try {
+                    List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
+
+                    for (DeviceChild deviceChild : deviceChildren) {
+                        String macAddress = deviceChild.getMacAddress();
+                        String topicName = "rango/" + macAddress + "/set";
+                        JSONObject object = new JSONObject();
+                        object.put("loadDate", "on");
+                        String s = object.toString();
+                        mqService.publish(topicName, 2, s);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
 
