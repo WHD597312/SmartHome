@@ -2,6 +2,7 @@ package com.xinrui.smart.util.mqtt;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -82,22 +83,25 @@ public class MQService extends Service {
     }
 
     public void connect() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    client.connect(options);
-                    List<String> topicNames=getTopicNames();
-                    if (!topicNames.isEmpty()){
-                        for (String topicName :topicNames){
-                            client.subscribe(topicName,1);
-                        }
+        new ConAsync().execute();
+    }
+    class ConAsync extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                client.connect(options);
+                List<String> topicNames=getTopicNames();
+                if (!topicNames.isEmpty()){
+                    for (String topicName :topicNames){
+                        client.subscribe(topicName,1);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }).start();
+            return null;
+        }
     }
     private void init() {
         try {

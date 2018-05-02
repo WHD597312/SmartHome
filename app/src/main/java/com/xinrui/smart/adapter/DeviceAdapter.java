@@ -175,16 +175,20 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     try {
                         List<DeviceChild> list = childern.get(groupPosition);
                         if (list != null && list.size() > 0) {
+                            for (int i = 0; i < list.size(); i++) {
+                                DeviceChild childEntry = list.get(i);
+                                if (childEntry.getOnLint()) {
+                                    childEntry.setImg(imgs[1]);
+                                } else {
+                                    childEntry.setImg(imgs[0]);
+                                }
+                            }
                             String topicName = "rango/" + entry.getId() + "/onekey";
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("heatState", "open");
                             String s = jsonObject.toString();
                             boolean open = mqService.publish(topicName, 2, s);
                             if (open) {
-                                for (int i = 0; i < list.size(); i++) {
-                                    DeviceChild childEntry = list.get(i);
-                                    childEntry.setImg(imgs[1]);
-                                }
                                 holder.setTextColor(R.id.tv_close, context.getResources().getColor(colors[0]));
                                 holder.setTextColor(R.id.tv_open, context.getResources().getColor(colors[1]));
                                 changeChildren(groupPosition);
@@ -203,6 +207,12 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     try {
                         List<DeviceChild> list = childern.get(groupPosition);
                         if (list != null && list.size() > 0) {
+                            for (int i = 0; i < list.size(); i++) {
+                                DeviceChild childEntry = list.get(i);
+                                if (childEntry.getOnLint()) {
+                                    childEntry.setImg(imgs[0]);
+                                }
+                            }
                             String topicName = "rango/" + entry.getId() + "/onekey";
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("heatState", "close");
@@ -514,7 +524,6 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
             mqService = binder.getService();
             bound = true;
         }
-
         @Override
         public void onServiceDisconnected(ComponentName name) {
             bound = false;
@@ -562,26 +571,32 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
     public void send(DeviceChild deviceChild) {
         try {
             if (deviceChild != null) {
-
-
                 JSONObject maser = new JSONObject();
 
-                maser.put("wifiVersion", deviceChild.getWifiVersion());
-                maser.put("MCUVerion", deviceChild.getMCUVerion());
-                maser.put("MatTemp", deviceChild.getMatTemp());
+//                maser.put("wifiVersion", deviceChild.getWifiVersion());
+//                maser.put("MCUVerion", deviceChild.getMCUVerion());
+
+                if (deviceChild.getType()==1 && deviceChild.getControlled()==2){
+                    maser.put("ctrlMode", "master");
+                }else if (deviceChild.getType()==1 && deviceChild.getControlled()==1){
+                    maser.put("ctrlMode", "slave");
+                }else if (deviceChild.getType()==1 && deviceChild.getControlled()==0){
+                    maser.put("ctrlMode", "normal");
+                }
                 maser.put("workMode", deviceChild.getWorkMode());
+                maser.put("MatTemp", deviceChild.getMatTemp());
                 maser.put("LockScreen", deviceChild.getLockScreen());
                 maser.put("BackGroundLED", deviceChild.getBackGroundLED());
                 maser.put("deviceState", deviceChild.getDeviceState());
                 maser.put("tempState", deviceChild.getTempState());
                 maser.put("outputMode", deviceChild.getOutputMod());
-                maser.put("curTemp", deviceChild.getCurTemp());
-                maser.put("ratedPower", deviceChild.getRatedPower());
-                maser.put("protectEnable", deviceChild.getProtectEnable());
-                maser.put("ctrlMode", deviceChild.getCtrlMode());
-                maser.put("voltageValue", deviceChild.getVoltageValue());
-                maser.put("currentValue", deviceChild.getCurrentValue());
-                maser.put("machineFall", deviceChild.getMachineFall());
+//                maser.put("curTemp", deviceChild.getCurTemp());
+//                maser.put("ratedPower", deviceChild.getRatedPower());
+//                maser.put("protectEnable", deviceChild.getProtectEnable());
+
+//                maser.put("voltageValue", deviceChild.getVoltageValue());
+//                maser.put("currentValue", deviceChild.getCurrentValue());
+//                maser.put("machineFall", deviceChild.getMachineFall());
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
 

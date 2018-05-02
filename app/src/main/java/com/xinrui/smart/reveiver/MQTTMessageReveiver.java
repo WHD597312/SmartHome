@@ -71,7 +71,6 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
 
                 int timerTaskWeek=0;
 
-
                 if (device.has("wifiVersion")){
                     wifiVersion=device.getString("wifiVersion");/**版本*/
                 }

@@ -48,6 +48,7 @@
         <attr name="mCurrentAngle" format="integer"/>
         <attr name="first" format="boolean"/>
         <attr name="mCurAngle" format="integer"/>
+        <attr name="end" format="integer"/>
     </declare-styleable>
     <declare-styleable name="SemicircleBar">
         <attr name="semicircle_max_precess" format="integer"/>

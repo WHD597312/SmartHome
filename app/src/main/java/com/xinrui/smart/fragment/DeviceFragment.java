@@ -112,6 +112,7 @@ public class DeviceFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
 
 
+
         deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
         deviceChildDao=new DeviceChildDaoImpl(getActivity());
         List<DeviceGroup> deviceGroups2=deviceGroupDao.findAllDevices();
@@ -158,6 +159,7 @@ public class DeviceFragment extends Fragment{
                 for (DeviceChild deviceChild :deviceChildren){
                     long id=deviceChild.getId();
                     String name=deviceChild.getDeviceName();
+
                 }
                 childern.add(deviceChildren);
             }
@@ -237,12 +239,13 @@ public class DeviceFragment extends Fragment{
         super.onResume();
         running=1;
         initJsonData();
+
+
         Intent intent=new Intent(getActivity(),MQService.class);
         getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
 
         IntentFilter intentFilter=new IntentFilter("DeviceFragment");
         getActivity().registerReceiver(receiver,intentFilter);
-
     }
 
 
