@@ -210,7 +210,9 @@ public class MQService extends Service {
             topicNames.add(groupsTopic);
             String macAddress=deviceChild.getMacAddress();
             if (!Utils.isEmpty(macAddress)){
+                String topicOffline="rango/"+macAddress+"/lwt";
                 String topicName="rango/"+macAddress+"/transfer";
+                topicNames.add(topicOffline);
                 topicNames.add(topicName);
             }
         }

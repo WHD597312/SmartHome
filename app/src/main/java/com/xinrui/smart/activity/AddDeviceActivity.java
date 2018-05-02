@@ -213,12 +213,12 @@ public class AddDeviceActivity extends AppCompatActivity {
                 }
                 if (!Utils.isEmpty(ssid)) {
 //                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
-                    String macAddress="vlinks_test18d634d6d3ce";
+                    String macAddress="vlinks_test18a684e6dcce";
                     Map<String, Object> params = new HashMap<>();
                     params.put("deviceName", "外置");
                     params.put("houseId", houseId);
                     params.put("masterControllerUserId", Integer.parseInt(userId));
-                    params.put("type", 1);
+                    params.put("type", 2);
                     params.put("macAddress", macAddress);
                     new WifiConectionAsync().execute(params);
 
