@@ -239,7 +239,7 @@ public class DeviceFragment extends Fragment{
         super.onResume();
         running=1;
         initJsonData();
-        
+
 
 
         Intent intent=new Intent(getActivity(),MQService.class);
