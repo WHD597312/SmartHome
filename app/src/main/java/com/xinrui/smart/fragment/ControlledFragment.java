@@ -15,6 +15,7 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -55,8 +56,8 @@ public class ControlledFragment extends Fragment{
     @BindView(R.id.lv_homes)
     ListView lv_homes;
     @BindView(R.id.tv_home) TextView tv_home;//受控机头部
-    @BindView(R.id.view) View view2;//受控机尾部
-    @BindView(R.id.textView) TextView textView;//受控机提示用户
+    View view2;//受控机尾部
+
     private List<DeviceChild> controlleds;
     private ControlledAdapter adapter;//受控机适配器
     private String controlledUrl="http://120.77.36.206:8082/warmer/v1.0/device/setControlled";
@@ -106,9 +107,7 @@ public class ControlledFragment extends Fragment{
         lv_homes.setAdapter(adapter);
 
         tv_home.setBackgroundResource(R.drawable.shape_header);
-        view2.setBackgroundResource(R.drawable.shape_footer);
-        textView.setText("选中的主控制设备不出现在受控制设备中");
-        textView.setPadding(60,0,0,0);
+
 
     }
     @OnClick({R.id.btn_ensure})

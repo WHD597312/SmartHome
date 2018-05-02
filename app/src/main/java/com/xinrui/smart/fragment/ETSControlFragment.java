@@ -50,8 +50,8 @@ public class ETSControlFragment extends Fragment{
     @BindView(R.id.lv_homes)
     ListView lv_homes;
     @BindView(R.id.tv_home) TextView tv_home;//外置传感器头部
-    @BindView(R.id.view) View view2;//传感器尾部
-    @BindView(R.id.textView) TextView textView;//外置传感器提示
+//    @BindView(R.id.view) View view2;//传感器尾部
+//    @BindView(R.id.textView) TextView textView;//外置传感器提示
     private List<DeviceChild> mainControls;//外置传感器数量
     private ETSControlAdapter adapter;//主控制设置适配器
     public int runing=0;
@@ -110,11 +110,12 @@ public class ETSControlFragment extends Fragment{
         adapter=new ETSControlAdapter(mainControls,getActivity());
         lv_homes.setAdapter(adapter);
         tv_home.setBackgroundResource(R.drawable.shape_header_blue);
-        view2.setBackgroundResource(R.drawable.shape_footer);
-        textView.setText("外置传感器设备只能单选");
-        textView.setPadding(140,0,0,0);
+//        view2.setBackgroundResource(R.drawable.shape_footer);
+//        textView.setText("外置传感器设备只能单选");
+//        textView.setPadding(140,0,0,0);
         adapter=new ETSControlAdapter(mainControls,getActivity());
         lv_homes.setAdapter(adapter);
+
 
     }
     @Override

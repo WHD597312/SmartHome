@@ -383,7 +383,7 @@ public class HeaterFragment extends Fragment {
                         }
                         semicBar.setmCurAngle(mCurrentAngle);
                         semicBar.setCurProcess(mCurrentAngle);
-                        semicBar.invalidate();
+//                        semicBar.invalidate();
                         break;
                 }
             } catch (Exception e) {

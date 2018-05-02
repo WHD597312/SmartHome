@@ -39,7 +39,7 @@ import java.util.TimerTask;
 public class MQTTMessageReveiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Toast.makeText(context,"发送通知",Toast.LENGTH_LONG).show();
+
         String message=intent.getStringExtra("message");
         String topicName=intent.getStringExtra("topicName");
 

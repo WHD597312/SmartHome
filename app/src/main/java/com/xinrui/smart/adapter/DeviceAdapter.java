@@ -260,7 +260,6 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                 DeviceGroup deviceGroup = groups.get(groupPosition);
                 intent.putExtra("houseId", deviceGroup.getId() + "");
 
-
                 if (groupPosition == groups.size() - 1) {
                     intent.putExtra("wifi", "share");
                 } else {
@@ -299,7 +298,15 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
         tv_device_child = (TextView) holder.itemView.findViewById(R.id.tv_device_child);
         TextView tv_state = (TextView) holder.itemView.findViewById(R.id.tv_state);
         if (entry.getOnLint()) {
-            tv_state.setText(entry.getRatedPower() + "w");
+            if (entry.getType()==1){
+                if (entry.getControlled()==2 || entry.getControlled()==0){
+                    tv_state.setText(entry.getRatedPower() + "w");
+                }else if (entry.getControlled()==1){
+                    tv_state.setText("受控机模式");
+                }
+            }else if (entry.getType()==2){
+                tv_state.setText("温度："+entry.getTemp() + "℃");
+            }
         } else {
             tv_state.setText("离线");
         }
@@ -310,28 +317,37 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                 holder.setImageResource(R.id.image_device_child, R.mipmap.master);
             } else if (entry.getControlled() == 1) {
                 holder.setImageResource(R.id.image_device_child, R.mipmap.controlled);
+                holder.setVisible(R.id.image_switch,View.GONE);
+
             } else if (entry.getControlled() == 0) {
                 holder.setImageResource(R.id.image_device_child, R.mipmap.heater2);
             }
         } else if (entry.getType() == 2) {
             holder.setImageResource(R.id.image_device_child, R.mipmap.estsensor);
+            holder.setVisible(R.id.image_switch,View.GONE);
         }
 
         tv_device_child.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (entry.getOnLint()) {
-                    DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
-                    long id = deviceChild.getId();
-                    Intent intent = new Intent(context, DeviceListActivity.class);
-                    intent.putExtra("content", "取暖器");
-                    intent.putExtra("childPosition", id + "");
-                    context.startActivity(intent);
-                } else {
+                    if (entry.getType() == 1) {
+                        if (entry.getControlled() == 2 || entry.getControlled() == 0) {
+                            DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
+                            long id = deviceChild.getId();
+                            Intent intent = new Intent(context, DeviceListActivity.class);
+                            intent.putExtra("content", "取暖器");
+                            intent.putExtra("childPosition", id + "");
+                            context.startActivity(intent);
+                        } else if (entry.getControlled() == 1) {
+                            Utils.showToast(context, "受控机不能操作");
+                        }
+                    }else if (entry.getType()==2){
+                        Utils.showToast(context, "外置传感器不能操作");
+                    }
+                }else {
                     Utils.showToast(context, "该设备离线");
                 }
-
-
             }
         });
         String mac = entry.getMacAddress();

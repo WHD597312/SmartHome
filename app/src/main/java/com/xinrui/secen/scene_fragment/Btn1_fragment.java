@@ -730,7 +730,7 @@ public class Btn1_fragment extends Fragment{
         super.onDestroy();
     }
     String extTemp ;
-    String extHut ;
+    String extHut;
 
     public class MessageReceiver extends BroadcastReceiver{
 

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -95,6 +96,7 @@ public class MainControlFragment extends Fragment{
         new GetMainControlAsync().execute();
         adapter=new MainControlAdapter(mainControls,getActivity());
         lv_homes.setAdapter(adapter);
+
 
     }
     @Override
