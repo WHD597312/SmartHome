@@ -203,6 +203,7 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                             child.setTempState(tempState);
                         if (!Utils.isEmpty(outputMode))
                             child.setOutputMod(outputMode);
+
                         if (curTemp!=0)
                             child.setCurTemp(curTemp);
                         if (ratedPower!=0)
