@@ -23,6 +23,7 @@
             android:layout_marginLeft="@dimen/dp_2"
             />
 
+
         <ListView
             android:id="@+id/lv_homes"
             android:layout_width="match_parent"
