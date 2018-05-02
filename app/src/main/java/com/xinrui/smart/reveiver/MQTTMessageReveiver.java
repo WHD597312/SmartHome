@@ -13,6 +13,7 @@ import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
+import com.xinrui.secen.scene_activity.RoomContentActivity;
 import com.xinrui.secen.scene_fragment.Btn1_fragment;
 import com.xinrui.secen.scene_fragment.Btn2_fragment;
 import com.xinrui.secen.scene_fragment.Btn3_fragment;
@@ -410,6 +411,13 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                         mqttIntent.putExtra("deviceId",deviceId);
                         mqttIntent.putExtra("deviceChild",child);
                         context.sendBroadcast(mqttIntent);
+                        context.sendBroadcast(mqttIntent);
+                    }else if (RoomContentActivity.running){
+                        child=deviceChildDao.findDeviceById(child.getId());
+                        Intent mqttIntent=new Intent("RoomContentActivity");
+                        mqttIntent.putExtra("extTemp",extTemp);
+                        mqttIntent.putExtra("extHum",extHum);
+                        mqttIntent.putExtra("deviceChild",child);
                         context.sendBroadcast(mqttIntent);
                     }
                 }catch (Exception e){

@@ -163,7 +163,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         roomEntryDao = new RoomEntryDaoImpl(getActivity());
         pref = getActivity().getSharedPreferences("myActivityName", 0);
         editor1 = getActivity().getSharedPreferences("data", MODE_PRIVATE).edit();
-        //取得相应的值，如果没有该值，说明还未写入，用true作为默认值
         isFirstIn = pref.getBoolean("isFirstIn", true);
         WindowManager wm = (WindowManager) getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
@@ -245,7 +244,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             house_id = deviceGroup.getId();
             house_Name = deviceGroup.getHouseName() + "(" + house_id + ")";
             String s1=deviceGroup.getLayers();
-//                String rr = s.substring(s.length()-1,s.length());
             add_key= Integer.parseInt(s1.substring(s1.length()-1,s1.length()));
             location = deviceGroup.getLocation().replace("市", "");
             houseId.setText(house_Name);
@@ -271,7 +269,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         }
 
     }
-//    }
 
     //初始化viewpage
     public void saveViewPage() {
@@ -535,7 +532,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         @Override
         protected List<String> doInBackground(Void... voids) {
             int code = 0;
-//            String result = null;
             List<String> strings = new ArrayList<>();
             deviceGroupDao = new DeviceGroupDaoImpl(getActivity());
             DeviceGroup = deviceGroupDao.findAllDevices();
@@ -554,7 +550,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-//            }
             return strings;
         }
 
@@ -587,20 +582,23 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                 method_btn_4();
                 break;
             case R.id.new_btn:
-                if(add_key > 3){
-                    showSingleButtonDialog("您最多只能新建四层!", "确定", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            mDialog.dismiss();
-                        }
-                    });
-                }else {
-                    method_new_btn();
-                }
-                if (house_id == null) {
+                boolean isNet = NetWorkUtil.isConn(MyApplication.getContext());
+                if(isNet) {
+                    if (add_key > 3) {
+                        showSingleButtonDialog("您最多只能新建四层!", "确定", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mDialog.dismiss();
+                            }
+                        });
+                    } else {
+                        method_new_btn();
+                    }
+                    if (house_id == null) {
 
-                } else {
-                    new NewRoomAsyncTask().execute();
+                    } else {
+                        new NewRoomAsyncTask().execute();
+                    }
                 }
                 break;
             case R.id.custom_house_type:
@@ -987,7 +985,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
     public void method_new_btn() {
         long h = house_id;
-        if (!isestablied) {
+//        if (!isestablied) {
             if (add_key == 0) {
                 btn1.setVisibility(View.VISIBLE);
                 current_key = 1;
@@ -1041,16 +1039,15 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                     current_key = 4;
 
                 }
-                isestablied = true;
             }
-            addPage(add_key);
-            viewPager.setCurrentItem(add_key);
+
             if(add_key > 3){
 
             }else {
+                addPage(add_key);
+                viewPager.setCurrentItem(add_key);
                 add_key++;
             }
-        }
         savedState();
     }
 
@@ -1202,7 +1199,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                 humidity.setText("无数据");
                 temperature.setText("无数据");
             }else {
-                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data", 0);
+                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
                 String airCondition = sharedPreferences.getString("airCondition", "良好");
                 String humidity1 = sharedPreferences.getString("humidity", "60%").substring(3);
                 String city1 = sharedPreferences.getString("city", "北京");

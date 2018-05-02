@@ -117,13 +117,14 @@ public class RoomContentActivity extends Activity {
     TextView extTemp1;
     @BindView(R.id.extHut)
     TextView extHut1;
-    public static int running=0;
+//    public static int running=0;
     private List<Equipment> mDatas;
     private DragImageView dragImageView;
     private MyAdapter myAdapter;
     private Context mContext;
     private PopupWindow popupWindow;
     private boolean isClickCamera;//是否是拍照裁剪
+    public static boolean running=false;
     //网络返回的数据
     List<Equipment> equipment_network = new ArrayList<>();
     final int REQUEST_TAKE_PHOTO_PERMISSION = 1;
@@ -146,10 +147,10 @@ public class RoomContentActivity extends Activity {
         int roomId = sharedPreferences.getInt("roomId", 0);
         sharedPreferences1 = this.getSharedPreferences("data",0);
         url = "http://120.77.36.206:8082/warmer/v1.0/room/" + roomId + "/background";
-        running=2;
+//        running=2;
         Intent intent=new Intent(this,MQService.class);
         bindService(intent,connection,Context.BIND_AUTO_CREATE);
-        IntentFilter intentFilter=new IntentFilter("Btn1_fragment");
+        IntentFilter intentFilter=new IntentFilter("RoomContentActivity");
         registerReceiver(receiver,intentFilter);
         deviceChildDao=new DeviceChildDaoImpl(this);
 
@@ -262,7 +263,9 @@ public class RoomContentActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        running=true;
     }
+
 
     @OnClick({R.id.imageView, R.id.change_scene, R.id.return_scene, R.id.return_homepage})
     public void onViewClicked(View view) {
@@ -666,6 +669,7 @@ public class RoomContentActivity extends Activity {
     protected void onStop() {
         OkHttpUtils.getInstance().cancelTag(1);
         super.onStop();
+        running=false;
     }
 
     @Override
@@ -703,22 +707,33 @@ public class RoomContentActivity extends Activity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            extTemp2 = String.valueOf(intent.getIntExtra("extTemp", 8));
-            extHut2 = String.valueOf(intent.getIntExtra("extHut", 10));
+            DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
+
+            extTemp2 = String.valueOf(intent.getIntExtra("extTemp", 0));
+            extHut2 = String.valueOf(intent.getIntExtra("extHut", 0));
             for (int i = 0; i < mDatas.size(); i++) {
                 int type = mDatas.get(i).getDevice_type();
+                String macAddress = mDatas.get(i).getMacAddress();
                 if (type == 2) {
-                    if(extTemp1 == null|| extHut1 == null){
-
-                    }else {
-                        extTemp1.setText(extTemp2+"℃");
-                        extHut1.setText(extHut2+"％");
+//                    if(extTemp1 == null|| extHut1 == null){
+//
+//                    }else {
+//                        extTemp1.setText(extTemp2+"℃");
+//                        extHut1.setText(extHut2+"％");
+//                    }
+//
+//                    String et = extTemp2;
+//                    String eh = extHut2;
+//                    getData(et,eh);
+//                    break;
+                    if(deviceChild2!=null){
+                        
+                        String macAddress2 = deviceChild2.getMacAddress();
+                        if(macAddress2.equals(macAddress)){
+                            extTemp1.setText(deviceChild2.getTemp()+"℃");
+                            extHut1.setText(deviceChild2.getHum()+"％");
+                        }
                     }
-
-                    String et = extTemp2;
-                    String eh = extHut2;
-                    getData(et,eh);
-                    break;
                 }
             }
         }
