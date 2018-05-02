@@ -190,7 +190,7 @@ public class RoomContentActivity extends Activity {
                                 mDatas.remove(postion);
                                 myAdapter.notifyDataSetChanged();
                                 mDialog.dismiss();
-                                
+
                             }
                         },
                         new View.OnClickListener() {

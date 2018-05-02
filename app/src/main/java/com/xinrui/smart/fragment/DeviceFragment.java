@@ -36,6 +36,7 @@ import com.google.gson.Gson;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.secen.scene_view_custom.DividerItemDecoration;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.CityAdapter;
 import com.xinrui.smart.adapter.DeviceAdapter;
@@ -48,7 +49,6 @@ import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.DeviceHomeDialog;
 import com.xinrui.smart.view_custom.DeviceUpdateHomeDialog;
-import com.xinrui.secen.scene.scene_view_custom.DividerItemDecoration;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
