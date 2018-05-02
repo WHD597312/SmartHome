@@ -587,6 +587,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                     openTime = openTime.substring(0, openTime.indexOf(":"));
                     String closeTime = close_time.getText().toString();
                     closeTime = closeTime.substring(0, closeTime.indexOf(":"));
+
                     if (Integer.parseInt(openTime) > Integer.parseInt(closeTime)) {
                         int endTime = Integer.parseInt(openTime);
                         Utils.showToast(this, "结束时间要大于开始时间");

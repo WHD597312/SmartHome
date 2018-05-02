@@ -104,13 +104,20 @@ public class HeaterFragment extends Fragment {
     /**
      * 模式图标
      */
-    @BindView(R.id.relative4) RelativeLayout relative4;/**开机*/
-    @BindView(R.id.relative5) RelativeLayout relative5;/**关机*/
+    @BindView(R.id.relative4)
+    RelativeLayout relative4;
+    /**
+     * 开机
+     */
+    @BindView(R.id.relative5)
+    RelativeLayout relative5;
+    /**
+     * 关机
+     */
     private int mCurrent = 5;
     public static boolean running = false;
 
     private TimeTaskDaoImpl timeTaskDao;
-
 
 
     @Nullable
@@ -133,115 +140,121 @@ public class HeaterFragment extends Fragment {
             @Override
             public void onChanged(SemicircleBar seekbar, double curValue) {
 
-                String handTask = (String) image_hand_task.getTag();
+                try {
+                    String handTask = (String) image_hand_task.getTag();
 
-                String open = (String) image_switch.getTag();
-                img_circle.setImageResource(R.drawable.lottery_animlist);
-                AnimationDrawable animationDrawable = (AnimationDrawable) img_circle.getDrawable();
-                String module = semicBar.getModule();
+                    String open = (String) image_switch.getTag();
+                    img_circle.setImageResource(R.drawable.lottery_animlist);
+                    AnimationDrawable animationDrawable = (AnimationDrawable) img_circle.getDrawable();
+                    String module = semicBar.getModule();
 
-                Log.i(TAG, "-->" + seekbar.getmCurAngle());
-                double curAngle = semicBar.getmCurAngle();
-                if ("1".equals(module)) {
-                    if (curAngle > 272 && curAngle <= 310) {
-                        mCurrent = 42;
-                    } else if (curAngle >= 310 && curAngle <= 360) {
-                        mCurrent = 5;
-                    } else {
-                        mCurrent = (int) curAngle / 7 + 3;
-                    }
-                    String deviceState=deviceChild.getDeviceState();
-                    if ("close".equals(deviceState)){
-                        mCurrent=0;
-                        Message msg=handler.obtainMessage();
-                        msg.arg1=2;
-                        msg.what=mCurrent;
-                        handler.sendMessage(msg);
-                        tv_set_temp.setText("--" + "℃");
-                        tv_outmode.setText("");
-
-                    }else if ("open".equals(deviceState)){
-                        String workMode=deviceChild.getWorkMode();
-                        if ("manual".equals(workMode)){
-                            deviceChild.setMatTemp(mCurrent);
-                            deviceChild.setManualMatTemp(mCurrent);
-                            deviceChildDao.update(deviceChild);
-                            if (seekbar.getEnd()==1){
-                                send(deviceChild);
-                            }
-                        }else {
-                            deviceChild.setTimerTemp(mCurrent);
-                            deviceChildDao.update(deviceChild);
-                        }
-
-
-                        tv_set_temp.setText(mCurrent + "℃");
-                        int curTemp = deviceChild.getCurTemp();
-                        if (mCurrent >= (curTemp + 3)) {
-                            tv_outmode.setText("速热模式");
-                            animationDrawable.start();
-                        } else if (curTemp >= (mCurrent + 3)) {
-                            tv_outmode.setText("保温模式");
-                            animationDrawable.stop();
-                        } else {
-                            tv_outmode.setText("节能模式");
-                            animationDrawable.start();
-                        }
-                    }
-
-                } else if ("2".equals(module)) {
-                    String deviceState=deviceChild.getDeviceState();
-                    if ("close".equals(deviceState)){
-                        mCurrent=0;
-                        Message msg=handler.obtainMessage();
-                        msg.arg1=2;
-                        msg.what=mCurrent;
-                        handler.sendMessage(msg);
-                        tv_set_temp.setText("--" + "℃");
-                        tv_outmode.setText("");
-                    }else if ("open".equals(deviceState)){
+                    Log.i(TAG, "-->" + seekbar.getmCurAngle());
+                    double curAngle = semicBar.getmCurAngle();
+                    if ("1".equals(module)) {
                         if (curAngle > 272 && curAngle <= 310) {
-                            mCurrent = 60;
-                        } else if ((curAngle >= 310 && curAngle <= 360)) {
-                            mCurrent = 48;
+                            mCurrent = 42;
+                        } else if (curAngle >= 310 && curAngle <= 360) {
+                            mCurrent = 5;
                         } else {
-                            if (curAngle == 0) {
-                                mCurrent = 48;
-                            } else if (curAngle >= 0 && curAngle <= 35) {
-                                mCurrent = 49;
-                            } else if (curAngle > 35 && curAngle <= 60) {
-                                mCurrent = 50;
-                            } else if (curAngle > 60 && curAngle <= 80) {
-                                mCurrent = 51;
-                            } else if (curAngle > 80 && curAngle <= 90) {
-                                mCurrent = 52;
-                            } else if (curAngle > 90 && curAngle <= 112) {
-                                mCurrent = 53;
-                            } else if (curAngle > 112 && curAngle <= 128) {
-                                mCurrent = 54;
-                            } else if (curAngle > 128 && curAngle <= 160) {
-                                mCurrent = 55;
-                            } else if (curAngle > 160 && curAngle <= 176) {
-                                mCurrent = 56;
-                            } else if (curAngle > 176 && curAngle <= 208) {
-                                mCurrent = 57;
-                            } else if (curAngle > 208 && curAngle <= 224) {
-                                mCurrent = 58;
-                            } else if (curAngle > 224 && curAngle <= 240) {
-                                mCurrent = 59;
-                            } else if (curAngle > 260 && curAngle <= 272) {
-                                mCurrent = 60;
+                            mCurrent = (int) curAngle / 7 + 3;
+                        }
+                        String deviceState = deviceChild.getDeviceState();
+                        if ("close".equals(deviceState)) {
+                            mCurrent = 0;
+                            Message msg = handler.obtainMessage();
+                            msg.arg1 = 2;
+                            msg.what = mCurrent;
+                            handler.sendMessage(msg);
+                            tv_set_temp.setText("--" + "℃");
+                            tv_outmode.setText("");
+
+                        } else if ("open".equals(deviceState)) {
+                            String workMode = deviceChild.getWorkMode();
+                            if ("manual".equals(workMode)) {
+                                deviceChild.setMatTemp(mCurrent);
+                                deviceChild.setManualMatTemp(mCurrent);
+                                deviceChildDao.update(deviceChild);
+                                if (seekbar.getEnd() == 1) {
+                                    send(deviceChild);
+                                }
+                            } else {
+                                deviceChild.setMatTemp(mCurrent);
+                                deviceChild.setTimerTemp(mCurrent);
+                                deviceChildDao.update(deviceChild);
                             }
-                            deviceChild.setProtectSetTemp(mCurrent);
-                            deviceChildDao.update(deviceChild);
+
+
                             tv_set_temp.setText(mCurrent + "℃");
-                            if (seekbar.getEnd()==1){
-                                send(deviceChild);
+                            int curTemp = deviceChild.getCurTemp();
+                            if (mCurrent >= (curTemp + 3)) {
+                                tv_outmode.setText("速热模式");
+                                animationDrawable.start();
+                            } else if (curTemp >= (mCurrent + 3)) {
+                                tv_outmode.setText("保温模式");
+                                animationDrawable.stop();
+                            } else {
+                                tv_outmode.setText("节能模式");
+                                animationDrawable.start();
+                            }
+                        }
+
+                    } else if ("2".equals(module)) {
+                        String deviceState = deviceChild.getDeviceState();
+                        if ("close".equals(deviceState)) {
+                            mCurrent = 0;
+                            Message msg = handler.obtainMessage();
+                            msg.arg1 = 2;
+                            msg.what = mCurrent;
+                            handler.sendMessage(msg);
+                            tv_set_temp.setText("--" + "℃");
+                            tv_outmode.setText("");
+                        } else if ("open".equals(deviceState)) {
+                            animationDrawable.start();
+                            if (curAngle > 272 && curAngle <= 310) {
+                                mCurrent = 60;
+                            } else if ((curAngle >= 310 && curAngle <= 360)) {
+                                mCurrent = 48;
+                            } else {
+                                if (curAngle == 0) {
+                                    mCurrent = 48;
+                                } else if (curAngle >= 0 && curAngle <= 35) {
+                                    mCurrent = 49;
+                                } else if (curAngle > 35 && curAngle <= 60) {
+                                    mCurrent = 50;
+                                } else if (curAngle > 60 && curAngle <= 80) {
+                                    mCurrent = 51;
+                                } else if (curAngle > 80 && curAngle <= 90) {
+                                    mCurrent = 52;
+                                } else if (curAngle > 90 && curAngle <= 112) {
+                                    mCurrent = 53;
+                                } else if (curAngle > 112 && curAngle <= 128) {
+                                    mCurrent = 54;
+                                } else if (curAngle > 128 && curAngle <= 160) {
+                                    mCurrent = 55;
+                                } else if (curAngle > 160 && curAngle <= 176) {
+                                    mCurrent = 56;
+                                } else if (curAngle > 176 && curAngle <= 208) {
+                                    mCurrent = 57;
+                                } else if (curAngle > 208 && curAngle <= 224) {
+                                    mCurrent = 58;
+                                } else if (curAngle > 224 && curAngle <= 240) {
+                                    mCurrent = 59;
+                                } else if (curAngle > 260 && curAngle <= 272) {
+                                    mCurrent = 60;
+                                }
+                                deviceChild.setProtectSetTemp(mCurrent);
+                                deviceChildDao.update(deviceChild);
+                                tv_set_temp.setText(mCurrent + "℃");
+                                if (seekbar.getEnd() == 1) {
+                                    send(deviceChild);
+                                }
                             }
                         }
                     }
-                }
 
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -314,65 +327,69 @@ public class HeaterFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.arg1) {
-                case 2:
-                    semicBar.setmCurAngle(0);
-                    semicBar.setCurProcess(0);
-                    semicBar.invalidate();
-                    break;
-                case 3:
-                    semicBar.setmCurAngle(0);
-                    semicBar.invalidate();
-                    break;
-                case 4:
-                    semicBar.setmCurAngle(0);
-                    semicBar.invalidate();
-                    break;
-                case 5:
-                    int temp2 = msg.what;
-                    semicBar.setmCurAngle(temp2);
-                    break;
-                case 6:
-                    int mCurrent6 = msg.what;
-                    int mCurrentAngle = 0;
-                    String module6 = semicBar.getModule();
+            try {
+                switch (msg.arg1) {
+                    case 2:
+                        semicBar.setmCurAngle(0);
+                        semicBar.setCurProcess(0);
+                        break;
+                    case 3:
+                        semicBar.setmCurAngle(0);
+                        semicBar.invalidate();
+                        break;
+                    case 4:
+                        semicBar.setmCurAngle(0);
+                        semicBar.invalidate();
+                        break;
+                    case 5:
+                        int temp2 = msg.what;
+                        semicBar.setmCurAngle(temp2);
+                        break;
+                    case 6:
+                        int mCurrent6 = msg.what;
+                        int mCurrentAngle = 0;
+                        String module6 = semicBar.getModule();
 
-                    if ("1".equals(module6)) {
-                        mCurrentAngle = (mCurrent6 - 3) * 7;
-                    } else if ("2".equals(module6)) {
-                        if (mCurrent6 == 48) {
-                            mCurrentAngle = 0;
-                        } else if (mCurrent6 == 49) {
-                            mCurrentAngle = 35;
-                        } else if (mCurrent6 == 50) {
-                            mCurrentAngle = 60;
-                        } else if (mCurrent6 == 51) {
-                            mCurrentAngle = 80;
-                        } else if (mCurrent6 == 52) {
-                            mCurrentAngle = 90;
-                        } else if (mCurrent6 == 53) {
-                            mCurrentAngle = 112;
-                        } else if (mCurrent6 == 54) {
-                            mCurrentAngle = 128;
-                        } else if (mCurrent6 == 55) {
-                            mCurrentAngle = 160;
-                        } else if (mCurrent6 == 56) {
-                            mCurrentAngle = 176;
-                        } else if (mCurrent6 == 57) {
-                            mCurrentAngle = 208;
-                        } else if (mCurrent6 == 58) {
-                            mCurrentAngle = 224;
-                        } else if (mCurrent6 == 59) {
-                            mCurrentAngle = 240;
-                        } else if (mCurrent6 == 60) {
-                            mCurrentAngle = 272;
+                        if ("1".equals(module6)) {
+                            mCurrentAngle = (mCurrent6 - 3) * 7;
+                        } else if ("2".equals(module6)) {
+                            if (mCurrent6 == 48) {
+                                mCurrentAngle = 0;
+                            } else if (mCurrent6 == 49) {
+                                mCurrentAngle = 35;
+                            } else if (mCurrent6 == 50) {
+                                mCurrentAngle = 60;
+                            } else if (mCurrent6 == 51) {
+                                mCurrentAngle = 80;
+                            } else if (mCurrent6 == 52) {
+                                mCurrentAngle = 90;
+                            } else if (mCurrent6 == 53) {
+                                mCurrentAngle = 112;
+                            } else if (mCurrent6 == 54) {
+                                mCurrentAngle = 128;
+                            } else if (mCurrent6 == 55) {
+                                mCurrentAngle = 160;
+                            } else if (mCurrent6 == 56) {
+                                mCurrentAngle = 176;
+                            } else if (mCurrent6 == 57) {
+                                mCurrentAngle = 208;
+                            } else if (mCurrent6 == 58) {
+                                mCurrentAngle = 224;
+                            } else if (mCurrent6 == 59) {
+                                mCurrentAngle = 240;
+                            } else if (mCurrent6 == 60) {
+                                mCurrentAngle = 272;
+                            }
                         }
-                    }
-                    semicBar.setmCurAngle(mCurrentAngle);
-                    semicBar.setCurProcess(mCurrentAngle);
-                    semicBar.invalidate();
-                    break;
+                        semicBar.setmCurAngle(mCurrentAngle);
+                        semicBar.setCurProcess(mCurrentAngle);
+                        semicBar.invalidate();
+                        break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
         }
     };
 
@@ -395,9 +412,10 @@ public class HeaterFragment extends Fragment {
     private DeviceChild deviceChild;
     private DeviceChildDaoImpl deviceChildDao;
 
-    private int mCurWeek=0;
+    private int mCurWeek = 0;
     Calendar calendar;
     List<DeviceChild> deviceChildList;
+
     @Override
     public void onResume() {
         super.onResume();
@@ -409,17 +427,16 @@ public class HeaterFragment extends Fragment {
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         int week2 = calendar.get(Calendar.DAY_OF_WEEK);
         String mWeek = Utils.getWeek(year, month, day, week2).substring(2);
-        if (!Utils.isEmpty(mWeek)){
-            if ("日".equals(mWeek)){
-                mWeek="七";
+        if (!Utils.isEmpty(mWeek)) {
+            if ("日".equals(mWeek)) {
+                mWeek = "七";
             }
-            mCurWeek=ChineseNumber.chineseNumber2Int(mWeek);
+            mCurWeek = ChineseNumber.chineseNumber2Int(mWeek);
         }
         Bundle bundle = getArguments();
         deviceChild = (DeviceChild) bundle.get("deviceChild");
 
 //        String childPosiotn = bundle.getString("deviceId");
-
 
         Intent intent = new Intent(getActivity(), MQService.class);
         getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
@@ -475,7 +492,7 @@ public class HeaterFragment extends Fragment {
 
                 break;
             case R.id.image_mode:
-                if ("open".equals(deviceChild.getDeviceState())){
+                if ("open".equals(deviceChild.getDeviceState())) {
                     String handTask = (String) image_hand_task.getTag();
                     if (!"childProtect".equals(deviceChild.getOutputMod())) {
                         if ("手动".equals(handTask)) {
@@ -505,23 +522,32 @@ public class HeaterFragment extends Fragment {
                             } else {
                                 deviceChild.setOutputMod("savePwr");//节能模式
                             }
-                        }else {
-                            String workMode=deviceChild.getWorkMode();
-                            if ("manual".equals(workMode)){
+                        } else {
+                            String workMode = deviceChild.getWorkMode();
+                            if ("manual".equals(workMode)) {
                                 image_hand_task.setImageResource(R.mipmap.module_handle);
-                            }else if ("timer".equals(workMode)){
+                            } else if ("timer".equals(workMode)) {
                                 image_hand_task.setImageResource(R.mipmap.module_task);
                             }
                         }
 //                    deviceChildDao.update(deviceChild);
                         setMode(deviceChild);
                         send(deviceChild);
+                    } else {
+                        String workMode = deviceChild.getWorkMode();
+                        if ("manual".equals(workMode)) {
+                            deviceChild.setWorkMode("timer");
+                            image_hand_task.setImageResource(R.mipmap.module_handle);
+                        } else if ("timer".equals(workMode)) {
+                            deviceChild.setWorkMode("manual");
+                            image_hand_task.setImageResource(R.mipmap.module_task);
+                        }
                     }
                 }
 
                 break;
             case R.id.image_mode2:
-                if ("open".equals(deviceChild.getDeviceState())){
+                if ("open".equals(deviceChild.getDeviceState())) {
                     String outputMode = deviceChild.getOutputMod();
                     if ("childProtect".equals(outputMode)) {
                         model_protect.setTag("不保护");
@@ -565,7 +591,7 @@ public class HeaterFragment extends Fragment {
 
                 break;
             case R.id.image_mode3:
-                if ("open".equals(deviceChild.getDeviceState())){
+                if ("open".equals(deviceChild.getDeviceState())) {
                     String lock = (String) image_lock.getTag();
                     if ("上锁".equals(lock)) {
                         image_lock.setTag("解锁");
@@ -581,7 +607,7 @@ public class HeaterFragment extends Fragment {
 
                 break;
             case R.id.image_mode4:
-                if ("open".equals(deviceChild.getDeviceState())){
+                if ("open".equals(deviceChild.getDeviceState())) {
                     String srceen = (String) image_srceen.getTag();
                     if ("屏保关".equals(srceen)) {
                         image_srceen.setTag("屏保开");
@@ -633,8 +659,10 @@ public class HeaterFragment extends Fragment {
             model_protect.setEnabled(true);
             if ("open".equals(deviceState)) {
                 semicBar.setCanTouch(true);
+                animationDrawable.start();
             } else {
                 semicBar.setCanTouch(false);
+                animationDrawable.stop();
             }
 
             model_protect.setTag("保护");
@@ -674,7 +702,6 @@ public class HeaterFragment extends Fragment {
             relative4.setVisibility(View.GONE);
             relative5.setVisibility(View.VISIBLE);
         }
-
         if (!"childProtect".equals(outputMode)) {
             model_protect.setBackgroundResource(0);
             if ("manual".equals(workMode)) {
@@ -723,10 +750,10 @@ public class HeaterFragment extends Fragment {
                 msg.what = timerTemp;
                 handler.sendMessage(msg);
 
-                if ("timerShutdown".equals(outputMode)){
+                if ("timerShutdown".equals(outputMode)) {
                     animationDrawable.stop();
                     deviceChild.setOutputMod("timerShutdown");
-                }else {
+                } else {
                     if (timerTemp >= (curTemp + 3)) {
                         deviceChild.setOutputMod("fastHeat");//速热模式
                         tv_outmode.setText("速热模式");
@@ -743,7 +770,6 @@ public class HeaterFragment extends Fragment {
                 }
             }
         }
-
 
 
         if ("open".equals(BackGroundLED)) {

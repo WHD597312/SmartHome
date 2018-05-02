@@ -297,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
 //                preferences.edit().clear().commit();/**清空当前用户的所有数据*/
                 if (preferences.contains("password")) {
                     preferences.edit().remove("password").commit();
+                    preferences.edit().remove("login").commit();
                     fragmentPreferences.edit().clear().commit();
                     smart.edit().clear().commit();
                 }
@@ -321,7 +322,6 @@ public class MainActivity extends AppCompatActivity {
                     noDeviceFragment = new NoDeviceFragment();
                     fragmentTransaction.replace(R.id.layout_body, noDeviceFragment).commit();
                     fragment = noDeviceFragment;
-
                 } else {
 
                     if (fragment instanceof DeviceFragment) {
@@ -330,9 +330,7 @@ public class MainActivity extends AppCompatActivity {
                     deviceFragment = new DeviceFragment();
                     fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
                     fragment = deviceFragment;
-
                 }
-
 
                 device_view.setVisibility(View.VISIBLE);
                 smart_view.setVisibility(View.GONE);
@@ -407,9 +405,6 @@ public class MainActivity extends AppCompatActivity {
 
                             if (house != null) {
                                 int houseId = house.getInt("id");
-                                if (i == houses.length() - 1) {
-                                    shareHouseId = houseId + 1;
-                                }
                                 String houseName = house.getString("houseName");
                                 String location = house.getString("location");
                                 int masterControllerDeviceId = house.getInt("masterControllerDeviceId");
@@ -517,6 +512,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 2000:
                     List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
+                    deviceChildren=deviceChildDao.findAllDevice();
                     fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
 
 
