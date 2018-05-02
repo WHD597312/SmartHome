@@ -241,6 +241,7 @@ public class DeviceFragment extends Fragment{
         initJsonData();
 
 
+        
         Intent intent=new Intent(getActivity(),MQService.class);
         getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
 
