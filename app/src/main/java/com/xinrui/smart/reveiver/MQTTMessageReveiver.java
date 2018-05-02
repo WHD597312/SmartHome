@@ -40,6 +40,7 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        
         String message=intent.getStringExtra("message");
         String topicName=intent.getStringExtra("topicName");
 
