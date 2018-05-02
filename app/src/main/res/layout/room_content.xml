@@ -38,6 +38,7 @@
             android:layout_alignParentRight="true"
             android:src="@drawable/homepage"/>
     </RelativeLayout>
+
     <FrameLayout
         android:id="@+id/fl"
         android:background="@color/black"
@@ -71,22 +72,24 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:textColor="@color/white"
                     android:text=""/>
                 <TextView
                     android:id="@+id/extHut"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:textColor="@color/white"
                     android:text=""/>
             </LinearLayout>
         </RelativeLayout>
 
-        <com.xinrui.secen.scene.scene_view_custom.DragImageView
+        <com.xinrui.secen.scene_view_custom.DragImageView
             android:id="@+id/dragGridView1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             >
-        </com.xinrui.secen.scene.scene_view_custom.DragImageView>
+        </com.xinrui.secen.scene_view_custom.DragImageView>
 
     </FrameLayout>
     <RelativeLayout

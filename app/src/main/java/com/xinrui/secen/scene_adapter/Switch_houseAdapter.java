@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_adapter;
+package com.xinrui.secen.scene_adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -6,9 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.xinrui.secen.scene_util.MyViewHolder;
 import com.xinrui.secen.scene_util.OnItemClickListener;
 import com.xinrui.smart.R;
-import com.xinrui.secen.scene.scene_util.MyViewHolder;
 
 import java.util.List;
 

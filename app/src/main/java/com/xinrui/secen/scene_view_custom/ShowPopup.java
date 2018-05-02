@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_view_custom;
+package com.xinrui.secen.scene_view_custom;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,8 +11,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.PopupWindow;
 
+import com.xinrui.secen.scene_util.ToastUtils;
 import com.xinrui.smart.R;
-import com.xinrui.secen.scene.scene_util.ToastUtils;
 
 /**
  * Created by pc on 2017/8/24.

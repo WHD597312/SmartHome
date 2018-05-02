@@ -5,13 +5,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.formatter.IFillFormatter;
+import com.xinrui.MyApplication;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.secen.scene_fragment.Btn1_fragment;
+import com.xinrui.secen.scene_fragment.Btn2_fragment;
+import com.xinrui.secen.scene_fragment.Btn3_fragment;
+import com.xinrui.secen.scene_fragment.Btn4_fragment;
 import com.xinrui.smart.activity.TimeTaskActivity;
 import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.fragment.HeaterFragment;
@@ -34,6 +39,7 @@ import java.util.TimerTask;
 public class MQTTMessageReveiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        Toast.makeText(context,"发送通知",Toast.LENGTH_LONG).show();
         String message=intent.getStringExtra("message");
         String topicName=intent.getStringExtra("topicName");
 
@@ -61,7 +67,6 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                 int protectSetTemp=0;
                 int protectProTemp=0;
                 int extTemp=0;
-                int extHut=0;
                 int extHum=0;
 
                 int timerTaskWeek=0;
@@ -128,9 +133,6 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
 
                 if (device.has("extTemp")){
                     extTemp=device.getInt("extTemp");
-                }
-                if (device.has("extHut")){
-                    extHut=device.getInt("extHut");
                 }
                 if (device.has("extHum")){
                     extHum=device.getInt("extHum");
@@ -223,10 +225,10 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                             child.setProtectProTemp(protectProTemp);
 
                         child.setOnLint(true);
-                        if (child.getType()==2 && child.getControlled()==1){
-                            child.setTemp(extTemp);
-                            child.setHum(extHum);
-                        }
+
+
+                        child.setTemp(extTemp);
+                        child.setHum(extHum);
                         deviceChildDao.update(child);
 
 
@@ -366,9 +368,35 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                         mqttIntent.putExtra("list", (Serializable)timerTasks);
                         context.sendBroadcast(mqttIntent);
                     }else if(Btn1_fragment.running == 2){
+
                         Intent mqttIntent=new Intent("Btn1_fragment");
                         mqttIntent.putExtra("extTemp",extTemp);
-                        mqttIntent.putExtra("extHut",extHut);
+                        mqttIntent.putExtra("extHum",extHum);
+                        mqttIntent.putExtra("deviceChild",child);
+                        mqttIntent.putExtra("message","测试");
+                        context.sendBroadcast(mqttIntent);
+                    }else if(Btn2_fragment.running == 2){
+
+                        Intent mqttIntent=new Intent("Btn1_fragment");
+                        mqttIntent.putExtra("extTemp",extTemp);
+                        mqttIntent.putExtra("extHum",extHum);
+                        mqttIntent.putExtra("deviceChild",child);
+                        mqttIntent.putExtra("message","测试");
+                        context.sendBroadcast(mqttIntent);
+                    }else if(Btn3_fragment.running == 2){
+
+                        Intent mqttIntent=new Intent("Btn1_fragment");
+                        mqttIntent.putExtra("extTemp",extTemp);
+                        mqttIntent.putExtra("extHum",extHum);
+                        mqttIntent.putExtra("deviceChild",child);
+                        mqttIntent.putExtra("message","测试");
+                        context.sendBroadcast(mqttIntent);
+                    }else if(Btn4_fragment.running == 2){
+
+                        Intent mqttIntent=new Intent("Btn1_fragment");
+                        mqttIntent.putExtra("extTemp",extTemp);
+                        mqttIntent.putExtra("extHum",extHum);
+                        mqttIntent.putExtra("deviceChild",child);
                         mqttIntent.putExtra("message","测试");
                         context.sendBroadcast(mqttIntent);
                     }else if (SmartFragmentManager.running){

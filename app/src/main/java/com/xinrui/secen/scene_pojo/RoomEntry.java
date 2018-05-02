@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_pojo;
+package com.xinrui.secen.scene_pojo;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;

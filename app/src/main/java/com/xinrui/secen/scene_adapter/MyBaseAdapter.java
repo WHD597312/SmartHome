@@ -1,11 +1,10 @@
-package com.xinrui.secen.scene.scene_adapter;
+package com.xinrui.secen.scene_adapter;
 
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-
-import com.xinrui.secen.scene.scene_pojo.Room;
+import com.xinrui.secen.scene_pojo.Room;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_view_custom;
+package com.xinrui.secen.scene_view_custom;
 
 import android.content.Context;
 import android.support.v4.widget.ViewDragHelper;
@@ -8,8 +8,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-
-import com.xinrui.secen.scene.scene_pojo.Equipment;
+import com.xinrui.secen.scene_pojo.Equipment;
 
 import java.util.List;
 

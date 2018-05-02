@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_pojo;
+package com.xinrui.secen.scene_pojo;
 
 /**
  * Created by win7 on 2018/3/29.

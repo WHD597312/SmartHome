@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_adapter;
+package com.xinrui.secen.scene_adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,8 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.xinrui.secen.scene_pojo.Equipment;
 import com.xinrui.smart.R;
-import com.xinrui.secen.scene.scene_pojo.Equipment;
 
 import java.util.List;
 
