@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_util.ItemDecoration;
+package com.xinrui.secen.scene_util.ItemDecoration;
 
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;

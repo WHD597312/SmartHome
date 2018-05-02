@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.gson.JsonArray;
 import com.xinrui.database.dao.DeviceChildDao;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
@@ -42,6 +43,7 @@ import com.xinrui.secen.scene_pojo.Equipment;
 import com.xinrui.secen.scene_pojo.Room;
 import com.xinrui.secen.scene_pojo.RoomEntry;
 import com.xinrui.secen.scene_util.GetUrl;
+import com.xinrui.secen.scene_util.ItemDecoration.GridSpacingItemDecoration;
 import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.secen.scene_view_custom.RoomViewGroup;
 import com.xinrui.smart.MyApplication;
@@ -50,7 +52,6 @@ import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
-import com.xinrui.secen.scene.scene_util.ItemDecoration.GridSpacingItemDecoration;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -741,21 +742,26 @@ public class Btn1_fragment extends Fragment{
              extHut = String.valueOf(intent.getIntExtra("extHum",0));
             String et = extTemp;
             String eh = extHut;
-            getData(et,eh);
+//            getData(et,eh);
 
             for (int i = 0; i < room_list.size(); i++) {
                 JSONArray jsonArray = room_list.get(i).getDevices();
                 for (int j = 0; j < jsonArray.length(); j++) {
                     try {
                         JSONObject jsonObject1 = jsonArray.getJSONObject(j);
+                        String macAddress = jsonObject1.getString("macAddress");
+
                         int type = (int) jsonObject1.get("type");
                         if(type == 2){
-                            TextView extTemp1 = (TextView) room_list.get(i).getView().findViewById(R.id.extTemp);
-                            TextView extHut1 = (TextView) room_list.get(i).getView().findViewById(R.id.extHut);
-
                             if (deviceChild2!=null){
-                                extTemp1.setText(deviceChild2.getTemp()+"℃");
-                                extHut1.setText(deviceChild2.getHum()+"％");
+                                String macAddress2 = deviceChild2.getMacAddress();
+                                if(macAddress.equals(macAddress2)){
+                                    TextView extTemp1 = (TextView) room_list.get(i).getView().findViewById(R.id.extTemp);
+                                    TextView extHut1 = (TextView) room_list.get(i).getView().findViewById(R.id.extHut);
+                                    extTemp1.setText(deviceChild2.getTemp()+"℃");
+                                    extHut1.setText(deviceChild2.getHum()+"％");
+                                }
+
                             }
 //                            SharedPreferences sp = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
 //                            String extTemp=sp.getString("extTemp1","");
@@ -784,13 +790,13 @@ public class Btn1_fragment extends Fragment{
     }
 
 
-    //获取mqtt发过来的数据
-    public void getData(String extTemp,String extHut){
-        this.extTemp = extTemp;
-        this.extHut = extHut;
-        SharedPreferences.Editor sp = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE).edit();
-        sp.putString("extTemp1", extTemp);
-        sp.putString("extHut1", extHut);
-        sp.commit();
-    }
+//    //获取mqtt发过来的数据
+//    public void getData(String extTemp,String extHut){
+//        this.extTemp = extTemp;
+//        this.extHut = extHut;
+//        SharedPreferences.Editor sp = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE).edit();
+//        sp.putString("extTemp1", extTemp);
+//        sp.putString("extHut1", extHut);
+//        sp.commit();
+//    }
 }

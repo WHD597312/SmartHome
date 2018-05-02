@@ -41,13 +41,13 @@ import com.xinrui.secen.scene_pojo.Equipment;
 import com.xinrui.secen.scene_pojo.Room;
 import com.xinrui.secen.scene_pojo.RoomEntry;
 import com.xinrui.secen.scene_util.GetUrl;
+import com.xinrui.secen.scene_util.ItemDecoration.GridSpacingItemDecoration;
 import com.xinrui.secen.scene_view_custom.RoomViewGroup;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
-import com.xinrui.secen.scene.scene_util.ItemDecoration.GridSpacingItemDecoration;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -739,32 +739,50 @@ public class Btn4_fragment extends Fragment{
     }
     String extTemp ;
     String extHut ;
-
     public class MessageReceiver extends BroadcastReceiver{
 
         @Override
         public void onReceive(Context context, Intent intent) {
-             extTemp = String.valueOf(intent.getIntExtra("extTemp",8));
-             extHut = String.valueOf(intent.getIntExtra("extHut",10));
+            DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
+            extTemp = String.valueOf(intent.getIntExtra("extTemp",0));
+            extHut = String.valueOf(intent.getIntExtra("extHum",0));
+            String et = extTemp;
+            String eh = extHut;
+//            getData(et,eh);
+
             for (int i = 0; i < room_list.size(); i++) {
                 JSONArray jsonArray = room_list.get(i).getDevices();
                 for (int j = 0; j < jsonArray.length(); j++) {
                     try {
                         JSONObject jsonObject1 = jsonArray.getJSONObject(j);
+                        String macAddress = jsonObject1.getString("macAddress");
+
                         int type = (int) jsonObject1.get("type");
                         if(type == 2){
-                            TextView extTemp1 = (TextView) room_list.get(i).getView().findViewById(R.id.extTemp);
-                            TextView extHut1 = (TextView) room_list.get(i).getView().findViewById(R.id.extHut);
-                            if(extTemp1 == null|| extHut1 == null){
+                            if (deviceChild2!=null){
+                                String macAddress2 = deviceChild2.getMacAddress();
+                                if(macAddress.equals(macAddress2)){
+                                    TextView extTemp1 = (TextView) room_list.get(i).getView().findViewById(R.id.extTemp);
+                                    TextView extHut1 = (TextView) room_list.get(i).getView().findViewById(R.id.extHut);
+                                    extTemp1.setText(deviceChild2.getTemp()+"℃");
+                                    extHut1.setText(deviceChild2.getHum()+"％");
+                                }
 
-                            }else {
-                                extTemp1.setText(extTemp+"℃");
-                                extHut1.setText(extHut+"％");
                             }
+//                            SharedPreferences sp = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
+//                            String extTemp=sp.getString("extTemp1","");
+//                            String extHut=sp.getString("extHut1","");
 
-                            String et = extTemp;
-                            String eh = extHut;
-                            getData(et,eh);
+//                            if(extTemp1 == null|| extHut1 == null){
+//
+//                            }else {
+//
+////                                String temp=d
+//                                extTemp1.setText(extTemp+"℃");
+//                                extHut1.setText(extHut+"％");
+//                            }
+
+
                             break;
                         }
                     } catch (JSONException e) {
@@ -776,13 +794,14 @@ public class Btn4_fragment extends Fragment{
 
         }
     }
-    public void getData(String extTemp,String extHut){
-        this.extTemp = extTemp;
-        this.extHut = extHut;
-        SharedPreferences.Editor sp = getActivity().getSharedPreferences("data", 0).edit();
-        sp.putString("extTemp1", extTemp);
-        sp.putString("extHut1", extHut);
-        sp.commit();
-    }
+
+//    public void getData(String extTemp,String extHut){
+//        this.extTemp = extTemp;
+//        this.extHut = extHut;
+//        SharedPreferences.Editor sp = getActivity().getSharedPreferences("data", 0).edit();
+//        sp.putString("extTemp1", extTemp);
+//        sp.putString("extHut1", extHut);
+//        sp.commit();
+//    }
 
 }
