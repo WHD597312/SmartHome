@@ -170,6 +170,7 @@ public class HeaterFragment extends Fragment {
                                 send(deviceChild);
                             }
                         }else {
+                            deviceChild.setMatTemp(mCurrent);
                             deviceChild.setTimerTemp(mCurrent);
                             deviceChildDao.update(deviceChild);
                         }
@@ -200,6 +201,7 @@ public class HeaterFragment extends Fragment {
                         tv_set_temp.setText("--" + "℃");
                         tv_outmode.setText("");
                     }else if ("open".equals(deviceState)){
+                        animationDrawable.start();
                         if (curAngle > 272 && curAngle <= 310) {
                             mCurrent = 60;
                         } else if ((curAngle >= 310 && curAngle <= 360)) {
@@ -318,7 +320,6 @@ public class HeaterFragment extends Fragment {
                 case 2:
                     semicBar.setmCurAngle(0);
                     semicBar.setCurProcess(0);
-                    semicBar.invalidate();
                     break;
                 case 3:
                     semicBar.setmCurAngle(0);
@@ -516,6 +517,15 @@ public class HeaterFragment extends Fragment {
 //                    deviceChildDao.update(deviceChild);
                         setMode(deviceChild);
                         send(deviceChild);
+                    }else {
+                        String workMode=deviceChild.getWorkMode();
+                        if ("manual".equals(workMode)){
+                            deviceChild.setWorkMode("timer");
+                            image_hand_task.setImageResource(R.mipmap.module_handle);
+                        }else if ("timer".equals(workMode)){
+                            deviceChild.setWorkMode("manual");
+                            image_hand_task.setImageResource(R.mipmap.module_task);
+                        }
                     }
                 }
 
@@ -633,8 +643,10 @@ public class HeaterFragment extends Fragment {
             model_protect.setEnabled(true);
             if ("open".equals(deviceState)) {
                 semicBar.setCanTouch(true);
+                animationDrawable.start();
             } else {
                 semicBar.setCanTouch(false);
+                animationDrawable.stop();
             }
 
             model_protect.setTag("保护");
@@ -674,7 +686,6 @@ public class HeaterFragment extends Fragment {
             relative4.setVisibility(View.GONE);
             relative5.setVisibility(View.VISIBLE);
         }
-
         if (!"childProtect".equals(outputMode)) {
             model_protect.setBackgroundResource(0);
             if ("manual".equals(workMode)) {

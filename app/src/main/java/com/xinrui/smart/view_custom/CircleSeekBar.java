@@ -285,9 +285,7 @@ public class CircleSeekBar extends View {
                     }
                     float startAngle= (360/24)*start-90;
                     float endAngle=(360/24)*end-90;
-                    if (startAngle>180){
-                        startAngle=startAngle-360;
-                    }
+
                     mCurAngle=endAngle-startAngle;
 
                     //画选中区域
