@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_activity;
+package com.xinrui.secen.scene_activity;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,13 +22,13 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.xinrui.http.HttpUtils;
+import com.xinrui.secen.scene_adapter.EquipmentAdapter;
+import com.xinrui.secen.scene_pojo.Equipment;
+import com.xinrui.secen.scene_util.GetUrl;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
-import com.xinrui.secen.scene.scene_adapter.EquipmentAdapter;
-import com.xinrui.secen.scene.scene_pojo.Equipment;
 import com.xinrui.smart.util.Utils;
-import com.xinrui.secen.scene.scene_util.GetUrl;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

@@ -7,8 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.xinrui.secen.scene_pojo.Room;
 import com.xinrui.smart.R;
-import com.xinrui.secen.scene.scene_pojo.Room;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
  * Created by win7 on 2018/3/12.
  */
 
-public class CustomAdapter extends com.xinrui.secen.scene.scene_adapter.MyBaseAdapter {
+public class CustomAdapter extends MyBaseAdapter {
     final int itemLength = 32;
 
     List<Room> list = new ArrayList<>();

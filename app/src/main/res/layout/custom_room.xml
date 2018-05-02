@@ -18,14 +18,14 @@
         android:layout_width="wrap_content"
         android:layout_above="@+id/lal"
         android:layout_height="match_parent">
-        <com.xinrui.secen.scene.scene_view_custom.MyGridView
+        <com.xinrui.secen.scene_view_custom.MyGridView
             android:id="@+id/customRooms"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:horizontalSpacing="0dp"
             android:numColumns="4"
             android:verticalSpacing="0dp">
-        </com.xinrui.secen.scene.scene_view_custom.MyGridView>
+        </com.xinrui.secen.scene_view_custom.MyGridView>
     </ScrollView>
 
     <LinearLayout

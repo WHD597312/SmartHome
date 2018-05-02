@@ -29,23 +29,25 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.database.dao.daoimpl.RoomEntryDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.secen.scene_activity.AddEquipmentActivity;
 import com.xinrui.secen.scene_activity.RoomContentActivity;
 import com.xinrui.secen.scene_activity.RoomTypesActivity;
+import com.xinrui.secen.scene_adapter.Scene_deviceAdapter;
+import com.xinrui.secen.scene_pojo.Equipment;
+import com.xinrui.secen.scene_pojo.Room;
+import com.xinrui.secen.scene_pojo.RoomEntry;
+import com.xinrui.secen.scene_util.GetUrl;
+import com.xinrui.secen.scene_view_custom.RoomViewGroup;
 import com.xinrui.smart.R;
-import com.xinrui.secen.scene.scene_activity.AddEquipmentActivity;
-import com.xinrui.secen.scene.scene_adapter.Scene_deviceAdapter;
+import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
-import com.xinrui.secen.scene.scene_pojo.Equipment;
-import com.xinrui.secen.scene.scene_pojo.Room;
-import com.xinrui.secen.scene.scene_pojo.RoomEntry;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
-import com.xinrui.secen.scene.scene_util.GetUrl;
 import com.xinrui.secen.scene.scene_util.ItemDecoration.GridSpacingItemDecoration;
-import com.xinrui.secen.scene.scene_view_custom.RoomViewGroup;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -98,6 +100,7 @@ public class Btn2_fragment extends Fragment{
     RoomEntry roomEntry;
     public static int running=0;
     private ProgressDialog progressDialog;
+    DeviceChildDaoImpl deviceChildDao;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -159,6 +162,7 @@ public class Btn2_fragment extends Fragment{
         protected List<Room> doInBackground(Void... voids) {
 
             deviceGroupDao = new DeviceGroupDaoImpl(getActivity());
+            deviceChildDao=new DeviceChildDaoImpl(getActivity());
             DeviceGroup = deviceGroupDao.findAllDevices();
             List<Room> roomList = new ArrayList<>();
 
@@ -484,18 +488,25 @@ public class Btn2_fragment extends Fragment{
     public void saveViewInstance(String roomName,final View childView,List<Equipment> device_list){
         for (int i = 0; i < device_list.size(); i++) {
             if(device_list.get(i).getDevice_type() == 2){
+
+                Equipment equipment=device_list.get(i);
+                long deviceId=equipment.getId();
+
+
+                DeviceChild deviceChild2=deviceChildDao.findDeviceById(deviceId);
+                if (deviceChild2.getTemp()==0 && deviceChild2.getHum()==0){
+                    break;
+                }
                 TextView extTemp = (TextView) childView.findViewById(R.id.extTemp);
                 TextView extHut = (TextView) childView.findViewById(R.id.extHut);
-                SharedPreferences sp = getActivity().getSharedPreferences("data", 0);
-
-                String et = sp.getString("extTemp1","");
-                String eh = sp.getString("extHut1","");
-                if(et.equals("")||eh.equals("")){
-
-                }else {
+                if (deviceChild2!=null){
+                    String et=deviceChild2.getTemp()+"";
+                    String eh=deviceChild2.getHum()+"";
                     extTemp.setText(et+"℃");
                     extHut.setText(eh+"%");
                 }
+
+
             }
         }
         TextView room_Name = (TextView) childView.findViewById(R.id.room_name);
@@ -725,6 +736,7 @@ public class Btn2_fragment extends Fragment{
         if (receiver!=null){
             getActivity().unregisterReceiver(receiver);
         }
+        running = 0;
         super.onDestroy();
     }
     String extTemp ;

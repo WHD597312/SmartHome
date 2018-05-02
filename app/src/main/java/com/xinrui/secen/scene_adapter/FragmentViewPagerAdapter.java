@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_adapter;
+package com.xinrui.secen.scene_adapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;

@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_util;
+package com.xinrui.secen.scene_util;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

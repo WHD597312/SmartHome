@@ -169,7 +169,7 @@
             android:label=""
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.xinrui.secen.scene.scene_activity.AddEquipmentActivity"
+            android:name="com.xinrui.secen.scene_activity.AddEquipmentActivity"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activity.ScanActivity" />

@@ -38,24 +38,22 @@ import android.widget.Toast;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.database.dao.daoimpl.RoomEntryDaoImpl;
 import com.xinrui.http.HttpUtils;
-import com.xinrui.secen.scene.scene_fragment.Btn3_fragment;
-import com.xinrui.secen.scene.scene_fragment.Btn4_fragment;
 import com.xinrui.secen.scene_activity.CustomRoomActivity;
+import com.xinrui.secen.scene_adapter.FragmentViewPagerAdapter;
+import com.xinrui.secen.scene_adapter.Switch_houseAdapter;
 import com.xinrui.secen.scene_fragment.Btn1_fragment;
+import com.xinrui.secen.scene_pojo.Room;
+import com.xinrui.secen.scene_pojo.RoomEntry;
+import com.xinrui.secen.scene_util.CommonUtil;
+import com.xinrui.secen.scene_util.GetUrl;
 import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.secen.scene_util.OnItemClickListener;
+import com.xinrui.secen.scene_view_custom.CustomDialog;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
-import com.xinrui.secen.scene.scene_adapter.FragmentViewPagerAdapter;
-import com.xinrui.secen.scene.scene_adapter.Switch_houseAdapter;
 import com.xinrui.smart.pojo.DeviceGroup;
-import com.xinrui.secen.scene.scene_pojo.Room;
-import com.xinrui.secen.scene.scene_pojo.RoomEntry;
 import com.xinrui.smart.util.Utils;
-import com.xinrui.secen.scene.scene_util.CommonUtil;
-import com.xinrui.secen.scene.scene_util.GetUrl;
-import com.xinrui.secen.scene.scene_view_custom.CustomDialog;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -155,6 +153,8 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
     private CustomDialog.Builder builder;
     private CustomDialog mDialog;
+    boolean isNet = NetWorkUtil.isConn(MyApplication.getContext());
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -173,9 +173,19 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         fragmentTransaction = fragmentManager.beginTransaction();
         getActivity().getSupportFragmentManager().findFragmentByTag("");
 
-        boolean isNet = NetWorkUtil.isConn(MyApplication.getContext());
         if(!isNet){
             NetWorkUtil.getInstance().setNetworkMethod(getActivity());
+            houseId.setEnabled(false);
+            customHouseType.setEnabled(false);
+            btn1.setEnabled(false);
+            btn2.setEnabled(false);
+            btn3.setEnabled(false);
+            btn4.setEnabled(false);
+            btn5.setEnabled(false);
+            delete.setEnabled(false);
+            airQuality.setText("" );
+            humidity.setText("无数据");
+            temperature.setText("无数据");
         }else {initView();}
         return view;
     }
@@ -205,55 +215,62 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
     @Override
     public void onPause() {
-        savedState();
+        if(isNet){
+            savedState();
+        }
         super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 
     //初始化View
     public void initView() {
         builder = new CustomDialog.Builder(getActivity());
-            List<DeviceGroup> deviceGroups=new DeviceGroupDaoImpl(getActivity()).findAllDevices();
+        List<DeviceGroup> deviceGroups=new DeviceGroupDaoImpl(getActivity()).findAllDevices();
 
-            DeviceGroup deviceGroup = deviceGroups.get(0);
+        DeviceGroup deviceGroup = deviceGroups.get(0);
 
         SharedPreferences preferences = getActivity().getSharedPreferences("my", MODE_PRIVATE);
         String s = preferences.getString("userId","");
         userId=Integer.parseInt(s);
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data",MODE_PRIVATE);
         user_Id = sharedPreferences.getInt("user_Id",0);
-                WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
+        WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
         viewPager = (ViewPager) view.findViewById(R.id.fragment_viewPager);
 
         if(user_Id != userId){
-                house_id = deviceGroup.getId();
-                house_Name = deviceGroup.getHouseName() + "(" + house_id + ")";
-                String s1=deviceGroup.getLayers();
+            house_id = deviceGroup.getId();
+            house_Name = deviceGroup.getHouseName() + "(" + house_id + ")";
+            String s1=deviceGroup.getLayers();
 //                String rr = s.substring(s.length()-1,s.length());
-                add_key= Integer.parseInt(s1.substring(s1.length()-1,s1.length()));
-                location = deviceGroup.getLocation().replace("市", "");
-                houseId.setText(house_Name);
+            add_key= Integer.parseInt(s1.substring(s1.length()-1,s1.length()));
+            location = deviceGroup.getLocation().replace("市", "");
+            houseId.setText(house_Name);
 
-                weatherAsyncTask.execute();
-                fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
-                        getChildFragmentManager(), fragmentslist);
-                viewPager.setAdapter(fragmentViewPagerAdapter);
-                savefloor(add_key);
-                saveViewPage();
-                savedState();
-                fragmentslist.add(btn1_fragment);
-                restore_Data();
-            }else {
-                fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
-                        getChildFragmentManager(), fragmentslist);
-                btn1_fragment = new Btn1_fragment();
-                fragmentslist.add(btn1_fragment);
-                viewPager.setAdapter(fragmentViewPagerAdapter);
-                saveViewPage();
-                restore_Data();
-                weatherAsyncTask.execute();
-            }
-
+            weatherAsyncTask.execute();
+            fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
+                    getChildFragmentManager(), fragmentslist);
+            viewPager.setAdapter(fragmentViewPagerAdapter);
+            savefloor(add_key);
+            saveViewPage();
+            savedState();
+            fragmentslist.add(btn1_fragment);
+            restore_Data();
+        }else {
+            fragmentViewPagerAdapter = new FragmentViewPagerAdapter(
+                    getChildFragmentManager(), fragmentslist);
+            btn1_fragment = new Btn1_fragment();
+            fragmentslist.add(btn1_fragment);
+            viewPager.setAdapter(fragmentViewPagerAdapter);
+            saveViewPage();
+            restore_Data();
+            weatherAsyncTask.execute();
         }
+
+    }
 //    }
 
     //初始化viewpage
@@ -297,15 +314,19 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
      */
     @Override
     public void onItemClick(int position) {
-        house_id = DeviceGroup.get(position).getId();
-        DeviceGroup deviceGroup = deviceGroupDao.findById(house_id);
-        house_Name = deviceGroup.getHouseName() + "(" + house_id + ")";
-        location = deviceGroup.getLocation().replace("市", "");
-        houseId.setText(house_Name);
-        WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
-        weatherAsyncTask.execute();
-        cut_houseId();
-        dialog.dismiss();
+        boolean isNet = NetWorkUtil.isConn(MyApplication.getContext());
+
+        if(isNet){
+            house_id = DeviceGroup.get(position).getId();
+            DeviceGroup deviceGroup = deviceGroupDao.findById(house_id);
+            house_Name = deviceGroup.getHouseName() + "(" + house_id + ")";
+            location = deviceGroup.getLocation().replace("市", "");
+            houseId.setText(house_Name);
+            WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
+            weatherAsyncTask.execute();
+            cut_houseId();
+            dialog.dismiss();
+        }
     }
 
     public void cut_houseId() {
@@ -454,6 +475,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         }
     }
 
+    //删除服务器房间数据
     class DeleteRoomAsyncTask extends AsyncTask<JSONArray, Void, Integer> {
 
         @Override
@@ -572,7 +594,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                             mDialog.dismiss();
                         }
                     });
-            }else {
+                }else {
                     method_new_btn();
                 }
                 if (house_id == null) {
@@ -1021,7 +1043,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                 isestablied = true;
             }
             addPage(add_key);
-             viewPager.setCurrentItem(add_key);
+            viewPager.setCurrentItem(add_key);
             if(add_key > 3){
 
             }else {
@@ -1092,7 +1114,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         String airCondition = sharedPreferences.getString("airCondition", "良好");
         String humidity1 = sharedPreferences.getString("humidity", "60%").substring(3);
         String temperature1 = sharedPreferences.getString("temperature", "28℃");
-         user_Id = sharedPreferences.getInt("user_Id",0);
+        user_Id = sharedPreferences.getInt("user_Id",0);
 
 
 
@@ -1174,11 +1196,10 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
         @Override
         protected void onPostExecute(String s) {
-            if(s.equals("查询不到该城市的天气") || s == null){
+            if(s.equals("查询不到该城市的天气")){
                 airQuality.setText("" );
                 humidity.setText("无数据");
                 temperature.setText("无数据");
-                setNetwork();
             }else {
                 SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data", 0);
                 String airCondition = sharedPreferences.getString("airCondition", "良好");
@@ -1197,17 +1218,19 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        savedState();
-        SharedPreferences.Editor fragmentPreferences = (SharedPreferences.Editor) getActivity().getSharedPreferences("fragment", MODE_PRIVATE).edit();
-        fragmentPreferences.putString("fragment","3");
+        if(isNet) {
+            savedState();
+            SharedPreferences.Editor fragmentPreferences = (SharedPreferences.Editor) getActivity().getSharedPreferences("fragment", MODE_PRIVATE).edit();
+            fragmentPreferences.putString("fragment", "3");
+        }
         super.onSaveInstanceState(outState);
     }
 
 
     public void showDialog1(){
-         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-         View layout =  inflater.inflate(R.layout.dialog, null);//获取自定义布局
+        View layout =  inflater.inflate(R.layout.dialog, null);//获取自定义布局
         builder.setView(layout);
         builder.setTitle(R.string.hint);//设置标题内容
 //        builder.setMessage("");//显示自定义布局内容
@@ -1238,52 +1261,5 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                 .setSingleButton(btnText, onClickListener)
                 .createSingleButtonDialog();
         mDialog.show();
-    }
-
-    /**
-     * 网络未连接时，调用设置方法
-     */
-    private void setNetwork(){
-        Toast.makeText(getActivity(), "网络连接异常", Toast.LENGTH_SHORT).show();
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setIcon(R.drawable.ic_launcher);
-        builder.setTitle("网络提示信息");
-        builder.setMessage("网络不可用，如果继续，请先设置网络！");
-        builder.setPositiveButton("设置", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent = null;
-/**
- * 判断手机系统的版本！如果API大于10 就是3.0+
- * 因为3.0以上的版本的设置和3.0以下的设置不一样，调用的方法不同
- */
-                if (android.os.Build.VERSION.SDK_INT > 10) {
-//intent = new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS);
-//intent = new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS);
-//intent = new Intent(android.provider.Settings.ACTION_APN_SETTINGS);
-                    intent = new Intent(android.provider.Settings.ACTION_SETTINGS);
-                } else {
-                    intent = new Intent();
-                    ComponentName component = new ComponentName(
-                            "com.android.settings",
-                            "com.android.settings.WirelessSettings");
-                    intent.setComponent(component);
-                    intent.setAction("android.intent.action.VIEW");
-                }
-                startActivity(intent);
-            }
-        });
-
-
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-
-            }
-        });
-        builder.create();
-        builder.show();
     }
 }

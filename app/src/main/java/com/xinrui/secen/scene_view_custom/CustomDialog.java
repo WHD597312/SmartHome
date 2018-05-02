@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_view_custom;
+package com.xinrui.secen.scene_view_custom;
 
 import android.app.Dialog;
 import android.content.Context;

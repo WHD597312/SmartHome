@@ -52,17 +52,19 @@ import android.widget.Toast;
 
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.secen.scene_adapter.MyAdapter;
+import com.xinrui.secen.scene_pojo.Equipment;
+import com.xinrui.secen.scene_util.BitmapCompressUtils;
+import com.xinrui.secen.scene_util.GetUrl;
+import com.xinrui.secen.scene_view_custom.CustomDialog;
+import com.xinrui.secen.scene_view_custom.DragImageView;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
-import com.xinrui.secen.scene.scene_adapter.MyAdapter;
-import com.xinrui.secen.scene.scene_pojo.Equipment;
+import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
-import com.xinrui.secen.scene.scene_util.BitmapCompressUtils;
-import com.xinrui.secen.scene.scene_util.GetUrl;
-import com.xinrui.secen.scene.scene_view_custom.CustomDialog;
-import com.xinrui.secen.scene.scene_view_custom.DragImageView;
 import com.zhy.http.okhttp.OkHttpUtils;
 
 import org.json.JSONArray;
@@ -136,6 +138,8 @@ public class RoomContentActivity extends Activity {
     SharedPreferences sharedPreferences1;
     private CustomDialog.Builder builder;
     private CustomDialog mDialog;
+    DeviceChildDaoImpl deviceChildDao;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", MODE_PRIVATE);
@@ -147,6 +151,7 @@ public class RoomContentActivity extends Activity {
         bindService(intent,connection,Context.BIND_AUTO_CREATE);
         IntentFilter intentFilter=new IntentFilter("Btn1_fragment");
         registerReceiver(receiver,intentFilter);
+        deviceChildDao=new DeviceChildDaoImpl(this);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.room_content);
@@ -201,16 +206,20 @@ public class RoomContentActivity extends Activity {
         TextView extHut = (TextView)extHut1.findViewById(R.id.extHut);
         for (int i = 0; i < mDatas.size(); i++) {
             if(mDatas.get(i).getDevice_type() == 2){
-                SharedPreferences sp = getSharedPreferences("data", 0);
-                String et = sp.getString("extTemp1","");
-                String eh = sp.getString("extHut1","");
-                if(et.equals("")||eh.equals("")){
+                long deviceId = mDatas.get(i).getId();
+                DeviceChild deviceChild2=deviceChildDao.findDeviceById(deviceId);
 
-                }else {
+                if (deviceChild2.getTemp()==0 && deviceChild2.getHum()==0){
+                    break;
+                }
+                if (deviceChild2!=null){
+                    String et=deviceChild2.getTemp()+"";
+                    String eh=deviceChild2.getHum()+"";
                     extTemp.setText(et+"℃");
                     extHut.setText(eh+"%");
                 }
             }
+
         }
 
     }
@@ -700,12 +709,12 @@ public class RoomContentActivity extends Activity {
                     if(extTemp1 == null|| extHut1 == null){
 
                     }else {
-                        extTemp1.setText(extTemp+"℃");
-                        extHut1.setText(extHut+"％");
+                        extTemp1.setText(extTemp2+"℃");
+                        extHut1.setText(extHut2+"％");
                     }
 
-                    String et = extTemp;
-                    String eh = extHut;
+                    String et = extTemp2;
+                    String eh = extHut2;
                     getData(et,eh);
                     break;
                 }

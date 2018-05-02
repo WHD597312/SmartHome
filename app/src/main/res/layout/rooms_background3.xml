@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.xinrui.secen.scene.scene_view_custom.RoomViewGroup xmlns:android="http://schemas.android.com/apk/res/android"
+<com.xinrui.secen.scene_view_custom.RoomViewGroup xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/roomViewGroup"
@@ -25,4 +25,4 @@
                 </FrameLayout>
 
 
-</com.xinrui.secen.scene.scene_view_custom.RoomViewGroup>
+</com.xinrui.secen.scene_view_custom.RoomViewGroup>

@@ -13,10 +13,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 
+import com.xinrui.secen.scene_adapter.RoomtypeAdapter;
+import com.xinrui.secen.scene_pojo.RoomType;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
-import com.xinrui.secen.scene.scene_adapter.RoomtypeAdapter;
-import com.xinrui.secen.scene.scene_pojo.RoomType;
 
 import java.util.ArrayList;
 import java.util.List;

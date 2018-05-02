@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_view_custom;
+package com.xinrui.secen.scene_view_custom;
 
 import android.content.Context;
 import android.graphics.Rect;

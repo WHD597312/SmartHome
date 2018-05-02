@@ -1,4 +1,4 @@
-package com.xinrui.secen.scene.scene_adapter;
+package com.xinrui.secen.scene_adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.xinrui.secen.scene_pojo.RoomType;
 import com.xinrui.smart.R;
-import com.xinrui.secen.scene.scene_pojo.RoomType;
 import com.xinrui.smart.util.ChoiceItemLayout;
 
 import java.util.List;
@@ -23,6 +23,8 @@ public class RoomtypeAdapter extends RecyclerView.Adapter<RoomtypeAdapter.ViewHo
     public RoomtypeAdapter(List<RoomType> mRoomTypelist) {
         this.mRoomTypelist = mRoomTypelist;
     }
+
+
     static class ViewHolder extends RecyclerView.ViewHolder{
 
         ImageView roomImage;

@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     private DeviceGroupDaoImpl deviceGroupDao;
     private DeviceChildDaoImpl deviceChildDao;
     private long exitTime = 0;
+    android.support.v4.app.Fragment fragment = new android.support.v4.app.Fragment();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -234,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
             smart_view.setVisibility(View.VISIBLE);
             live_view.setVisibility(View.GONE);
         } else if ("3".equals(fragmentS)) {
+
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.layout_body, new LiveFragment()).commit();
             fragment = smartFragmentManager;
@@ -283,7 +285,6 @@ public class MainActivity extends AppCompatActivity {
         listview.setAdapter(adapter);
     }
 
-    android.support.v4.app.Fragment fragment = new android.support.v4.app.Fragment();
 
     @OnClick({R.id.tv_exit, R.id.tv_device, R.id.tv_smart, R.id.tv_live})
     public void onClick(View view) {
@@ -382,17 +383,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-
-    public void exit() {
-        if ((System.currentTimeMillis() - exitTime) > 2000) {
-            Toast.makeText(getApplicationContext(), "再按一次退出程序",
-                    Toast.LENGTH_SHORT).show();
-            exitTime = System.currentTimeMillis();
-        } else {
-            finish();
-            System.exit(0);
-        }
-    }
 
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
