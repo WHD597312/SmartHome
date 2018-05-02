@@ -13,6 +13,7 @@ import android.widget.ScrollView;
  */
 
 public class RoomViewGroup extends ScrollView {
+
     private static final String TAG = "ElasticScrollView";
 
     //移动因子, 是一个百分比, 比如手指移动了100px, 那么View就只移动50px

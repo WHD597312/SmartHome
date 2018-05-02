@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 
 public class Equipment implements Serializable{
+
     private int id;
     private String deviceName;
     private int type;

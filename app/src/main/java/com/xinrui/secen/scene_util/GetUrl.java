@@ -11,6 +11,7 @@ public class GetUrl {
      * 拼接get请求的url请求地址
      */
     public static String getRqstUrl(String url, Map<String, Object> params) {
+
         StringBuilder builder = new StringBuilder(url);
         boolean isFirst = true;
         for (String key : params.keySet()) {

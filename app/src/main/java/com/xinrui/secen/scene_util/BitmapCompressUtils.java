@@ -20,6 +20,7 @@ import java.util.Date;
  */
 
 public class BitmapCompressUtils {
+
     /**
      * 压缩图片
      *

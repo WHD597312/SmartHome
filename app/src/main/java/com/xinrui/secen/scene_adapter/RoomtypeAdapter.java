@@ -28,6 +28,7 @@ public class RoomtypeAdapter extends RecyclerView.Adapter<RoomtypeAdapter.ViewHo
     static class ViewHolder extends RecyclerView.ViewHolder{
 
         ImageView roomImage;
+
         TextView roomName;
 
         public ViewHolder(View itemView) {

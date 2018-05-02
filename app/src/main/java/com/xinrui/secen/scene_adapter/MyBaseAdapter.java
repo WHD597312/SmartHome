@@ -21,6 +21,7 @@ public class MyBaseAdapter extends BaseAdapter {
 
     public MyBaseAdapter() {
 
+
     }
 
     @Override

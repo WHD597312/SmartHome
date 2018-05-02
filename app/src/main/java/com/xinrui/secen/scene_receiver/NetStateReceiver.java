@@ -11,6 +11,7 @@ import com.xinrui.secen.scene_util.NetWorkUtil;
 import org.greenrobot.eventbus.EventBus;
 
 public class NetStateReceiver extends BroadcastReceiver {
+
     @Override
     public void onReceive(Context context, Intent intent) {
         boolean isNet = NetWorkUtil.isConn(MyApplication.getInstance());

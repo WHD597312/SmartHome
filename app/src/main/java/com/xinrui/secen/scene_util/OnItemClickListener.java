@@ -6,4 +6,5 @@ package com.xinrui.secen.scene_util;
 
 public interface OnItemClickListener {
     void onItemClick(int position);
+
 }

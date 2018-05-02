@@ -21,6 +21,7 @@ public class NetWorkUtil {
     }
     public synchronized static NetWorkUtil getInstance() {
         if (instance == null) {
+
             synchronized (NetWorkUtil.class) {
                 instance = instance == null ? new NetWorkUtil() : instance;
             }

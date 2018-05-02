@@ -126,6 +126,7 @@ public class CustomRoomActivity extends AppCompatActivity {
             R.drawable.merge_room16, R.drawable.merge_room17, R.drawable.merge_room18};
 
 
+
     /**
      * 点击gridview一个item变色，再次点击还原
      *

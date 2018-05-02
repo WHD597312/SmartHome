@@ -22,6 +22,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public  OnItemLongClickListener mListener;
     public Context mContext;
 
+
     public MyAdapter(List<Equipment> mLists, OnItemLongClickListener mListener, Context mContext) {
         this.mLists = mLists;
         this.mListener = mListener;

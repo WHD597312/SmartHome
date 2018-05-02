@@ -154,6 +154,7 @@ public class Btn4_fragment extends Fragment{
             progressDialog.setCancelable(false);
             progressDialog.show();
             super.onPreExecute();
+
         }
 
         @Override

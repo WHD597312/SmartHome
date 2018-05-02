@@ -19,6 +19,7 @@ import java.util.List;
 
 @SuppressLint("AppCompatCustomView")
 public class DragView extends ImageView {
+
     private Boolean falg = false;   //用于判断 是滑动还是点击事件 做弹出菜单处理
     private int mScreenWidth;       //屏幕宽度
     private int mScreenHeight;      //屏幕高度

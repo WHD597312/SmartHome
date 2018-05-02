@@ -39,6 +39,7 @@ DragGridView extends GridView {
     * DragGridView的长按响应的时间，默认是1000毫秒，也可以自行设置*/
     private long dragResponseMS = 1000;
 
+
     /*
     * 是否可以拖拽，默认不可以*/
     private boolean isDrag = false;

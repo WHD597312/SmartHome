@@ -80,6 +80,7 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
         bundle.putString("Activity_return", "Activity_return");
         intent.putExtras(bundle);
         startActivity(intent);
+
     }
     MyApplication application;
     @Override

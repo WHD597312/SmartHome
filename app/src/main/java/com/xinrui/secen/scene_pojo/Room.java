@@ -11,6 +11,7 @@ import java.io.Serializable;
  */
 
 public class Room implements Serializable{
+
     private View view;
     private int roomId;
     private String roomName;

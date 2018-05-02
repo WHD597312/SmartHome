@@ -175,6 +175,7 @@ public class Btn2_fragment extends Fragment{
                     JSONObject jsonObject = new JSONObject(result);
                     JSONObject content = jsonObject.getJSONObject("content");
                     JSONArray array = content.getJSONArray(2 + "");
+
                     for (int i = 0; i < array.length(); i++) {
                         JSONObject object = array.getJSONObject(i);
                         int roomId = object.getInt("roomId");

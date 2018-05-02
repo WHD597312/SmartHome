@@ -14,6 +14,7 @@ import com.xinrui.smart.R;
 public class MyViewHolder extends RecyclerView.ViewHolder {
     public TextView houseName;
     public ImageView imageView;
+
     public MyViewHolder(View itemView) {
         super(itemView);
         houseName = (TextView) itemView.findViewById(R.id.houseName);

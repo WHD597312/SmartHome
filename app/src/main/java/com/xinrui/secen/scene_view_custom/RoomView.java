@@ -11,6 +11,7 @@ import android.view.ViewGroup;
  */
 
 public class RoomView extends View {
+
     public RoomView(Context context) {
         super(context);
     }

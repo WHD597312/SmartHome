@@ -14,6 +14,7 @@ public interface DragGridBaseAdapter {
 	 * @param hidePosition
 	 */
 	public void setHideItem(int hidePosition);
-	
+
+
 
 }

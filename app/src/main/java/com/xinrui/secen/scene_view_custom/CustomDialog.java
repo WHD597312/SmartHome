@@ -20,6 +20,7 @@ public class CustomDialog extends Dialog {
     }
 
     public static class Builder {
+
         private String message;
         private View contentView;
         private String positiveButtonText;

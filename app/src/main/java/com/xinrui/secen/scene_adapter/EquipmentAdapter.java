@@ -27,6 +27,7 @@ public class EquipmentAdapter extends RecyclerView.Adapter<EquipmentAdapter.View
         this.mContext = mContext;
         this.equipment_list = equipment;
         this.mCheckListener = mCheckListener;
+
     }
 
     @Override

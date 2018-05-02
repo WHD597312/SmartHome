@@ -235,6 +235,7 @@ public class RoomContentActivity extends Activity {
             }
             imageFile.createNewFile();
         } catch (IOException e) {
+
             e.printStackTrace();
         }
         if (Build.VERSION.SDK_INT < 24) {

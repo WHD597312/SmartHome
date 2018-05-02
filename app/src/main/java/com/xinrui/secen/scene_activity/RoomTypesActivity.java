@@ -69,7 +69,8 @@ public class RoomTypesActivity extends Activity {
         //创建GridLayoutManager 对象
         GridLayoutManager gridLayoutManager = new GridLayoutManager(mContext, 4);
         recyclerView.setLayoutManager(gridLayoutManager);
-        final RoomtypeAdapter roomType = new RoomtypeAdapter(mRoomtypelsit);
+        final RoomtypeAdapter roomType = new RoomtypeAdapter(
+                mRoomtypelsit);
         roomType.setOnItemClickListener(new RoomtypeAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {

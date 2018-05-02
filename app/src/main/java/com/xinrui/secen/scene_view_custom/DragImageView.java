@@ -21,6 +21,7 @@ public class DragImageView extends RecyclerView {
 
     private ViewDragHelper mDragHelper;
 
+
     private float mDragOriLeft;
     private float mDragOriTop;
 

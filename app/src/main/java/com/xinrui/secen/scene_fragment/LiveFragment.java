@@ -839,6 +839,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                                         RoomEntry roomEntry = roomEntries.get(i);
                                         int x = roomEntry.getX();
                                         int y = roomEntry.getY();
+
                                         int width = roomEntry.getWidth();
                                         int height = roomEntry.getHeight();
                                         int postion_left_top = x / item_width + 4 * (y / item_width);

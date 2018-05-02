@@ -10,6 +10,7 @@ import org.greenrobot.greendao.annotation.Id;
 
 @Entity
 public class RoomEntry {
+
     @Id(autoincrement = true)
     private Long id;
     private int x;

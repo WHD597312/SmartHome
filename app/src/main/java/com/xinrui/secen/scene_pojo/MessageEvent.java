@@ -1,6 +1,7 @@
 package com.xinrui.secen.scene_pojo;
 
 public class MessageEvent {
+
     private String message;
 
     public MessageEvent(String message) {

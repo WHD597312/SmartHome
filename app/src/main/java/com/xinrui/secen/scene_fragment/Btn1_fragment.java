@@ -265,6 +265,7 @@ public class Btn1_fragment extends Fragment{
                             @Override
                             public boolean onTouch(View v, MotionEvent event) {
                                 return false;
+
                             }
                         });
                         view_background.setVerticalScrollBarEnabled(true);

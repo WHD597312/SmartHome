@@ -116,6 +116,7 @@ public class Scene_deviceAdapter extends RecyclerView.Adapter<Scene_deviceAdapte
 
     public void setOnItemClickListener(OnRecyclerViewItemClickListener listener) {
         this.mOnItemClickListener = listener;
+
     }
     public void setOnItemLongClickListener(OnRecyclerItemLongListener listener){
         this.mOnItemLong =  listener;

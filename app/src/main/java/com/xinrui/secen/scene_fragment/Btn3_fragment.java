@@ -170,6 +170,7 @@ public class Btn3_fragment extends Fragment{
             String result = HttpUtils.getOkHpptRequest(url);
             try {
                 if(!Utils.isEmpty(result)) {
+
                     JSONObject jsonObject = new JSONObject(result);
                     JSONObject content = jsonObject.getJSONObject("content");
                     JSONArray array = content.getJSONArray(3 + "");

@@ -19,6 +19,7 @@ import com.xinrui.smart.R;
  */
 
 public class ShowPopup extends PopupWindow {
+
     View view;
     Context context;
     public ShowPopup(Context context) {

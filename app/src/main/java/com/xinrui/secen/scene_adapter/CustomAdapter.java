@@ -18,6 +18,7 @@ import java.util.List;
  */
 
 public class CustomAdapter extends MyBaseAdapter {
+
     final int itemLength = 32;
 
     List<Room> list = new ArrayList<>();
