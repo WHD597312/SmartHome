@@ -91,7 +91,8 @@ public class Btn1_fragment extends Fragment{
 
     List<Room> room_list = new ArrayList<>();
     List<RoomEntry> roomEntry_list = new ArrayList<>();
-    public List<View> childView_list  = new ArrayList<>();
+    public List<View> childView_list  = new ArrayList<>();//room的view
+    public List<Room> room_list1 = new ArrayList<>();//room的对象
     SharedPreferences sharedPreferences;
 
     private List<Integer> startPoint_list = new ArrayList<>();
@@ -229,7 +230,7 @@ public class Btn1_fragment extends Fragment{
 
                         int width_room = ((x_max - x_min) / item_width + 1) * (width / 4);
                         int height_room = ((y_max - y_min) / item_width + 1) * (width / 4);
-                        room = new Room(roomId,roomName,startPoint,points,houseId,devices,layer,x_min,y_min,width_room,height_room);//从服务器获取room数据封装成room对象
+                        room = new Room(roomId,roomName,startPoint,points,houseId,devices,layer,x_min,y_min,width_room,height_room,false);//从服务器获取room数据封装成room对象
                         roomList.add(room);
                     }
                     return roomList;
@@ -246,8 +247,8 @@ public class Btn1_fragment extends Fragment{
                 if(roomList != null){
                     for (int i = 0; i < roomList.size(); i++) {
                         roomEntry = new RoomEntry(roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
-                        View view = setLayout(roomList.get(i).getDevices(),roomList.get(i).getRoomName(),roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight());//绘制room的view
-                        Room room1 = new Room(view,roomList.get(i).getRoomId(),roomList.get(i).getRoomName(),roomList.get(i).getStartPoint(),roomList.get(i).getPoints(),roomList.get(i).getHouseId(),roomList.get(i).getDevices(),roomList.get(i).getLayer(),roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
+                        View view = setLayout(roomList.get(i).getDevices(),roomList.get(i).getRoomName(),roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight(),roomList.get(i));//绘制room的view
+                        Room room1 = new Room(view,roomList.get(i).getRoomId(),roomList.get(i).getRoomName(),roomList.get(i).getStartPoint(),roomList.get(i).getPoints(),roomList.get(i).getHouseId(),roomList.get(i).getDevices(),roomList.get(i).getLayer(),roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight(),roomList.get(i).isSelected());
                         room_list.add(room1);
                         roomEntry_list.add(roomEntry);
                         view.setTag(room1.getRoomId());
@@ -307,7 +308,7 @@ public class Btn1_fragment extends Fragment{
 
     //绘制房间view
     @SuppressLint("ClickableViewAccessibility")
-    public View setLayout(JSONArray devices, String roomName, int x, int y, int width, int height) {
+    public View setLayout(JSONArray devices, String roomName, int x, int y, int width, int height ,Room room) {
         List<Equipment> device_list = new ArrayList<>();//房间设备的list
 
         WindowManager wm = (WindowManager) getActivity()//获取屏幕宽高
@@ -374,45 +375,10 @@ public class Btn1_fragment extends Fragment{
         rv.setHasFixedSize(true);
         Scene_deviceAdapter scene_deviceAdapter = new Scene_deviceAdapter(device_list);
 
-        //RecyclerView的item的点击事件
-        scene_deviceAdapter.setOnItemClickListener(new Scene_deviceAdapter.OnRecyclerViewItemClickListener() {
-            @Override
-            public void onItemClick(View view, int data) {
-                SharedPreferences.Editor sp = getActivity().getSharedPreferences("roomId", Activity.MODE_PRIVATE).edit();
 
-                for (int i = 0; i < room_list.size(); i++) {
-                    if (childView.getTag() == room_list.get(i).getView().getTag()) {
-                        int roomId = room_list.get(i).getRoomId();
-                        sp.putInt("roomId",roomId);
-                        sp.commit();
-                        break;
-                    }
-                }
-
-                Intent intent = new Intent(getActivity(), RoomContentActivity.class);
-                startActivity(intent);
-            }
-        });
-        //RecyclerView的item的长按事件
-        scene_deviceAdapter.setOnItemLongClickListener(new Scene_deviceAdapter.OnRecyclerItemLongListener() {
-            boolean isSelected = false;//房间选中状态
-            @Override
-            public void onItemLongClick(View view, int position) {
-                if(isSelected){
-                    childView.setBackgroundResource(R.drawable.mergeroom_background);
-                    childView_list.remove(childView);
-                    isSelected = false;
-                }else {
-                    childView.setBackgroundResource(R.drawable.select_mergeroom_background);
-                    childView_list.add(childView);
-                    isSelected = true;
-                }
-            }
-        });
-        rv.setAdapter(scene_deviceAdapter);
         //RecyclerView的本身的点击事件,使用手势处理点击，长按
         final GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {
-            boolean isSelected = false;//房间选中状态
+//            boolean isSelected = is;//房间选中状态
             @Override
             public boolean onDown(MotionEvent e) {
 
@@ -450,15 +416,20 @@ public class Btn1_fragment extends Fragment{
             //长按
             @Override
             public void onLongPress(MotionEvent e) {
-                if(isSelected){
-                    childView.setBackgroundResource(R.drawable.mergeroom_background);
-                    childView_list.remove(childView);
-                    isSelected = false;
-                }else {
-                    childView.setBackgroundResource(R.drawable.select_mergeroom_background);
-                    childView_list.add(childView);
-                    isSelected = true;
-                }
+//                for (int i = 0; i < room_list.size(); i++) {
+//                    if(room_list.get(i).getView() == childView){
+                        if(childView.isSelected()){
+                            childView.setBackgroundResource(R.drawable.mergeroom_background);
+                            childView_list.remove(childView);
+                            childView.setSelected(false);
+                        }else {
+                            childView.setBackgroundResource(R.drawable.select_mergeroom_background);
+                            childView_list.add(childView);
+                            childView.setSelected(true);
+                        }
+//                    }
+//                }
+
             }
 
             @Override
@@ -474,6 +445,57 @@ public class Btn1_fragment extends Fragment{
             }
         });
         saveViewInstance(roomName,childView,device_list);
+
+        childView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
+
+        //RecyclerView的item的点击事件
+        scene_deviceAdapter.setOnItemClickListener(new Scene_deviceAdapter.OnRecyclerViewItemClickListener() {
+            @Override
+            public void onItemClick(View view, int data) {
+                SharedPreferences.Editor sp = getActivity().getSharedPreferences("roomId", Activity.MODE_PRIVATE).edit();
+
+                for (int i = 0; i < room_list.size(); i++) {
+                    if (childView.getTag() == room_list.get(i).getView().getTag()) {
+                        int roomId = room_list.get(i).getRoomId();
+                        sp.putInt("roomId",roomId);
+                        sp.commit();
+                        break;
+                    }
+                }
+
+                Intent intent = new Intent(getActivity(), RoomContentActivity.class);
+                startActivity(intent);
+            }
+        });
+        //RecyclerView的item的长按事件
+
+        scene_deviceAdapter.setOnItemLongClickListener(new Scene_deviceAdapter.OnRecyclerItemLongListener() {
+//            final boolean isSelected = false;//房间选中状态
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+//                for (int i = 0; i < room_list.size(); i++) {
+//                    if(room_list.get(i).getView().getTag() == view.getTag()){
+                        if(childView.isSelected()){
+                            childView.setBackgroundResource(R.drawable.mergeroom_background);
+                            childView_list.remove(childView);
+                            childView.setSelected(false);
+                        }else {
+                            childView.setBackgroundResource(R.drawable.select_mergeroom_background);
+                            childView_list.add(childView);
+                            childView.setSelected(true);
+                        }
+//                    }
+//                }
+
+            }
+        });
+        rv.setAdapter(scene_deviceAdapter);
 
         return childView;
     }
@@ -552,44 +574,47 @@ public class Btn1_fragment extends Fragment{
             }
         });
 
-        childView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences.Editor sp = getActivity().getSharedPreferences("roomId", Activity.MODE_PRIVATE).edit();
-
-                for (int i = 0; i < room_list.size(); i++) {
-                    if (childView.getTag() == room_list.get(i).getView().getTag()) {
-                        int roomId = room_list.get(i).getRoomId();
-                        sp.putInt("roomId",roomId);
-                        sp.commit();
-                        break;
-                    }
-                }
-
-                Intent intent = new Intent(getActivity(), RoomContentActivity.class);
-                startActivity(intent);
-            }
-        });
-        childView.setOnLongClickListener(new View.OnLongClickListener() {
-
-            boolean isSelected = false;//房间选中状态
-
-            @SuppressLint("ResourceAsColor")
-            @Override
-            public boolean onLongClick(View v) {
-                int i = (int) v.getTag();
-                if(isSelected){
-                    v.setBackgroundResource(R.drawable.mergeroom_background);
-                    childView_list.remove(v);
-                    isSelected = false;
-                }else {
-                    v.setBackgroundResource(R.drawable.select_mergeroom_background);
-                    childView_list.add(v);
-                    isSelected = true;
-                }
-                return true;
-            }
-        });
+//        childView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                SharedPreferences.Editor sp = getActivity().getSharedPreferences("roomId", Activity.MODE_PRIVATE).edit();
+//
+//                for (int i = 0; i < room_list.size(); i++) {
+//                    if (childView.getTag() == room_list.get(i).getView().getTag()) {
+//                        int roomId = room_list.get(i).getRoomId();
+//                        sp.putInt("roomId",roomId);
+//                        sp.commit();
+//                        break;
+//                    }
+//                }
+//
+//                Intent intent = new Intent(getActivity(), RoomContentActivity.class);
+//                startActivity(intent);
+//            }
+//        });
+//        childView.setOnLongClickListener(new View.OnLongClickListener() {
+//
+//            boolean isSelected = false;//房间选中状态
+//
+//            @SuppressLint("ResourceAsColor")
+//            @Override
+//            public boolean onLongClick(View v) {
+//                int i = (int) v.getTag();
+//                v.setTag(1);
+//                if(i==1){
+//                    v.setBackgroundResource(R.drawable.mergeroom_background);
+//                    childView_list.remove(v);
+//                    v.setTag(2);
+//                    isSelected = false;
+//                }else if(i == 2){
+//                    v.setBackgroundResource(R.drawable.select_mergeroom_background);
+//                    childView_list.add(v);
+//                    v.setTag(1);
+//                    isSelected = true;
+//                }
+//                return true;
+//            }
+//        });
     }
 
         class GetUnboundDeviceAsyncTask extends AsyncTask<Void,Void,Integer>{
@@ -673,7 +698,7 @@ public class Btn1_fragment extends Fragment{
         }
     }
 
-    //返回选中的room
+    //返回选中的room的view
     public List<View> getListViews(){
         Log.i("childView_list1",childView_list.size()+"");
         return childView_list;

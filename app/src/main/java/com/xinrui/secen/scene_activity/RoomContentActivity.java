@@ -727,7 +727,6 @@ public class RoomContentActivity extends Activity {
 //                    getData(et,eh);
 //                    break;
                     if(deviceChild2!=null){
-                        
                         String macAddress2 = deviceChild2.getMacAddress();
                         if(macAddress2.equals(macAddress)){
                             extTemp1.setText(deviceChild2.getTemp()+"℃");
