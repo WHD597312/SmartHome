@@ -25,6 +25,7 @@ import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceGroup;
+import com.xinrui.smart.util.Mobile;
 import com.xinrui.smart.util.Utils;
 import com.zhy.http.okhttp.OkHttpUtils;
 
@@ -52,6 +53,8 @@ public class RegistActivity extends AppCompatActivity {
     private String url="http://120.77.36.206:8082/warmer/v1.0/user/register";
 
     SharedPreferences preferences;
+    private DeviceChildDaoImpl deviceChildDao;
+    private DeviceGroupDaoImpl deviceGroupDao;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +73,9 @@ public class RegistActivity extends AppCompatActivity {
         super.onStart();
         preferences=getSharedPreferences("my",MODE_PRIVATE);
         SMSSDK.registerEventHandler(eventHandler);
+
+        deviceGroupDao=new DeviceGroupDaoImpl(this);
+        deviceChildDao=new DeviceChildDaoImpl(this);
     }
 
 
@@ -108,15 +114,18 @@ public class RegistActivity extends AppCompatActivity {
                 String password=et_password.getText().toString().trim();
                 if (TextUtils.isEmpty(phone2)){
                     Utils.showToast(this,"手机号码不能为空");
-                    return;
+                    break;
+                }else if(!Mobile.isMobile(phone2)){
+                    Utils.showToast(this,"手机号码不合法");
+                    break;
                 }
                 if (TextUtils.isEmpty(code)){
                     Utils.showToast(this,"请输入验证码");
-                    return;
+                    break;
                 }
                 if (TextUtils.isEmpty(password)){
                     Utils.showToast(this,"请输入密码");
-                    return;
+                    break;
                 }
 
                 Map<String,Object> params=new HashMap<>();
@@ -132,9 +141,15 @@ public class RegistActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(phone)) {
                     Utils.showToast(this,"手机号码不能为空");
                 } else {
-                    SMSSDK.getVerificationCode("86", phone);
-                    CountTimer countTimer=new CountTimer(60000,1000);
-                    countTimer.start();
+                    boolean flag=Mobile.isMobile(phone);
+                    if (flag){
+                        SMSSDK.getVerificationCode("86", phone);
+                        CountTimer countTimer=new CountTimer(60000,1000);
+                        countTimer.start();
+                    }else {
+                        Utils.showToast(this,"手机号码不合法");
+                    }
+
                 }
                 break;
         }
@@ -152,32 +167,27 @@ public class RegistActivity extends AppCompatActivity {
                 try {
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
-                    JSONObject content=jsonObject.getJSONObject("content");
-                    JSONObject user=content.getJSONObject("user");
-                    JSONObject house=content.getJSONObject("house");
-
-                    int houseId=house.getInt("id");
-                    String houseName=house.getString("house_name");
-                    String location=house.getString("location");
-
-                    /**注册的时候默认添加一个新家*/
-                    DeviceGroup deviceGroup=new DeviceGroup();
-                    deviceGroup.setId((long)houseId);
-                    deviceGroup.setHouseName(houseName);
-                    deviceGroup.setLocation(location);
-                    deviceGroup.setHeader(houseName+"."+location);
-                    DeviceGroupDaoImpl deviceGroupDao=new DeviceGroupDaoImpl(RegistActivity.this);
-                    deviceGroupDao.insert(deviceGroup);
-
-                    int id=user.getInt("id");
-                    SharedPreferences.Editor editor=preferences.edit();
-                    if (preferences.contains("userId")){
-                        editor.clear().commit();
-                        deviceGroupDao.deleteAll();
-                        DeviceChildDaoImpl deviceChildDao=new DeviceChildDaoImpl(RegistActivity.this);
+                    if (code==2000){
                         deviceChildDao.deleteAll();
+                        deviceGroupDao.deleteAll();
+                        JSONObject content=jsonObject.getJSONObject("content");
+                        if (content!=null){
+                            JSONObject user=content.getJSONObject("user");
+                            if (user!=null){
+                                int userId=user.getInt("id");
+                                SharedPreferences.Editor editor=preferences.edit();
+                                String phone = et_phone.getText().toString().trim();
+                                String password=et_password.getText().toString().trim();
+                                editor.putString("phone",phone);
+                                editor.putString("password",password);
+                                editor.putString("userId",userId+"");
+                                editor.commit();
+                                if (preferences.contains("login")) {
+                                    editor.remove("login").commit();
+                                }
+                            }
+                        }
                     }
-                    editor.putString("userId",id+"").commit();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -197,16 +207,11 @@ public class RegistActivity extends AppCompatActivity {
                     break;
                 case 2000:
                     Utils.showToast(RegistActivity.this,"创建成功");
-                    SharedPreferences.Editor editor=preferences.edit();
-                    String phone = et_phone.getText().toString().trim();
-                    String password=et_password.getText().toString().trim();
-
-                    editor.putString("phone",phone);
-                    editor.putString("password",password);
-                    if (editor.commit()){
-                        Intent intent=new Intent(RegistActivity.this,MainActivity.class);
-                        startActivity(intent);
-                    }
+                    Intent intent=new Intent(RegistActivity.this,MainActivity.class);
+                    startActivity(intent);
+                    break;
+                case -1003:
+                    Utils.showToast(RegistActivity.this,"手机验证妈错误");
                     break;
             }
         }
@@ -225,12 +230,15 @@ public class RegistActivity extends AppCompatActivity {
         @Override
         public void onTick(long millisUntilFinished) {
             Log.e("Tag", "倒计时=" + (millisUntilFinished/1000));
-            btn_get_code.setText(millisUntilFinished / 1000 + "s后重新发送");
-            //设置倒计时中的按钮外观
-            btn_get_code.setClickable(false);//倒计时过程中将按钮设置为不可点击
-            btn_get_code.setBackgroundColor(Color.parseColor("#c7c7c7"));
-            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
-            btn_get_code.setTextSize(16);
+            if (btn_get_code!=null){
+                btn_get_code.setText(millisUntilFinished / 1000 + "s后重新发送");
+                //设置倒计时中的按钮外观
+                btn_get_code.setClickable(false);//倒计时过程中将按钮设置为不可点击
+                btn_get_code.setBackgroundColor(Color.parseColor("#c7c7c7"));
+                btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
+                btn_get_code.setTextSize(16);
+            }
+
         }
 
         /**

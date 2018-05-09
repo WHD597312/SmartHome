@@ -16,9 +16,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
+import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
+import com.xinrui.smart.util.Mobile;
 import com.xinrui.smart.util.Utils;
 
 import org.json.JSONObject;
@@ -35,23 +38,30 @@ import cn.smssdk.SMSSDK;
 
 public class ForgetPswdActivity extends AppCompatActivity {
 
-    private String TAG="RegistActivity";
+    private String TAG = "RegistActivity";
     MyApplication application;
     Unbinder unbinder;
-    @BindView(R.id.et_phone) EditText et_phone;
-    @BindView(R.id.et_code) EditText et_code;
-    @BindView(R.id.et_password) EditText et_password;
-    @BindView(R.id.btn_get_code) Button btn_get_code;
-    private String url="http://120.77.36.206:8082/warmer/v1.0/user//forgetPassword";
+    @BindView(R.id.et_phone)
+    EditText et_phone;
+    @BindView(R.id.et_code)
+    EditText et_code;
+    @BindView(R.id.et_password)
+    EditText et_password;
+    @BindView(R.id.btn_get_code)
+    Button btn_get_code;
+    private String url = "http://120.77.36.206:8082/warmer/v1.0/user//forgetPassword";
+
+    private DeviceChildDaoImpl deviceChildDao;
+    private DeviceGroupDaoImpl deviceGroupDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forget_pswd);
 
-        unbinder=ButterKnife.bind(this);
-        if (application==null){
-            application= (MyApplication) getApplication();
+        unbinder = ButterKnife.bind(this);
+        if (application == null) {
+            application = (MyApplication) getApplication();
         }
         application.addActivity(this);
     }
@@ -61,6 +71,8 @@ public class ForgetPswdActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         SMSSDK.registerEventHandler(eventHandler);
+        deviceGroupDao = new DeviceGroupDaoImpl(this);
+        deviceChildDao = new DeviceChildDaoImpl(this);
 
     }
 
@@ -88,33 +100,37 @@ public class ForgetPswdActivity extends AppCompatActivity {
             }
         }
     };
-    @OnClick({R.id.btn_finish,R.id.btn_get_code,R.id.image_back})
-    public void onClick(View view){
-        switch (view.getId()){
+
+    @OnClick({R.id.btn_finish, R.id.btn_get_code, R.id.image_back})
+    public void onClick(View view) {
+        switch (view.getId()) {
             case R.id.image_back:
                 finish();
                 break;
             case R.id.btn_finish:
                 String phone2 = et_phone.getText().toString().trim();
-                String code=et_code.getText().toString().trim();
-                String password=et_password.getText().toString().trim();
-                if (TextUtils.isEmpty(phone2)){
-                    Utils.showToast(this,"手机号码不能为空");
-                    return;
+                String code = et_code.getText().toString().trim();
+                String password = et_password.getText().toString().trim();
+                if (TextUtils.isEmpty(phone2)) {
+                    Utils.showToast(this, "手机号码不能为空");
+                    break;
+                }else if (!Mobile.isMobile(phone2)){
+                    Utils.showToast(this,"手机号码不合法");
+                    break;
                 }
-                if (TextUtils.isEmpty(code)){
-                    Utils.showToast(this,"请输入验证码");
-                    return;
+                if (TextUtils.isEmpty(code)) {
+                    Utils.showToast(this, "请输入验证码");
+                    break;
                 }
-                if (TextUtils.isEmpty(password)){
-                    Utils.showToast(this,"请输入密码");
-                    return;
+                if (TextUtils.isEmpty(password)) {
+                    Utils.showToast(this, "请输入密码");
+                    break;
                 }
 
-                Map<String,Object> params=new HashMap<>();
-                params.put("phone",phone2);
-                params.put("code",code);
-                params.put("password",password);
+                Map<String, Object> params = new HashMap<>();
+                params.put("phone", phone2);
+                params.put("code", code);
+                params.put("password", password);
 
                 new RegistAsyncTask().execute(params);
 
@@ -123,29 +139,48 @@ public class ForgetPswdActivity extends AppCompatActivity {
 
                 String phone = et_phone.getText().toString().trim();
                 if (TextUtils.isEmpty(phone)) {
-                    Utils.showToast(this,"手机号码不能为空");
+                    Utils.showToast(this, "手机号码不能为空");
                 } else {
-                    SMSSDK.getVerificationCode("86", phone);
-                    CountTimer countTimer=new CountTimer(60000,1000);
-                    countTimer.start();
+                    boolean flag=Mobile.isMobile(phone);
+                    if (flag){
+                        SMSSDK.getVerificationCode("86", phone);
+                        CountTimer countTimer = new CountTimer(60000, 1000);
+                        countTimer.start();
+                    }else {
+                        Utils.showToast(this,"手机号码不合法");
+                    }
+
                 }
                 break;
         }
     }
 
 
-    class RegistAsyncTask extends AsyncTask<Map<String,Object>,Void,Integer>{
+    class RegistAsyncTask extends AsyncTask<Map<String, Object>, Void, Integer> {
 
         @Override
         protected Integer doInBackground(Map<String, Object>... maps) {
-            int code=0;
-            Map<String,Object> params=maps[0];
-            String result=HttpUtils.postOkHpptRequest(url,params);
-            if (!Utils.isEmpty(result)){
+            int code = 0;
+            Map<String, Object> params = maps[0];
+            String result = HttpUtils.postOkHpptRequest(url, params);
+            if (!Utils.isEmpty(result)) {
                 try {
-                    JSONObject jsonObject=new JSONObject(result);
-                    code=jsonObject.getInt("code");
-                }catch (Exception e){
+                    JSONObject jsonObject = new JSONObject(result);
+                    code = jsonObject.getInt("code");
+                    if (code == 2000) {
+                        SharedPreferences preferences = getSharedPreferences("my", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = preferences.edit();
+                        String phone = et_phone.getText().toString().trim();
+                        String password = et_password.getText().toString().trim();
+                        editor.putString("phone", phone);
+                        editor.putString("password", password);
+                        deviceChildDao.deleteAll();
+                        deviceGroupDao.deleteAll();
+                        if (preferences.contains("login")) {
+                            editor.remove("login").commit();
+                        }
+                    }
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -155,25 +190,17 @@ public class ForgetPswdActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
-            switch (code){
+            switch (code) {
                 case -1006:
-                    Utils.showToast(ForgetPswdActivity.this,"手机号码未注册");
+                    Utils.showToast(ForgetPswdActivity.this, "手机号码未注册");
                     break;
                 case -1003:
-                    Utils.showToast(ForgetPswdActivity.this,"验证码错误");
+                    Utils.showToast(ForgetPswdActivity.this, "验证码错误");
                     break;
                 case 2000:
-                    Utils.showToast(ForgetPswdActivity.this,"重新设置密码成功");
-                    SharedPreferences preferences=getSharedPreferences("my",MODE_PRIVATE);
-                    SharedPreferences.Editor editor=preferences.edit();
-                    String phone = et_phone.getText().toString().trim();
-                    String password=et_password.getText().toString().trim();
-                    editor.putString("phone",phone);
-                    editor.putString("password",password);
-                    if (editor.commit()){
-                        Intent intent=new Intent(ForgetPswdActivity.this,MainActivity.class);
-                        startActivity(intent);
-                    }
+                    Utils.showToast(ForgetPswdActivity.this, "重新设置密码成功");
+                    Intent intent = new Intent(ForgetPswdActivity.this, MainActivity.class);
+                    startActivity(intent);
                     break;
             }
         }
@@ -182,14 +209,14 @@ public class ForgetPswdActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (unbinder!=null){
+        if (unbinder != null) {
             unbinder.unbind();
         }
         SMSSDK.unregisterEventHandler(eventHandler);
     }
 
 
-    class CountTimer extends CountDownTimer{
+    class CountTimer extends CountDownTimer {
         public CountTimer(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);
         }
@@ -201,7 +228,7 @@ public class ForgetPswdActivity extends AppCompatActivity {
          */
         @Override
         public void onTick(long millisUntilFinished) {
-            Log.e("Tag", "倒计时=" + (millisUntilFinished/1000));
+            Log.e("Tag", "倒计时=" + (millisUntilFinished / 1000));
             btn_get_code.setText(millisUntilFinished / 1000 + "s后重新发送");
             //设置倒计时中的按钮外观
             btn_get_code.setClickable(false);//倒计时过程中将按钮设置为不可点击

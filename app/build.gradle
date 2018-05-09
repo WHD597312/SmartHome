@@ -9,7 +9,7 @@ repositories {
 }
 
 greendao {
-    schemaVersion 15
+    schemaVersion 43
     daoPackage 'com.xinrui.database.dao'
     targetGenDir 'src/main/java'
 }
@@ -72,5 +72,6 @@ dependencies {
     compile files('libs/org.eclipse.paho.client.mqttv3-1.0.2.jar')
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.squareup.okhttp3:logging-interceptor:3.9.1'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
 
 }

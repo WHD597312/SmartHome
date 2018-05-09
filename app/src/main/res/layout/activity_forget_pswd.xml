@@ -11,7 +11,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_40"
-        android:background="#312728"
+        android:background="#3e3d3a"
         android:gravity="center_vertical"
         >
         <ImageView
@@ -19,7 +19,7 @@
             android:layout_width="@dimen/dp_35"
             android:layout_height="@dimen/dp_35"
             android:layout_alignParentTop="true"
-            android:src="@mipmap/image_back"
+            android:src="@mipmap/nav_backmdpi"
             android:layout_centerVertical="true"
             android:scaleType="centerInside"
             />

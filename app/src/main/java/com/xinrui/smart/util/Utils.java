@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.widget.Toast;
 
+
+import com.alibaba.fastjson.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +19,15 @@ import java.util.Calendar;
 public class Utils {
     public static void showToast(Context context,String content){
         Toast.makeText(context,content,Toast.LENGTH_SHORT).show();
+    }
+    public static boolean isJson(String content){
+
+        try {
+            JSONObject jsonStr= JSONObject.parseObject(content);
+            return  true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**

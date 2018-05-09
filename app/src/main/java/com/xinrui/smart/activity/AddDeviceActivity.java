@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -40,13 +41,23 @@ import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.util.udp.Client;
 
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -114,7 +125,8 @@ public class AddDeviceActivity extends AppCompatActivity {
         }
         application.addActivity(this);
         Intent intent = getIntent();
-        houseId = Integer.parseInt(intent.getStringExtra("houseId"));
+
+        houseId = Long.parseLong(intent.getStringExtra("houseId"));
         String wifi = intent.getStringExtra("wifi");
 
         if (!Utils.isEmpty(wifi)) {
@@ -212,15 +224,15 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                            + ", " + " mEdtApPassword = " + apPassword);
                 }
                 if (!Utils.isEmpty(ssid)) {
-//                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
-                    String macAddress="vlinks_test18a684e6dcce";
-                    Map<String, Object> params = new HashMap<>();
-                    params.put("deviceName", "外置");
-                    params.put("houseId", houseId);
-                    params.put("masterControllerUserId", Integer.parseInt(userId));
-                    params.put("type", 2);
-                    params.put("macAddress", macAddress);
-                    new WifiConectionAsync().execute(params);
+                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
+//                    String macAddress="vlinks_test18d634d6d3c4";
+//                    Map<String, Object> params = new HashMap<>();
+//                    params.put("deviceName", "设备3");
+//                    params.put("houseId", houseId);
+//                    params.put("masterControllerUserId", Integer.parseInt(userId));
+//                    params.put("type", 1);
+//                    params.put("macAddress", macAddress);
+//                    new WifiConectionAsync().execute(params);
 
                 } else if (!Utils.isEmpty(groupPosition) && !Utils.isEmpty(ssid)) {
                     long group = Long.parseLong(groupPosition);
@@ -233,6 +245,9 @@ public class AddDeviceActivity extends AppCompatActivity {
                 break;
         }
     }
+
+    String macAddress;
+    int deviceId;
 
     class WifiConectionAsync extends AsyncTask<Map<String, Object>, Void, Integer> {
 
@@ -248,14 +263,14 @@ public class AddDeviceActivity extends AppCompatActivity {
                     if (code == 2001) {
 
                         JSONObject content = jsonObject.getJSONObject("content");
-                        int deviceId = content.getInt("id");
+                        deviceId = content.getInt("id");
                         String deviceName = content.getString("deviceName");
                         int type = content.getInt("type");
                         int houseId = content.getInt("houseId");
                         int masterControllerUserId = content.getInt("masterControllerUserId");
                         int isUnlock = content.getInt("isUnlock");
                         int version = content.getInt("version");
-                        String macAddress = content.getString("macAddress");
+                        macAddress = content.getString("macAddress");
                         int controlled = content.getInt("controlled");
 
                         DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) houseId, masterControllerUserId, type, isUnlock);
@@ -264,6 +279,7 @@ public class AddDeviceActivity extends AppCompatActivity {
                         deviceChild.setVersion(version);
                         deviceChild.setControlled(controlled);
                         deviceChild.setOnLint(true);
+                        deviceChild.setDeviceState("open");
 
                         List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice((long) houseId);
                         DeviceChild deviceChild3 = null;
@@ -276,7 +292,6 @@ public class AddDeviceActivity extends AppCompatActivity {
                         }
                         if (deviceChild3 == null) {
                             deviceChildDao.insert(deviceChild);
-
                         } else {
                             deviceChild3 = deviceChildDao.findDeviceById(deviceChild3.getId());
                             deviceChild3.setType(type);
@@ -288,9 +303,9 @@ public class AddDeviceActivity extends AppCompatActivity {
                             deviceChild3.setMacAddress(macAddress);
                             deviceChild3.setControlled(controlled);
                             deviceChild3.setOnLint(true);
+                            deviceChild3.setDeviceState("open");
                             deviceChildDao.update(deviceChild3);
                         }
-
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -299,17 +314,16 @@ public class AddDeviceActivity extends AppCompatActivity {
             return code;
         }
 
-
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
             switch (code) {
                 case 2001:
-
                     Utils.showToast(AddDeviceActivity.this, "创建成功");
-                    Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
-                    intent.putExtra("deviceList", "deviceList");
-                    startActivity(intent);
+                    Intent intent2 = new Intent(AddDeviceActivity.this, MainActivity.class);
+                    intent2.putExtra("deviceList", "deviceList");
+                    intent2.putExtra("deviceId", deviceId + "");
+                    startActivity(intent2);
                     break;
                 case -3005:
                     Utils.showToast(AddDeviceActivity.this, "创建失败");
@@ -318,8 +332,91 @@ public class AddDeviceActivity extends AppCompatActivity {
         }
     }
 
+    //http://host:port/app/version/device/getDeviceById?deviceId='deviceId'
+    class LoadDevice extends AsyncTask<String, Void, Integer> {
 
+        @Override
+        protected Integer doInBackground(String... strings) {
+            int code = 0;
+            String url = strings[0];
+            String result = HttpUtils.getOkHpptRequest(url);
+            try {
+                if (!Utils.isEmpty(result)) {
+                    JSONObject jsonObject = new JSONObject(result);
+                    code = jsonObject.getInt("code");
+                    if (code == 2000) {
 
+                        JSONObject content = jsonObject.getJSONObject("content");
+                        deviceId = content.getInt("id");
+                        String deviceName = content.getString("deviceName");
+                        int type = content.getInt("type");
+                        int shareHouseId = content.getInt("houseId");
+                        int masterControllerUserId = content.getInt("masterControllerUserId");
+                        int isUnlock = content.getInt("isUnlock");
+                        int version = content.getInt("version");
+                        macAddress = content.getString("macAddress");
+                        int controlled = content.getInt("controlled");
+
+                        long houseId = Long.MAX_VALUE;
+                        DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, houseId, masterControllerUserId, type, isUnlock);
+                        deviceChild.setImg(imgs[0]);
+                        deviceChild.setMacAddress(macAddress);
+                        deviceChild.setVersion(version);
+                        deviceChild.setControlled(controlled);
+                        deviceChild.setOnLint(true);
+                        deviceChild.setDeviceState("open");
+                        deviceChild.setShareHouseId(shareHouseId);
+
+                        List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice(houseId);
+                        DeviceChild deviceChild3 = null;
+
+                        for (DeviceChild deviceChild2 : deviceChildren) {
+                            if (macAddress.equals(deviceChild2.getMacAddress())) {
+                                deviceChild3 = deviceChild2;
+                                break;
+                            }
+                        }
+                        if (deviceChild3 == null) {
+                            deviceChildDao.insert(deviceChild);
+                        } else {
+                            deviceChild3 = deviceChildDao.findDeviceById(deviceChild3.getId());
+                            deviceChild3.setType(type);
+                            deviceChild3.setDeviceName(deviceName);
+                            deviceChild3.setHouseId((long) houseId);
+                            deviceChild3.setMasterControllerUserId(masterControllerUserId);
+                            deviceChild3.setIsUnlock(isUnlock);
+                            deviceChild3.setVersion(version);
+                            deviceChild3.setMacAddress(macAddress);
+                            deviceChild3.setControlled(controlled);
+                            deviceChild3.setOnLint(true);
+                            deviceChild3.setDeviceState("open");
+                            deviceChildDao.update(deviceChild3);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return code;
+        }
+
+        @Override
+        protected void onPostExecute(Integer code) {
+            super.onPostExecute(code);
+            switch (code) {
+                case 2000:
+                    Utils.showToast(AddDeviceActivity.this, "创建成功");
+                    Intent intent2 = new Intent(AddDeviceActivity.this, MainActivity.class);
+                    intent2.putExtra("deviceList", "deviceList");
+                    intent2.putExtra("deviceId", deviceId + "");
+                    startActivity(intent2);
+                    break;
+                default:
+                    Utils.showToast(AddDeviceActivity.this, "创建失败");
+                    break;
+            }
+        }
+    }
 
     class QrCodeAsync extends AsyncTask<Map<String, Object>, Void, Integer> {
         @Override
@@ -331,6 +428,11 @@ public class AddDeviceActivity extends AppCompatActivity {
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
+                    if (code == 2000) {
+                        String deviceId = (String) params.get("deviceId");
+                        String url = "http://120.77.36.206:8082/warmer/v1.0/device/getDeviceById?deviceId=" + deviceId;
+                        new LoadDevice().execute(url);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -343,9 +445,10 @@ public class AddDeviceActivity extends AppCompatActivity {
             super.onPostExecute(code);
             switch (code) {
                 case 2000:
-                    Utils.showToast(AddDeviceActivity.this, "分享设备创建成功");
-                    Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
-                    startActivity(intent);
+//                    Utils.showToast(AddDeviceActivity.this, "分享设备创建成功");
+//                    Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
+//                    intent.putExtra("shareMacAddress", shareMacAddress);
+//                    startActivity(intent);
                     break;
                 case -3007:
                     Utils.showToast(AddDeviceActivity.this, "分享设备添加失败");
@@ -354,12 +457,16 @@ public class AddDeviceActivity extends AppCompatActivity {
         }
     }
 
+
+    SharedPreferences preferences;
+
     @Override
     protected void onStart() {
         super.onStart();
-
         deviceGroupDao = new DeviceGroupDaoImpl(this);
         deviceChildDao = new DeviceChildDaoImpl(this);
+        preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
+
     }
 
     @Override
@@ -383,6 +490,10 @@ public class AddDeviceActivity extends AppCompatActivity {
         }
     }
 
+    String shareDeviceId;
+    String shareContent;
+    String shareMacAddress;
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
@@ -391,20 +502,24 @@ public class AddDeviceActivity extends AppCompatActivity {
                 Toast.makeText(this, "内容为空", Toast.LENGTH_LONG).show();
             } else {
                 String content = intentResult.getContents();
-                if (content != null) {
-                    String deviceId = content;
-                    long deviceId2 = Long.parseLong(deviceId);
-                    DeviceChild deviceChild = deviceChildDao.findDeviceChild(deviceId2);
-                    if (deviceChild != null) {
-                        Utils.showToast(AddDeviceActivity.this, "该设备已经存在");
-                        Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
-                        startActivity(intent);
-                    } else {
+                if (!Utils.isEmpty(content)) {
+                    content = new String(Base64.decode(content, Base64.DEFAULT));
+                    if (!Utils.isEmpty(content)) {
+                        String[] ss = content.split("&");
+                        String s0 = ss[0];
+                        String deviceId = s0.substring(s0.indexOf("'") + 1);
+                        String s2 = ss[2];
+                        String macAddress = s2.substring(s2.indexOf("'") + 1);
+                        shareMacAddress = macAddress;
+
+
                         Map<String, Object> params = new HashMap<>();
                         params.put("deviceId", deviceId);
                         params.put("userId", userId);
                         new QrCodeAsync().execute(params);
+
                     }
+
 
                 }
 //                tv_result.setText(content);
@@ -413,6 +528,14 @@ public class AddDeviceActivity extends AppCompatActivity {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
+
+//    class LoadUserInfoAsync extends AsyncTask<String,Void,Void>{
+//
+//        @Override
+//        protected Void doInBackground(String.. voids) {
+//            return null;
+//        }
+//    }
 
     /**
      * 扫描二维码
@@ -525,9 +648,10 @@ public class AddDeviceActivity extends AppCompatActivity {
     private int type;
     int count = 0;
 
+    private ProgressDialog mProgressDialog;
+
     private class EsptouchAsyncTask3 extends AsyncTask<String, Void, List<IEsptouchResult>> {
 
-        private ProgressDialog mProgressDialog;
 
         private IEsptouchTask mEsptouchTask;
         // without the lock, if the user tap confirm and cancel quickly enough,
@@ -691,5 +815,10 @@ public class AddDeviceActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mProgressDialog != null) {
+            mProgressDialog.dismiss();
+            deviceChildDao.closeDaoSession();
+            deviceGroupDao.closeDaoSession();
+        }
     }
 }

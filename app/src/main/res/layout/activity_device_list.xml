@@ -8,6 +8,7 @@
     android:orientation="vertical"
     >
 
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,7 +25,7 @@
                 android:id="@+id/img_back"
                 android:layout_width="@dimen/dp_40"
                 android:layout_height="@dimen/dp_40"
-                android:src="@mipmap/image_back"
+                android:src="@mipmap/nav_backmdpi"
                 android:scaleType="centerInside"
                 android:layout_marginLeft="@dimen/dp_6"
                 android:layout_centerVertical="true"
@@ -49,8 +50,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="@dimen/dp_6"
                 />
-
         </RelativeLayout>
+
 
         <LinearLayout
             android:id="@+id/linearout"
@@ -61,6 +62,19 @@
             android:background="#312728"
             >
         </LinearLayout>
+        <TextView
+            android:id="@+id/tv_offline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="设备已离线"
+            android:textSize="@dimen/sp_20"
+            android:textColor="@color/color_orange"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_below="@+id/linearout"
+            />
+
         <LinearLayout
             android:id="@+id/linearout2"
             android:layout_width="match_parent"
@@ -148,4 +162,6 @@
             android:background="#312728"
             />
     </RelativeLayout>
+
+
 </LinearLayout>

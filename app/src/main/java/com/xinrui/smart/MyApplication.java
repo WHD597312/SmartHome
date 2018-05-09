@@ -2,7 +2,11 @@ package com.xinrui.smart;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.ComponentCallbacks;
+import android.content.ComponentCallbacks2;
 import android.content.Context;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
@@ -29,6 +33,11 @@ public class MyApplication extends Application {
     private List<Activity> activities;
     private List<Fragment> fragments;
     private static Context mContext;
+    private ArrayList<ComponentCallbacks> mComponentCallbacks =
+                         new ArrayList<ComponentCallbacks>();//配置改变、剩余内存低时被调用
+     private ArrayList<ActivityLifecycleCallbacks> mActivityLifecycleCallbacks =
+                         new ArrayList<ActivityLifecycleCallbacks>();//Activity的生命周期
+     private ArrayList<OnProvideAssistDataListener> mAssistCallbacks = null; //协助数据(不知道用来干嘛的)
     public static Context getContext(){
         return mContext;
 
@@ -86,6 +95,42 @@ public class MyApplication extends Application {
             public void onActivityDestroyed(Activity activity) {
             }
         });
+        unregisterActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+
+            }
+        });
     }
 
     public void addActivity(Activity activity){
@@ -138,4 +183,120 @@ public class MyApplication extends Application {
             return false;
         }
     }
+
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Object[] callbacks = collectComponentCallbacks();
+        if (callbacks != null) {
+            for (int i=0; i<callbacks.length; i++) {
+                ((ComponentCallbacks)callbacks[i]).onConfigurationChanged(newConfig);
+            }
+        }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        Object[] callbacks = collectComponentCallbacks();
+        if (callbacks != null) {
+            for (int i=0; i<callbacks.length; i++) {
+                ((ComponentCallbacks)callbacks[i]).onLowMemory();
+            }
+        }
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        Object[] callbacks = collectComponentCallbacks();
+        if (callbacks != null) {
+            for (int i=0; i<callbacks.length; i++) {
+                Object c = callbacks[i];
+                if (c instanceof ComponentCallbacks2) {
+                    ((ComponentCallbacks2)c).onTrimMemory(level);
+                }
+            }
+        }
+    }
+
+    public void registerComponentCallbacks(ComponentCallbacks callback) {
+        synchronized (mComponentCallbacks) {
+            mComponentCallbacks.add(callback);
+        }
+    }
+
+    public void unregisterComponentCallbacks(ComponentCallbacks callback) {
+        synchronized (mComponentCallbacks) {
+            mComponentCallbacks.remove(callback);
+        }
+    }
+
+    public void registerActivityLifecycleCallbacks(ActivityLifecycleCallbacks callback) {
+        synchronized (mActivityLifecycleCallbacks) {
+            mActivityLifecycleCallbacks.add(callback);
+        }
+    }
+
+    public void unregisterActivityLifecycleCallbacks(ActivityLifecycleCallbacks callback) {
+        synchronized (mActivityLifecycleCallbacks) {
+            mActivityLifecycleCallbacks.remove(callback);
+        }
+    }
+
+    public void registerOnProvideAssistDataListener(OnProvideAssistDataListener callback) {
+        synchronized (this) {
+            if (mAssistCallbacks == null) {
+                mAssistCallbacks = new ArrayList<OnProvideAssistDataListener>();
+            }
+            mAssistCallbacks.add(callback);
+        }
+    }
+
+    public void unregisterOnProvideAssistDataListener(OnProvideAssistDataListener callback) {
+        synchronized (this) {
+            if (mAssistCallbacks != null) {
+                mAssistCallbacks.remove(callback);
+            }
+        }
+    }
+
+
+
+    private Object[] collectComponentCallbacks() {
+        Object[] callbacks = null;
+        synchronized (mComponentCallbacks) {
+            if (mComponentCallbacks.size() > 0) {
+                callbacks = mComponentCallbacks.toArray();
+            }
+        }
+        return callbacks;
+    }
+
+    private Object[] collectActivityLifecycleCallbacks() {
+        Object[] callbacks = null;
+        synchronized (mActivityLifecycleCallbacks) {
+            if (mActivityLifecycleCallbacks.size() > 0) {
+                callbacks = mActivityLifecycleCallbacks.toArray();
+            }
+        }
+        return callbacks;
+    }
+
+    /* package */ void dispatchOnProvideAssistData(Activity activity, Bundle data) {
+        Object[] callbacks;
+        synchronized (this) {
+            if (mAssistCallbacks == null) {
+                return;
+            }
+            callbacks = mAssistCallbacks.toArray();
+        }
+        if (callbacks != null) {
+            for (int i=0; i<callbacks.length; i++) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    ((OnProvideAssistDataListener)callbacks[i]).onProvideAssistData(activity, data);
+                }
+            }
+        }
+    }
+
 }

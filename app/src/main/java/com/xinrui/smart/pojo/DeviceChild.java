@@ -1,5 +1,7 @@
 package com.xinrui.smart.pojo;
 
+import android.widget.TableRow;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Generated;
@@ -48,6 +50,9 @@ public class DeviceChild  implements Serializable{
     private boolean onLint;//判断用户是否在线
     private int temp;/**温度*/
     private int hum;/**湿度*/
+    private String reSet;
+    private String timerShutdown;
+    private long shareHouseId;
 
 
     public DeviceChild() {
@@ -354,7 +359,31 @@ public class DeviceChild  implements Serializable{
         this.temp = temp;
     }
 
-    @Generated(hash = 1310199017)
+    public String getReSet() {
+        return this.reSet;
+    }
+
+    public void setReSet(String reSet) {
+        this.reSet = reSet;
+    }
+
+    public String getTimerShutdown() {
+        return this.timerShutdown;
+    }
+
+    public void setTimerShutdown(String timerShutdown) {
+        this.timerShutdown = timerShutdown;
+    }
+
+    public long getShareHouseId() {
+        return this.shareHouseId;
+    }
+
+    public void setShareHouseId(long shareHouseId) {
+        this.shareHouseId = shareHouseId;
+    }
+
+    @Generated(hash = 1024848042)
     public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
             Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
             int version, int ratedPower, int MatTemp, String workMode, String LockScreen,
@@ -362,7 +391,8 @@ public class DeviceChild  implements Serializable{
             int curTemp, String protectEnable, String ctrlMode, int powerValue,
             int voltageValue, int currentValue, String machineFall, int protectSetTemp,
             int protectProTemp, String wifiVersion, String MCUVerion, int manualMatTemp,
-            int timerTemp, boolean onLint, int temp, int hum) {
+            int timerTemp, boolean onLint, int temp, int hum, String reSet,
+            String timerShutdown, long shareHouseId) {
         this.id = id;
         this.deviceName = deviceName;
         this.macAddress = macAddress;
@@ -398,7 +428,9 @@ public class DeviceChild  implements Serializable{
         this.onLint = onLint;
         this.temp = temp;
         this.hum = hum;
+        this.reSet = reSet;
+        this.timerShutdown = timerShutdown;
+        this.shareHouseId = shareHouseId;
     }
 
-    
 }

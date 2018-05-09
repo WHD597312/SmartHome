@@ -159,7 +159,6 @@ public class DeviceFragment extends Fragment{
                 for (DeviceChild deviceChild :deviceChildren){
                     long id=deviceChild.getId();
                     String name=deviceChild.getDeviceName();
-
                 }
                 childern.add(deviceChildren);
             }
@@ -234,6 +233,7 @@ public class DeviceFragment extends Fragment{
 
     }
 
+    boolean isBind=false;
     @Override
     public void onResume() {
         super.onResume();
@@ -243,7 +243,7 @@ public class DeviceFragment extends Fragment{
 
 
         Intent intent=new Intent(getActivity(),MQService.class);
-        getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
+        isBind=getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
 
         IntentFilter intentFilter=new IntentFilter("DeviceFragment");
         getActivity().registerReceiver(receiver,intentFilter);
@@ -830,9 +830,12 @@ public class DeviceFragment extends Fragment{
         super.onDestroy();
         destroyLocation();
 
-        if (connection!=null){
-            getActivity().unbindService(connection);
+        if (isBind){
+            if (connection!=null){
+                getActivity().unbindService(connection);
+            }
         }
+
         if (receiver!=null){
             getActivity().unregisterReceiver(receiver);
         }

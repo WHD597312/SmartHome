@@ -40,6 +40,33 @@
         android:id="@+id/line_chart"
         android:layout_width="match_parent"
         android:layout_height="380dp"/>
+    <TextView
+        android:id="@+id/tv_power"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="功率"
+        android:textSize="@dimen/sp_18"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:gravity="center_vertical"
+        />
+    <TextView
+        android:id="@+id/tv_voltage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="电压"
+        android:textSize="@dimen/sp_18"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:gravity="center_vertical"
+        />
+    <TextView
+        android:id="@+id/tv_current"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="电流"
+        android:textSize="@dimen/sp_18"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:gravity="center_vertical"
+        />
 </LinearLayout>
 
 

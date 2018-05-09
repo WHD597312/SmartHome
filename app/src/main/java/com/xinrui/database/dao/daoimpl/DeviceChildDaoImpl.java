@@ -20,11 +20,12 @@ public class DeviceChildDaoImpl {
     private SQLiteDatabase db;
     private DaoMaster master;
     private DeviceChildDao deviceChildDao;
+    private DaoSession session;
     public DeviceChildDaoImpl(Context context) {
         this.context = context;
         db= DBManager.getInstance(context).getWritableDasebase();
         master=new DaoMaster(db);
-        DaoSession session=master.newSession();
+        session=master.newSession();
        deviceChildDao=session.getDeviceChildDao();
     }
 
@@ -83,5 +84,11 @@ public class DeviceChildDaoImpl {
     }
     public List<DeviceChild> findAllDevice(){
         return deviceChildDao.loadAll();
+    }
+    public void closeDaoSession(){
+        if (session!=null){
+            session.clear();
+            session=null;
+        }
     }
 }

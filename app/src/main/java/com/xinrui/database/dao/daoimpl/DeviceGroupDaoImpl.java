@@ -16,11 +16,12 @@ public class DeviceGroupDaoImpl {
     private SQLiteDatabase db;
     private DaoMaster master;
     private DeviceGroupDao deviceGroupDao;
+    private DaoSession session;
     public DeviceGroupDaoImpl(Context context){
         this.context=context;
         db= DBManager.getInstance(context).getWritableDasebase();
         master=new DaoMaster(db);
-        DaoSession session=master.newSession();
+        session=master.newSession();
         deviceGroupDao=session.getDeviceGroupDao();
     }
     public void insert(DeviceGroup deviceGroup){
@@ -45,5 +46,11 @@ public class DeviceGroupDaoImpl {
     }
     public List<DeviceGroup> findAllDevices(){
         return deviceGroupDao.loadAll();
+    }
+    public void closeDaoSession(){
+        if (session!=null){
+            session.clear();
+            session=null;
+        }
     }
 }

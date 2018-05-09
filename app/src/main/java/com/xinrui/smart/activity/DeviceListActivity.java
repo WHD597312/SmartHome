@@ -1,9 +1,12 @@
 package com.xinrui.smart.activity;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +21,7 @@ import android.widget.DatePicker;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -65,6 +69,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     @BindView(R.id.timePicker) TimePicker timePicker;
     @BindView(R.id.datePicker) DatePicker datePicker;
     @BindView(R.id.tv_clock) TextView tv_clock;
+    @BindView(R.id.linearout) LinearLayout linearout;
+    @BindView(R.id.tv_offline) TextView tv_offline;
     MyApplication application;
     private String childPosition;
     private DeviceChildDaoImpl deviceChildDao;
@@ -109,6 +115,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     int month;
     int day=0;
     SharedPreferences preferences;
+    DeviceChild deviceChild;
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -117,11 +125,12 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         String content = intent.getStringExtra("content");
         childPosition=intent.getStringExtra("childPosition");
 
-        DeviceChild deviceChild=deviceChildDao.findDeviceById(Long.parseLong(childPosition));
+        deviceChild=deviceChildDao.findDeviceById(Long.parseLong(childPosition));
 
 
         tv_name.setText(content);
         fragmentManager =getSupportFragmentManager();
+
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         HeaterFragment heaterFragment=new HeaterFragment();
         Bundle bundle=new Bundle();
@@ -165,13 +174,15 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 tv_clock.setText(year+"年"+month+"月"+day+"日"+hour+"时");
             }
         });
-
     }
 
+    MessageReceiver receiver;
     @Override
     protected void onResume() {
         super.onResume();
-
+        IntentFilter intentFilter = new IntentFilter("DeviceListActivity");
+        receiver = new MessageReceiver();
+        registerReceiver(receiver, intentFilter);
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -192,6 +203,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         if (unbinder != null) {
             //解绑界面元素
             unbinder.unbind();
+        }
+        if (receiver!=null){
+           unregisterReceiver(receiver);
         }
     }
 
@@ -231,6 +245,25 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             default:
                 Toast.makeText(this,"1",Toast.LENGTH_SHORT).show();
                 break;
+        }
+    }
+    class MessageReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            DeviceChild deviceChild2= (DeviceChild) intent.getSerializableExtra("deviceChild");
+            String online=intent.getStringExtra("online");
+            if (deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())){
+                if ("online".equals(online)){
+                    linearout.setVisibility(View.VISIBLE);
+                    tv_offline.setVisibility(View.GONE);
+                    gradView.setVisibility(View.VISIBLE);
+                }else if ("offline".equals(online)){
+                    linearout.setVisibility(View.GONE);
+                    tv_offline.setVisibility(View.VISIBLE);
+                    gradView.setVisibility(View.GONE);
+                }
+            }
         }
     }
 

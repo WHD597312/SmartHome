@@ -145,9 +145,18 @@ public class SmartFragment extends Fragment {
                 }else if ("外置传感器".equals(content)){
                     if (!Utils.isEmpty(content)){
                         List<DeviceChild> deviceChildren=deviceChildDao.findDeviceType(Long.parseLong(houseId),1);
-                        if (deviceChildren.size()<2){
+                        if (deviceChildren.size()==0){
                             Utils.showToast(getActivity(),"设备数量不足");
-                        }else {
+                        } else if (deviceChildren.size()==1){
+                            List<DeviceChild> estChildren=deviceChildDao.findDeviceType(Long.parseLong(houseId),2);
+                            if (estChildren.isEmpty()){
+                                Utils.showToast(getActivity(),"没有外置传感器");
+                            }else {
+                                intent.putExtra("houseId",houseId);
+                                intent.putExtra("content",content);
+                                startActivity(intent);
+                            }
+                        }else if (deviceChildren.size()>=2){
                             DeviceChild masterDeviceChild=null;
                             for (DeviceChild deviceChild:deviceChildren){
                                 if (deviceChild.getControlled()==2){

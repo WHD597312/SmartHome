@@ -1,10 +1,13 @@
 package com.xinrui.smart.fragment;
 
 import android.app.Fragment;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +28,7 @@ import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -98,14 +102,8 @@ public class ETSControlFragment extends Fragment{
                 masterChildren.add(deviceChild);
             }
         }
-        if (masterChildren.isEmpty()){
-            Utils.showToast(getActivity(),"请先设置主控设备");
-//            Intent intent=new Intent(getActivity(),MainActivity.class);
-//            intent.putExtra("mainControl","mainControl");
-//            startActivity(intent);
-        }else{
-            new GetExtSensorAsync().execute();
-        }
+        new GetExtSensorAsync().execute();
+
 
         adapter=new ETSControlAdapter(mainControls,getActivity());
         lv_homes.setAdapter(adapter);
@@ -121,6 +119,8 @@ public class ETSControlFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
+        Intent intent = new Intent(getActivity(), MQService.class);
+        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
 
@@ -128,29 +128,30 @@ public class ETSControlFragment extends Fragment{
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_ensure:
-                List<DeviceChild> children=deviceChildDao.findGroupIdAllDevice(Long.parseLong(houseId));
                 long deviceId;
                 long houseId;
-                if (isSelected!=null){
-                    DeviceChild mastetDevice=null;
-                    for (Map.Entry<Integer,Boolean> entry : isSelected.entrySet()){/**设置外置传感器*/
-                        int postion=entry.getKey();
-                        mastetDevice=mainControls.get(postion);
-                        boolean value=entry.getValue();
-
-                        if (value==true){
-                            mastetDevice=mainControls.get(postion);
-                            break;
-                        }
+                if (!beSelectedData.isEmpty()){
+                    DeviceChild mastetDevice=beSelectedData.get(0);
+                    if (mastetDevice!=null){
+                        deviceId=mastetDevice.getId();
+                        houseId=mastetDevice.getHouseId();
+                        Map<String,Object> params=new HashMap<>();
+                        params.put("deviceId",deviceId);
+                        params.put("houseId",houseId);
+                        new ExtSensorAsync().execute(params);
                     }
-
+                }else if (beSelectedData.isEmpty()){
+                    DeviceChild mastetDevice=null;
                     for (Map.Entry<Integer,Boolean> entry : isSelected.entrySet()){
                         int postion=entry.getKey();
                         DeviceChild deviceChild=mainControls.get(postion);
-                        deviceChild=deviceChildDao.findDeviceById(deviceChild.getId());
+
                         boolean value=entry.getValue();
-                        if (mastetDevice!=null){
-                            if (value==false && postion== unbindPosition && deviceChild.getType()==2 && deviceChild.getControlled()==0){
+                        if (deviceChild!=null){
+                            if (value==false&&postion==unbindPosition && deviceChild.getType()==2 && deviceChild.getControlled()==0){
+                                mastetDevice=deviceChild;
+                                deviceChild.setControlled(0);
+                                deviceChildDao.update(deviceChild);
                                 mastetDevice.setId(0L);
                                 break;
                             }
@@ -165,6 +166,8 @@ public class ETSControlFragment extends Fragment{
                         new ExtSensorAsync().execute(params);
                     }
                 }
+
+
                 break;
         }
     }
@@ -179,6 +182,7 @@ public class ETSControlFragment extends Fragment{
 
         private List<DeviceChild> children;
         private Context context;
+
 
         public ETSControlAdapter(List<DeviceChild> children, Context context) {
             this.children = children;
@@ -248,22 +252,24 @@ public class ETSControlFragment extends Fragment{
                     // 当前点击的CB
                     boolean cu = !isSelected.get(position);
                     // 先将所有的置为FALSE
-
                     for (Integer p : isSelected.keySet()) {
                         isSelected.put(p, false);
                         DeviceChild deviceChild=children.get(p);
                         deviceChild.setControlled(0);
-                        deviceChildDao.update(deviceChild);
+                        children.set(p,deviceChild);
                     }
                     // 再将当前选择CB的实际状态
                     isSelected.put(position, cu);
+                    if (cu){
+                        DeviceChild deviceChild=children.get(position);
+                        deviceChild.setControlled(1);
+                        children.set(position,deviceChild);
+                    }
+
                     notifyDataSetChanged();
                     beSelectedData.clear();
                     if (cu) {
                         beSelectedData.add(children.get(position));
-                        DeviceChild deviceChild=children.get(position);
-                        deviceChild.setControlled(1);
-                        deviceChildDao.update(deviceChild);
                     }
                 }
             });
@@ -283,6 +289,7 @@ public class ETSControlFragment extends Fragment{
         }
     }
 
+
     class GetExtSensorAsync extends AsyncTask<Void,Void,Integer> {
         @Override
         protected Integer doInBackground(Void... voids) {
@@ -292,47 +299,52 @@ public class ETSControlFragment extends Fragment{
                 String result= HttpUtils.getOkHpptRequest(getAllMainControl);
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
+                    DeviceChild deviceChild2=null;
                     code=jsonObject.getInt("code");
                     if (code==2000){
+                        mainControls.clear();
                         JSONArray content=jsonObject.getJSONArray("content");
-                        if (content.length()==0){
-                            mainControls.clear();
-                        }else {
-                            mainControls.clear();
-                            DeviceChild deviceChild2=null;
-                            for (int i=0;i<content.length();i++){
-                                JSONObject device=content.getJSONObject(i);
-                                if (device!=null){
-                                    int id=device.getInt("id");
-                                    String deviceName=device.getString("deviceName");
-                                    int type=device.getInt("type");
-                                    int houseId=device.getInt("houseId");
-                                    int masterControllerUserId=device.getInt("masterControllerUserId");
-                                    int isUnlock=device.getInt("isUnlock");
-                                    int controlled=device.getInt("controlled");
 
-                                    DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
+                        for (int i=0;i<content.length();i++){
+                            JSONObject device=content.getJSONObject(i);
+                            if (device!=null){
+                                int id=device.getInt("id");
+                                String deviceName=device.getString("deviceName");
+                                int type=device.getInt("type");
+                                int houseId=device.getInt("houseId");
+                                int masterControllerUserId=device.getInt("masterControllerUserId");
+                                int isUnlock=device.getInt("isUnlock");
+                                int controlled=device.getInt("controlled");
 
-                                    deviceChild.setControlled(controlled);
-                                    deviceChildDao.update(deviceChild);
-                                    mainControls.add(deviceChild);
-                                    if (controlled==1){
-                                        deviceChild2=deviceChild;
-                                    }
-                                    if (isSelected != null)
-                                        isSelected = null;
-                                    isSelected = new HashMap<Integer, Boolean>();
-                                    for (int x = 0; x < mainControls.size(); x++) {
-                                        isSelected.put(x, false);
-                                    }
-                                    // 清除已经选择的项
-                                    if (beSelectedData.size() > 0) {
-                                        beSelectedData.clear();
-                                    }
-                                    beSelectedData.add(deviceChild2);
+                                DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
+                                deviceChild.setControlled(controlled);
+                                deviceChildDao.update(deviceChild);
+                                mainControls.add(deviceChild);
+                                if (controlled==1){
+                                    deviceChild2=deviceChild;
                                 }
                             }
                         }
+                        if (isSelected != null)
+                            isSelected = null;
+                        isSelected = new HashMap<Integer, Boolean>();
+                        for (int i = 0; i < mainControls.size(); i++) {
+                            DeviceChild deviceChild=mainControls.get(i);
+                            if (deviceChild.getControlled()==1){
+                                isSelected.put(i, true);
+                            }else {
+                                isSelected.put(i, false);
+                            }
+
+                        }
+                        // 清除已经选择的项
+                        if (beSelectedData.size() > 0) {
+                            beSelectedData.clear();
+                        }
+                        if (deviceChild2!=null){
+                            beSelectedData.add(deviceChild2);
+                        }
+
                     }
                 }
             }catch (Exception e){
@@ -363,7 +375,13 @@ public class ETSControlFragment extends Fragment{
                 try {
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
-
+                    if (code==2000){
+                        if (!beSelectedData.isEmpty()){
+                            DeviceChild deviceChild=beSelectedData.get(0);
+                            deviceChild.setControlled(1);
+                            deviceChildDao.update(deviceChild);
+                        }
+                    }
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -400,6 +418,28 @@ public class ETSControlFragment extends Fragment{
     public void onDestroy() {
         super.onDestroy();
 
+        try {
+            if (connection != null) {
+                getActivity().unbindService(connection);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
+    MQService mqService;
+    private boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
 }

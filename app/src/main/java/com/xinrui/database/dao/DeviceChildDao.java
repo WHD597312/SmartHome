@@ -59,6 +59,9 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         public final static Property OnLint = new Property(32, boolean.class, "onLint", false, "ON_LINT");
         public final static Property Temp = new Property(33, int.class, "temp", false, "TEMP");
         public final static Property Hum = new Property(34, int.class, "hum", false, "HUM");
+        public final static Property ReSet = new Property(35, String.class, "reSet", false, "RE_SET");
+        public final static Property TimerShutdown = new Property(36, String.class, "timerShutdown", false, "TIMER_SHUTDOWN");
+        public final static Property ShareHouseId = new Property(37, long.class, "shareHouseId", false, "SHARE_HOUSE_ID");
     }
 
 
@@ -108,7 +111,10 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
                 "\"TIMER_TEMP\" INTEGER NOT NULL ," + // 31: timerTemp
                 "\"ON_LINT\" INTEGER NOT NULL ," + // 32: onLint
                 "\"TEMP\" INTEGER NOT NULL ," + // 33: temp
-                "\"HUM\" INTEGER NOT NULL );"); // 34: hum
+                "\"HUM\" INTEGER NOT NULL ," + // 34: hum
+                "\"RE_SET\" TEXT," + // 35: reSet
+                "\"TIMER_SHUTDOWN\" TEXT," + // 36: timerShutdown
+                "\"SHARE_HOUSE_ID\" INTEGER NOT NULL );"); // 37: shareHouseId
     }
 
     /** Drops the underlying database table. */
@@ -215,6 +221,17 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         stmt.bindLong(33, entity.getOnLint() ? 1L: 0L);
         stmt.bindLong(34, entity.getTemp());
         stmt.bindLong(35, entity.getHum());
+ 
+        String reSet = entity.getReSet();
+        if (reSet != null) {
+            stmt.bindString(36, reSet);
+        }
+ 
+        String timerShutdown = entity.getTimerShutdown();
+        if (timerShutdown != null) {
+            stmt.bindString(37, timerShutdown);
+        }
+        stmt.bindLong(38, entity.getShareHouseId());
     }
 
     @Override
@@ -315,6 +332,17 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         stmt.bindLong(33, entity.getOnLint() ? 1L: 0L);
         stmt.bindLong(34, entity.getTemp());
         stmt.bindLong(35, entity.getHum());
+ 
+        String reSet = entity.getReSet();
+        if (reSet != null) {
+            stmt.bindString(36, reSet);
+        }
+ 
+        String timerShutdown = entity.getTimerShutdown();
+        if (timerShutdown != null) {
+            stmt.bindString(37, timerShutdown);
+        }
+        stmt.bindLong(38, entity.getShareHouseId());
     }
 
     @Override
@@ -359,7 +387,10 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
             cursor.getInt(offset + 31), // timerTemp
             cursor.getShort(offset + 32) != 0, // onLint
             cursor.getInt(offset + 33), // temp
-            cursor.getInt(offset + 34) // hum
+            cursor.getInt(offset + 34), // hum
+            cursor.isNull(offset + 35) ? null : cursor.getString(offset + 35), // reSet
+            cursor.isNull(offset + 36) ? null : cursor.getString(offset + 36), // timerShutdown
+            cursor.getLong(offset + 37) // shareHouseId
         );
         return entity;
     }
@@ -401,6 +432,9 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         entity.setOnLint(cursor.getShort(offset + 32) != 0);
         entity.setTemp(cursor.getInt(offset + 33));
         entity.setHum(cursor.getInt(offset + 34));
+        entity.setReSet(cursor.isNull(offset + 35) ? null : cursor.getString(offset + 35));
+        entity.setTimerShutdown(cursor.isNull(offset + 36) ? null : cursor.getString(offset + 36));
+        entity.setShareHouseId(cursor.getLong(offset + 37));
      }
     
     @Override

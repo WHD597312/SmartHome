@@ -1,10 +1,13 @@
 package com.xinrui.smart.fragment;
 
 import android.app.Fragment;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +30,7 @@ import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -107,9 +111,27 @@ public class ControlledFragment extends Fragment{
         lv_homes.setAdapter(adapter);
 
         tv_home.setBackgroundResource(R.drawable.shape_header);
-
-
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Intent intent = new Intent(getActivity(), MQService.class);
+        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        try {
+            if (connection != null) {
+                getActivity().unbindService(connection);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     @OnClick({R.id.btn_ensure})
     public void onClick(View view){
         switch (view.getId()){
@@ -203,7 +225,6 @@ public class ControlledFragment extends Fragment{
                            deviceChild.setControlled(1);
                            deviceChildDao.update(deviceChild);
                        }
-
                    }else {
                        DeviceChild deviceChild=list.get(position);
                        deviceChild.setControlled(0);
@@ -252,16 +273,14 @@ public class ControlledFragment extends Fragment{
                                 int masterControllerUserId=device.getInt("masterControllerUserId");
                                 int isUnlock=device.getInt("isUnlock");
                                 int controlled=device.getInt("controlled");
+                                DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
 
-                                DeviceChild deviceChild = new DeviceChild((long)id, deviceName, imgs[0],0, (long)houseId,
-                                        masterControllerUserId, type,isUnlock);
                                 deviceChild.setControlled(controlled);
                                 deviceChildDao.update(deviceChild);
                                 controlleds.add(deviceChild);
                                 if (controlled==1){
                                     controlledDeviceChildren.add(deviceChild);
                                 }
-
                             }
                         }
                     }
@@ -303,11 +322,19 @@ public class ControlledFragment extends Fragment{
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
                     if (code==2000){
-                        if (arr!=null){
+                        if (arr!=null && arr.length>0){
                             for (int i = 0; i < arr.length; i++) {
                                 DeviceChild deviceChild=deviceChildDao.findDeviceChild(arr[i]);
                                 deviceChild.setControlled(1);
+                                deviceChild.setCtrlMode("slave");
                                 deviceChildDao.update(deviceChild);
+                                send(deviceChild);
+                            }
+                        }else {
+                            for (DeviceChild deviceChild:controlleds){
+                                deviceChild.setCtrlMode("normal");
+                                deviceChildDao.update(deviceChild);
+                                send(deviceChild);
                             }
                         }
                     }
@@ -332,6 +359,51 @@ public class ControlledFragment extends Fragment{
             Intent intent=new Intent(getActivity(),MainActivity.class);
             intent.putExtra("mainControl","mainControl");
             startActivity(intent);
+        }
+    }
+    MQService mqService;
+    private boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
+    public void send(DeviceChild deviceChild) {
+        try {
+            if (deviceChild != null) {
+                JSONObject maser = new JSONObject();
+                maser.put("ctrlMode", deviceChild.getCtrlMode());
+                maser.put("workMode", deviceChild.getWorkMode());
+                maser.put("MatTemp", deviceChild.getMatTemp());
+                maser.put("TimerTemp", deviceChild.getTimerTemp());
+                maser.put("LockScreen", deviceChild.getLockScreen());
+                maser.put("BackGroundLED", deviceChild.getBackGroundLED());
+                maser.put("deviceState", deviceChild.getDeviceState());
+                maser.put("tempState", deviceChild.getTempState());
+                maser.put("outputMode", deviceChild.getOutputMod());
+                maser.put("protectProTemp", deviceChild.getProtectProTemp());
+                maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
+
+                String s = maser.toString();
+                boolean success = false;
+                String topicName;
+                String mac = deviceChild.getMacAddress();
+                topicName = "rango/" + mac + "/set";
+                if (bound) {
+                    success = mqService.publish(topicName, 2, s);
+                    Log.d("sss","--->"+success);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

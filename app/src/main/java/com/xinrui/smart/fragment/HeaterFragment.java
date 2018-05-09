@@ -1,6 +1,7 @@
 package com.xinrui.smart.fragment;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentCallbacks;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +34,7 @@ import android.widget.Toast;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.smart.R;
+import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.TimeTask;
 import com.xinrui.smart.util.ChineseNumber;
@@ -43,6 +45,7 @@ import com.xinrui.smart.view_custom.SemicircleBar;
 import org.json.JSONObject;
 
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -55,7 +58,7 @@ import butterknife.Unbinder;
  * Created by win7 on 2018/3/20.
  */
 
-public class HeaterFragment extends Fragment {
+public class HeaterFragment extends LazyFragment {
     public String TAG = "HeaterFragment";
     View view;
     Unbinder unbinder;
@@ -111,6 +114,7 @@ public class HeaterFragment extends Fragment {
      */
     @BindView(R.id.relative5)
     RelativeLayout relative5;
+    @BindView(R.id.tv_timeShutDown) TextView tv_timeShutDown;/**定时关加热*/
     /**
      * 关机
      */
@@ -119,15 +123,24 @@ public class HeaterFragment extends Fragment {
 
     private TimeTaskDaoImpl timeTaskDao;
 
-
+    // 标志位，标志已经初始化完成。
+    private boolean isPrepared;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_heater, container, false);
         unbinder = ButterKnife.bind(this, view);
+        isPrepared = true;
         return view;
     }
 
+    @Override
+    protected void lazyLoad() {
+        if(!isPrepared || !isVisible) {
+            return;
+        }
+        //填充各控件的数据
+    }
     @Override
     public void onStart() {
         super.onStart();
@@ -166,38 +179,50 @@ public class HeaterFragment extends Fragment {
                             msg.what = mCurrent;
                             handler.sendMessage(msg);
                             tv_set_temp.setText("--" + "℃");
+                            int curTemp = deviceChild.getCurTemp();
+                            tv_cur_temp.setText(curTemp+"℃");
                             tv_outmode.setText("");
 
                         } else if ("open".equals(deviceState)) {
                             String workMode = deviceChild.getWorkMode();
                             if ("manual".equals(workMode)) {
-                                deviceChild.setMatTemp(mCurrent);
                                 deviceChild.setManualMatTemp(mCurrent);
                                 deviceChildDao.update(deviceChild);
+                                tv_timeShutDown.setVisibility(View.GONE);
+                                tv_outmode.setVisibility(View.VISIBLE);
+                                tv_timeShutDown.setVisibility(View.GONE);
                                 if (seekbar.getEnd() == 1) {
                                     send(deviceChild);
+                                    seekbar.setEnd(0);
+                                    Message msg=handler.obtainMessage();
+                                    msg.arg1=7;
+                                    handler.sendMessage(msg);
                                 }
                             } else {
-                                deviceChild.setMatTemp(mCurrent);
                                 deviceChild.setTimerTemp(mCurrent);
                                 deviceChildDao.update(deviceChild);
                             }
 
-
                             tv_set_temp.setText(mCurrent + "℃");
+
                             int curTemp = deviceChild.getCurTemp();
-                            if (mCurrent >= (curTemp + 3)) {
-                                tv_outmode.setText("速热模式");
-                                animationDrawable.start();
-                            } else if (curTemp >= (mCurrent + 3)) {
-                                tv_outmode.setText("保温模式");
-                                animationDrawable.stop();
-                            } else {
-                                tv_outmode.setText("节能模式");
-                                animationDrawable.start();
+                            tv_cur_temp.setText(curTemp+"℃");
+                            if ("timer".equals(deviceChild.getWorkMode()) && "enable".equals(deviceChild.getTimerShutdown())){
+                                tv_timeShutDown.setVisibility(View.GONE);
+                                tv_outmode.setVisibility(View.VISIBLE);
+                            }else {
+                                if (mCurrent >= (curTemp + 3)) {
+                                    tv_outmode.setText("速热模式");
+                                    animationDrawable.start();
+                                } else if (curTemp >= (mCurrent + 3)) {
+                                    tv_outmode.setText("保温模式");
+                                    animationDrawable.stop();
+                                } else {
+                                    tv_outmode.setText("节能模式");
+                                    animationDrawable.start();
+                                }
                             }
                         }
-
                     } else if ("2".equals(module)) {
                         String deviceState = deviceChild.getDeviceState();
                         if ("close".equals(deviceState)) {
@@ -205,8 +230,10 @@ public class HeaterFragment extends Fragment {
                             Message msg = handler.obtainMessage();
                             msg.arg1 = 2;
                             msg.what = mCurrent;
-                            handler.sendMessage(msg);
+                            handler.sendMessageDelayed(msg,1000);
                             tv_set_temp.setText("--" + "℃");
+                            int curTemp = deviceChild.getProtectProTemp();
+                            tv_cur_temp.setText(curTemp+"℃");
                             tv_outmode.setText("");
                         } else if ("open".equals(deviceState)) {
                             animationDrawable.start();
@@ -242,11 +269,28 @@ public class HeaterFragment extends Fragment {
                                 } else if (curAngle > 260 && curAngle <= 272) {
                                     mCurrent = 60;
                                 }
+                                if ("enable".equals(deviceChild.getTimerShutdown()) && "timer".equals(deviceChild.getWorkMode())){
+                                    tv_timeShutDown.setVisibility(View.VISIBLE);
+                                    tv_outmode.setVisibility(View.GONE);
+                                    animationDrawable.stop();
+                                }if ("enable".equals(deviceChild.getTimerShutdown()) && "manual".equals(deviceChild.getWorkMode())){
+                                    tv_timeShutDown.setVisibility(View.GONE);
+                                    tv_outmode.setVisibility(View.VISIBLE);
+                                }else if ("disable".equals(deviceChild.getTimerShutdown()) && "timer".equals(deviceChild.getWorkMode())){
+                                    tv_timeShutDown.setVisibility(View.GONE);
+                                    tv_outmode.setVisibility(View.VISIBLE);
+                                }
                                 deviceChild.setProtectSetTemp(mCurrent);
                                 deviceChildDao.update(deviceChild);
                                 tv_set_temp.setText(mCurrent + "℃");
+                                int curTemp = deviceChild.getProtectProTemp();
+                                tv_cur_temp.setText(curTemp+"℃");
                                 if (seekbar.getEnd() == 1) {
                                     send(deviceChild);
+                                    seekbar.setEnd(0);
+                                    Message msg=handler.obtainMessage();
+                                    msg.arg1=7;
+                                    handler.sendMessageDelayed(msg,1000);
                                 }
                             }
                         }
@@ -257,7 +301,6 @@ public class HeaterFragment extends Fragment {
                 }
             }
         });
-
     }
 
     public void send(DeviceChild deviceChild) {
@@ -265,33 +308,25 @@ public class HeaterFragment extends Fragment {
             if (deviceChild != null) {
                 JSONObject maser = new JSONObject();
 
-//                maser.put("wifiVersion", deviceChild.getWifiVersion());
-//                maser.put("MCUVerion", deviceChild.getMCUVerion());
                 maser.put("ctrlMode", deviceChild.getCtrlMode());
                 maser.put("workMode", deviceChild.getWorkMode());
-                maser.put("MatTemp", deviceChild.getMatTemp());
+                maser.put("MatTemp", deviceChild.getManualMatTemp());
+                maser.put("TimerTemp", deviceChild.getTimerTemp());
                 maser.put("LockScreen", deviceChild.getLockScreen());
                 maser.put("BackGroundLED", deviceChild.getBackGroundLED());
                 maser.put("deviceState", deviceChild.getDeviceState());
                 maser.put("tempState", deviceChild.getTempState());
                 maser.put("outputMode", deviceChild.getOutputMod());
-//                maser.put("curTemp", deviceChild.getCurTemp());
-//                maser.put("ratedPower", deviceChild.getRatedPower());
-                maser.put("protectEnable", deviceChild.getProtectEnable());
-
-//                maser.put("voltageValue", deviceChild.getVoltageValue());
-//                maser.put("currentValue", deviceChild.getCurrentValue());
-//                maser.put("machineFall", deviceChild.getMachineFall());
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
-
 
                 String s = maser.toString();
                 boolean success = false;
                 String topicName;
                 String mac = deviceChild.getMacAddress();
                 if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-                    topicName = "rango/" + mac + "/masterController/set";
+                    String houseId=deviceChild.getHouseId()+"";
+                    topicName = "rango/masterController/"+houseId+"/"+mac+"/set";
                     if (bound) {
                         success = mqService.publish(topicName, 2, s);
                     }
@@ -385,6 +420,10 @@ public class HeaterFragment extends Fragment {
                         semicBar.setCurProcess(mCurrentAngle);
 //                        semicBar.invalidate();
                         break;
+                    case 7:
+                        semicBar.setEnd(0);
+                        semicBar.invalidate();
+                        break;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -398,11 +437,31 @@ public class HeaterFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
-            if (deviceChild2.getMacAddress().equals(deviceChild.getMacAddress())) {
-                deviceChild = deviceChild2;
-                deviceChildDao.update(deviceChild);
-                if (deviceChild != null) {
-                    setMode(deviceChild);
+            String macAddress=intent.getStringExtra("macAddress");
+            String noNet=intent.getStringExtra("noNet");
+            if (!Utils.isEmpty(noNet)){
+                Utils.showToast(getActivity(),"网络已断开，请设置网络");
+            }
+            else {
+                if (!Utils.isEmpty(macAddress)){
+                    if (deviceChild.getMacAddress().equals(macAddress)){
+                        Utils.showToast(getActivity(),"该设备已被重置");
+                        Intent intent2=new Intent(getActivity(),MainActivity.class);
+                        intent2.putExtra("deviceList","deviceList");
+                        startActivity(intent2);
+                    }
+                }else {
+                    if (deviceChild2.getMacAddress().equals(deviceChild.getMacAddress())) {
+                        deviceChild = deviceChild2;
+                        deviceChildDao.update(deviceChild);
+                        if (deviceChild != null) {
+                            if (deviceChild.getOnLint()){
+                                setMode(deviceChild);
+                            }else {
+                                Utils.showToast(getActivity(),"该设备已离线");
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -415,6 +474,7 @@ public class HeaterFragment extends Fragment {
     private int mCurWeek = 0;
     Calendar calendar;
     List<DeviceChild> deviceChildList;
+    private boolean isBound=false;
 
     @Override
     public void onResume() {
@@ -439,7 +499,7 @@ public class HeaterFragment extends Fragment {
 //        String childPosiotn = bundle.getString("deviceId");
 
         Intent intent = new Intent(getActivity(), MQService.class);
-        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        isBound=getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
         IntentFilter intentFilter = new IntentFilter("HeaterFragment");
         receiver = new MessageReceiver();
@@ -454,7 +514,6 @@ public class HeaterFragment extends Fragment {
         image_srceen.setTag("屏保关");
         semicBar.setDeviceId(deviceChild.getId() + "");
 
-
         if (deviceChild != null) {
             setMode(deviceChild);
         }
@@ -465,7 +524,11 @@ public class HeaterFragment extends Fragment {
     public void onStop() {
         super.onStop();
         running = false;
+        deviceChildDao.closeDaoSession();
+        timeTaskDao.closeDaoSession();
     }
+
+
 
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
 
@@ -478,16 +541,19 @@ public class HeaterFragment extends Fragment {
                     image_switch.setTag("关");
                     deviceChild.setDeviceState("close");
                     deviceChild.setImg(imgs[0]);
-
-
+                    deviceChildDao.update(deviceChild);
+                    setMode(deviceChild);
+                    send(deviceChild);
+                    tv_timeShutDown.setVisibility(View.GONE);
                 } else {
                     image_switch.setTag("开");
                     deviceChild.setDeviceState("open");
                     deviceChild.setImg(imgs[1]);
+                    deviceChildDao.update(deviceChild);
+                    setMode(deviceChild);
+                    send(deviceChild);
                 }
-                deviceChildDao.update(deviceChild);
-                setMode(deviceChild);
-                send(deviceChild);
+
 //                semicBar.invalidate();
 
                 break;
@@ -534,14 +600,24 @@ public class HeaterFragment extends Fragment {
                         setMode(deviceChild);
                         send(deviceChild);
                     } else {
-                        String workMode = deviceChild.getWorkMode();
-                        if ("manual".equals(workMode)) {
+                        if ("手动".equals(handTask)) {
+                            image_hand_task.setTag("定时");
                             deviceChild.setWorkMode("timer");
-                            image_hand_task.setImageResource(R.mipmap.module_handle);
-                        } else if ("timer".equals(workMode)) {
-                            deviceChild.setWorkMode("manual");
+                            int timerTemp = deviceChild.getTimerTemp();
+                            int curTemp = deviceChild.getCurTemp();
+
                             image_hand_task.setImageResource(R.mipmap.module_task);
+
+                        } else if ("定时".equals(handTask)) {
+                            image_hand_task.setTag("手动");
+                            deviceChild.setWorkMode("manual");
+                            int manualMatTemp = deviceChild.getManualMatTemp();
+                            int curTemp = deviceChild.getCurTemp();
+                            image_hand_task.setImageResource(R.mipmap.module_handle);
+
                         }
+                        setMode(deviceChild);
+                        send(deviceChild);
                     }
                 }
 
@@ -584,7 +660,6 @@ public class HeaterFragment extends Fragment {
                     } else {
                         deviceChild.setOutputMod("childProtect");
                     }
-//                deviceChildDao.update(deviceChild);
                     setMode(deviceChild);
                     send(deviceChild);
                 }
@@ -596,13 +671,14 @@ public class HeaterFragment extends Fragment {
                     if ("上锁".equals(lock)) {
                         image_lock.setTag("解锁");
                         deviceChild.setLockScreen("close");
+                        setMode(deviceChild);
+                        send(deviceChild);
                     } else if ("解锁".equals(lock)) {
                         image_lock.setTag("上锁");
                         deviceChild.setLockScreen("open");
+                        setMode(deviceChild);
+                        send(deviceChild);
                     }
-//                deviceChildDao.update(deviceChild);
-                    setMode(deviceChild);
-                    send(deviceChild);
                 }
 
                 break;
@@ -612,13 +688,14 @@ public class HeaterFragment extends Fragment {
                     if ("屏保关".equals(srceen)) {
                         image_srceen.setTag("屏保开");
                         deviceChild.setBackGroundLED("open");
+                        setMode(deviceChild);
+                        send(deviceChild);
                     } else {
                         image_srceen.setTag("屏保关");
                         deviceChild.setBackGroundLED("close");
+                        setMode(deviceChild);
+                        send(deviceChild);
                     }
-//                deviceChildDao.update(deviceChild);
-                    setMode(deviceChild);
-                    send(deviceChild);
                 }
                 break;
         }
@@ -626,6 +703,7 @@ public class HeaterFragment extends Fragment {
 
     private void setMode(DeviceChild deviceChild) {
 
+        String timerShutDown=deviceChild.getTimerShutdown();
         String wifiVersion = deviceChild.getWifiVersion();
         String MCUVerion = deviceChild.getMCUVerion();
 
@@ -656,6 +734,16 @@ public class HeaterFragment extends Fragment {
 
 
         if ("childProtect".equals(outputMode) && "enable".equals(protectEnable)) {
+            model_protect.setBackgroundResource(0);
+            if ("manual".equals(workMode)) {
+                image_hand_task.setImageResource(R.mipmap.module_handle);
+                image_hand_task.setTag("手动");
+
+//
+            } else if ("timer".equals(workMode)) {
+                image_hand_task.setImageResource(R.mipmap.module_task);
+                image_hand_task.setTag("定时");
+            }
             model_protect.setEnabled(true);
             if ("open".equals(deviceState)) {
                 semicBar.setCanTouch(true);
@@ -676,7 +764,7 @@ public class HeaterFragment extends Fragment {
             Message msg = handler.obtainMessage();
             msg.arg1 = 6;
             msg.what = protectSetTemp;
-            handler.sendMessage(msg);
+            handler.sendMessageDelayed(msg,1000);
             semicBar.setModule("2");
         }
         if ("disable".equals(protectEnable)) {
@@ -721,7 +809,7 @@ public class HeaterFragment extends Fragment {
                 Message msg = handler.obtainMessage();
                 msg.arg1 = 6;
                 msg.what = manualMatTemp;
-                handler.sendMessage(msg);
+                handler.sendMessageDelayed(msg,1000);
                 if (manualMatTemp >= (curTemp + 3)) {
                     deviceChild.setOutputMod("fastHeat");//速热模式
                     tv_outmode.setText("速热模式");
@@ -736,8 +824,6 @@ public class HeaterFragment extends Fragment {
                     animationDrawable.start();
                 }
             } else if ("timer".equals(workMode)) {
-
-
                 image_hand_task.setImageResource(R.mipmap.module_task);
 
                 image_hand_task.setTag("定时");
@@ -748,11 +834,12 @@ public class HeaterFragment extends Fragment {
                 Message msg = handler.obtainMessage();
                 msg.arg1 = 6;
                 msg.what = timerTemp;
-                handler.sendMessage(msg);
+                handler.sendMessageDelayed(msg,1000);
 
                 if ("timerShutdown".equals(outputMode)) {
                     animationDrawable.stop();
                     deviceChild.setOutputMod("timerShutdown");
+                    tv_outmode.setText("定时关机");
                 } else {
                     if (timerTemp >= (curTemp + 3)) {
                         deviceChild.setOutputMod("fastHeat");//速热模式
@@ -790,22 +877,57 @@ public class HeaterFragment extends Fragment {
         if ("err".equals(tempState)) {
             tv_cur_temp.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
         }
+
+        if ("enable".equals(timerShutDown) && "timer".equals(workMode)) {
+            if ("childProtect".equals(outputMode)) {
+                model_protect.setEnabled(true);
+                if ("open".equals(deviceState)) {
+                    semicBar.setCanTouch(true);
+                    animationDrawable.start();
+                } else {
+                    semicBar.setCanTouch(false);
+                    animationDrawable.stop();
+                }
+                model_protect.setTag("保护");
+                model_protect.setBackgroundResource(R.mipmap.img_temp_circle);
+                image_temp.setImageResource(R.mipmap.img_protect_open);
+                tv_set_temp.setText(protectSetTemp + "℃");
+                tv_cur_temp.setText(protectProTemp + "℃");
+                Message msg = handler.obtainMessage();
+                msg.arg1 = 6;
+                msg.what = protectSetTemp;
+                handler.sendMessageDelayed(msg,1000);
+                semicBar.setModule("2");
+            }
+        }
     }
+
 
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (unbinder!=null){
+            unbinder.unbind();
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (connection != null) {
-            getActivity().unbindService(connection);
+        try {
+            if (isBound){
+                if (connection != null) {
+                    getActivity().unbindService(connection);
+                }
+            }
+
+            if (receiver != null) {
+                getActivity().unregisterReceiver(receiver);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        if (receiver != null) {
-            getActivity().unregisterReceiver(receiver);
-        }
+
     }
 }

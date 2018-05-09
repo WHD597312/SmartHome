@@ -49,6 +49,8 @@ public class LineChartManager {
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
         legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
         legend.setDrawInside(false);
+        lineChart.setScaleXEnabled(false);/**禁止缩放x轴*/
+        lineChart.setScaleYEnabled(true);/**缩放y轴*/
 
         //XY轴的设置
         //X轴设置显示位置在底部
@@ -73,7 +75,7 @@ public class LineChartManager {
         lineDataSet.setLineWidth(1f);
         lineDataSet.setCircleRadius(1f);
         //设置曲线值的圆点是实心还是空心
-        lineDataSet.setDrawCircleHole(false);
+        lineDataSet.setDrawCircleHole(true);
         lineDataSet.setValueTextSize(9f);
         //设置折线图填充
         lineDataSet.setDrawFilled(mode);
@@ -91,7 +93,7 @@ public class LineChartManager {
      * @param label
      * @param color
      */
-    public void showLineChart(List<Float> xAxisValues, List<Float> yAxisValues, String label, int color) {
+    public void showLineChart(List<Integer> xAxisValues, List<Integer> yAxisValues, String label, int color) {
         initLineChart();
         ArrayList<Entry> entries = new ArrayList<>();
         for (int i = 0; i < xAxisValues.size(); i++) {
@@ -156,6 +158,7 @@ public class LineChartManager {
         rightAxis.setAxisMaximum(max);
         rightAxis.setAxisMinimum(min);
         rightAxis.setLabelCount(labelCount, false);
+        rightAxis.setEnabled(false);
         lineChart.invalidate();
     }
 
@@ -170,7 +173,6 @@ public class LineChartManager {
         xAxis.setAxisMaximum(max);
         xAxis.setAxisMinimum(min);
         xAxis.setLabelCount(labelCount, true);
-
         lineChart.invalidate();
     }
 

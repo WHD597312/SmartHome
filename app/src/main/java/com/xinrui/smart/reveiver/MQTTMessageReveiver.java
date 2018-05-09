@@ -3,6 +3,11 @@ package com.xinrui.smart.reveiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
+import android.os.Message;
 import android.os.Parcelable;
 import android.util.Log;
 import android.widget.Toast;
@@ -18,7 +23,12 @@ import com.xinrui.secen.scene_fragment.Btn1_fragment;
 import com.xinrui.secen.scene_fragment.Btn2_fragment;
 import com.xinrui.secen.scene_fragment.Btn3_fragment;
 import com.xinrui.secen.scene_fragment.Btn4_fragment;
+import com.xinrui.secen.scene_pojo.MessageEvent;
+import com.xinrui.secen.scene_util.NetWorkUtil;
+import com.xinrui.smart.R;
+import com.xinrui.smart.activity.TempChartActivity;
 import com.xinrui.smart.activity.TimeTaskActivity;
+import com.xinrui.smart.activity.device.ShareDeviceActivity;
 import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.fragment.HeaterFragment;
 import com.xinrui.smart.fragment.SmartFragmentManager;
@@ -28,6 +38,7 @@ import com.xinrui.smart.pojo.TimeTask;
 import com.xinrui.smart.pojo.Timer;
 import com.xinrui.smart.util.Utils;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -41,392 +52,76 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        boolean isConn = NetWorkUtil.isConn(com.xinrui.smart.MyApplication.getContext());
+        ConnectivityManager connectivityManager=(ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mobNetInfo=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        NetworkInfo  wifiNetInfo=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-        String message=intent.getStringExtra("message");
-        String topicName=intent.getStringExtra("topicName");
+        if (!mobNetInfo.isConnected() && !wifiNetInfo.isConnected()) {
+            Utils.showToast(context, "网络不可以用");
+            //改变背景或者 处理网络的全局变量
+        }else {
+            //改变背景或者 处理网络的全局变量
+        }
 
-        try {
-            String macAddress=topicName.substring(6,topicName.lastIndexOf("/"));
-            if (!Utils.isEmpty(macAddress)){
-                JSONObject device=new JSONObject(message);
-                String wifiVersion="";
-                String MCUVerion="";
-                int MatTemp=0;
-                String workMode="";/**manual:手动模式	timer:定时模式*/
-                String LockScreen="";/** open:上锁  close:解锁*/
-                String BackGroundLED="";/**open:照明  close:节能*/
-                String deviceState="";/**open:开机  close：关机*/
-                String tempState="";/**nor:正常 err:异常*/
-                String outputMode="";
-                int curTemp=0;
-                int ratedPower=0;
-                String protectEnable="";
-                String ctrlMode="";
-                int powerValue=0;
-                int voltageValue=0;
-                int currentValue=0;
-                String machineFall="";
-                int protectSetTemp=0;
-                int protectProTemp=0;
-                int extTemp=0;
-                int extHum=0;
-
-                int timerTaskWeek=0;
-
-                if (device.has("wifiVersion")){
-                    wifiVersion=device.getString("wifiVersion");/**版本*/
-                }
-                if (device.has("MCUVerion")){
-                    MCUVerion=device.getString("MCUVerion");
-                }
-                if (device.has("MatTemp")){
-                    MatTemp=device.getInt("MatTemp");/**手动/定时模式下的温度*/
-                }
-                if (device.has("workMode")){
-                    workMode=device.getString("workMode");/**manual:手动模式	timer:定时模式*/
-                }
-                if (device.has("LockScreen")){
-                    LockScreen=device.getString("LockScreen");
-                }
-                if (device.has("BackGroundLED")){
-                    BackGroundLED=device.getString("BackGroundLED");
-                }if (device.has("deviceState")){
-                    deviceState=device.getString("deviceState");
-                }
-                if (device.has("tempState")){
-                    tempState=device.getString("tempState");
-                }
-                if (device.has("outputMode")){
-                    outputMode=device.getString("outputMode");
-                }if (device.has("curTemp")){
-                    curTemp=device.getInt("curTemp");
-                }
-                if (device.has("ratedPower")){
-                    ratedPower=device.getInt("ratedPower");
-                }
-                if (device.has("protectEnable")){
-                    protectEnable=device.getString("protectEnable");
-                }if (device.has("ctrlMode")){
-                    ctrlMode=device.getString("ctrlMode");
-                }
-                if (device.has("powerValue")){
-                    powerValue=device.getInt("powerValue");
-                }
-
-                if (device.has("voltageValue")){
-                    voltageValue=device.getInt("voltageValue");
-                }
-                if (device.has("voltageValue")){
-                    voltageValue=device.getInt("voltageValue");
-                }
-                if (device.has("currentValue")){
-                    currentValue=device.getInt("currentValue");
-                }
-                if (device.has("machineFall")){
-                    machineFall=device.getString("machineFall");
-                }
-                if (device.has("protectSetTemp")){
-                    protectSetTemp=device.getInt("protectSetTemp");
-                }
-                if (device.has("protectProTemp")){
-                    protectProTemp=device.getInt("protectProTemp");
-                }
-
-
-                if (device.has("extTemp")){
-                    extTemp=device.getInt("extTemp");
-                }
-                if (device.has("extHum")){
-                    extHum=device.getInt("extHum");
-                }
-
-
-
-
-                DeviceChild child=null;
-                int groupPostion=0;
-                int childPosition=0;
-
-                DeviceGroupDaoImpl deviceGroupDao=new DeviceGroupDaoImpl(context);
-                DeviceChildDaoImpl deviceChildDao=new DeviceChildDaoImpl(context);
-                TimeDaoImpl timeDao=new TimeDaoImpl(context);
-                TimeTaskDaoImpl timeTaskDao=new TimeTaskDaoImpl(context);
-                List<DeviceGroup> deviceGroups=deviceGroupDao.findAllDevices();
-
-                List<List<DeviceChild>> childern=new ArrayList<>();
-                try {
-                    for (DeviceGroup deviceGroup:deviceGroups){
-                        List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
-                        childern.add(deviceChildren);
+        int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch,R.mipmap.image_switch2};
+        if (!isConn) {
+//            NetWorkUtil.getInstance().setNetworkMethod(context);
+            Utils.showToast(context,"网络已断开，请设置网络");
+            SharedPreferences preferences=context.getSharedPreferences("net",Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor=preferences.edit();
+            editor.putString("from","1");
+            editor.putString("to","0");
+            editor.commit();
+            try {
+                DeviceChildDaoImpl deviceChildDao = new DeviceChildDaoImpl(context);
+                List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
+                for (DeviceChild deviceChild : deviceChildren) {
+                    deviceChild.setOnLint(false);
+                    if ("open".equals(deviceChild.getDeviceState())) {
+                        deviceChild.setImg(imgs[2]);
                     }
-                    for (List<DeviceChild> deviceChildren :childern){
-                        childPosition=0;
-                        for (DeviceChild deviceChild:deviceChildren){
-                            String mac=deviceChild.getMacAddress();
-                            if (!Utils.isEmpty(mac) && macAddress.equals(mac)) {
-                                child=deviceChild;
-                                break;
-                            }
-                            childPosition++;
-                        }
-                        if (child!=null){
-                            break;
-                        }
-                        groupPostion++;
-                    }
-                    if (child!=null){
-//                        child.setVersion(version);
-                        if (!Utils.isEmpty(wifiVersion))
-                            child.setWifiVersion(wifiVersion);
-
-                        if (!Utils.isEmpty(MCUVerion))
-                            child.setMCUVerion(MCUVerion);
-
-                        if (!Utils.isEmpty(workMode)){
-                            child.setWorkMode(workMode);
-                            if (MatTemp!=0) {
-                                child.setMatTemp(MatTemp);
-                                if ("manual".equals(workMode)){
-                                    child.setManualMatTemp(MatTemp);
-                                }else if ("timer".equals(workMode)){
-                                    child.setTimerTemp(MatTemp);
-                                }
-                            }
-                        }
-
-
-                        if (!Utils.isEmpty(LockScreen))
-                            child.setLockScreen(LockScreen);
-                        if (!Utils.isEmpty(BackGroundLED))
-                            child.setBackGroundLED(BackGroundLED);
-                        if (!Utils.isEmpty(deviceState))
-                            child.setDeviceState(deviceState);
-                        if (!Utils.isEmpty(tempState))
-                            child.setTempState(tempState);
-                        if (!Utils.isEmpty(outputMode))
-                            child.setOutputMod(outputMode);
-
-                        if (curTemp!=0)
-                            child.setCurTemp(curTemp);
-                        if (ratedPower!=0)
-                            child.setRatedPower(ratedPower);
-                        if (!Utils.isEmpty(protectEnable))
-                            child.setProtectEnable(protectEnable);
-                        if (!Utils.isEmpty(ctrlMode))
-                            child.setCtrlMode(ctrlMode);
-                        if (powerValue!=0)
-                            child.setPowerValue(powerValue);
-                        if (voltageValue!=0)
-                            child.setVoltageValue(voltageValue);
-                        if (currentValue!=0)
-                            child.setCurrentValue(currentValue);
-                        if (!Utils.isEmpty(machineFall))
-                            child.setMachineFall(machineFall);
-                        if (protectSetTemp!=0)
-                            child.setProtectSetTemp(protectSetTemp);
-                        if (protectProTemp!=0)
-                            child.setProtectProTemp(protectProTemp);
-
-                        child.setOnLint(true);
-
-
-                        child.setTemp(extTemp);
-                        child.setHum(extHum);
-                        deviceChildDao.update(child);
-
-
-
-                        if (device.has("timerTaskWeek")){
-                            timerTaskWeek=device.getInt("timerTaskWeek");
-                            long deviceId=child.getId();
-                            List<Timer> timers=timeDao.findAll(deviceId,timerTaskWeek);
-                            if (!timers.isEmpty()){
-                                timeDao.deleteAll(deviceId,timerTaskWeek);
-                            }
-                            timeTaskDao.deleteAllTask(deviceId,timerTaskWeek);
-                            for (int i = 0; i < 24; i++) {
-                                int temp=device.getInt("t"+i);
-                                String open=device.getString("h"+i);
-                                Timer timer=new Timer(deviceId, timerTaskWeek, temp,open ,i);
-                                timeDao.insert(timer);
-                                timers.add(timer);
-                            }
-                            timers=timeDao.findAll(deviceId,timerTaskWeek);
-//                            timers=timeDao.getTimers(deviceId,timerTaskWeek);
-
-                            //设置开始时间、结束时间
-                            int start = 0;
-                            int end = 0;
-                            timeTaskDao.deleteAllTask(deviceId,timerTaskWeek);
-                            for(int i =start;i<24;i++) {
-                                if (start >= 24) {
-                                    break;
-                                }
-                                String o = timers.get(start).getOpen();
-                                int temp = timers.get(start).getTemp();
-                                if (o.equals("off")) {
-                                    end++;
-                                    start = end;
-                                    continue;
-                                }
-                                for (int j = start + 1; j < 24; j++) {
-                                    end++;
-                                    if (o.equals(timers.get(end).getOpen())) {
-                                        if (temp == timers.get(end).getTemp()) {
-                                            continue;
-                                        } else {
-
-                                            break;
-                                        }
-                                    } else {
-
-                                        break;
-                                    }
-                                }
-
-                                TimeTask controller = new TimeTask(deviceId,timerTaskWeek,start, end,temp);
-                                start = end;
-                                System.out.println(start);
-                                timeTaskDao.insert(controller);
-                            }
-
-
-//                            for (int i = 0; i < 24; i++) {
-//
-//                                TimeTask timeTask=new TimeTask();
-//
-//                                while (i<24){
-//                                    String h=device.getString("h"+i);//时间
-//                                    int t=device.getInt("t"+i);
-//                                    String h2=null;
-//
-//                                    if (device.has("h"+(i-1))){
-//                                        h2=device.getString("h"+(i-1));
-//                                    }
-//
-//
-//                                    if (!(Utils.isEmpty(h2)) && "off".equals(h2) && "on".equals(h)){
-//                                        timeTask.setDeviceId(deviceId);
-//                                        timeTask.setStart(i);
-//                                        i++;
-//                                        continue;
-//                                    }
-//                                    else if ((!Utils.isEmpty(h2)) && "on".equals(h2) && "on".equals(h)){
-//                                        i++;
-//                                        continue;
-//                                    }
-//                                    else if ((!Utils.isEmpty(h2)) && "on".equals(h2) && "off".equals(h)){
-//                                        timeTask.setEnd(i-1);
-//                                        int temp=device.getInt("t"+(i-1));
-//                                        timeTask.setTemp(temp);
-//                                        timeTask.setWeek(timerTaskWeek);
-//                                        List<TimeTask> timeTasks=timeTaskDao.findWeekAll(deviceId,timerTaskWeek);
-//                                        TimeTask timeTask2=null;
-//                                        if ( timeTasks!=null && !timeTasks.isEmpty()){
-//                                            for (TimeTask task :timeTasks) {
-//                                                if (timeTask.equals(task)){
-//                                                    timeTask2=task;
-//                                                    timeTask2.setTemp(timeTask.getTemp());
-//                                                    break;
-//                                                }
-//                                            }
-//                                        }
-//                                        if (timeTask2!=null){
-//                                            timeTaskDao.update(timeTask2);
-//                                        }else {
-//                                            timeTaskDao.insert(timeTask);
-//                                        }
-//                                        i++;
-//                                        break;
-//                                    }
-//                                    i++;
-//                                }
-//                            }
-
-
-                        }
-                    }
-                    if (DeviceFragment.running==1){
-                        child=deviceChildDao.findDeviceById(child.getId());
-                        Intent mqttIntent=new Intent("DeviceFragment");
-                        mqttIntent.putExtra("groupPostion",groupPostion);
-                        mqttIntent.putExtra("childPosition",childPosition);
-                        mqttIntent.putExtra("deviceState",deviceState);
-                        mqttIntent.putExtra("deviceChild",child);
-                        context.sendBroadcast(mqttIntent);
-                    }else if (HeaterFragment.running){
-                        child=deviceChildDao.findDeviceById(child.getId());
-                        long houseId=child.getHouseId();
-                        long deviceId=child.getId();
-                        Intent mqttIntent=new Intent("HeaterFragment");
-                        mqttIntent.putExtra("houseId",houseId);
-                        mqttIntent.putExtra("deviceId",deviceId);
-                        mqttIntent.putExtra("deviceChild",child);
-                        context.sendBroadcast(mqttIntent);
-                    } else if (TimeTaskActivity.running){
-                        Intent mqttIntent=new Intent("TimeTaskActivity");
-                        mqttIntent.putExtra("timerTaskWeek",timerTaskWeek);
-                        mqttIntent.putExtra("deviceId",child.getId());
-                        List<TimeTask> timerTasks=timeTaskDao.findWeekAll(child.getId(),timerTaskWeek);
-                        mqttIntent.putExtra("list", (Serializable)timerTasks);
-                        context.sendBroadcast(mqttIntent);
-                    }else if(Btn1_fragment.running == 2){
-
-                        Intent mqttIntent=new Intent("Btn1_fragment");
-                        mqttIntent.putExtra("extTemp",extTemp);
-                        mqttIntent.putExtra("extHum",extHum);
-                        mqttIntent.putExtra("deviceChild",child);
-                        mqttIntent.putExtra("message","测试");
-                        context.sendBroadcast(mqttIntent);
-                    }else if(Btn2_fragment.running == 2){
-
-                        Intent mqttIntent=new Intent("Btn1_fragment");
-                        mqttIntent.putExtra("extTemp",extTemp);
-                        mqttIntent.putExtra("extHum",extHum);
-                        mqttIntent.putExtra("deviceChild",child);
-                        mqttIntent.putExtra("message","测试");
-                        context.sendBroadcast(mqttIntent);
-                    }else if(Btn3_fragment.running == 2){
-
-                        Intent mqttIntent=new Intent("Btn1_fragment");
-                        mqttIntent.putExtra("extTemp",extTemp);
-                        mqttIntent.putExtra("extHum",extHum);
-                        mqttIntent.putExtra("deviceChild",child);
-                        mqttIntent.putExtra("message","测试");
-                        context.sendBroadcast(mqttIntent);
-                    }else if(Btn4_fragment.running == 2){
-
-                        Intent mqttIntent=new Intent("Btn1_fragment");
-                        mqttIntent.putExtra("extTemp",extTemp);
-                        mqttIntent.putExtra("extHum",extHum);
-                        mqttIntent.putExtra("deviceChild",child);
-                        mqttIntent.putExtra("message","测试");
-                        context.sendBroadcast(mqttIntent);
-                    }else if (SmartFragmentManager.running){
-                        Intent mqttIntent=new Intent("SmartFragmentManager");
-                        child=deviceChildDao.findDeviceById(child.getId());
-                        long houseId=child.getHouseId();
-                        long deviceId=child.getId();
-                        mqttIntent.putExtra("houseId",houseId);
-                        mqttIntent.putExtra("deviceId",deviceId);
-                        mqttIntent.putExtra("deviceChild",child);
-                        context.sendBroadcast(mqttIntent);
-                        context.sendBroadcast(mqttIntent);
-                    }else if (RoomContentActivity.running){
-                        child=deviceChildDao.findDeviceById(child.getId());
-                        Intent mqttIntent=new Intent("RoomContentActivity");
-                        mqttIntent.putExtra("extTemp",extTemp);
-                        mqttIntent.putExtra("extHum",extHum);
-                        mqttIntent.putExtra("deviceChild",child);
-                        context.sendBroadcast(mqttIntent);
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
+                    deviceChildDao.update(deviceChild);
                 }
+                if (DeviceFragment.running == 1) {
+                    Intent mqttIntent = new Intent("DeviceFragment");
+                    mqttIntent.putExtra("noNet","noNet");
+                    context.sendBroadcast(mqttIntent);
+                } else if (HeaterFragment.running) {
+                    Intent mqttIntent = new Intent("HeaterFragment");
+                    mqttIntent.putExtra("noNet","noNet");
+                    context.sendBroadcast(mqttIntent);
+                }else if (TimeTaskActivity.running){
+                    Intent mqttIntent = new Intent("TimeTaskActivity");
+                    mqttIntent.putExtra("noNet","noNet");
+                    context.sendBroadcast(mqttIntent);
+                }else if (TempChartActivity.running){
+                    Intent mqttIntent = new Intent("TempChartActivity");
+                    mqttIntent.putExtra("noNet","noNet");
+                    context.sendBroadcast(mqttIntent);
+                }else if (ShareDeviceActivity.running){
+                    Intent mqttIntent = new Intent("ShareDeviceActivity");
+                    mqttIntent.putExtra("noNet","noNet");
+                    context.sendBroadcast(mqttIntent);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
-        }catch (Exception e){
-            e.printStackTrace();
+        }else {
+            SharedPreferences preferences=context.getSharedPreferences("net",Context.MODE_PRIVATE);
+
+            if (preferences.contains("from") && preferences.contains("to")){
+                SharedPreferences.Editor editor=preferences.edit();
+                editor.putString("from","0");
+                editor.putString("to","1");
+                editor.commit();
+
+            }
         }
     }
+    /**
+     * 检测网络是否连接
+     * @return
+     */
 
 }

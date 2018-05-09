@@ -16,6 +16,7 @@ import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
+import com.xinrui.smart.util.Mobile;
 import com.xinrui.smart.util.Utils;
 
 import org.json.JSONObject;
@@ -92,13 +93,15 @@ public class LoginActivity extends AppCompatActivity {
             case R.id.btn_login:
                 String phone = et_name.getText().toString().trim();
                 String password = et_pswd.getText().toString().trim();
-                if (TextUtils.isEmpty(phone)) {
+                if (Utils.isEmpty(phone)) {
                     Utils.showToast(this, "手机号码不能为空");
-                    return;
+                    break;
+                }else if (!Mobile.isMobile(phone)){
+                    Utils.showToast(this,"手机号码不合法");
                 }
-                if (TextUtils.isEmpty(password)) {
+                if (Utils.isEmpty(password)) {
                     Utils.showToast(this, "请输入密码");
-                    return;
+                    break;
                 }
                 Map<String, Object> params = new HashMap<>();
                 params.put("phone", phone);

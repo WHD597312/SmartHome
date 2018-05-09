@@ -122,12 +122,13 @@ public class SmartFragmentManager extends Fragment {
     }
 
 
+    private boolean isBound=false;
     @Override
     public void onResume() {
         super.onResume();
         running = true;
         Intent intent = new Intent(getActivity(), MQService.class);
-        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        isBound=getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
         IntentFilter intentFilter = new IntentFilter("SmartFragmentManager");
         receiver = new MessageReceiver();
@@ -143,8 +144,10 @@ public class SmartFragmentManager extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (connection != null) {
-            getActivity().unbindService(connection);
+        if (isBound){
+            if (connection != null) {
+                getActivity().unbindService(connection);
+            }
         }
         if (receiver != null) {
             getActivity().unregisterReceiver(receiver);

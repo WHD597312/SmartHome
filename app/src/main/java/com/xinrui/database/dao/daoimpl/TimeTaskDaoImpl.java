@@ -10,6 +10,7 @@ import com.xinrui.database.dao.TimeTaskDao;
 import com.xinrui.smart.fragment.TaskTimeFragement;
 import com.xinrui.smart.pojo.TimeTask;
 
+import org.greenrobot.greendao.query.QueryBuilder;
 import org.greenrobot.greendao.query.WhereCondition;
 
 import java.util.List;
@@ -23,12 +24,13 @@ public class TimeTaskDaoImpl {
     private SQLiteDatabase db;
     private DaoMaster master;
     private TimeTaskDao timeDao;
+    private DaoSession session;
 
     public TimeTaskDaoImpl(Context context){
         this.context=context;
         db=DBManager.getInstance(context).getWritableDasebase();
         master=new DaoMaster(db);
-        DaoSession session=master.newSession();
+        session=master.newSession();
         timeDao=session.getTimeTaskDao();
     }
     /**
@@ -84,5 +86,15 @@ public class TimeTaskDaoImpl {
      */
     public List<TimeTask> findAll(){
         return timeDao.loadAll();
+    }
+    public List<TimeTask> findTimeTasks(long device){
+        QueryBuilder builder=timeDao.queryBuilder().where(TimeTaskDao.Properties.DeviceId.eq(device));
+        return  builder.list();
+    }
+    public void closeDaoSession(){
+        if (session!=null){
+            session.clear();
+            session=null;
+        }
     }
 }

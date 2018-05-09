@@ -2,8 +2,11 @@ package com.xinrui.smart.activity;
 
 import android.Manifest;
 import android.app.ActionBar;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.BitmapDrawable;
@@ -14,8 +17,10 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -38,11 +43,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
+import com.xinrui.database.dao.DeviceChildDao;
+import com.xinrui.database.dao.TimeTaskDao;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
+import com.xinrui.database.dao.daoimpl.TimeDaoImpl;
+import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.location.CheckPermissionsActivity;
 import com.xinrui.secen.scene_fragment.LiveFragment;
+import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.FunctionAdapter;
@@ -53,7 +63,11 @@ import com.xinrui.smart.fragment.SmartFragmentManager;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.Function;
+import com.xinrui.smart.pojo.TimeTask;
+import com.xinrui.smart.pojo.Timer;
+import com.xinrui.smart.reveiver.MQTTMessageReveiver;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
@@ -65,10 +79,12 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -108,12 +124,13 @@ public class MainActivity extends AppCompatActivity {
     private DeviceChildDaoImpl deviceChildDao;
     private long exitTime = 0;
     android.support.v4.app.Fragment fragment = new android.support.v4.app.Fragment();
-
+    public static boolean running=false;
+    Unbinder unbinder;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+        unbinder=ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -156,7 +173,9 @@ public class MainActivity extends AppCompatActivity {
     List<DeviceChild> deviceChildren;
     List<Fragment> fragments;
     List<DeviceGroup> deviceGroups;
+    String deviceId;
 
+    private boolean isConnected = false;
     @Override
     protected void onStart() {
         super.onStart();
@@ -165,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
         deviceGroupDao = new DeviceGroupDaoImpl(this);
         deviceChildDao = new DeviceChildDaoImpl(this);
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
-
+        preferences.edit().putString("main","1").commit();
 
 
         String phone = preferences.getString("phone", "");
@@ -190,13 +209,13 @@ public class MainActivity extends AppCompatActivity {
 
         if (Utils.isEmpty(mainControl) && Utils.isEmpty(deviceList)) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
-            if (!preferences.contains("login")){
+            if (!preferences.contains("login")|| deviceChildren.isEmpty()){
                 preferences.edit().putString("login", "login").commit();
                 new LoadDeviceAsync().execute();
             }
-
         } else if (!Utils.isEmpty(deviceList)) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
+            deviceId=intent.getStringExtra("deviceId");
         } else if (!Utils.isEmpty(mainControl)) {
             fragmentPreferences.edit().putString("fragment", "2").commit();
         }
@@ -209,8 +228,6 @@ public class MainActivity extends AppCompatActivity {
                 fragmentPreferences.edit().putString("fragment", "1").commit();
             }
         }
-
-
         String fragmentS = fragmentPreferences.getString("fragment", "");
         if ("1".equals(fragmentS)) {
             deviceGroups = deviceGroupDao.findAllDevices();
@@ -219,8 +236,12 @@ public class MainActivity extends AppCompatActivity {
                 fragmentTransaction.replace(R.id.layout_body,  new NoDeviceFragment()).commit();
 
             } else {
-
                 fragmentTransaction.replace(R.id.layout_body,  new DeviceFragment()).commit();
+                preferences.edit().putString("main","1").commit();
+                if (!Utils.isEmpty(deviceId)){
+                    Intent service = new Intent(MainActivity.this, MQService.class);
+                    isConnected=bindService(service, connection, Context.BIND_AUTO_CREATE);
+                }
 
             }
             device_view.setVisibility(View.VISIBLE);
@@ -234,6 +255,7 @@ public class MainActivity extends AppCompatActivity {
             device_view.setVisibility(View.GONE);
             smart_view.setVisibility(View.VISIBLE);
             live_view.setVisibility(View.GONE);
+
         } else if ("3".equals(fragmentS)) {
 
             fragmentTransaction = fragmentManager.beginTransaction();
@@ -246,9 +268,7 @@ public class MainActivity extends AppCompatActivity {
             live_view.setVisibility(View.VISIBLE);
             smart.edit().clear();
         }
-
     }
-
 
     @Override
     protected void onPause() {
@@ -258,12 +278,88 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private String provider;
 
+
+    MQTTMessageReveiver myReceiver;
     @Override
     protected void onResume() {
         super.onResume();
-//        showPopwindow();
+        running=true;
 
+        IntentFilter filter=new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        myReceiver=new MQTTMessageReveiver();
+        this.registerReceiver(myReceiver, filter);
+        Intent intent=new Intent(this,MQService.class);
+        startService(intent);
     }
+    MQService mqService;
+    private boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+            if (bound){
+                try {
+                    if (!Utils.isEmpty(deviceId)){
+                        long id=Long.parseLong(deviceId);
+                        DeviceChild deviceChild2=deviceChildDao.findDeviceById(id);
+                        if (deviceChild2!=null){
+                            String mac=deviceChild2.getMacAddress();
+                            String topicName2 = "rango/" + mac + "/transfer";
+                            boolean succ=mqService.subscribe(topicName2,2);
+                            if (succ){
+                                JSONObject jsonObject=new JSONObject();
+                                jsonObject.put("loadDate","on");
+                                String s=jsonObject.toString();
+                                String topicName;
+                                if (deviceChild2.getType() == 1 && deviceChild2.getControlled() == 2) {
+                                    topicName = "rango/" + mac + "/masterController/set";
+                                    if (bound) {
+                                        mqService.publish(topicName, 2, s);
+                                    }
+                                } else {
+                                    topicName = "rango/" + mac + "/set";
+                                    if (bound) {
+                                         mqService.publish(topicName, 2, s);
+                                    }
+                                }
+                            }
+                        }
+                    }else {
+                        List<DeviceChild> deviceChildren=deviceChildDao.findAllDevice();
+                        for (DeviceChild deviceChild:deviceChildren){
+                            JSONObject jsonObject=new JSONObject();
+                            jsonObject.put("loadDate","on");
+                            String s=jsonObject.toString();
+                            String mac = deviceChild.getMacAddress();
+                            String topicName="";
+                            boolean success=false;
+                            if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
+                                topicName = "rango/" + mac + "/masterController/set";
+                                if (bound) {
+                                    success = mqService.publish(topicName, 2, s);
+                                }
+                            } else {
+                                topicName = "rango/" + mac + "/set";
+                                if (bound) {
+                                    success = mqService.publish(topicName, 2, s);
+                                }
+                            }
+                        }
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -293,6 +389,17 @@ public class MainActivity extends AppCompatActivity {
 
         switch (view.getId()) {
             case R.id.tv_exit:
+                TimeTaskDaoImpl timeTaskDao=new TimeTaskDaoImpl(this);
+                List<TimeTask> timeTasks=timeTaskDao.findAll();
+                for (TimeTask timeTask:timeTasks){
+                    timeTaskDao.delete(timeTask);
+                }
+
+                TimeDaoImpl timeDao=new TimeDaoImpl(this);
+                List<Timer> timers=timeDao.findTimers();
+                for (Timer timer:timers){
+                    timeDao.delete(timer);
+                }
                 smart.edit().clear().commit();
 //                preferences.edit().clear().commit();/**清空当前用户的所有数据*/
                 if (preferences.contains("password")) {
@@ -305,17 +412,17 @@ public class MainActivity extends AppCompatActivity {
                 fragmentPreferences.edit().clear().commit();
                 deviceGroupDao.deleteAll();
                 deviceChildDao.deleteAll();
+
+
                 application.removeAllFragment();
 
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
 
-
                 break;
             case R.id.tv_device:
                 fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
                 if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
-
                     if (fragment instanceof NoDeviceFragment) {
                         break;
                     }
@@ -373,14 +480,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            application.removeAllActivity();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
+    public void onBackPressed() {
+        super.onBackPressed();
+        application.removeAllActivity();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (unbinder!=null){
+            unbinder.unbind();
+        }
+        if (myReceiver!=null){
+            unregisterReceiver(myReceiver);
+
+        }
+        running=false;
+        deviceChildDao.closeDaoSession();
+        deviceGroupDao.closeDaoSession();
+
+        try {
+            if (isConnected){
+                if (connection!=null){
+                    unbindService(connection);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
 
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
@@ -402,7 +532,6 @@ public class MainActivity extends AppCompatActivity {
                         JSONArray houses = content.getJSONArray("houses");
                         for (int i = 0; i < houses.length(); i++) {
                             JSONObject house = houses.getJSONObject(i);
-
                             if (house != null) {
                                 int houseId = house.getInt("id");
                                 String houseName = house.getString("houseName");
@@ -477,15 +606,17 @@ public class MainActivity extends AppCompatActivity {
                                 String deviceName = device.getString("deviceName");
                                 int type = device.getInt("type");
                                 long groupId = shareHouseId;
+                                int houseId=device.getInt("houseId");
                                 int masterControllerUserId = device.getInt("masterControllerUserId");
                                 int isUnlock = device.getInt("isUnlock");
                                 int version = device.getInt("version");
                                 String macAddress = device.getString("macAddress");
                                 int controlled = device.getInt("controlled");
-                                DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, groupId, type, masterControllerUserId, isUnlock);
+                                DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
                                 deviceChild.setVersion(version);
                                 deviceChild.setMacAddress(macAddress);
                                 deviceChild.setControlled(controlled);
+                                deviceChild.setShareHouseId(houseId);
                                 DeviceChild deviceChild2 = deviceChildDao.findDeviceChild((long) deviceId);
                                 if (deviceChild2 == null) {
                                     deviceChildDao.insert(deviceChild);
@@ -515,15 +646,16 @@ public class MainActivity extends AppCompatActivity {
                     deviceChildren=deviceChildDao.findAllDevice();
                     fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
 
-
                     if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
                         fragmentTransaction.replace(R.id.layout_body, new NoDeviceFragment()).commit();
-
                     } else {
                         fragmentTransaction.replace(R.id.layout_body, new DeviceFragment()).commit();
+                        Intent service = new Intent(MainActivity.this, MQService.class);
+                        isConnected=bindService(service, connection, Context.BIND_AUTO_CREATE);
                     }
                     break;
             }
         }
     }
+
 }

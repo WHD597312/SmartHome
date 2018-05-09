@@ -424,46 +424,6 @@ public class SemicircleBar extends View {
 
 
         }
-
-//        if (mCurrentAngle>0){
-//
-//
-//            if (mCurrentAngle >= 0) {
-//                if (mCurrentAngle>=272){
-//                    if (mCurrentAngle>272 && mCurrentAngle<=310){
-//                        mCurAngle=272;
-//                    }else if (mCurrentAngle> 310 && mCurrentAngle<=360){
-//                        mCurrentAngle=0;
-//                        return;
-//                    }
-//                }
-//                for (int i = 0; i < (mCurrentAngle) / 7; i++) {
-//                    if ((i - 1) % 7 == 0) {
-//
-//                        mPaint.setColor(getResources().getColor(R.color.color_orange));
-//
-//                        canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()),
-//                                getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-//                                centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
-//
-//                                getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, getResources().getDisplayMetrics()), mPaint);
-//                    } else {
-//                        if (i == 0) {
-//                            mPaint.setColor(getResources().getColor(R.color.color_black3));
-//                        } else {
-//                            mPaint.setColor(getResources().getColor(R.color.color_orange));
-//                        }
-//                        canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()),
-//                                getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()),
-//                                centerX + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
-//                                getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, getResources().getDisplayMetrics()), mPaint);
-//                    }
-//                    canvas.rotate(8, centerX, centerY);//360度  绘制60次   每次旋转6度
-//                }
-//                canvas.save();
-//            }
-
-//        }
     }
 
     private String deviceId;
@@ -487,6 +447,7 @@ public class SemicircleBar extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
+        end=0;
         float x = event.getX();
         float y = event.getY();
         if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y))) {
@@ -519,7 +480,10 @@ public class SemicircleBar extends View {
             if (mChangListener != null && (event.getAction() & (MotionEvent.ACTION_MOVE | MotionEvent.ACTION_UP)) > 0) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     end=1;
+                }else {
+                    end=0;
                 }
+
                 mChangListener.onChanged(this, mCurProcess);
             }
             invalidate();
@@ -825,175 +789,4 @@ public class SemicircleBar extends View {
     public interface OnSeekBarChangeListener {
         void onChanged(SemicircleBar seekbar, double curValue);
     }
-
-    private String TAG = "MQService";
-    private String host = "tcp://120.77.36.206:1883";
-    private String userName = "admin";
-    private String passWord = "Xr7891122";
-
-    private MqttClient client;
-
-    public String myTopic = "rango/dc4f220aa96e/transfer";
-
-
-    DeviceChild deviceChild;
-    private MqttConnectOptions options;
-
-    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-    public void connect() {
-        new ConAsync().execute();
-    }
-
-    class ConAsync extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            try {
-                client.connect(options);
-                if (deviceChild != null) {
-                    String macAddress = deviceChild.getMacAddress();
-                    String topicName = "rango/" + macAddress + "/transfer";
-                    client.subscribe(topicName, 1);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-    }
-
-//    private void init() {
-//        try {
-//            //host为主机名，test为clientid即连接MQTT的客户端ID，一般以客户端唯一标识符表示，MemoryPersistence设置clientid的保存形式，默认为以内存保存
-//            client = new MqttClient(host, "",
-//                    new MemoryPersistence());
-//            //MQTT的连接设置
-//            options = new MqttConnectOptions();
-//            //设置是否清空session,这里如果设置为false表示服务器会保留客户端的连接记录，这里设置为true表示每次连接到服务器都以新的身份连接
-//            options.setCleanSession(true);
-//            //设置连接的用户名
-//            options.setUserName(userName);
-//            //设置连接的密码
-//            options.setPassword(passWord.toCharArray());
-//            // 设置超时时间 单位为秒
-//            options.setConnectionTimeout(10);
-//            // 设置会话心跳时间 单位为秒 服务器会每隔1.5*20秒的时间向客户端发送个消息判断客户端是否在线，但这个方法并没有重连的机制
-//            options.setKeepAliveInterval(20);
-//
-//
-//            //设置回调
-//            client.setCallback(new MqttCallback() {
-//
-//                @Override
-//                public void connectionLost(Throwable cause) {
-//                    //连接丢失后，一般在这里面进行重连
-//                    System.out.println("connectionLost----------");
-//                    startReconnect();
-//                }
-//
-//                @Override
-//                public void deliveryComplete(IMqttDeliveryToken token) {
-//                    //publish后会执行到这里
-//                    System.out.println("deliveryComplete---------"
-//                            + token.isComplete());
-//                }
-//
-//                @Override
-//                public void messageArrived(String topicName, MqttMessage message)
-//                        throws Exception {
-//
-////
-//                }
-//            });
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//
-//        }
-//    }
-//
-//    private void startReconnect() {
-//
-//        scheduler.scheduleAtFixedRate(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                if (!client.isConnected()) {
-//                    connect();
-//                }
-//            }
-//        }, 0 * 1000, 10 * 1000, TimeUnit.MILLISECONDS);
-//    }
-//
-//    public boolean publish(String topicName, int qos, String payload) {
-//        boolean flag = false;
-//        if (client != null && client.isConnected()) {
-//
-//            try {
-//                MqttMessage message = new MqttMessage(payload.getBytes("utf-8"));
-//                message.setQos(qos);
-//                client.publish(topicName, message);
-//                flag = true;
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return flag;
-//    }
-//
-//    public void send(DeviceChild deviceChild) {
-//        try {
-//            if (deviceChild != null) {
-//                JSONObject maser = new JSONObject();
-//
-////                maser.put("wifiVersion", deviceChild.getWifiVersion());
-////                maser.put("MCUVerion", deviceChild.getMCUVerion());
-//
-//                if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-//                    maser.put("ctrlMode", "master");
-//                } else if (deviceChild.getType() == 1 && deviceChild.getControlled() == 1) {
-//                    maser.put("ctrlMode", "slave");
-//                } else if (deviceChild.getType() == 1 && deviceChild.getControlled() == 0) {
-//                    maser.put("ctrlMode", "normal");
-//                }
-//
-//                maser.put("workMode", deviceChild.getWorkMode());
-//                maser.put("MatTemp", (int) (mCurAngle/7+3));
-//                maser.put("LockScreen", deviceChild.getLockScreen());
-//                maser.put("BackGroundLED", deviceChild.getBackGroundLED());
-//                maser.put("deviceState", deviceChild.getDeviceState());
-//                maser.put("tempState", deviceChild.getTempState());
-//                maser.put("outputMode", deviceChild.getOutputMod());
-////                maser.put("curTemp", deviceChild.getCurTemp());
-////                maser.put("ratedPower", deviceChild.getRatedPower());
-////                maser.put("protectEnable", deviceChild.getProtectEnable());
-//
-////                maser.put("voltageValue", deviceChild.getVoltageValue());
-////                maser.put("currentValue", deviceChild.getCurrentValue());
-////                maser.put("machineFall", deviceChild.getMachineFall());
-//                maser.put("protectProTemp", deviceChild.getProtectProTemp());
-//                maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
-//
-//
-//                String s = maser.toString();
-//                boolean success = false;
-//                String topicName;
-//                String mac = deviceChild.getMacAddress();
-//                if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-//                    topicName = "rango/" + mac + "/masterController/set";
-//
-//                    publish(topicName, 2, s);
-//
-//                } else {
-//                    topicName = "rango/" + mac + "/set";
-//
-//                    publish(topicName, 2, s);
-//
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
 }

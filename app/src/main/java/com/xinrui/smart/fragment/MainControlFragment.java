@@ -1,14 +1,16 @@
 package com.xinrui.smart.fragment;
 
 import android.app.Fragment;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -26,6 +28,7 @@ import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -97,11 +100,12 @@ public class MainControlFragment extends Fragment{
         adapter=new MainControlAdapter(mainControls,getActivity());
         lv_homes.setAdapter(adapter);
 
-
     }
     @Override
     public void onResume() {
         super.onResume();
+        Intent intent = new Intent(getActivity(), MQService.class);
+        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
     private List<DeviceChild> getMainControls(){
         long id=0;
@@ -171,12 +175,7 @@ public class MainControlFragment extends Fragment{
             viewHolder.check.setChecked(isSelected.get(position));
             if (control!=null){
                 viewHolder.tv_main.setText(control.getDeviceName());
-                if (control.getControlled()==2){
-                    isSelected.put(position, true);
-//                   children.get(position).setControlled(2);
-                }else {
-                    isSelected.put(position, false);
-                }
+
             }
 
             viewHolder.check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -195,18 +194,22 @@ public class MainControlFragment extends Fragment{
                     for (Integer p : isSelected.keySet()) {
                         isSelected.put(p, false);
                         DeviceChild deviceChild=children.get(p);
-                        deviceChild.setControlled(1);
-                        deviceChildDao.update(deviceChild);
+                        deviceChild.setControlled(0);
+                        children.set(p,deviceChild);
                     }
                     // 再将当前选择CB的实际状态
                     isSelected.put(position, cu);
-                    notifyDataSetChanged();
-                    beSelectedData.clear();
-                    if (cu) {
-                        beSelectedData.add(children.get(position));
+                    if (cu){
                         DeviceChild deviceChild=children.get(position);
                         deviceChild.setControlled(2);
-                        deviceChildDao.update(deviceChild);
+                        children.set(position,deviceChild);
+                    }
+
+                    notifyDataSetChanged();
+                    beSelectedData.clear();
+
+                    if (cu) {
+                        beSelectedData.add(children.get(position));
                     }
                 }
             });
@@ -252,8 +255,6 @@ public class MainControlFragment extends Fragment{
                                 int isUnlock=device.getInt("isUnlock");
                                 int controlled=device.getInt("controlled");
 
-//                                DeviceChild deviceChild = new DeviceChild((long)id, deviceName, imgs[0],0, (long)houseId,
-//                                        masterControllerUserId, type,isUnlock);
                                 DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
                                 deviceChild.setControlled(controlled);
                                 deviceChildDao.update(deviceChild);
@@ -267,13 +268,21 @@ public class MainControlFragment extends Fragment{
                             isSelected = null;
                         isSelected = new HashMap<Integer, Boolean>();
                         for (int i = 0; i < mainControls.size(); i++) {
-                            isSelected.put(i, false);
+                            DeviceChild deviceChild=mainControls.get(i);
+                            if (deviceChild.getControlled()==2){
+                                isSelected.put(i, true);
+                            }else {
+                                isSelected.put(i, false);
+                            }
+
                         }
                         // 清除已经选择的项
                         if (beSelectedData.size() > 0) {
                             beSelectedData.clear();
                         }
-                        beSelectedData.add(deviceChild2);
+                        if (deviceChild2!=null){
+                            beSelectedData.add(deviceChild2);
+                        }
 
                     }
                 }
@@ -301,27 +310,29 @@ public class MainControlFragment extends Fragment{
                 if (children.size()>1){
                     long masterControllerDeviceId;
                     long id;
-                    if (isSelected!=null){
+                    if (!beSelectedData.isEmpty()){
                         DeviceChild mastetDevice=null;
-                        for (Map.Entry<Integer,Boolean> entry : isSelected.entrySet()){/**设置主控设备*/
-                            int postion=entry.getKey();
-                            mastetDevice=mainControls.get(postion);
-                            boolean value=entry.getValue();
-
-                            if (value==true){
-                                mastetDevice=mainControls.get(postion);
-                                break;
-                            }
+                        mastetDevice=beSelectedData.get(0);
+                        if (mastetDevice!=null){
+                            masterControllerDeviceId=mastetDevice.getId();
+                            id=mastetDevice.getHouseId();
+                            Map<String,Object> params=new HashMap<>();
+                            params.put("masterControllerDeviceId",masterControllerDeviceId);
+                            params.put("id",id);
+                            new MasterAsync().execute(params);
                         }
-
-
+                    }else if (beSelectedData.isEmpty()){
+                        DeviceChild mastetDevice=null;
                         for (Map.Entry<Integer,Boolean> entry : isSelected.entrySet()){
                             int postion=entry.getKey();
                             DeviceChild deviceChild=mainControls.get(postion);
-                            deviceChild=deviceChildDao.findDeviceById(deviceChild.getId());
+
                             boolean value=entry.getValue();
-                            if (mastetDevice!=null){
-                                if (value==false && postion== unbindPosition && deviceChild.getType()==1 && deviceChild.getControlled()==1){
+                            if (deviceChild!=null){
+                                if (value==false&&postion==unbindPosition && deviceChild.getType()==1 && deviceChild.getControlled()==0){
+                                    mastetDevice=deviceChild;
+                                    deviceChild.setControlled(0);
+                                    deviceChildDao.update(deviceChild);
                                     mastetDevice.setId(0L);
                                     break;
                                 }
@@ -359,6 +370,13 @@ public class MainControlFragment extends Fragment{
     @Override
     public void onDestroy() {
         super.onDestroy();
+        try {
+            if (connection != null) {
+                getActivity().unbindService(connection);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     class MasterAsync extends AsyncTask<Map<String,Object>,Void,Integer>{
@@ -374,10 +392,21 @@ public class MainControlFragment extends Fragment{
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
                     if (code==2000){
-                        DeviceChild deviceChild=deviceChildDao.findDeviceChild(masterControllerDeviceId);
-                        deviceChild.setControlled(2);
-                        deviceChildDao.update(deviceChild);
+                        if (!beSelectedData.isEmpty()){
+                            DeviceChild deviceChild=beSelectedData.get(0);
+                            deviceChild.setControlled(2);
+                            deviceChild.setWorkMode("master");
+                            deviceChildDao.update(deviceChild);
+                            send(deviceChild);
+                        }else {
+                            for (DeviceChild deviceChild:mainControls){
+                                deviceChild.setCtrlMode("normal");
+                                deviceChildDao.update(deviceChild);
+                                send(deviceChild);
+                            }
+                        }
                     }
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -395,9 +424,53 @@ public class MainControlFragment extends Fragment{
                     startActivity(intent);
                     break;
                 case -3010:
-
                     break;
             }
+        }
+    }
+    MQService mqService;
+    private boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
+    public void send(DeviceChild deviceChild) {
+        try {
+            if (deviceChild != null) {
+                JSONObject maser = new JSONObject();
+                maser.put("ctrlMode", deviceChild.getCtrlMode());
+                maser.put("workMode", deviceChild.getWorkMode());
+                maser.put("MatTemp", deviceChild.getMatTemp());
+                maser.put("TimerTemp", deviceChild.getTimerTemp());
+                maser.put("LockScreen", deviceChild.getLockScreen());
+                maser.put("BackGroundLED", deviceChild.getBackGroundLED());
+                maser.put("deviceState", deviceChild.getDeviceState());
+                maser.put("tempState", deviceChild.getTempState());
+                maser.put("outputMode", deviceChild.getOutputMod());
+                maser.put("protectProTemp", deviceChild.getProtectProTemp());
+                maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
+
+                String s = maser.toString();
+                boolean success = false;
+                String topicName;
+                String mac = deviceChild.getMacAddress();
+                topicName = "rango/" + mac + "/set";
+                if (bound) {
+                    success = mqService.publish(topicName, 2, s);
+                    Log.d("sss","--->"+success);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
