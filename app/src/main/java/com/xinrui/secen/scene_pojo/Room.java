@@ -26,6 +26,7 @@ public class Room implements Serializable{
     private int height;
     private int extTemp;
     private int extHut;
+    private boolean isSelected;
 
 
     public int getExtTemp() {
@@ -84,7 +85,7 @@ public class Room implements Serializable{
         this.height = height;
     }
 
-    public Room(int roomId, String roomName, int startPoint, JSONArray points, int houseId, JSONArray devices, int layer, int x, int y, int width, int height) {
+    public Room(int roomId, String roomName, int startPoint, JSONArray points, int houseId, JSONArray devices, int layer, int x, int y, int width, int height, boolean isSelected) {
         this.roomId = roomId;
         this.roomName = roomName;
         this.startPoint = startPoint;
@@ -96,9 +97,10 @@ public class Room implements Serializable{
         this.y = y;
         this.width = width;
         this.height = height;
+        this.isSelected = isSelected;
     }
 
-    public Room (View view, int roomId, String roomName, int startPoint, JSONArray points, int houseId, JSONArray devices, int layer, int x, int y, int width, int height) {
+    public Room (View view, int roomId, String roomName, int startPoint, JSONArray points, int houseId, JSONArray devices, int layer, int x, int y, int width, int height,boolean isSelected) {
         this.view = view;
         this.roomId = roomId;
         this.roomName = roomName;
@@ -111,6 +113,15 @@ public class Room implements Serializable{
         this.y = y;
         this.width = width;
         this.height = height;
+        this.isSelected = isSelected;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 
     public int getRoomId() {

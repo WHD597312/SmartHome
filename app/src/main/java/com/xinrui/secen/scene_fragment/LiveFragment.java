@@ -153,14 +153,16 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
     private CustomDialog.Builder builder;
     private CustomDialog mDialog;
+    private CustomDialog mDialog1;
     boolean isNet = NetWorkUtil.isConn(MyApplication.getContext());
-
+    private CustomDialog.Builder builder1;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_live, container, false);
         unbinder = ButterKnife.bind(this, view);
         roomEntryDao = new RoomEntryDaoImpl(getActivity());
+        builder1 = new CustomDialog.Builder(getActivity());
         pref = getActivity().getSharedPreferences("myActivityName", 0);
         editor1 = getActivity().getSharedPreferences("data", MODE_PRIVATE).edit();
         isFirstIn = pref.getBoolean("isFirstIn", true);
@@ -486,7 +488,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
                     if (code == 2000) {
-                        JSONArray content = jsonObject.getJSONArray("content");
+//                        JSONArray content = jsonObject.getJSONArray("content");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -606,135 +608,180 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                 From_server_make_room();
                 break;
             case R.id.delete:
-                final List<Integer> startPoint_list = new ArrayList<>();
-                final List<Integer> roomId_list = new ArrayList<>();
                 if (current_key == 1) {
-                    Btn1_fragment btn1_fragment = (Btn1_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
-                    if (btn1_fragment.getListViews().isEmpty() || btn1_fragment.getListViews() == null) {
+                    final Btn1_fragment btn1_fragment = (Btn1_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
+                        if (btn1_fragment.getListViews().isEmpty() || btn1_fragment.getListViews() == null) {//getListViews()返回选中的房间,若为空则没选中
 
                     } else {
-                        for (int i = 0; i < btn1_fragment.getListViews().size(); i++) {
-                            View childView = btn1_fragment.getListViews().get(i);
-                            int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
-                            startPoint_list.add(startPoint);
-                            Log.i("startPoint", "childView.getX()=" + childView.getX() + ";" + "childView.getY()=" + childView.getY() + ";" + "startPoint=" + startPoint);
-                            FrameLayout roomViewGroup = (FrameLayout) btn1_fragment.getView().findViewById(R.id.fl);
-                            roomViewGroup.removeView(childView);
+                            final List<Integer> startPoint_list = new ArrayList<>();
 
-                            RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
-                            for (int j = 0; j < roomEntryDao.findAllByGroup(1).size(); j++) {
-                                if ((roomEntry.getX() == roomEntryDao.findAllByGroup(1).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(1).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(1).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(1).get(j).getHeight())) {
-                                    roomEntryDao.delete(roomEntryDao.findAllByGroup(1).get(j));
+                            showDoubleButtonDialog("是否删除房间?", "确定", "取消", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
+                                    for (int i = 0; i < btn1_fragment.getListViews().size(); i++) {
+                                        final View childView = btn1_fragment.getListViews().get(i);
+
+                                        final int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
+                                        startPoint_list.add(startPoint);
+                                        FrameLayout roomViewGroup = (FrameLayout) btn1_fragment.getView().findViewById(R.id.fl);
+                                        roomViewGroup.removeView(childView);
+
+                                        RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
+                                        for (int j = 0; j < roomEntryDao.findAllByGroup(1).size(); j++) {
+                                            if ((roomEntry.getX() == roomEntryDao.findAllByGroup(1).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(1).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(1).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(1).get(j).getHeight())) {
+                                                roomEntryDao.delete(roomEntryDao.findAllByGroup(1).get(j));
+                                            }
+                                        }
+                                    }
+                                    delete(startPoint_list);//从服务器删除房间,根据起始点删除对应的房间
+                                    btn1_fragment.getListViews().clear();//确定删除房间后选中房间的集合clear
+                                    mDialog1.dismiss();
                                 }
-                            }
+                            }, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    startPoint_list.clear();//取消后起始点集合置为零
+                                    for (int j = 0; j < btn1_fragment.getListViews().size(); j++) {
+                                        btn1_fragment.getListViews().get(j).setSelected(false);
+                                        btn1_fragment.getListViews().get(j).setBackgroundResource(R.drawable.mergeroom_background);
+                                    }
+                                    btn1_fragment.getListViews().clear();
+                                    mDialog1.dismiss();
+                                }
+                            });
                         }
-                    }
                 } else if (current_key == 2) {
-                    Btn2_fragment btn2_fragment = (Btn2_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
-                    for (int i = 0; i < btn2_fragment.getListViews().size(); i++) {
+                    final Btn2_fragment btn2_fragment = (Btn2_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
                         if (btn2_fragment.getListViews().isEmpty() || btn2_fragment.getListViews() == null) {
 
                         } else {
-                            View childView = btn2_fragment.getListViews().get(i);
-                            int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
-                            startPoint_list.add(startPoint);
-                            FrameLayout roomViewGroup = (FrameLayout) btn2_fragment.getView().findViewById(R.id.f2);
-                            roomViewGroup.removeView(childView);
+                            final List<Integer> startPoint_list = new ArrayList<>();
 
-                            RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
-                            for (int j = 0; j < roomEntryDao.findAllByGroup(2).size(); j++) {
-                                if ((roomEntry.getX() == roomEntryDao.findAllByGroup(2).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(2).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(2).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(2).get(j).getHeight())) {
-                                    roomEntryDao.delete(roomEntryDao.findAllByGroup(2).get(j));
-                                }
-                            }
-                        }
-                    }
-                } else if (current_key == 3) {
-                    Btn3_fragment btn3_fragment = (Btn3_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
-                    for (int i = 0; i < btn3_fragment.getListViews().size(); i++) {
-                        if (btn3_fragment.getListViews().isEmpty() || btn3_fragment.getListViews() == null) {
+                            showDoubleButtonDialog("是否删除房间?", "确定", "取消", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    for (int i = 0; i < btn2_fragment.getListViews().size(); i++) {
+                                        final View childView = btn2_fragment.getListViews().get(i);
 
-                        } else {
-                            View childView = btn3_fragment.getListViews().get(i);
-                            int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
-                            startPoint_list.add(startPoint);
-                            FrameLayout roomViewGroup = (FrameLayout) btn3_fragment.getView().findViewById(R.id.f3);
-                            roomViewGroup.removeView(childView);
-                            RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
-                            for (int j = 0; j < roomEntryDao.findAllByGroup(3).size(); j++) {
-                                if ((roomEntry.getX() == roomEntryDao.findAllByGroup(3).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(3).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(3).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(3).get(j).getHeight())) {
-                                    roomEntryDao.delete(roomEntryDao.findAllByGroup(3).get(j));
-                                }
-                            }
-                        }
-                    }
-                } else if (current_key == 4) {
-                    Btn4_fragment btn4_fragment = (Btn4_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
-                    for (int i = 0; i < btn4_fragment.getListViews().size(); i++) {
-                        if (btn4_fragment.getListViews().isEmpty() || btn4_fragment.getListViews() == null) {
+                                        final int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
+                                        startPoint_list.add(startPoint);
+                                        FrameLayout roomViewGroup = (FrameLayout) btn2_fragment.getView().findViewById(R.id.f2);
+                                        roomViewGroup.removeView(childView);
 
-                        } else {
-                            View childView = btn4_fragment.getListViews().get(i);
-                            int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
-                            startPoint_list.add(startPoint);
-                            FrameLayout roomViewGroup = (FrameLayout) btn4_fragment.getView().findViewById(R.id.f4);
-                            roomViewGroup.removeView(childView);
-
-                            RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
-                            for (int j = 0; j < roomEntryDao.findAllByGroup(4).size(); j++) {
-                                if ((roomEntry.getX() == roomEntryDao.findAllByGroup(4).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(4).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(4).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(4).get(j).getHeight())) {
-                                    roomEntryDao.delete(roomEntryDao.findAllByGroup(4).get(j));
-                                }
-                            }
-                        }
-                    }
-                }
-                @SuppressLint("HandlerLeak") Handler handler = new Handler() {
-                    @Override
-                    public void handleMessage(Message msg) {
-                        switch (msg.what) {
-                            case 1:
-                                List<String> strings = (List<String>) msg.obj;
-                                for (String result : strings) {
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(result);
-                                        int code = jsonObject.getInt("code");
-                                        if (code == 2000) {
-                                            JSONObject content = jsonObject.getJSONObject("content");
-//                                        for (int x = 1; x <=add_key; x++) {
-                                            JSONArray array = content.getJSONArray(current_key + "");
-                                            for (int i = 0; i < array.length(); i++) {
-                                                JSONObject object = array.getJSONObject(i);
-                                                int roomId = object.getInt("roomId");
-                                                int startPoint = object.getInt("startPoint");
-                                                if (startPoint_list.contains(startPoint - 100)) {
-                                                    roomId_list.add(roomId);
-                                                }
+                                        RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
+                                        for (int j = 0; j < roomEntryDao.findAllByGroup(1).size(); j++) {
+                                            if ((roomEntry.getX() == roomEntryDao.findAllByGroup(1).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(1).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(1).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(1).get(j).getHeight())) {
+                                                roomEntryDao.delete(roomEntryDao.findAllByGroup(1).get(j));
                                             }
                                         }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
                                     }
-                                    JSONArray jsonArray = new JSONArray();
-                                    for (int i = 0; i < roomId_list.size(); i++) {
-                                        roomId_list.get(i);
-                                        jsonArray.put(roomId_list.get(i));
-                                    }
-
-                                    new DeleteRoomAsyncTask().execute(jsonArray);
+                                    delete(startPoint_list);//从服务器删除房间,根据起始点删除对应的房间
+                                    btn2_fragment.getListViews().clear();//确定删除房间后选中房间的集合clear
+                                    mDialog1.dismiss();
                                 }
+                            }, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    startPoint_list.clear();//取消后起始点集合置为零
+                                    for (int j = 0; j < btn2_fragment.getListViews().size(); j++) {
+                                        btn2_fragment.getListViews().get(j).setSelected(false);
+                                        btn2_fragment.getListViews().get(j).setBackgroundResource(R.drawable.mergeroom_background);
+                                    }
+                                    btn2_fragment.getListViews().clear();
+                                    mDialog1.dismiss();
+                                }
+                            });
 
-                                break;
-
-                            default:
-                                break;
                         }
+
+                } else if (current_key == 3) {
+                    final Btn3_fragment btn3_fragment = (Btn3_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
+                    if (btn3_fragment.getListViews().isEmpty() || btn3_fragment.getListViews() == null) {
+
+                    } else {
+                        final List<Integer> startPoint_list = new ArrayList<>();
+
+                        showDoubleButtonDialog("是否删除房间?", "确定", "取消", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                for (int i = 0; i < btn3_fragment.getListViews().size(); i++) {
+                                    final View childView = btn3_fragment.getListViews().get(i);
+
+                                    final int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
+                                    startPoint_list.add(startPoint);
+                                    FrameLayout roomViewGroup = (FrameLayout) btn3_fragment.getView().findViewById(R.id.f3);
+                                    roomViewGroup.removeView(childView);
+
+                                    RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
+                                    for (int j = 0; j < roomEntryDao.findAllByGroup(1).size(); j++) {
+                                        if ((roomEntry.getX() == roomEntryDao.findAllByGroup(1).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(1).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(1).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(1).get(j).getHeight())) {
+                                            roomEntryDao.delete(roomEntryDao.findAllByGroup(1).get(j));
+                                        }
+                                    }
+                                }
+                                delete(startPoint_list);//从服务器删除房间,根据起始点删除对应的房间
+                                btn3_fragment.getListViews().clear();//确定删除房间后选中房间的集合clear
+                                mDialog1.dismiss();
+                            }
+                        }, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                startPoint_list.clear();//取消后起始点集合置为零
+                                for (int j = 0; j < btn3_fragment.getListViews().size(); j++) {
+                                    btn3_fragment.getListViews().get(j).setSelected(false);
+                                    btn3_fragment.getListViews().get(j).setBackgroundResource(R.drawable.mergeroom_background);
+                                }
+                                btn3_fragment.getListViews().clear();
+                                mDialog1.dismiss();
+                            }
+                        });
+
                     }
+                } else if (current_key == 4) {
+                    final Btn2_fragment btn4_fragment = (Btn2_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
+                    if (btn4_fragment.getListViews().isEmpty() || btn4_fragment.getListViews() == null) {
 
-                };
-                QueryAllRoomAsyncTask1 queryAllRoomAsyncTask1 = new QueryAllRoomAsyncTask1(handler);
+                    } else {
+                        final List<Integer> startPoint_list = new ArrayList<>();
 
-                queryAllRoomAsyncTask1.execute();
+                        showDoubleButtonDialog("是否删除房间?", "确定", "取消", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                for (int i = 0; i < btn4_fragment.getListViews().size(); i++) {
+                                    final View childView = btn4_fragment.getListViews().get(i);
+
+                                    final int startPoint = (int) (childView.getX() / item_width) + (int) (childView.getY() / item_width) * 4;
+                                    startPoint_list.add(startPoint);
+                                    FrameLayout roomViewGroup = (FrameLayout) btn4_fragment.getView().findViewById(R.id.f4);
+                                    roomViewGroup.removeView(childView);
+
+                                    RoomEntry roomEntry = new RoomEntry((int) childView.getX(), (int) childView.getY(), childView.getWidth(), childView.getHeight());
+                                    for (int j = 0; j < roomEntryDao.findAllByGroup(1).size(); j++) {
+                                        if ((roomEntry.getX() == roomEntryDao.findAllByGroup(1).get(j).getX()) && (roomEntry.getY() == roomEntryDao.findAllByGroup(1).get(j).getY()) && (roomEntry.getWidth() == roomEntryDao.findAllByGroup(1).get(j).getWidth()) && (roomEntry.getHeight() == roomEntryDao.findAllByGroup(1).get(j).getHeight())) {
+                                            roomEntryDao.delete(roomEntryDao.findAllByGroup(1).get(j));
+                                        }
+                                    }
+                                }
+                                delete(startPoint_list);//从服务器删除房间,根据起始点删除对应的房间
+                                btn4_fragment.getListViews().clear();//确定删除房间后选中房间的集合clear
+                                mDialog1.dismiss();
+                            }
+                        }, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                startPoint_list.clear();//取消后起始点集合置为零
+                                for (int j = 0; j < btn4_fragment.getListViews().size(); j++) {
+                                    btn4_fragment.getListViews().get(j).setSelected(false);
+                                    btn4_fragment.getListViews().get(j).setBackgroundResource(R.drawable.mergeroom_background);
+                                }
+                                btn4_fragment.getListViews().clear();
+                                mDialog1.dismiss();
+                            }
+                        });
+
+                    }
+                }
 
                 break;
             case R.id.houseId:
@@ -742,6 +789,57 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                 showDialog();
                 break;
         }
+    }
+
+    public void  delete(final List<Integer> startPoint_list ){
+        @SuppressLint("HandlerLeak") Handler handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case 1:
+                        List<String> strings = (List<String>) msg.obj;
+                        List<Integer> roomId_list = new ArrayList<>();
+
+                        for (String result : strings) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(result);
+                                int code = jsonObject.getInt("code");
+                                if (code == 2000) {
+                                    JSONObject content = jsonObject.getJSONObject("content");
+//                                        for (int x = 1; x <=add_key; x++) {
+                                    JSONArray array = content.getJSONArray(current_key + "");
+                                    for (int i = 0; i < array.length(); i++) {
+                                        JSONObject object = array.getJSONObject(i);
+                                        int roomId = object.getInt("roomId");
+                                        int startPoint = object.getInt("startPoint");
+                                        if (startPoint_list.contains(startPoint - 100)) {
+                                            roomId_list.add(roomId);
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            JSONArray jsonArray = new JSONArray();
+                            for (int i = 0; i < roomId_list.size(); i++) {
+                                roomId_list.get(i);
+                                jsonArray.put(roomId_list.get(i));
+                            }
+
+                            new DeleteRoomAsyncTask().execute(jsonArray);
+                        }
+
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+        };
+        QueryAllRoomAsyncTask1 queryAllRoomAsyncTask1 = new QueryAllRoomAsyncTask1(handler);
+
+        queryAllRoomAsyncTask1.execute();
     }
 
     private void showDialog() {
@@ -984,8 +1082,6 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
     }
 
     public void method_new_btn() {
-        long h = house_id;
-//        if (!isestablied) {
             if (add_key == 0) {
                 btn1.setVisibility(View.VISIBLE);
                 current_key = 1;
@@ -1259,5 +1355,14 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                 .setSingleButton(btnText, onClickListener)
                 .createSingleButtonDialog();
         mDialog.show();
+    }
+
+    private void showDoubleButtonDialog(String alertText, String okText, String noText, View.OnClickListener okClickListener, View.OnClickListener cancelClickListener) {
+        mDialog1 = builder1.setMessage(alertText)
+                .setPositiveButton(okText, okClickListener)
+                .setNegativeButton(noText,cancelClickListener)
+                .createTwoButtonDialog();
+        mDialog1.setCancelable(false);
+        mDialog1.show();
     }
 }
