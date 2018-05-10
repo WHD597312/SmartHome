@@ -24,6 +24,8 @@ import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.DeviceListActivity;
 import com.xinrui.smart.activity.AddDeviceActivity;
+import com.xinrui.smart.activity.MainActivity;
+import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.TimeTask;
@@ -192,11 +194,11 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                 DeviceChild childEntry = list.get(i);
                                 if (childEntry.getOnLint()) {
                                     childEntry.setImg(imgs[1]);
+                                    changeChild(groupPosition,childPosition);
                                     childEntry.setDeviceState("open");
                                     deviceChildDao.update(childEntry);
                                     send(childEntry);
 //                                    changeChildren(groupPosition,childPosition);
-                                    changeChild(groupPosition,childPosition);
                                 } else {
                                     childEntry.setImg(imgs[0]);
                                 }
@@ -542,6 +544,35 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
             MQService.LocalBinder binder = (MQService.LocalBinder) service;
             mqService = binder.getService();
             bound = true;
+            if(bound){
+                if (DeviceFragment.running2 && MainActivity.running){
+                    try {
+                        List<DeviceChild> deviceChildren=deviceChildDao.findAllDevice();
+                        for (DeviceChild deviceChild:deviceChildren){
+                            JSONObject jsonObject=new JSONObject();
+                            jsonObject.put("loadDate","on");
+                            String s=jsonObject.toString();
+                            String mac = deviceChild.getMacAddress();
+                            String topicName="";
+                            boolean success=false;
+                            if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
+                                topicName = "rango/" + mac + "/masterController/set";
+                                if (bound) {
+                                    success = mqService.publish(topicName, 2, s);
+                                }
+                            } else {
+                                topicName = "rango/" + mac + "/set";
+                                if (bound) {
+                                    success = mqService.publish(topicName, 2, s);
+                                }
+                            }
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                }
+            }
         }
 
         @Override
@@ -615,6 +646,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     } else if (deviceChild != null) {
 
                         List<DeviceChild> deviceChildren = childern.get(groupPostion);
+
                         if (deviceChildren.get(childPosition) == null) {
                             childern.get(groupPostion).add(childPosition, deviceChild);
                             child = deviceChild;
@@ -625,8 +657,6 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             changeChild(groupPosition, childPosition);
                         }
                     }
-
-//                List<DeviceChild> deviceChildren=deviceChildDao.findDeviceById(groupPostion);
 
                     if (deviceChild != null && deviceChild.getOnLint() && child != null) {
                         if ("close".equals(deviceState)) {
@@ -657,7 +687,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                 changeChild(groupPostion, childPosition);
                             }
                         }
-                    } else if (!deviceChild.getOnLint()) {
+                    } else if (deviceChild!=null&& !deviceChild.getOnLint()) {
                         DeviceChild child2 = deviceChild;
                         child.setRatedPower(child2.getRatedPower());
                         child2.setImg(imgs[0]);

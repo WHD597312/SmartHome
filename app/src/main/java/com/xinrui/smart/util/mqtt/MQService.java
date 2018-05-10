@@ -201,6 +201,9 @@ public class MQService extends Service {
         protected Object doInBackground(String... strings) {
             String topicName=strings[0];
             String message=strings[1];
+            if ("There is no need to upgrade".equals(message) || "upgradeFinish".equals(message)){
+                return null;
+            }
             String reSet=null;
             if ("reSet".equals(message)){
                 reSet="reSet";
@@ -270,7 +273,7 @@ public class MQService extends Service {
                     }
                     if (!Utils.isEmpty(reSet)){
                         if (child!=null){/**删除和这个设备相关的所有数据*/
-                        if (child.getType()==1 && child.getControlled()==2){
+
                             new DeleteDeviceAsync().execute(child);
 
 //                            Map<String,Object> params=new HashMap<>();
@@ -292,7 +295,7 @@ public class MQService extends Service {
                                     deviceChildDao.update(deviceChild);
                                 }
                             }
-                        }
+
                             deviceChildDao.delete(child);
                             List<TimeTask> timeTasks = timeTaskDao.findTimeTasks(child.getId());
                             for (TimeTask timeTask : timeTasks) {
@@ -310,8 +313,8 @@ public class MQService extends Service {
                             if (device.has("wifiVersion")) {
                                 wifiVersion = device.getString("wifiVersion");/**版本*/
                             }
-                            if (device.has("MCUVerion")) {
-                                MCUVerion = device.getString("MCUVerion");
+                            if (device.has("MCUVersion")) {
+                                MCUVerion = device.getString("MCUVersion");
                             }
                             if (device.has("MatTemp")) {
                                 MatTemp = device.getInt("MatTemp");/**手动/定时模式下的温度*/
@@ -560,7 +563,8 @@ public class MQService extends Service {
                                     Message msg=handler.obtainMessage();
                                     msg.what=1;
                                     msg.obj=child;
-                                    handler.sendMessageDelayed(msg,1500);
+//                                    handler.sendMessageDelayed(msg,1500);
+                                    handler.sendMessage(msg);
                                 }
                             }
                         }

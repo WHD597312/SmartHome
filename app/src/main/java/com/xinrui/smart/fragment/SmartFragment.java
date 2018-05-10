@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainControlActivity;
 import com.xinrui.smart.adapter.SmartSetAdapter;
@@ -73,8 +74,8 @@ public class SmartFragment extends Fragment {
     public void onStart() {
         super.onStart();
         adapter=new SmartSetAdapter(getActivity());
-        deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
-        deviceChildDao=new DeviceChildDaoImpl(getActivity());
+        deviceGroupDao=new DeviceGroupDaoImpl(MyApplication.getContext());
+        deviceChildDao=new DeviceChildDaoImpl(MyApplication.getContext());
 
         smart_set.setAdapter(adapter);
         if (houseId!=null){

@@ -72,7 +72,7 @@ public class TempChartActivity extends AppCompatActivity {
         super.onStart();
         Intent intent=getIntent();
         deviceId=intent.getStringExtra("deviceId");
-        deviceChildDao=new DeviceChildDaoImpl(this);
+        deviceChildDao=new DeviceChildDaoImpl(getApplicationContext());
         deviceChild=deviceChildDao.findDeviceById(Integer.parseInt(deviceId));
 
         tv_power.setText("功率:"+deviceChild.getRatedPower()+"w");
@@ -227,8 +227,8 @@ public class TempChartActivity extends AppCompatActivity {
                 //创建多条折线的图表
                 lineChartManager1.showLineChart(xValues, yValues.get(0), names.get(0), colours.get(3));
                 lineChartManager1.setDescription("温度");
-                lineChartManager1.setYAxis(42, 0, 24);
-                lineChartManager1.setHightLimitLine(42,"高温报警",Color.RED);
+                lineChartManager1.setYAxis(60, 0, 24);
+                lineChartManager1.setHightLimitLine(60,"高温报警",Color.RED);
             }
         }
     }

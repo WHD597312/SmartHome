@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.pojo.DeviceChild;
@@ -83,8 +84,8 @@ public class ETSControlFragment extends Fragment{
         super.onStart();
         Bundle bundle=getArguments();
         houseId=bundle.getString("houseId");
-        deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
-        deviceChildDao=new DeviceChildDaoImpl(getActivity());
+        deviceGroupDao=new DeviceGroupDaoImpl(MyApplication.getContext());
+        deviceChildDao=new DeviceChildDaoImpl(MyApplication.getContext());
         long id=Long.parseLong(houseId);
         DeviceGroup deviceGroup=deviceGroupDao.findById(id);
 
@@ -116,11 +117,12 @@ public class ETSControlFragment extends Fragment{
 
 
     }
+    private boolean isBound=false;
     @Override
     public void onResume() {
         super.onResume();
         Intent intent = new Intent(getActivity(), MQService.class);
-        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        isBound=getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
 
@@ -419,8 +421,10 @@ public class ETSControlFragment extends Fragment{
         super.onDestroy();
 
         try {
-            if (connection != null) {
-                getActivity().unbindService(connection);
+            if (isBound){
+                if (connection != null) {
+                    getActivity().unbindService(connection);
+                }
             }
         }catch (Exception e){
             e.printStackTrace();

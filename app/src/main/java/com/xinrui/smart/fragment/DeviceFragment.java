@@ -37,6 +37,7 @@ import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.secen.scene_view_custom.DividerItemDecoration;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.CityAdapter;
 import com.xinrui.smart.adapter.DeviceAdapter;
@@ -73,6 +74,7 @@ public class DeviceFragment extends Fragment{
     private AMapLocationClientOption locationOption = null;
     private View view;
     private Unbinder unbinder;
+    public static boolean running2=false;
     /** children items with a key and value list */
     @BindView(R.id.rv_list) RecyclerView rv_list;
 
@@ -113,8 +115,8 @@ public class DeviceFragment extends Fragment{
 
 
 
-        deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
-        deviceChildDao=new DeviceChildDaoImpl(getActivity());
+        deviceGroupDao=new DeviceGroupDaoImpl(MyApplication.getContext());
+        deviceChildDao=new DeviceChildDaoImpl(MyApplication.getContext());
         List<DeviceGroup> deviceGroups2=deviceGroupDao.findAllDevices();
 
         for (DeviceGroup deviceGroup:deviceGroups2){
@@ -238,6 +240,7 @@ public class DeviceFragment extends Fragment{
     public void onResume() {
         super.onResume();
         running=1;
+        running2=true;
         initJsonData();
 
 
@@ -616,6 +619,7 @@ public class DeviceFragment extends Fragment{
     public void onStop() {
         super.onStop();
         running=0;
+        running2=false;
     }
 
     public ArrayList<JsonBean> parseData(String result) {//Gson 解析

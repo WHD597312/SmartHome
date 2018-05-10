@@ -463,8 +463,8 @@ public class AddDeviceActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        deviceGroupDao = new DeviceGroupDaoImpl(this);
-        deviceChildDao = new DeviceChildDaoImpl(this);
+        deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
+        deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
 
     }

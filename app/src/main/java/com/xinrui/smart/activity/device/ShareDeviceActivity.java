@@ -67,13 +67,17 @@ public class ShareDeviceActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
-        deviceChildDao=new DeviceChildDaoImpl(this);
+        deviceChildDao=new DeviceChildDaoImpl(getApplicationContext());
         Intent intent=getIntent();
         long childPosition=Long.parseLong(intent.getStringExtra("deviceId"));
         deviceChild=deviceChildDao.findDeviceChild(childPosition);
 
         if (deviceChild!=null){
-            tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
+            String mcuVeriosn=deviceChild.getMCUVerion();
+            if(Utils.isEmpty(mcuVeriosn)){
+                mcuVeriosn="v1.0";
+            }
+            tv_version.setText(deviceChild.getWifiVersion()+","+mcuVeriosn);
             long deviceId=deviceChild.getId();
             String deviceName=deviceChild.getDeviceName();
             int type=deviceChild.getType();
@@ -233,7 +237,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             if (!Utils.isEmpty(s)){
-                Utils.isEmpty(s);
+                Utils.showToast(ShareDeviceActivity.this,s);
                 tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
             }
         }

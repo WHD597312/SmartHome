@@ -159,6 +159,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        isNet=NetWorkUtil.isConn(getActivity());
         view = inflater.inflate(R.layout.fragment_live, container, false);
         unbinder = ButterKnife.bind(this, view);
         roomEntryDao = new RoomEntryDaoImpl(getActivity());
@@ -187,7 +188,9 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             airQuality.setText("" );
             humidity.setText("无数据");
             temperature.setText("无数据");
-        }else {initView();}
+        }else {
+            initView();
+        }
         return view;
     }
 
@@ -1290,11 +1293,12 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
         @Override
         protected void onPostExecute(String s) {
-            if(s.equals("查询不到该城市的天气")){
+            if(Utils.isEmpty(s) ||s.equals("查询不到该城市的天气")){
                 airQuality.setText("" );
                 humidity.setText("无数据");
                 temperature.setText("无数据");
-            }else {
+            }
+           else {
                 SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
                 String airCondition = sharedPreferences.getString("airCondition", "良好");
                 String humidity1 = sharedPreferences.getString("humidity", "60%").substring(3);

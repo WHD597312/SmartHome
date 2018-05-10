@@ -24,6 +24,7 @@ import com.bigkoo.pickerview.OptionsPickerView;
 import com.google.gson.Gson;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.AddDeviceActivity;
 import com.xinrui.smart.adapter.CityAdapter;
@@ -84,7 +85,7 @@ public class NoDeviceFragment extends Fragment{
         initLocation();
         startLocation();//开始定位
         preferences = getActivity().getSharedPreferences("my", Context.MODE_PRIVATE);
-        deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
+        deviceGroupDao=new DeviceGroupDaoImpl(MyApplication.getContext());
     }
     @OnClick({R.id.btn_add_device,R.id.image_position})
     public void onClick(View view){
@@ -99,6 +100,10 @@ public class NoDeviceFragment extends Fragment{
                                 deviceGroup=deviceGroup2;
                                 break;
                             }
+                        }
+                        city=tv_city.getText().toString().trim();
+                        if (Utils.isEmpty(city)){
+                            city="北京市";
                         }
                         deviceGroup.setLocation(city);
                         new UpdateHomeLocationAsync().execute(deviceGroup);
@@ -151,6 +156,10 @@ public class NoDeviceFragment extends Fragment{
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
+                    if (code==2000){
+                        deviceGroup.setHeader(deviceGroup.getHouseName()+"."+deviceGroup.getLocation());
+                        deviceGroupDao.update(updateDeviceGroup);
+                    }
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -223,6 +232,12 @@ public class NoDeviceFragment extends Fragment{
         }
     }
 
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        deviceGroupDao.closeDaoSession();
+    }
 
     @Override
     public void onDestroy() {
@@ -321,15 +336,17 @@ public class NoDeviceFragment extends Fragment{
 
                 //解析定位结果，
                 String result = sb.toString();
-                tv_city.setText(location.getCity());
-                city=location.getCity();
+
+
                 String s=location.getProvince();
                 if (first && !Utils.isEmpty(s)){
-                    province=s;
+                    tv_city.setText(location.getCity());
+                    city=location.getCity();
                     first=false;
                 }
-            } else {
-
+                if (!first){
+                    stopLocation();
+                }
             }
         }
     };

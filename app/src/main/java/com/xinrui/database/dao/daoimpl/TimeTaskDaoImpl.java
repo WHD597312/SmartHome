@@ -7,7 +7,6 @@ import com.xinrui.database.dao.DBManager;
 import com.xinrui.database.dao.DaoMaster;
 import com.xinrui.database.dao.DaoSession;
 import com.xinrui.database.dao.TimeTaskDao;
-import com.xinrui.smart.fragment.TaskTimeFragement;
 import com.xinrui.smart.pojo.TimeTask;
 
 import org.greenrobot.greendao.query.QueryBuilder;

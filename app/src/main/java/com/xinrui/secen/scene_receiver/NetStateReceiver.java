@@ -14,7 +14,7 @@ public class NetStateReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        boolean isNet = NetWorkUtil.isConn(MyApplication.getInstance());
+        boolean isNet = NetWorkUtil.isConn(com.xinrui.smart.MyApplication.getContext());
         if (isNet) {
             EventBus.getDefault().post(new MessageEvent("0"));
         }else

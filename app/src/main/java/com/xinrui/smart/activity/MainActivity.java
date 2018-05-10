@@ -181,8 +181,8 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
 
-        deviceGroupDao = new DeviceGroupDaoImpl(this);
-        deviceChildDao = new DeviceChildDaoImpl(this);
+        deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
+        deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
         preferences.edit().putString("main","1").commit();
 
@@ -280,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     MQTTMessageReveiver myReceiver;
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -327,27 +328,28 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     }else {
-                        List<DeviceChild> deviceChildren=deviceChildDao.findAllDevice();
-                        for (DeviceChild deviceChild:deviceChildren){
-                            JSONObject jsonObject=new JSONObject();
-                            jsonObject.put("loadDate","on");
-                            String s=jsonObject.toString();
-                            String mac = deviceChild.getMacAddress();
-                            String topicName="";
-                            boolean success=false;
-                            if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-                                topicName = "rango/" + mac + "/masterController/set";
-                                if (bound) {
-                                    success = mqService.publish(topicName, 2, s);
-                                }
-                            } else {
-                                topicName = "rango/" + mac + "/set";
-                                if (bound) {
-                                    success = mqService.publish(topicName, 2, s);
+
+                            List<DeviceChild> deviceChildren=deviceChildDao.findAllDevice();
+                            for (DeviceChild deviceChild:deviceChildren){
+                                JSONObject jsonObject=new JSONObject();
+                                jsonObject.put("loadDate","on");
+                                String s=jsonObject.toString();
+                                String mac = deviceChild.getMacAddress();
+                                String topicName="";
+                                boolean success=false;
+                                if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
+                                    topicName = "rango/" + mac + "/masterController/set";
+                                    if (bound) {
+                                        success = mqService.publish(topicName, 2, s);
+                                    }
+                                } else {
+                                    topicName = "rango/" + mac + "/set";
+                                    if (bound) {
+                                        success = mqService.publish(topicName, 2, s);
+                                    }
                                 }
                             }
                         }
-                    }
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -389,13 +391,13 @@ public class MainActivity extends AppCompatActivity {
 
         switch (view.getId()) {
             case R.id.tv_exit:
-                TimeTaskDaoImpl timeTaskDao=new TimeTaskDaoImpl(this);
+                TimeTaskDaoImpl timeTaskDao=new TimeTaskDaoImpl(getApplicationContext());
                 List<TimeTask> timeTasks=timeTaskDao.findAll();
                 for (TimeTask timeTask:timeTasks){
                     timeTaskDao.delete(timeTask);
                 }
 
-                TimeDaoImpl timeDao=new TimeDaoImpl(this);
+                TimeDaoImpl timeDao=new TimeDaoImpl(getApplicationContext());
                 List<Timer> timers=timeDao.findTimers();
                 for (Timer timer:timers){
                     timeDao.delete(timer);
@@ -416,6 +418,16 @@ public class MainActivity extends AppCompatActivity {
 
                 application.removeAllFragment();
 
+
+                running=false;
+                deviceChildDao.closeDaoSession();
+                deviceGroupDao.closeDaoSession();
+                timeDao.closeDaoSession();
+                timeTaskDao.closeDaoSession();
+
+
+                Intent service=new Intent(this,MQService.class);
+                stopService(service);
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
 
@@ -461,6 +473,7 @@ public class MainActivity extends AppCompatActivity {
                 smart.edit().clear().commit();
                 break;
             case R.id.tv_live:
+
                 if (fragment instanceof LiveFragment) {
                     fragmentPreferences.edit().putString("fragment", "3").commit();
                     break;
@@ -509,7 +522,6 @@ public class MainActivity extends AppCompatActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
     long shareHouseId = 0;

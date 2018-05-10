@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.pojo.DeviceChild;
@@ -94,8 +95,8 @@ public class ControlledFragment extends Fragment{
 
         Bundle bundle=getArguments();
         houseId=bundle.getString("houseId");
-        deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
-        deviceChildDao=new DeviceChildDaoImpl(getActivity());
+        deviceGroupDao=new DeviceGroupDaoImpl(MyApplication.getContext());
+        deviceChildDao=new DeviceChildDaoImpl(MyApplication.getContext());
         long id=Long.parseLong(houseId);
         DeviceGroup deviceGroup=deviceGroupDao.findById(id);
 
@@ -117,16 +118,19 @@ public class ControlledFragment extends Fragment{
     public void onResume() {
         super.onResume();
         Intent intent = new Intent(getActivity(), MQService.class);
-        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        isBound=getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         try {
-            if (connection != null) {
-                getActivity().unbindService(connection);
+            if (isBound){
+                if (connection != null) {
+                    getActivity().unbindService(connection);
+                }
             }
+
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -363,6 +367,7 @@ public class ControlledFragment extends Fragment{
     }
     MQService mqService;
     private boolean bound = false;
+    private boolean isBound=false;
     ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -382,7 +387,7 @@ public class ControlledFragment extends Fragment{
                 JSONObject maser = new JSONObject();
                 maser.put("ctrlMode", deviceChild.getCtrlMode());
                 maser.put("workMode", deviceChild.getWorkMode());
-                maser.put("MatTemp", deviceChild.getMatTemp());
+                maser.put("MatTemp", deviceChild.getManualMatTemp());
                 maser.put("TimerTemp", deviceChild.getTimerTemp());
                 maser.put("LockScreen", deviceChild.getLockScreen());
                 maser.put("BackGroundLED", deviceChild.getBackGroundLED());
@@ -394,12 +399,10 @@ public class ControlledFragment extends Fragment{
 
                 String s = maser.toString();
                 boolean success = false;
-                String topicName;
                 String mac = deviceChild.getMacAddress();
-                topicName = "rango/" + mac + "/set";
+                String topicName = "rango/" + mac + "/set";
                 if (bound) {
                     success = mqService.publish(topicName, 2, s);
-                    Log.d("sss","--->"+success);
                 }
             }
         } catch (Exception e) {

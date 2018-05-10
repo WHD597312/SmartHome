@@ -32,18 +32,12 @@ import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.device.ShareDeviceActivity;
 import com.xinrui.smart.adapter.DeviceListAdapter;
-import com.xinrui.smart.fragment.ClockSetFragment;
-import com.xinrui.smart.fragment.ClockSettingFragment;
 import com.xinrui.smart.fragment.HeaterFragment;
-import com.xinrui.smart.fragment.ShareDeviceFragment;
 import com.xinrui.smart.pojo.DeviceChild;
-import com.xinrui.smart.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -52,7 +46,6 @@ import butterknife.Unbinder;
 
 public class DeviceListActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
 
-    protected static final float FLIP_DISTANCE = 50;
     GestureDetector mDetector;
     private Unbinder unbinder;
     @BindView(R.id.img_back)
@@ -120,7 +113,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     @Override
     protected void onStart() {
         super.onStart();
-        deviceChildDao=new DeviceChildDaoImpl(this);
+        deviceChildDao=new DeviceChildDaoImpl(getApplicationContext());
         Intent intent = getIntent();
         String content = intent.getStringExtra("content");
         childPosition=intent.getStringExtra("childPosition");
@@ -196,6 +189,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         return super.onKeyDown(keyCode, event);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        deviceChildDao.closeDaoSession();
+    }
 
     @Override
     protected void onDestroy() {
@@ -207,6 +205,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         if (receiver!=null){
            unregisterReceiver(receiver);
         }
+        application.removeActivity(this);
     }
 
     @Override

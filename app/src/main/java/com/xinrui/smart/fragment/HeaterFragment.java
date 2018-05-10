@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.pojo.DeviceChild;
@@ -121,7 +122,6 @@ public class HeaterFragment extends LazyFragment {
     private int mCurrent = 5;
     public static boolean running = false;
 
-    private TimeTaskDaoImpl timeTaskDao;
 
     // 标志位，标志已经初始化完成。
     private boolean isPrepared;
@@ -182,7 +182,6 @@ public class HeaterFragment extends LazyFragment {
                             int curTemp = deviceChild.getCurTemp();
                             tv_cur_temp.setText(curTemp+"℃");
                             tv_outmode.setText("");
-
                         } else if ("open".equals(deviceState)) {
                             String workMode = deviceChild.getWorkMode();
                             if ("manual".equals(workMode)) {
@@ -208,19 +207,33 @@ public class HeaterFragment extends LazyFragment {
                             int curTemp = deviceChild.getCurTemp();
                             tv_cur_temp.setText(curTemp+"℃");
                             if ("timer".equals(deviceChild.getWorkMode()) && "enable".equals(deviceChild.getTimerShutdown())){
-                                tv_timeShutDown.setVisibility(View.GONE);
-                                tv_outmode.setVisibility(View.VISIBLE);
+                                tv_timeShutDown.setVisibility(View.VISIBLE);
+                                tv_outmode.setVisibility(View.GONE);
                             }else {
-                                if (mCurrent >= (curTemp + 3)) {
-                                    tv_outmode.setText("速热模式");
-                                    animationDrawable.start();
-                                } else if (curTemp >= (mCurrent + 3)) {
-                                    tv_outmode.setText("保温模式");
-                                    animationDrawable.stop();
-                                } else {
-                                    tv_outmode.setText("节能模式");
-                                    animationDrawable.start();
+                                if ("err".equals(deviceChild.getTempState())){
+                                    if (mCurrent>=40){
+                                        tv_outmode.setText("速热模式");
+                                        animationDrawable.start();
+                                    }else if (mCurrent>=20 && mCurrent<40){
+                                        tv_outmode.setText("节能模式");
+                                        animationDrawable.start();
+                                    }else if (mCurrent<20){
+                                        tv_outmode.setText("保温模式");
+                                        animationDrawable.stop();
+                                    }
+                                }else {
+                                    if (mCurrent >= (curTemp + 3)) {
+                                        tv_outmode.setText("速热模式");
+                                        animationDrawable.start();
+                                    } else if (curTemp >= (mCurrent + 3)) {
+                                        tv_outmode.setText("保温模式");
+                                        animationDrawable.stop();
+                                    } else {
+                                        tv_outmode.setText("节能模式");
+                                        animationDrawable.start();
+                                    }
                                 }
+
                             }
                         }
                     } else if ("2".equals(module)) {
@@ -307,7 +320,6 @@ public class HeaterFragment extends LazyFragment {
         try {
             if (deviceChild != null) {
                 JSONObject maser = new JSONObject();
-
                 maser.put("ctrlMode", deviceChild.getCtrlMode());
                 maser.put("workMode", deviceChild.getWorkMode());
                 maser.put("MatTemp", deviceChild.getManualMatTemp());
@@ -383,42 +395,45 @@ public class HeaterFragment extends LazyFragment {
                     case 6:
                         int mCurrent6 = msg.what;
                         int mCurrentAngle = 0;
-                        String module6 = semicBar.getModule();
+                        if (semicBar!=null){
+                            String module6 = semicBar.getModule();
 
-                        if ("1".equals(module6)) {
-                            mCurrentAngle = (mCurrent6 - 3) * 7;
-                        } else if ("2".equals(module6)) {
-                            if (mCurrent6 == 48) {
-                                mCurrentAngle = 0;
-                            } else if (mCurrent6 == 49) {
-                                mCurrentAngle = 35;
-                            } else if (mCurrent6 == 50) {
-                                mCurrentAngle = 60;
-                            } else if (mCurrent6 == 51) {
-                                mCurrentAngle = 80;
-                            } else if (mCurrent6 == 52) {
-                                mCurrentAngle = 90;
-                            } else if (mCurrent6 == 53) {
-                                mCurrentAngle = 112;
-                            } else if (mCurrent6 == 54) {
-                                mCurrentAngle = 128;
-                            } else if (mCurrent6 == 55) {
-                                mCurrentAngle = 160;
-                            } else if (mCurrent6 == 56) {
-                                mCurrentAngle = 176;
-                            } else if (mCurrent6 == 57) {
-                                mCurrentAngle = 208;
-                            } else if (mCurrent6 == 58) {
-                                mCurrentAngle = 224;
-                            } else if (mCurrent6 == 59) {
-                                mCurrentAngle = 240;
-                            } else if (mCurrent6 == 60) {
-                                mCurrentAngle = 272;
+                            if ("1".equals(module6)) {
+                                mCurrentAngle = (mCurrent6 - 3) * 7;
+                            } else if ("2".equals(module6)) {
+                                if (mCurrent6 == 48) {
+                                    mCurrentAngle = 0;
+                                } else if (mCurrent6 == 49) {
+                                    mCurrentAngle = 35;
+                                } else if (mCurrent6 == 50) {
+                                    mCurrentAngle = 60;
+                                } else if (mCurrent6 == 51) {
+                                    mCurrentAngle = 80;
+                                } else if (mCurrent6 == 52) {
+                                    mCurrentAngle = 90;
+                                } else if (mCurrent6 == 53) {
+                                    mCurrentAngle = 112;
+                                } else if (mCurrent6 == 54) {
+                                    mCurrentAngle = 128;
+                                } else if (mCurrent6 == 55) {
+                                    mCurrentAngle = 160;
+                                } else if (mCurrent6 == 56) {
+                                    mCurrentAngle = 176;
+                                } else if (mCurrent6 == 57) {
+                                    mCurrentAngle = 208;
+                                } else if (mCurrent6 == 58) {
+                                    mCurrentAngle = 224;
+                                } else if (mCurrent6 == 59) {
+                                    mCurrentAngle = 240;
+                                } else if (mCurrent6 == 60) {
+                                    mCurrentAngle = 272;
+                                }
                             }
-                        }
-                        semicBar.setmCurAngle(mCurrentAngle);
-                        semicBar.setCurProcess(mCurrentAngle);
+                            semicBar.setmCurAngle(mCurrentAngle);
+                            semicBar.setCurProcess(mCurrentAngle);
 //                        semicBar.invalidate();
+                        }
+
                         break;
                     case 7:
                         semicBar.setEnd(0);
@@ -479,8 +494,7 @@ public class HeaterFragment extends LazyFragment {
     @Override
     public void onResume() {
         super.onResume();
-        deviceChildDao = new DeviceChildDaoImpl(getActivity());
-        timeTaskDao = new TimeTaskDaoImpl(getActivity());
+        deviceChildDao = new DeviceChildDaoImpl(MyApplication.getContext());
         calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;
@@ -525,7 +539,6 @@ public class HeaterFragment extends LazyFragment {
         super.onStop();
         running = false;
         deviceChildDao.closeDaoSession();
-        timeTaskDao.closeDaoSession();
     }
 
 
@@ -634,13 +647,13 @@ public class HeaterFragment extends LazyFragment {
                             int curTemp = deviceChild.getCurTemp();
                             if (manualMatTemp >= (curTemp + 3)) {
                                 deviceChild.setOutputMod("fastHeat");//速热模式
-                                tv_outmode.setText("速热模式");
+//                                tv_outmode.setText("速热模式");
                             } else if (curTemp >= (manualMatTemp + 3)) {
                                 deviceChild.setOutputMod("saveTemp");//保温模式
-                                tv_outmode.setText("保温模式");
+//                                tv_outmode.setText("保温模式");
                             } else {
                                 deviceChild.setOutputMod("savePwr");//节能模式
-                                tv_outmode.setText("节能模式");
+//                                tv_outmode.setText("节能模式");
                             }
                         } else if ("timer".equals(workMode)) {
                             int timerTemp = deviceChild.getTimerTemp();
@@ -648,13 +661,13 @@ public class HeaterFragment extends LazyFragment {
 
                             if (timerTemp >= (curTemp + 3)) {
                                 deviceChild.setOutputMod("fastHeat");//速热模式
-                                tv_outmode.setText("速热模式");
+//                                tv_outmode.setText("速热模式");
                             } else if (curTemp >= (timerTemp + 3)) {
                                 deviceChild.setOutputMod("saveTemp");//保温模式
-                                tv_outmode.setText("保温模式");
+//                                tv_outmode.setText("保温模式");
                             } else {
                                 deviceChild.setOutputMod("savePwr");//节能模式
-                                tv_outmode.setText("节能模式");
+//                                tv_outmode.setText("节能模式");
                             }
                         }
                     } else {
@@ -760,11 +773,12 @@ public class HeaterFragment extends LazyFragment {
 
             tv_outmode.setText("保护模式");
             tv_set_temp.setText(protectSetTemp + "℃");
-            tv_cur_temp.setText(protectProTemp + "℃");
+//            tv_cur_temp.setText(protectProTemp + "℃");
             Message msg = handler.obtainMessage();
             msg.arg1 = 6;
             msg.what = protectSetTemp;
-            handler.sendMessageDelayed(msg,1000);
+//            handler.sendMessageDelayed(msg,1000);
+            handler.sendMessage(msg);
             semicBar.setModule("2");
         }
         if ("disable".equals(protectEnable)) {
@@ -809,20 +823,32 @@ public class HeaterFragment extends LazyFragment {
                 Message msg = handler.obtainMessage();
                 msg.arg1 = 6;
                 msg.what = manualMatTemp;
-                handler.sendMessageDelayed(msg,1000);
-                if (manualMatTemp >= (curTemp + 3)) {
-                    deviceChild.setOutputMod("fastHeat");//速热模式
-                    tv_outmode.setText("速热模式");
-                    animationDrawable.start();
-                } else if (curTemp >= (manualMatTemp + 3)) {
-                    deviceChild.setOutputMod("saveTemp");//保温模式
-                    tv_outmode.setText("保温模式");
-                    animationDrawable.stop();
-                } else {
-                    deviceChild.setOutputMod("savePwr");//节能模式
-                    tv_outmode.setText("节能模式");
-                    animationDrawable.start();
+                handler.sendMessage(msg);
+//                handler.sendMessageDelayed(msg,1000);
+                if ("err".equals(tempState)){
+                    if ("saveTemp".equals(outputMode)){
+                        tv_outmode.setText("保温模式");
+                        animationDrawable.stop();
+                    }else if ("savePwr".equals(outputMode)){
+                        tv_outmode.setText("节能模式");
+                        animationDrawable.start();
+                    }
+                }else {
+                    if (manualMatTemp >= (curTemp + 3)) {
+                        deviceChild.setOutputMod("fastHeat");//速热模式
+                        tv_outmode.setText("速热模式");
+                        animationDrawable.start();
+                    } else if (curTemp >= (manualMatTemp + 3)) {
+                        deviceChild.setOutputMod("saveTemp");//保温模式
+                        tv_outmode.setText("保温模式");
+                        animationDrawable.stop();
+                    } else {
+                        deviceChild.setOutputMod("savePwr");//节能模式
+                        tv_outmode.setText("节能模式");
+                        animationDrawable.start();
+                    }
                 }
+
             } else if ("timer".equals(workMode)) {
                 image_hand_task.setImageResource(R.mipmap.module_task);
 
@@ -834,26 +860,38 @@ public class HeaterFragment extends LazyFragment {
                 Message msg = handler.obtainMessage();
                 msg.arg1 = 6;
                 msg.what = timerTemp;
-                handler.sendMessageDelayed(msg,1000);
+                handler.sendMessage(msg);
+//                handler.sendMessageDelayed(msg,1000);
 
                 if ("timerShutdown".equals(outputMode)) {
                     animationDrawable.stop();
                     deviceChild.setOutputMod("timerShutdown");
                     tv_outmode.setText("定时关机");
                 } else {
-                    if (timerTemp >= (curTemp + 3)) {
-                        deviceChild.setOutputMod("fastHeat");//速热模式
-                        tv_outmode.setText("速热模式");
-                        animationDrawable.start();
-                    } else if (curTemp >= (timerTemp + 3)) {
-                        deviceChild.setOutputMod("saveTemp");//保温模式
-                        tv_outmode.setText("保温模式");
-                        animationDrawable.stop();
-                    } else {
-                        deviceChild.setOutputMod("savePwr");//节能模式
-                        tv_outmode.setText("节能模式");
-                        animationDrawable.start();
+                    if ("err".equals(tempState)){
+                        if ("saveTemp".equals(outputMode)){
+                            tv_outmode.setText("保温模式");
+                            animationDrawable.stop();
+                        }else if ("savePwr".equals(outputMode)){
+                            tv_outmode.setText("节能模式");
+                            animationDrawable.start();
+                        }
+                    }else {
+                        if (timerTemp >= (curTemp + 3)) {
+                            deviceChild.setOutputMod("fastHeat");//速热模式
+                            tv_outmode.setText("速热模式");
+                            animationDrawable.start();
+                        } else if (curTemp >= (timerTemp + 3)) {
+                            deviceChild.setOutputMod("saveTemp");//保温模式
+                            tv_outmode.setText("保温模式");
+                            animationDrawable.stop();
+                        } else {
+                            deviceChild.setOutputMod("savePwr");//节能模式
+                            tv_outmode.setText("节能模式");
+                            animationDrawable.start();
+                        }
                     }
+
                 }
             }
         }
@@ -893,11 +931,12 @@ public class HeaterFragment extends LazyFragment {
                 image_temp.setImageResource(R.mipmap.img_protect_open);
                 tv_set_temp.setText(protectSetTemp + "℃");
                 tv_cur_temp.setText(protectProTemp + "℃");
+                semicBar.setModule("2");
                 Message msg = handler.obtainMessage();
                 msg.arg1 = 6;
                 msg.what = protectSetTemp;
-                handler.sendMessageDelayed(msg,1000);
-                semicBar.setModule("2");
+                handler.sendMessage(msg);
+
             }
         }
     }

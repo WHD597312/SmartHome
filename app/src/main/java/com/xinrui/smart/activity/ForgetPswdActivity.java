@@ -71,8 +71,8 @@ public class ForgetPswdActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         SMSSDK.registerEventHandler(eventHandler);
-        deviceGroupDao = new DeviceGroupDaoImpl(this);
-        deviceChildDao = new DeviceChildDaoImpl(this);
+        deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
+        deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
 
     }
 
@@ -144,7 +144,7 @@ public class ForgetPswdActivity extends AppCompatActivity {
                     boolean flag=Mobile.isMobile(phone);
                     if (flag){
                         SMSSDK.getVerificationCode("86", phone);
-                        CountTimer countTimer = new CountTimer(60000, 1000);
+                        CountTimer countTimer = new CountTimer(30000, 1000);
                         countTimer.start();
                     }else {
                         Utils.showToast(this,"手机号码不合法");
@@ -232,9 +232,9 @@ public class ForgetPswdActivity extends AppCompatActivity {
             btn_get_code.setText(millisUntilFinished / 1000 + "s后重新发送");
             //设置倒计时中的按钮外观
             btn_get_code.setClickable(false);//倒计时过程中将按钮设置为不可点击
-            btn_get_code.setBackgroundColor(Color.parseColor("#c7c7c7"));
-            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
-            btn_get_code.setTextSize(16);
+//            btn_get_code.setBackgroundColor(Color.parseColor("#c7c7c7"));
+//            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
+//            btn_get_code.setTextSize(16);
         }
 
         /**
@@ -244,11 +244,11 @@ public class ForgetPswdActivity extends AppCompatActivity {
         public void onFinish() {
             Log.e("Tag", "倒计时完成");
             //设置倒计时结束之后的按钮样式
-            btn_get_code.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.holo_blue_light));
-            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
-            btn_get_code.setTextSize(18);
+//            btn_get_code.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.holo_blue_light));
+//            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
+//            btn_get_code.setTextSize(18);
             btn_get_code.setText("重新发送");
-            btn_get_code.setClickable(true);
+//            btn_get_code.setClickable(true);
         }
     }
 }

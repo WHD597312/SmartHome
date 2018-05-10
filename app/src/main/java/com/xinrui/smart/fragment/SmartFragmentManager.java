@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.adapter.SmartFragmentAdapter;
 import com.xinrui.smart.pojo.DeviceChild;
@@ -86,9 +87,9 @@ public class SmartFragmentManager extends Fragment {
     public void onStart() {
         super.onStart();
         //初始化fragment
-        deviceGroupDao = new DeviceGroupDaoImpl(getActivity());
+        deviceGroupDao = new DeviceGroupDaoImpl(MyApplication.getContext());
         deviceGroups = deviceGroupDao.findAllDevices();
-        deviceChildDao = new DeviceChildDaoImpl(getActivity());
+        deviceChildDao = new DeviceChildDaoImpl(MyApplication.getContext());
         fragmentList = new ArrayList<Fragment>();
         for (int i = 0; i < deviceGroups.size() - 1; i++) {
             fragmentList.add(new SmartFragment());
@@ -139,6 +140,8 @@ public class SmartFragmentManager extends Fragment {
     public void onStop() {
         super.onStop();
         running = false;
+        deviceGroupDao.closeDaoSession();
+        deviceChildDao.closeDaoSession();
     }
 
     @Override

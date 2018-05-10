@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.pojo.DeviceChild;
@@ -81,8 +82,8 @@ public class MainControlFragment extends Fragment{
         super.onStart();
         Bundle bundle=getArguments();
         houseId=bundle.getString("houseId");
-        deviceGroupDao=new DeviceGroupDaoImpl(getActivity());
-        deviceChildDao=new DeviceChildDaoImpl(getActivity());
+        deviceGroupDao=new DeviceGroupDaoImpl(MyApplication.getContext());
+        deviceChildDao=new DeviceChildDaoImpl(MyApplication.getContext());
         long id=Long.parseLong(houseId);
         DeviceGroup deviceGroup=deviceGroupDao.findById(id);
 
@@ -101,11 +102,12 @@ public class MainControlFragment extends Fragment{
         lv_homes.setAdapter(adapter);
 
     }
+    private boolean isBound=false;
     @Override
     public void onResume() {
         super.onResume();
         Intent intent = new Intent(getActivity(), MQService.class);
-        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        isBound = getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
     private List<DeviceChild> getMainControls(){
         long id=0;
@@ -371,8 +373,10 @@ public class MainControlFragment extends Fragment{
     public void onDestroy() {
         super.onDestroy();
         try {
-            if (connection != null) {
-                getActivity().unbindService(connection);
+            if (isBound){
+                if (connection != null) {
+                    getActivity().unbindService(connection);
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -395,7 +399,7 @@ public class MainControlFragment extends Fragment{
                         if (!beSelectedData.isEmpty()){
                             DeviceChild deviceChild=beSelectedData.get(0);
                             deviceChild.setControlled(2);
-                            deviceChild.setWorkMode("master");
+                            deviceChild.setCtrlMode("master");
                             deviceChildDao.update(deviceChild);
                             send(deviceChild);
                         }else {
@@ -449,7 +453,7 @@ public class MainControlFragment extends Fragment{
                 JSONObject maser = new JSONObject();
                 maser.put("ctrlMode", deviceChild.getCtrlMode());
                 maser.put("workMode", deviceChild.getWorkMode());
-                maser.put("MatTemp", deviceChild.getMatTemp());
+                maser.put("MatTemp", deviceChild.getManualMatTemp());
                 maser.put("TimerTemp", deviceChild.getTimerTemp());
                 maser.put("LockScreen", deviceChild.getLockScreen());
                 maser.put("BackGroundLED", deviceChild.getBackGroundLED());
@@ -461,12 +465,10 @@ public class MainControlFragment extends Fragment{
 
                 String s = maser.toString();
                 boolean success = false;
-                String topicName;
                 String mac = deviceChild.getMacAddress();
-                topicName = "rango/" + mac + "/set";
+                String topicName = "rango/" + mac + "/set";
                 if (bound) {
                     success = mqService.publish(topicName, 2, s);
-                    Log.d("sss","--->"+success);
                 }
             }
         } catch (Exception e) {
