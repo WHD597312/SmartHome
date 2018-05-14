@@ -44,9 +44,10 @@
         android:id="@+id/tv_power"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="功率"
+        android:text="状态"
         android:textSize="@dimen/sp_18"
         android:layout_marginLeft="@dimen/dp_10"
+        android:textColor="@color/black"
         android:gravity="center_vertical"
         />
     <TextView
@@ -62,10 +63,21 @@
         android:id="@+id/tv_current"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="电流"
+        android:text="规格"
+        android:layout_marginTop="@dimen/dp_10"
+        android:textSize="@dimen/sp_18"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:textColor="@color/black"
+        android:gravity="center_vertical"
+        />
+    <TextView
+        android:id="@+id/tv_roatPower"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:textSize="@dimen/sp_18"
         android:layout_marginLeft="@dimen/dp_10"
         android:gravity="center_vertical"
+        android:text="sss"
         />
 </LinearLayout>
 

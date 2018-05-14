@@ -33,6 +33,7 @@ import com.xinrui.smart.pojo.JsonBean;
 import com.xinrui.smart.util.JsonFileReader;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.view_custom.DeviceHomeDialog;
+import com.xinrui.smart.view_custom.DeviceUpdateHomeDialog;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -86,21 +87,32 @@ public class NoDeviceFragment extends Fragment{
         startLocation();//开始定位
         preferences = getActivity().getSharedPreferences("my", Context.MODE_PRIVATE);
         deviceGroupDao=new DeviceGroupDaoImpl(MyApplication.getContext());
+
+        List<DeviceGroup> deviceGroups=deviceGroupDao.findAllDevices();
+        if (deviceGroups.size()==2){
+            for (DeviceGroup deviceGroup2:deviceGroups){
+                deviceGroup=deviceGroup2;
+
+                break;
+            }
+        }
+        if (deviceGroup!=null){
+            updateDeviceGroup=deviceGroup;
+            String location=deviceGroup.getLocation();
+            if (!Utils.isEmpty(location)){
+                tv_city.setText(deviceGroup.getLocation());
+            }else {
+                tv_city.setText("北京市");
+            }
+
+        }
     }
-    @OnClick({R.id.btn_add_device,R.id.image_position})
+    @OnClick({R.id.btn_add_device,R.id.image_position,R.id.image_home,R.id.tv_myhome,R.id.tv_city})
     public void onClick(View view){
         switch(view.getId()){
             case R.id.btn_add_device:
                 String group=tv_myhome.getText().toString();
-                if (deviceGroupDao!=null) {
-
-                        List<DeviceGroup> deviceGroups=deviceGroupDao.findAllDevices();
-                        if (deviceGroups.size()==2){
-                            for (DeviceGroup deviceGroup2:deviceGroups){
-                                deviceGroup=deviceGroup2;
-                                break;
-                            }
-                        }
+                if (deviceGroup!=null) {
                         city=tv_city.getText().toString().trim();
                         if (Utils.isEmpty(city)){
                             city="北京市";
@@ -113,6 +125,17 @@ public class NoDeviceFragment extends Fragment{
                 stopLocation();
                 showPickerView();
                 break;
+            case R.id.tv_city:
+                stopLocation();
+                showPickerView();
+                break;
+            case R.id.image_home:
+                buildUpdateHomeDialog();
+                break;
+            case R.id.tv_myhome:
+                buildUpdateHomeDialog();
+                break;
+
         }
     }
 
@@ -121,29 +144,70 @@ public class NoDeviceFragment extends Fragment{
         super.onResume();
         initJsonData();
     }
-    private void buildDialog(){
-        final DeviceHomeDialog dialog=new DeviceHomeDialog(getActivity());
-        dialog.setOnNegativeClickListener(new DeviceHomeDialog.OnNegativeClickListener() {
+
+
+    private String houseName;
+    private DeviceGroup updateDeviceGroup;
+    private void buildUpdateHomeDialog(){
+        final DeviceUpdateHomeDialog dialog=new DeviceUpdateHomeDialog(getActivity());
+        dialog.setOnNegativeClickListener(new DeviceUpdateHomeDialog.OnNegativeClickListener() {
             @Override
             public void onNegativeClick() {
                 dialog.dismiss();
             }
         });
-        dialog.setOnPositiveClickListener(new DeviceHomeDialog.OnPositiveClickListener() {
+        dialog.setOnPositiveClickListener(new DeviceUpdateHomeDialog.OnPositiveClickListener() {
             @Override
             public void onPositiveClick() {
-                String name=dialog.getName().trim();
-                if (Utils.isEmpty(name)){
-                    name="我的家";
+                houseName=dialog.getName();
+                if (Utils.isEmpty(houseName)){
+                    Utils.showToast(getActivity(),"住所名称不能为空");
+                }else {
+                    if (updateDeviceGroup!=null){
+                        updateDeviceGroup.setHouseName(houseName);
+                        new UpdateHomeNameAsync().execute(updateDeviceGroup);
+                        dialog.dismiss();
+                    }
                 }
-                dialog.dismiss();
-
             }
         });
         dialog.show();
     }
 
+    class UpdateHomeNameAsync extends AsyncTask<DeviceGroup,Void,Integer>{
 
+        @Override
+        protected Integer doInBackground(DeviceGroup... deviceGroups) {
+            int code=0;
+            updateDeviceGroup=deviceGroups[0];
+            try {
+                String updateHomeUrl="http://120.77.36.206:8082/warmer/v1.0/house/changeHouseName?houseId="+
+                        URLEncoder.encode(updateDeviceGroup.getId()+"","UTF-8")+"&houseName="+URLEncoder.encode(updateDeviceGroup.getHouseName(),"UTF-8");
+                String result=HttpUtils.getOkHpptRequest(updateHomeUrl);
+                if (!Utils.isEmpty(result)){
+                    JSONObject jsonObject=new JSONObject(result);
+                    code=jsonObject.getInt("code");
+                    if (code==2000){
+                        updateDeviceGroup.setHeader(updateDeviceGroup.getHouseName()+"."+updateDeviceGroup.getLocation());
+                        deviceGroupDao.update(updateDeviceGroup);
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return code;
+        }
+        @Override
+        protected void onPostExecute(Integer code) {
+            super.onPostExecute(code);
+            switch (code){
+                case 2000:
+                    Utils.showToast(getActivity(),"修改成功");
+                    tv_myhome.setText(updateDeviceGroup.getHouseName());
+                    break;
+            }
+        }
+    }
     class UpdateHomeLocationAsync extends AsyncTask<DeviceGroup,Void,Integer>{
         @Override
         protected Integer doInBackground(DeviceGroup... deviceGroups) {
@@ -178,55 +242,6 @@ public class NoDeviceFragment extends Fragment{
                     startActivity(intent);
                     break;
                 case -3002:
-                    break;
-            }
-        }
-    }
-    class AddFirstHomeAsync extends AsyncTask<Map<String,Object>,Void,Integer>{
-
-        @Override
-        protected Integer doInBackground(Map<String, Object>... maps) {
-            int code=0;
-            Map<String,Object> params=maps[0];
-
-            String result=HttpUtils.postOkHpptRequest(homeUrl,params);
-            if (!Utils.isEmpty(result)){
-                try {
-                    JSONObject jsonObject=new JSONObject(result);
-                    code=jsonObject.getInt("code");
-                    JSONObject content=jsonObject.getJSONObject("content");
-                    String houseName=content.getString("house_name");
-                    String location=content.getString("location");
-                    int houseId=content.getInt("id");
-                    int masterControllerDeviceId=content.getInt("masterControllerDeviceId");
-                    if (code==2001){
-                        deviceGroup=new DeviceGroup();
-                        deviceGroup.setHeader(houseName+"."+location);
-                        deviceGroup.setId((long)houseId);
-                        deviceGroup.setLocation(location);
-                        deviceGroup.setHouseName(houseName);
-                        deviceGroup.setMasterControllerDeviceId(masterControllerDeviceId);
-                        deviceGroupDao.insert(deviceGroup);/**添加第一个设备组*/
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-            return code;
-        }
-        @Override
-        protected void onPostExecute(Integer code) {
-            super.onPostExecute(code);
-            switch (code){
-                case 2001:
-//                    Utils.showToast(getActivity(),"创建成功");
-                    long houseId=deviceGroup.getId();
-                    Intent intent=new Intent(getActivity(), AddDeviceActivity.class);
-                    intent.putExtra("houseId",houseId+"");
-                    startActivity(intent);
-                    break;
-                case -3001:
-                    Utils.showToast(getActivity(),"新建住所失败");
                     break;
             }
         }
@@ -343,6 +358,12 @@ public class NoDeviceFragment extends Fragment{
                     tv_city.setText(location.getCity());
                     city=location.getCity();
                     first=false;
+                }
+                if (deviceGroup!=null){
+                    String location2=deviceGroup.getLocation();
+                    if (!Utils.isEmpty(location2)){
+                        tv_city.setText(location2);
+                    }
                 }
                 if (!first){
                     stopLocation();

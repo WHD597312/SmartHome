@@ -38,26 +38,14 @@ import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Utils;
-import com.xinrui.smart.util.mqtt.MQService;
-import com.xinrui.smart.util.udp.Client;
 
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.json.JSONObject;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.URLEncoder;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -815,10 +803,10 @@ public class AddDeviceActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        deviceChildDao.closeDaoSession();
+        deviceGroupDao.closeDaoSession();
         if (mProgressDialog != null) {
             mProgressDialog.dismiss();
-            deviceChildDao.closeDaoSession();
-            deviceGroupDao.closeDaoSession();
         }
     }
 }

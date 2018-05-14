@@ -144,12 +144,11 @@ public class ForgetPswdActivity extends AppCompatActivity {
                     boolean flag=Mobile.isMobile(phone);
                     if (flag){
                         SMSSDK.getVerificationCode("86", phone);
-                        CountTimer countTimer = new CountTimer(30000, 1000);
+                        CountTimer countTimer = new CountTimer(60000, 1000);
                         countTimer.start();
                     }else {
                         Utils.showToast(this,"手机号码不合法");
                     }
-
                 }
                 break;
         }
@@ -248,7 +247,7 @@ public class ForgetPswdActivity extends AppCompatActivity {
 //            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
 //            btn_get_code.setTextSize(18);
             btn_get_code.setText("重新发送");
-//            btn_get_code.setClickable(true);
+            btn_get_code.setClickable(true);
         }
     }
 }

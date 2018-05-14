@@ -194,13 +194,17 @@ public class MQService extends Service {
 
     int groupPostion = 0;
     int childPosition = 0;
+
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch,R.mipmap.image_switch2};
     class LoadAsyncTask extends AsyncTask<String,Void,Object>{
 
         @Override
         protected Object doInBackground(String... strings) {
             String topicName=strings[0];
+            Log.i("sssss",topicName);
             String message=strings[1];
+            int timerTaskWeek =0;
+            Log.i("ssss",message);
             if ("There is no need to upgrade".equals(message) || "upgradeFinish".equals(message)){
                 return null;
             }
@@ -239,7 +243,6 @@ public class MQService extends Service {
                     int TimerTemp=0;
 
 
-                    int timerTaskWeek = 0;
                     DeviceChild child = null;
 
 
@@ -560,11 +563,26 @@ public class MQService extends Service {
                             }else {
                                 if (device!=null && device.has("deviceState")) {
                                     child = deviceChildDao.findDeviceById(child.getId());
-                                    Message msg=handler.obtainMessage();
-                                    msg.what=1;
-                                    msg.obj=child;
-//                                    handler.sendMessageDelayed(msg,1500);
-                                    handler.sendMessage(msg);
+                                    boolean online=child.getOnLint();
+
+                                    if (online && timerTaskWeek!=0){
+                                        Message msg=handler.obtainMessage();
+                                        msg.what=1;
+                                        msg.obj=child;
+                                        handler.sendMessage(msg);
+                                    }else {
+                                        if (child.getType()==1){
+                                            if (child.getControlled()==0 || child.getControlled()==2){
+                                                Message msg=handler.obtainMessage();
+                                                msg.what=1;
+                                                msg.obj=child;
+                                                handler.sendMessage(msg);
+                                            }
+                                        }
+                                    }
+
+
+//                                    handler.sendMessage(msg);
                                 }
                             }
                         }
@@ -581,7 +599,6 @@ public class MQService extends Service {
                                 mqttIntent.putExtra("online", "offline");
                                 sendBroadcast(mqttIntent);
                             }else{
-
                                 child = deviceChildDao.findDeviceById(child.getId());
                                 long houseId = child.getHouseId();
                                 long deviceId = child.getId();
@@ -617,7 +634,7 @@ public class MQService extends Service {
                             }
                         }
                     }else if (ShareDeviceActivity.running){
-                        if (!Utils.isEmpty(reSet)){
+                        if (!Utils.isEmpty(reSet)) {
                             Intent mqttIntent = new Intent("ShareDeviceActivity");
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
@@ -626,6 +643,10 @@ public class MQService extends Service {
                         if (!Utils.isEmpty(reSet)){
                             Intent mqttIntent = new Intent("TempChartActivity");
                             mqttIntent.putExtra("macAddress", macAddress);
+                            sendBroadcast(mqttIntent);
+                        }else {
+                            Intent mqttIntent = new Intent("TempChartActivity");
+                            mqttIntent.putExtra("deviceChild", child);
                             sendBroadcast(mqttIntent);
                         }
                     }else if (Btn1_fragment.running == 2) {
@@ -727,6 +748,7 @@ public class MQService extends Service {
 
             try {
                 MqttMessage message = new MqttMessage(payload.getBytes("utf-8"));
+                qos=1;
                 message.setQos(qos);
                 client.publish(topicName, message);
                 flag = true;

@@ -8,6 +8,7 @@
     android:layout_marginRight="@dimen/dp_10"
     >
 
+
         <TextView
             android:id="@+id/tv_home"
             android:layout_width="match_parent"
@@ -22,20 +23,33 @@
             android:layout_marginRight="@dimen/dp_3"
             android:layout_marginLeft="@dimen/dp_2"
             />
-
-
-        <ListView
-            android:id="@+id/lv_homes"
+        <LinearLayout
+            android:id="@+id/linearout"
             android:layout_width="match_parent"
-            android:layout_height="330dp"
-            android:divider="@color/color_gray2"
-            android:dividerHeight="@dimen/dp_1"
+            android:layout_height="350dp"
+            android:orientation="vertical"
             android:layout_below="@+id/tv_home"
-            android:layout_marginRight="@dimen/dp_3"
-            android:layout_marginLeft="@dimen/dp_2"
-            />
+            >
+                <ListView
+                    android:id="@+id/lv_homes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:divider="@color/color_gray2"
+                    android:dividerHeight="@dimen/dp_1"
+                    android:layout_below="@+id/tv_home"
+                    android:layout_marginRight="@dimen/dp_3"
+                    android:layout_marginLeft="@dimen/dp_2"
+                    />
 
-
+                <TextView
+                    android:id="@+id/view"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp_50"
+                    android:background="@drawable/shape_main_control_footer"
+                    android:layout_marginRight="@dimen/dp_3"
+                    android:layout_marginLeft="@dimen/dp_2"
+                    />
+        </LinearLayout>
         <Button
             android:id="@+id/btn_ensure"
             android:layout_width="match_parent"
@@ -44,11 +58,9 @@
             android:layout_centerHorizontal="true"
             android:text="@string/ensure"
             android:textColor="@color/color_orange"
-            android:layout_gravity="bottom"
             android:textSize="@dimen/sp_16"
             android:gravity="center"
             android:background="@drawable/shape_white_button"
-            android:layout_alignParentBottom="true"
             />
         <View
             android:layout_width="match_parent"

@@ -390,10 +390,10 @@ public class SemicircleBar extends View {
 
         if (mCurAngle >= 0) {
             if (mCurAngle >= 272) {
-                if (mCurAngle > 272 && mCurAngle <= 310) {
+                if (mCurAngle > 272 && mCurAngle <= 330) {
                     mCurAngle = 272;
-                } else if (mCurAngle > 310 && mCurAngle <= 360) {
-                    mCurAngle = 0;
+                } else if (mCurAngle > 330 && mCurAngle <= 360) {
+                    mCurAngle=0;
                     return;
                 }
             }
@@ -641,11 +641,15 @@ public class SemicircleBar extends View {
 
     public void setCurProcess(int curProcess) {
         this.mCurProcess = curProcess > mMaxProcess ? mMaxProcess : curProcess;
-        if (mChangListener != null) {
-            mChangListener.onChanged(this, curProcess);
+        try {
+            if (mChangListener != null) {
+                mChangListener.onChanged(this, curProcess);
+            }
+            refershPosition();
+            invalidate();
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        refershPosition();
-        invalidate();
     }
 
     public int getMaxProcess() {

@@ -43,6 +43,7 @@ public class TempChartActivity extends AppCompatActivity {
     @BindView(R.id.tv_power) TextView tv_power;
     @BindView(R.id.tv_voltage) TextView tv_voltage;
     @BindView(R.id.tv_current) TextView tv_current;
+    @BindView(R.id.tv_roatPower) TextView tv_roatPower;
     private DeviceChildDaoImpl deviceChildDao;
     public static boolean running=false;
 
@@ -75,9 +76,17 @@ public class TempChartActivity extends AppCompatActivity {
         deviceChildDao=new DeviceChildDaoImpl(getApplicationContext());
         deviceChild=deviceChildDao.findDeviceById(Integer.parseInt(deviceId));
 
-        tv_power.setText("功率:"+deviceChild.getRatedPower()+"w");
-        tv_voltage.setText("电压:"+deviceChild.getVoltageValue()+"v");
-        tv_current.setText("电流:"+deviceChild.getCurrentValue()+"A");
+        int powerValue=deviceChild.getPowerValue();
+        int voltageValue=deviceChild.getVoltageValue()/10;
+        int currentValue=deviceChild.getCurrentValue()/1000;
+        int ratedPower=deviceChild.getRatedPower();
+//        tv_power.setText("功率:"+powerValue+"w");
+//        tv_voltage.setText("电压:"+voltageValue+"v");
+//        tv_current.setText("电流:"+currentValue+"A");
+        String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+currentValue+"A";
+        tv_voltage.setText(s);
+        String s2="额定功率:"+ratedPower+"W";
+        tv_roatPower.setText(s2);
         new TempChatAsync().execute();
     }
 
@@ -239,6 +248,7 @@ public class TempChartActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String macAddress=intent.getStringExtra("macAddress");
             String noNet=intent.getStringExtra("noNet");
+            DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
             if (!Utils.isEmpty(noNet)){
                 Utils.showToast(TempChartActivity.this,"网络已断开，请设置网络");
             }else {
@@ -247,6 +257,25 @@ public class TempChartActivity extends AppCompatActivity {
                     Intent intent2=new Intent(TempChartActivity.this,MainActivity.class);
                     intent2.putExtra("deviceList","deviceList");
                     startActivity(intent2);
+                }else {
+                    if (deviceChild2.getMacAddress().equals(deviceChild.getMacAddress())) {
+                        deviceChild = deviceChild2;
+                        deviceChildDao.update(deviceChild);
+                        if (deviceChild != null) {
+                            if (deviceChild.getOnLint()){
+                                int powerValue=deviceChild.getPowerValue();
+                                int voltageValue=deviceChild.getVoltageValue()/10;
+                                int currentValue=deviceChild.getCurrentValue()/1000;
+                                int ratedPower=deviceChild.getRatedPower();
+                                String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+currentValue+"A";
+                                tv_voltage.setText(s);
+                                String s2="额定功率:"+ratedPower+"W";
+                                tv_roatPower.setText(s2);
+                            }else {
+                                Utils.showToast(TempChartActivity.this,"该设备已离线");
+                            }
+                        }
+                    }
                 }
             }
         }

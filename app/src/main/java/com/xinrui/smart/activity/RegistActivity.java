@@ -65,6 +65,8 @@ public class RegistActivity extends AppCompatActivity {
             application= (MyApplication) getApplication();
         }
         application.addActivity(this);
+        SMSSDK.registerEventHandler(eventHandler);
+
     }
 
 
@@ -72,7 +74,7 @@ public class RegistActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         preferences=getSharedPreferences("my",MODE_PRIVATE);
-        SMSSDK.registerEventHandler(eventHandler);
+
 
         deviceGroupDao=new DeviceGroupDaoImpl(this);
         deviceChildDao=new DeviceChildDaoImpl(this);
@@ -144,7 +146,7 @@ public class RegistActivity extends AppCompatActivity {
                     boolean flag=Mobile.isMobile(phone);
                     if (flag){
                         SMSSDK.getVerificationCode("86", phone);
-                        CountTimer countTimer=new CountTimer(30000,1000);
+                        CountTimer countTimer=new CountTimer(60000,1000);
                         countTimer.start();
                     }else {
                         Utils.showToast(this,"手机号码不合法");

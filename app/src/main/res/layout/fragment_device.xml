@@ -10,8 +10,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_list"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="9"
+        android:layout_height="470dp"
         android:layout_marginLeft="@dimen/dp_5"
         android:layout_marginRight="@dimen/dp_5"
         android:layout_marginBottom="@dimen/dp_5"
@@ -20,8 +19,7 @@
     <Button
         android:id="@+id/btn_add_residence"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="@dimen/dp_50"
         android:layout_gravity="bottom"
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="@dimen/dp_5"
@@ -30,5 +28,6 @@
         android:gravity="center"
         android:text="@string/add_home"
         android:textColor="@color/holo_orange_light"
+        android:layout_marginBottom="@dimen/dp_10"
         android:textSize="@dimen/sp_20" />
 </LinearLayout>

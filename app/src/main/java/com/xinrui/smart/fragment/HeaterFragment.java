@@ -39,6 +39,7 @@ import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.TimeTask;
 import com.xinrui.smart.util.ChineseNumber;
+import com.xinrui.smart.util.NoFastClickUtils;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.SemicircleBar;
@@ -173,11 +174,10 @@ public class HeaterFragment extends LazyFragment {
                         }
                         String deviceState = deviceChild.getDeviceState();
                         if ("close".equals(deviceState)) {
-                            mCurrent = 0;
-                            Message msg = handler.obtainMessage();
-                            msg.arg1 = 2;
-                            msg.what = mCurrent;
-                            handler.sendMessage(msg);
+//                            Message msg = handler.obtainMessage();
+//                            msg.arg1 = 2;
+//                            msg.what = mCurrent;
+//                            handler.sendMessage(msg);
                             tv_set_temp.setText("--" + "℃");
                             int curTemp = deviceChild.getCurTemp();
                             tv_cur_temp.setText(curTemp+"℃");
@@ -187,9 +187,37 @@ public class HeaterFragment extends LazyFragment {
                             if ("manual".equals(workMode)) {
                                 deviceChild.setManualMatTemp(mCurrent);
                                 deviceChildDao.update(deviceChild);
-                                tv_timeShutDown.setVisibility(View.GONE);
-                                tv_outmode.setVisibility(View.VISIBLE);
-                                tv_timeShutDown.setVisibility(View.GONE);
+//                                tv_timeShutDown.setVisibility(View.GONE);
+//                                tv_outmode.setText("定时关加热");
+//                                tv_timeShutDown.setVisibility(View.GONE);
+                                String tempState=deviceChild.getTempState();
+                                String outputMode=deviceChild.getOutputMod();
+                                if ("err".equals(tempState)){
+                                    if ("saveTemp".equals(outputMode)){
+                                        tv_outmode.setText("保温模式");
+                                        animationDrawable.stop();
+                                    }else if ("savePwr".equals(outputMode)){
+                                        tv_outmode.setText("节能模式");
+                                        animationDrawable.start();
+                                    }
+                                }else {
+                                    int manualMatTemp=deviceChild.getManualMatTemp();
+                                    int curTemp=deviceChild.getCurTemp();
+                                    if (manualMatTemp >= (curTemp + 3)) {
+                                        deviceChild.setOutputMod("fastHeat");//速热模式
+                                        tv_outmode.setText("速热模式");
+                                        animationDrawable.start();
+                                    } else if (curTemp >= (manualMatTemp + 3)) {
+                                        deviceChild.setOutputMod("saveTemp");//保温模式
+                                        tv_outmode.setText("保温模式");
+                                        animationDrawable.stop();
+                                    } else {
+                                        deviceChild.setOutputMod("savePwr");//节能模式
+                                        tv_outmode.setText("节能模式");
+                                        animationDrawable.start();
+                                    }
+                                }
+
                                 if (seekbar.getEnd() == 1) {
                                     send(deviceChild);
                                     seekbar.setEnd(0);
@@ -200,56 +228,67 @@ public class HeaterFragment extends LazyFragment {
                             } else {
                                 deviceChild.setTimerTemp(mCurrent);
                                 deviceChildDao.update(deviceChild);
+                                if ("timer".equals(deviceChild.getWorkMode()) && "enable".equals(deviceChild.getTimerShutdown())){
+//                                tv_timeShutDown.setVisibility(View.VISIBLE);
+                                    tv_outmode.setText("定时关加热");
+                                }else {
+                                    if ("err".equals(deviceChild.getTempState())){
+                                        if (mCurrent>=40){
+                                            tv_outmode.setText("速热模式");
+                                            animationDrawable.start();
+                                        }else if (mCurrent>=20 && mCurrent<40){
+                                            tv_outmode.setText("节能模式");
+                                            animationDrawable.start();
+                                        }else if (mCurrent<20){
+                                            tv_outmode.setText("保温模式");
+                                            animationDrawable.stop();
+                                        }
+                                    }else {
+                                        int curTemp=deviceChild.getCurTemp();
+                                        if (mCurrent >= (curTemp + 3)) {
+                                            tv_outmode.setText("速热模式");
+                                            animationDrawable.start();
+                                        } else if (curTemp >= (mCurrent + 3)) {
+                                            tv_outmode.setText("保温模式");
+                                            animationDrawable.stop();
+                                        } else {
+                                            tv_outmode.setText("节能模式");
+                                            animationDrawable.start();
+                                        }
+                                    }
+
+                                }
                             }
+
 
                             tv_set_temp.setText(mCurrent + "℃");
 
                             int curTemp = deviceChild.getCurTemp();
                             tv_cur_temp.setText(curTemp+"℃");
-                            if ("timer".equals(deviceChild.getWorkMode()) && "enable".equals(deviceChild.getTimerShutdown())){
-                                tv_timeShutDown.setVisibility(View.VISIBLE);
-                                tv_outmode.setVisibility(View.GONE);
-                            }else {
-                                if ("err".equals(deviceChild.getTempState())){
-                                    if (mCurrent>=40){
-                                        tv_outmode.setText("速热模式");
-                                        animationDrawable.start();
-                                    }else if (mCurrent>=20 && mCurrent<40){
-                                        tv_outmode.setText("节能模式");
-                                        animationDrawable.start();
-                                    }else if (mCurrent<20){
-                                        tv_outmode.setText("保温模式");
-                                        animationDrawable.stop();
-                                    }
-                                }else {
-                                    if (mCurrent >= (curTemp + 3)) {
-                                        tv_outmode.setText("速热模式");
-                                        animationDrawable.start();
-                                    } else if (curTemp >= (mCurrent + 3)) {
-                                        tv_outmode.setText("保温模式");
-                                        animationDrawable.stop();
-                                    } else {
-                                        tv_outmode.setText("节能模式");
-                                        animationDrawable.start();
-                                    }
-                                }
 
-                            }
                         }
                     } else if ("2".equals(module)) {
                         String deviceState = deviceChild.getDeviceState();
                         if ("close".equals(deviceState)) {
-                            mCurrent = 0;
-                            Message msg = handler.obtainMessage();
-                            msg.arg1 = 2;
-                            msg.what = mCurrent;
-                            handler.sendMessageDelayed(msg,1000);
+//                            Message msg = handler.obtainMessage();
+//                            msg.arg1 = 2;
+//                            msg.what = mCurrent;
+//                            handler.sendMessageDelayed(msg,1000);
                             tv_set_temp.setText("--" + "℃");
                             int curTemp = deviceChild.getProtectProTemp();
                             tv_cur_temp.setText(curTemp+"℃");
                             tv_outmode.setText("");
+                            animationDrawable.stop();
                         } else if ("open".equals(deviceState)) {
-                            animationDrawable.start();
+
+                            if ("enable".equals(deviceChild.getTimerShutdown()) && "timer".equals(deviceChild.getWorkMode())) {
+//                                    tv_timeShutDown.setVisibility(View.VISIBLE);
+//                                    tv_outmode.setVisibility(View.GONE);
+                                tv_outmode.setText("定时关加热");
+                                animationDrawable.stop();
+                            }else {
+                                animationDrawable.start();
+                            }
                             if (curAngle > 272 && curAngle <= 310) {
                                 mCurrent = 60;
                             } else if ((curAngle >= 310 && curAngle <= 360)) {
@@ -282,22 +321,13 @@ public class HeaterFragment extends LazyFragment {
                                 } else if (curAngle > 260 && curAngle <= 272) {
                                     mCurrent = 60;
                                 }
-                                if ("enable".equals(deviceChild.getTimerShutdown()) && "timer".equals(deviceChild.getWorkMode())){
-                                    tv_timeShutDown.setVisibility(View.VISIBLE);
-                                    tv_outmode.setVisibility(View.GONE);
-                                    animationDrawable.stop();
-                                }if ("enable".equals(deviceChild.getTimerShutdown()) && "manual".equals(deviceChild.getWorkMode())){
-                                    tv_timeShutDown.setVisibility(View.GONE);
-                                    tv_outmode.setVisibility(View.VISIBLE);
-                                }else if ("disable".equals(deviceChild.getTimerShutdown()) && "timer".equals(deviceChild.getWorkMode())){
-                                    tv_timeShutDown.setVisibility(View.GONE);
-                                    tv_outmode.setVisibility(View.VISIBLE);
-                                }
+
                                 deviceChild.setProtectSetTemp(mCurrent);
                                 deviceChildDao.update(deviceChild);
                                 tv_set_temp.setText(mCurrent + "℃");
                                 int curTemp = deviceChild.getProtectProTemp();
                                 tv_cur_temp.setText(curTemp+"℃");
+
                                 if (seekbar.getEnd() == 1) {
                                     send(deviceChild);
                                     seekbar.setEnd(0);
@@ -377,8 +407,9 @@ public class HeaterFragment extends LazyFragment {
             try {
                 switch (msg.arg1) {
                     case 2:
-                        semicBar.setmCurAngle(0);
-                        semicBar.setCurProcess(0);
+                        int current=msg.what;
+                        semicBar.setmCurAngle(current);
+                        semicBar.setCurProcess(current);
                         break;
                     case 3:
                         semicBar.setmCurAngle(0);
@@ -451,6 +482,7 @@ public class HeaterFragment extends LazyFragment {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+
             DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
             String macAddress=intent.getStringExtra("macAddress");
             String noNet=intent.getStringExtra("noNet");
@@ -545,171 +577,188 @@ public class HeaterFragment extends LazyFragment {
 
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
 
+    private boolean click=false;
     @OnClick({R.id.image_switch, R.id.image_mode2, R.id.image_mode, R.id.image_mode3, R.id.image_mode4})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.image_switch:
-                String deviceState = deviceChild.getDeviceState();
-                if ("open".equals(deviceState)) {
-                    image_switch.setTag("关");
-                    deviceChild.setDeviceState("close");
-                    deviceChild.setImg(imgs[0]);
-                    deviceChildDao.update(deviceChild);
-                    setMode(deviceChild);
-                    send(deviceChild);
-                    tv_timeShutDown.setVisibility(View.GONE);
-                } else {
-                    image_switch.setTag("开");
-                    deviceChild.setDeviceState("open");
-                    deviceChild.setImg(imgs[1]);
-                    deviceChildDao.update(deviceChild);
-                    setMode(deviceChild);
-                    send(deviceChild);
+                if (NoFastClickUtils.isFastClick()){
+                    String deviceState = deviceChild.getDeviceState();
+                    if ("open".equals(deviceState)) {
+
+                        image_switch.setTag("关");
+                        deviceChild.setDeviceState("close");
+                        deviceChild.setImg(imgs[0]);
+                        deviceChildDao.update(deviceChild);
+                        setMode(deviceChild);
+                        send(deviceChild);
+                        tv_timeShutDown.setVisibility(View.GONE);
+                    } else {
+                        image_switch.setTag("开");
+                        deviceChild.setDeviceState("open");
+                        deviceChild.setImg(imgs[1]);
+                        deviceChildDao.update(deviceChild);
+                        setMode(deviceChild);
+                        send(deviceChild);
+                    }
                 }
+
 
 //                semicBar.invalidate();
 
                 break;
             case R.id.image_mode:
-                if ("open".equals(deviceChild.getDeviceState())) {
-                    String handTask = (String) image_hand_task.getTag();
-                    if (!"childProtect".equals(deviceChild.getOutputMod())) {
-                        if ("手动".equals(handTask)) {
-                            image_hand_task.setTag("定时");
-                            deviceChild.setWorkMode("timer");
-                            int timerTemp = deviceChild.getTimerTemp();
-                            int curTemp = deviceChild.getCurTemp();
+                if (NoFastClickUtils.isFastClick()){
 
-                            if (timerTemp >= (curTemp + 3)) {
-                                deviceChild.setOutputMod("fastHeat");//速热模式
+                    if ("open".equals(deviceChild.getDeviceState())) {
+                        String handTask = (String) image_hand_task.getTag();
+                        if (!"childProtect".equals(deviceChild.getOutputMod())) {
+                            if ("手动".equals(handTask)) {
+                                image_hand_task.setTag("定时");
+                                deviceChild.setWorkMode("timer");
+                                int timerTemp = deviceChild.getTimerTemp();
+                                int curTemp = deviceChild.getCurTemp();
 
-                            } else if (curTemp >= (timerTemp + 3)) {
-                                deviceChild.setOutputMod("saveTemp");//保温模式
+                                if (timerTemp >= (curTemp + 3)) {
+                                    deviceChild.setOutputMod("fastHeat");//速热模式
+
+                                } else if (curTemp >= (timerTemp + 3)) {
+                                    deviceChild.setOutputMod("saveTemp");//保温模式
+                                } else {
+                                    deviceChild.setOutputMod("savePwr");//节能模式
+                                }
+                            } else if ("定时".equals(handTask)) {
+                                image_hand_task.setTag("手动");
+                                deviceChild.setWorkMode("manual");
+                                int manualMatTemp = deviceChild.getManualMatTemp();
+                                int curTemp = deviceChild.getCurTemp();
+
+                                if (manualMatTemp >= (curTemp + 3)) {
+                                    deviceChild.setOutputMod("fastHeat");//速热模式
+                                } else if (curTemp >= (manualMatTemp + 3)) {
+                                    deviceChild.setOutputMod("saveTemp");//保温模式
+                                } else {
+                                    deviceChild.setOutputMod("savePwr");//节能模式
+                                }
                             } else {
-                                deviceChild.setOutputMod("savePwr");//节能模式
+                                String workMode = deviceChild.getWorkMode();
+                                if ("manual".equals(workMode)) {
+                                    image_hand_task.setImageResource(R.mipmap.module_handle);
+                                } else if ("timer".equals(workMode)) {
+                                    image_hand_task.setImageResource(R.mipmap.module_task);
+                                }
                             }
-                        } else if ("定时".equals(handTask)) {
-                            image_hand_task.setTag("手动");
-                            deviceChild.setWorkMode("manual");
-                            int manualMatTemp = deviceChild.getManualMatTemp();
-                            int curTemp = deviceChild.getCurTemp();
-
-                            if (manualMatTemp >= (curTemp + 3)) {
-                                deviceChild.setOutputMod("fastHeat");//速热模式
-                            } else if (curTemp >= (manualMatTemp + 3)) {
-                                deviceChild.setOutputMod("saveTemp");//保温模式
-                            } else {
-                                deviceChild.setOutputMod("savePwr");//节能模式
-                            }
-                        } else {
-                            String workMode = deviceChild.getWorkMode();
-                            if ("manual".equals(workMode)) {
-                                image_hand_task.setImageResource(R.mipmap.module_handle);
-                            } else if ("timer".equals(workMode)) {
-                                image_hand_task.setImageResource(R.mipmap.module_task);
-                            }
-                        }
 //                    deviceChildDao.update(deviceChild);
-                        setMode(deviceChild);
-                        send(deviceChild);
-                    } else {
-                        if ("手动".equals(handTask)) {
-                            image_hand_task.setTag("定时");
-                            deviceChild.setWorkMode("timer");
-                            int timerTemp = deviceChild.getTimerTemp();
-                            int curTemp = deviceChild.getCurTemp();
+                            setMode(deviceChild);
+                            send(deviceChild);
+                        } else {
+                            if ("手动".equals(handTask)) {
+                                image_hand_task.setTag("定时");
+                                deviceChild.setWorkMode("timer");
+                                int timerTemp = deviceChild.getTimerTemp();
+                                int curTemp = deviceChild.getCurTemp();
 
-                            image_hand_task.setImageResource(R.mipmap.module_task);
+                                image_hand_task.setImageResource(R.mipmap.module_task);
 
-                        } else if ("定时".equals(handTask)) {
-                            image_hand_task.setTag("手动");
-                            deviceChild.setWorkMode("manual");
-                            int manualMatTemp = deviceChild.getManualMatTemp();
-                            int curTemp = deviceChild.getCurTemp();
-                            image_hand_task.setImageResource(R.mipmap.module_handle);
+                            } else if ("定时".equals(handTask)) {
+                                image_hand_task.setTag("手动");
+                                deviceChild.setWorkMode("manual");
+                                int manualMatTemp = deviceChild.getManualMatTemp();
+                                int curTemp = deviceChild.getCurTemp();
+                                image_hand_task.setImageResource(R.mipmap.module_handle);
 
+                            }
+                            setMode(deviceChild);
+                            send(deviceChild);
                         }
-                        setMode(deviceChild);
-                        send(deviceChild);
                     }
                 }
+
 
                 break;
             case R.id.image_mode2:
-                if ("open".equals(deviceChild.getDeviceState())) {
-                    String outputMode = deviceChild.getOutputMod();
-                    if ("childProtect".equals(outputMode)) {
-                        model_protect.setTag("不保护");
-                        model_protect.setBackgroundResource(0);
-                        String workMode = deviceChild.getWorkMode();
-                        if ("manual".equals(workMode)) {
-                            int manualMatTemp = deviceChild.getManualMatTemp();
-                            int curTemp = deviceChild.getCurTemp();
-                            if (manualMatTemp >= (curTemp + 3)) {
-                                deviceChild.setOutputMod("fastHeat");//速热模式
+                if (NoFastClickUtils.isFastClick()){
+                    if ("open".equals(deviceChild.getDeviceState())) {
+                        String outputMode = deviceChild.getOutputMod();
+                        if ("childProtect".equals(outputMode)) {
+                            model_protect.setTag("不保护");
+                            model_protect.setBackgroundResource(0);
+                            String workMode = deviceChild.getWorkMode();
+                            if ("manual".equals(workMode)) {
+                                int manualMatTemp = deviceChild.getManualMatTemp();
+                                int curTemp = deviceChild.getCurTemp();
+                                if (manualMatTemp >= (curTemp + 3)) {
+                                    deviceChild.setOutputMod("fastHeat");//速热模式
 //                                tv_outmode.setText("速热模式");
-                            } else if (curTemp >= (manualMatTemp + 3)) {
-                                deviceChild.setOutputMod("saveTemp");//保温模式
+                                } else if (curTemp >= (manualMatTemp + 3)) {
+                                    deviceChild.setOutputMod("saveTemp");//保温模式
 //                                tv_outmode.setText("保温模式");
-                            } else {
-                                deviceChild.setOutputMod("savePwr");//节能模式
+                                } else {
+                                    deviceChild.setOutputMod("savePwr");//节能模式
 //                                tv_outmode.setText("节能模式");
-                            }
-                        } else if ("timer".equals(workMode)) {
-                            int timerTemp = deviceChild.getTimerTemp();
-                            int curTemp = deviceChild.getCurTemp();
+                                }
+                            } else if ("timer".equals(workMode)) {
+                                int timerTemp = deviceChild.getTimerTemp();
+                                int curTemp = deviceChild.getCurTemp();
 
-                            if (timerTemp >= (curTemp + 3)) {
-                                deviceChild.setOutputMod("fastHeat");//速热模式
+                                if (timerTemp >= (curTemp + 3)) {
+                                    deviceChild.setOutputMod("fastHeat");//速热模式
 //                                tv_outmode.setText("速热模式");
-                            } else if (curTemp >= (timerTemp + 3)) {
-                                deviceChild.setOutputMod("saveTemp");//保温模式
+                                } else if (curTemp >= (timerTemp + 3)) {
+                                    deviceChild.setOutputMod("saveTemp");//保温模式
 //                                tv_outmode.setText("保温模式");
-                            } else {
-                                deviceChild.setOutputMod("savePwr");//节能模式
+                                } else {
+                                    deviceChild.setOutputMod("savePwr");//节能模式
 //                                tv_outmode.setText("节能模式");
+                                }
                             }
+                        } else {
+                            deviceChild.setOutputMod("childProtect");
                         }
-                    } else {
-                        deviceChild.setOutputMod("childProtect");
+                        setMode(deviceChild);
+                        send(deviceChild);
                     }
-                    setMode(deviceChild);
-                    send(deviceChild);
                 }
+
 
                 break;
             case R.id.image_mode3:
-                if ("open".equals(deviceChild.getDeviceState())) {
-                    String lock = (String) image_lock.getTag();
-                    if ("上锁".equals(lock)) {
-                        image_lock.setTag("解锁");
-                        deviceChild.setLockScreen("close");
-                        setMode(deviceChild);
-                        send(deviceChild);
-                    } else if ("解锁".equals(lock)) {
-                        image_lock.setTag("上锁");
-                        deviceChild.setLockScreen("open");
-                        setMode(deviceChild);
-                        send(deviceChild);
+                if (NoFastClickUtils.isFastClick()){
+                    if ("open".equals(deviceChild.getDeviceState())) {
+                        String lock = (String) image_lock.getTag();
+                        if ("上锁".equals(lock)) {
+                            image_lock.setTag("解锁");
+                            deviceChild.setLockScreen("close");
+                            setMode(deviceChild);
+                            send(deviceChild);
+                        } else if ("解锁".equals(lock)) {
+                            image_lock.setTag("上锁");
+                            deviceChild.setLockScreen("open");
+//                            setMode(deviceChild);
+                            send(deviceChild);
+                        }
                     }
                 }
 
                 break;
             case R.id.image_mode4:
-                if ("open".equals(deviceChild.getDeviceState())) {
-                    String srceen = (String) image_srceen.getTag();
-                    if ("屏保关".equals(srceen)) {
-                        image_srceen.setTag("屏保开");
-                        deviceChild.setBackGroundLED("open");
-                        setMode(deviceChild);
-                        send(deviceChild);
-                    } else {
-                        image_srceen.setTag("屏保关");
-                        deviceChild.setBackGroundLED("close");
-                        setMode(deviceChild);
-                        send(deviceChild);
+                if (NoFastClickUtils.isFastClick()){
+                    if ("open".equals(deviceChild.getDeviceState())) {
+                        String srceen = (String) image_srceen.getTag();
+                        if ("屏保关".equals(srceen)) {
+                            image_srceen.setTag("屏保开");
+                            deviceChild.setBackGroundLED("open");
+                            setMode(deviceChild);
+                            send(deviceChild);
+                        } else {
+                            image_srceen.setTag("屏保关");
+                            deviceChild.setBackGroundLED("close");
+                            setMode(deviceChild);
+                            send(deviceChild);
+                        }
                     }
                 }
+
                 break;
         }
     }
@@ -769,7 +818,7 @@ public class HeaterFragment extends LazyFragment {
             model_protect.setTag("保护");
             model_protect.setBackgroundResource(R.mipmap.img_temp_circle);
 
-            image_temp.setImageResource(R.mipmap.img_protect_open);
+            image_temp.setImageResource(R.mipmap.img_child_pro);
 
             tv_outmode.setText("保护模式");
             tv_set_temp.setText(protectSetTemp + "℃");
@@ -791,6 +840,7 @@ public class HeaterFragment extends LazyFragment {
         /**开机，关机状态*/
         if ("open".equals(deviceState)) {
             animationDrawable.start();
+            tv_outmode.setVisibility(View.VISIBLE);
             image_switch.setTag("开");
             image_switch.setImageResource(R.mipmap.img_switch);
             relative4.setVisibility(View.VISIBLE);
@@ -803,6 +853,7 @@ public class HeaterFragment extends LazyFragment {
             semicBar.setCanTouch(false);
             relative4.setVisibility(View.GONE);
             relative5.setVisibility(View.VISIBLE);
+            tv_outmode.setVisibility(View.GONE);
         }
         if (!"childProtect".equals(outputMode)) {
             model_protect.setBackgroundResource(0);
@@ -825,29 +876,7 @@ public class HeaterFragment extends LazyFragment {
                 msg.what = manualMatTemp;
                 handler.sendMessage(msg);
 //                handler.sendMessageDelayed(msg,1000);
-                if ("err".equals(tempState)){
-                    if ("saveTemp".equals(outputMode)){
-                        tv_outmode.setText("保温模式");
-                        animationDrawable.stop();
-                    }else if ("savePwr".equals(outputMode)){
-                        tv_outmode.setText("节能模式");
-                        animationDrawable.start();
-                    }
-                }else {
-                    if (manualMatTemp >= (curTemp + 3)) {
-                        deviceChild.setOutputMod("fastHeat");//速热模式
-                        tv_outmode.setText("速热模式");
-                        animationDrawable.start();
-                    } else if (curTemp >= (manualMatTemp + 3)) {
-                        deviceChild.setOutputMod("saveTemp");//保温模式
-                        tv_outmode.setText("保温模式");
-                        animationDrawable.stop();
-                    } else {
-                        deviceChild.setOutputMod("savePwr");//节能模式
-                        tv_outmode.setText("节能模式");
-                        animationDrawable.start();
-                    }
-                }
+
 
             } else if ("timer".equals(workMode)) {
                 image_hand_task.setImageResource(R.mipmap.module_task);
@@ -863,39 +892,9 @@ public class HeaterFragment extends LazyFragment {
                 handler.sendMessage(msg);
 //                handler.sendMessageDelayed(msg,1000);
 
-                if ("timerShutdown".equals(outputMode)) {
-                    animationDrawable.stop();
-                    deviceChild.setOutputMod("timerShutdown");
-                    tv_outmode.setText("定时关机");
-                } else {
-                    if ("err".equals(tempState)){
-                        if ("saveTemp".equals(outputMode)){
-                            tv_outmode.setText("保温模式");
-                            animationDrawable.stop();
-                        }else if ("savePwr".equals(outputMode)){
-                            tv_outmode.setText("节能模式");
-                            animationDrawable.start();
-                        }
-                    }else {
-                        if (timerTemp >= (curTemp + 3)) {
-                            deviceChild.setOutputMod("fastHeat");//速热模式
-                            tv_outmode.setText("速热模式");
-                            animationDrawable.start();
-                        } else if (curTemp >= (timerTemp + 3)) {
-                            deviceChild.setOutputMod("saveTemp");//保温模式
-                            tv_outmode.setText("保温模式");
-                            animationDrawable.stop();
-                        } else {
-                            deviceChild.setOutputMod("savePwr");//节能模式
-                            tv_outmode.setText("节能模式");
-                            animationDrawable.start();
-                        }
-                    }
 
-                }
             }
         }
-
 
         if ("open".equals(BackGroundLED)) {
             image_srceen.setTag("屏保开");
@@ -915,7 +914,6 @@ public class HeaterFragment extends LazyFragment {
         if ("err".equals(tempState)) {
             tv_cur_temp.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
         }
-
         if ("enable".equals(timerShutDown) && "timer".equals(workMode)) {
             if ("childProtect".equals(outputMode)) {
                 model_protect.setEnabled(true);
@@ -928,7 +926,7 @@ public class HeaterFragment extends LazyFragment {
                 }
                 model_protect.setTag("保护");
                 model_protect.setBackgroundResource(R.mipmap.img_temp_circle);
-                image_temp.setImageResource(R.mipmap.img_protect_open);
+                image_temp.setImageResource(R.mipmap.img_child_pro);
                 tv_set_temp.setText(protectSetTemp + "℃");
                 tv_cur_temp.setText(protectProTemp + "℃");
                 semicBar.setModule("2");
@@ -936,7 +934,12 @@ public class HeaterFragment extends LazyFragment {
                 msg.arg1 = 6;
                 msg.what = protectSetTemp;
                 handler.sendMessage(msg);
-
+                if ("enable".equals(deviceChild.getTimerShutdown()) && "timer".equals(deviceChild.getWorkMode())) {
+//                                    tv_timeShutDown.setVisibility(View.VISIBLE);
+//                                    tv_outmode.setVisibility(View.GONE);
+                    tv_outmode.setText("定时关加热");
+                    animationDrawable.stop();
+                }
             }
         }
     }

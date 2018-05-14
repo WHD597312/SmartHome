@@ -117,28 +117,8 @@ public class DeviceFragment extends Fragment{
 
         deviceGroupDao=new DeviceGroupDaoImpl(MyApplication.getContext());
         deviceChildDao=new DeviceChildDaoImpl(MyApplication.getContext());
-        List<DeviceGroup> deviceGroups2=deviceGroupDao.findAllDevices();
 
-        for (DeviceGroup deviceGroup:deviceGroups2){
-            if (sum>10){
-                break;
-            }
-            sum++;
-
-            List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
-            for (DeviceChild deviceChild:deviceChildren){
-                if (sum>10){
-                    break;
-                }
-                sum++;
-            }
-            sum++;
-        }
-        if (sum<10){
-            view=inflater.inflate(R.layout.fragment_device2,container,false);
-        }else {
-            view=inflater.inflate(R.layout.fragment_device,container,false);
-        }
+        view=inflater.inflate(R.layout.fragment_device,container,false);
 
         unbinder=ButterKnife.bind(this,view);
 

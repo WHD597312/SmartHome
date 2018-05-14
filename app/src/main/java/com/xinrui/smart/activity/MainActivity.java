@@ -124,13 +124,14 @@ public class MainActivity extends AppCompatActivity {
     private DeviceChildDaoImpl deviceChildDao;
     private long exitTime = 0;
     android.support.v4.app.Fragment fragment = new android.support.v4.app.Fragment();
-    public static boolean running=false;
+    public static boolean running = false;
     Unbinder unbinder;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        unbinder=ButterKnife.bind(this);
+        unbinder = ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -176,6 +177,9 @@ public class MainActivity extends AppCompatActivity {
     String deviceId;
 
     private boolean isConnected = false;
+    String deviceList;
+    String mainControl;
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -184,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
         deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
-        preferences.edit().putString("main","1").commit();
+        preferences.edit().putString("main", "1").commit();
 
 
         String phone = preferences.getString("phone", "");
@@ -200,8 +204,8 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-        String mainControl = intent.getStringExtra("mainControl");
-        String deviceList = intent.getStringExtra("deviceList");
+        mainControl = intent.getStringExtra("mainControl");
+        deviceList = intent.getStringExtra("deviceList");
 
         fragmentPreferences = getSharedPreferences("fragment", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
@@ -209,13 +213,13 @@ public class MainActivity extends AppCompatActivity {
 
         if (Utils.isEmpty(mainControl) && Utils.isEmpty(deviceList)) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
-            if (!preferences.contains("login")|| deviceChildren.isEmpty()){
+            if (!preferences.contains("login") || deviceChildren.isEmpty()) {
                 preferences.edit().putString("login", "login").commit();
                 new LoadDeviceAsync().execute();
             }
         } else if (!Utils.isEmpty(deviceList)) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
-            deviceId=intent.getStringExtra("deviceId");
+            deviceId = intent.getStringExtra("deviceId");
         } else if (!Utils.isEmpty(mainControl)) {
             fragmentPreferences.edit().putString("fragment", "2").commit();
         }
@@ -233,14 +237,14 @@ public class MainActivity extends AppCompatActivity {
             deviceGroups = deviceGroupDao.findAllDevices();
             fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
             if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
-                fragmentTransaction.replace(R.id.layout_body,  new NoDeviceFragment()).commit();
+                fragmentTransaction.replace(R.id.layout_body, new NoDeviceFragment()).commit();
 
             } else {
-                fragmentTransaction.replace(R.id.layout_body,  new DeviceFragment()).commit();
-                preferences.edit().putString("main","1").commit();
-                if (!Utils.isEmpty(deviceId)){
+                fragmentTransaction.replace(R.id.layout_body, new DeviceFragment()).commit();
+                preferences.edit().putString("main", "1").commit();
+                if (!Utils.isEmpty(deviceId)) {
                     Intent service = new Intent(MainActivity.this, MQService.class);
-                    isConnected=bindService(service, connection, Context.BIND_AUTO_CREATE);
+                    isConnected = bindService(service, connection, Context.BIND_AUTO_CREATE);
                 }
 
             }
@@ -284,14 +288,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        running=true;
+        if (Utils.isEmpty(deviceList) && Utils.isEmpty(mainControl)) {
+            running = true;
+        } else {
+            running = false;
+        }
 
-        IntentFilter filter=new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        myReceiver=new MQTTMessageReveiver();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        myReceiver = new MQTTMessageReveiver();
         this.registerReceiver(myReceiver, filter);
-        Intent intent=new Intent(this,MQService.class);
+        Intent intent = new Intent(this, MQService.class);
         startService(intent);
+        Intent service = new Intent(MainActivity.this, MQService.class);
+        isConnected = bindService(service, connection, Context.BIND_AUTO_CREATE);
     }
+
     MQService mqService;
     private boolean bound = false;
     ServiceConnection connection = new ServiceConnection() {
@@ -300,57 +311,42 @@ public class MainActivity extends AppCompatActivity {
             MQService.LocalBinder binder = (MQService.LocalBinder) service;
             mqService = binder.getService();
             bound = true;
-            if (bound){
+            if (bound) {
                 try {
-                    if (!Utils.isEmpty(deviceId)){
-                        long id=Long.parseLong(deviceId);
-                        DeviceChild deviceChild2=deviceChildDao.findDeviceById(id);
-                        if (deviceChild2!=null){
-                            String mac=deviceChild2.getMacAddress();
+                    if (!Utils.isEmpty(deviceId)) {
+                        long id = Long.parseLong(deviceId);
+                        DeviceChild deviceChild2 = deviceChildDao.findDeviceById(id);
+                        if (deviceChild2 != null) {
+                            String mac = deviceChild2.getMacAddress();
                             String topicName2 = "rango/" + mac + "/transfer";
-                            boolean succ=mqService.subscribe(topicName2,2);
-                            if (succ){
-                                JSONObject jsonObject=new JSONObject();
-                                jsonObject.put("loadDate","on");
-                                String s=jsonObject.toString();
-                                String topicName;
-                                if (deviceChild2.getType() == 1 && deviceChild2.getControlled() == 2) {
-                                    topicName = "rango/" + mac + "/masterController/set";
-                                    if (bound) {
-                                        mqService.publish(topicName, 2, s);
-                                    }
-                                } else {
-                                    topicName = "rango/" + mac + "/set";
-                                    if (bound) {
-                                         mqService.publish(topicName, 2, s);
-                                    }
+                            boolean succ = mqService.subscribe(topicName2, 2);
+                            if (succ) {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("loadDate", "on");
+                                String s = jsonObject.toString();
+                                String topicName = "rango/" + mac + "/set";
+                                if (bound) {
+                                    mqService.publish(topicName, 2, s);
                                 }
                             }
                         }
-                    }else {
-
-                            List<DeviceChild> deviceChildren=deviceChildDao.findAllDevice();
-                            for (DeviceChild deviceChild:deviceChildren){
-                                JSONObject jsonObject=new JSONObject();
-                                jsonObject.put("loadDate","on");
-                                String s=jsonObject.toString();
+                    } else {
+                        if (!LoginActivity.runnning && MainActivity.running) {
+                            List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
+                            for (DeviceChild deviceChild : deviceChildren) {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("loadDate", "on");
+                                String s = jsonObject.toString();
                                 String mac = deviceChild.getMacAddress();
-                                String topicName="";
-                                boolean success=false;
-                                if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-                                    topicName = "rango/" + mac + "/masterController/set";
-                                    if (bound) {
-                                        success = mqService.publish(topicName, 2, s);
-                                    }
-                                } else {
-                                    topicName = "rango/" + mac + "/set";
-                                    if (bound) {
-                                        success = mqService.publish(topicName, 2, s);
-                                    }
+                                boolean success = false;
+                                String topicName = "rango/" + mac + "/set";
+                                if (bound) {
+                                    success = mqService.publish(topicName, 2, s);
                                 }
                             }
                         }
-                }catch (Exception e){
+                    }
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -361,7 +357,6 @@ public class MainActivity extends AppCompatActivity {
             bound = false;
         }
     };
-
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -383,7 +378,6 @@ public class MainActivity extends AppCompatActivity {
         listview.setAdapter(adapter);
     }
 
-
     @OnClick({R.id.tv_exit, R.id.tv_device, R.id.tv_smart, R.id.tv_live})
     public void onClick(View view) {
 
@@ -391,15 +385,15 @@ public class MainActivity extends AppCompatActivity {
 
         switch (view.getId()) {
             case R.id.tv_exit:
-                TimeTaskDaoImpl timeTaskDao=new TimeTaskDaoImpl(getApplicationContext());
-                List<TimeTask> timeTasks=timeTaskDao.findAll();
-                for (TimeTask timeTask:timeTasks){
+                TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(getApplicationContext());
+                List<TimeTask> timeTasks = timeTaskDao.findAll();
+                for (TimeTask timeTask : timeTasks) {
                     timeTaskDao.delete(timeTask);
                 }
 
-                TimeDaoImpl timeDao=new TimeDaoImpl(getApplicationContext());
-                List<Timer> timers=timeDao.findTimers();
-                for (Timer timer:timers){
+                TimeDaoImpl timeDao = new TimeDaoImpl(getApplicationContext());
+                List<Timer> timers = timeDao.findTimers();
+                for (Timer timer : timers) {
                     timeDao.delete(timer);
                 }
                 smart.edit().clear().commit();
@@ -419,14 +413,14 @@ public class MainActivity extends AppCompatActivity {
                 application.removeAllFragment();
 
 
-                running=false;
+                running = false;
                 deviceChildDao.closeDaoSession();
                 deviceGroupDao.closeDaoSession();
                 timeDao.closeDaoSession();
                 timeTaskDao.closeDaoSession();
 
 
-                Intent service=new Intent(this,MQService.class);
+                Intent service = new Intent(this, MQService.class);
                 stopService(service);
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
@@ -502,24 +496,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        if (unbinder!=null){
+        if (unbinder != null) {
             unbinder.unbind();
         }
-        if (myReceiver!=null){
+        if (myReceiver != null) {
             unregisterReceiver(myReceiver);
 
         }
-        running=false;
+        running = false;
         deviceChildDao.closeDaoSession();
         deviceGroupDao.closeDaoSession();
 
         try {
-            if (isConnected){
-                if (connection!=null){
+            if (isConnected) {
+                if (connection != null) {
                     unbindService(connection);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -599,7 +593,6 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject sharedDevice = content.getJSONObject("sharedDevice");
                         JSONArray deviceList = sharedDevice.getJSONArray("deviceList");
 
-
                         shareHouseId = Long.MAX_VALUE;
                         DeviceGroup deviceGroup = deviceGroupDao.findById(shareHouseId);
                         if (deviceGroup == null) {
@@ -618,7 +611,7 @@ public class MainActivity extends AppCompatActivity {
                                 String deviceName = device.getString("deviceName");
                                 int type = device.getInt("type");
                                 long groupId = shareHouseId;
-                                int houseId=device.getInt("houseId");
+                                int houseId = device.getInt("houseId");
                                 int masterControllerUserId = device.getInt("masterControllerUserId");
                                 int isUnlock = device.getInt("isUnlock");
                                 int version = device.getInt("version");
@@ -645,7 +638,6 @@ public class MainActivity extends AppCompatActivity {
             return code;
         }
 
-
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
@@ -655,19 +647,17 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 2000:
                     List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
-                    deviceChildren=deviceChildDao.findAllDevice();
+                    deviceChildren = deviceChildDao.findAllDevice();
                     fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
 
                     if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
                         fragmentTransaction.replace(R.id.layout_body, new NoDeviceFragment()).commit();
                     } else {
                         fragmentTransaction.replace(R.id.layout_body, new DeviceFragment()).commit();
-                        Intent service = new Intent(MainActivity.this, MQService.class);
-                        isConnected=bindService(service, connection, Context.BIND_AUTO_CREATE);
+                        running=true;
                     }
                     break;
             }
         }
     }
-
 }

@@ -17,7 +17,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_50"
-            android:background="#312728">
+            android:background="#42413f">
 
             <ImageView
                 android:id="@+id/img_back"
@@ -26,7 +26,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:scaleType="centerInside"
-                android:src="@mipmap/image_back" />
+                android:src="@mipmap/nav_backmdpi" />
 
             <TextView
                 android:id="@+id/tv_name"
@@ -80,8 +80,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginLeft="@dimen/dp_15"
-            android:layout_marginRight="@dimen/dp_15"
+            android:layout_marginLeft="@dimen/dp_50"
+            android:layout_marginRight="@dimen/dp_50"
             android:layout_gravity="center_horizontal"
             >
             <EditText

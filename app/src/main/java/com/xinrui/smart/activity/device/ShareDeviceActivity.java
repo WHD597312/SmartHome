@@ -84,35 +84,35 @@ public class ShareDeviceActivity extends AppCompatActivity {
             String macAddress=deviceChild.getMacAddress();
             int controlled=deviceChild.getControlled();
             tv_device.setText(deviceName);
-            try {
-                JSONObject jsonObject=new JSONObject();
-                jsonObject.put("deviceId",deviceId);
-                jsonObject.put("deviceName",deviceName);
-                jsonObject.put("type",type);
-                jsonObject.put("macAddress",macAddress);
-                jsonObject.put("controlled",controlled);
-                jsonObject.put("shareHouseId",deviceChild.getHouseId());
-                share=jsonObject.toString();
-                Log.d("ss",share);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-            if (!Utils.isEmpty(share)){
-                Message msg=handler.obtainMessage();
-                msg.what=1;
-                handler.sendMessage(msg);
-            }
+//            try {
+//                JSONObject jsonObject=new JSONObject();
+//                jsonObject.put("deviceId",deviceId);
+//                jsonObject.put("deviceName",deviceName);
+//                jsonObject.put("type",type);
+//                jsonObject.put("macAddress",macAddress);
+//                jsonObject.put("controlled",controlled);
+//                jsonObject.put("shareHouseId",deviceChild.getHouseId());
+//                share=jsonObject.toString();
+//                Log.d("ss",share);
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
+//            if (!Utils.isEmpty(share)){
+//                Message msg=handler.obtainMessage();
+//                msg.what=1;
+//                handler.sendMessage(msg);
+//            }
         }
     }
-    Handler handler=new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if (msg.what==1){
-//                createQrCode();
-            }
-        }
-    };
+//    Handler handler=new Handler(){
+//        @Override
+//        public void handleMessage(Message msg) {
+//            super.handleMessage(msg);
+//            if (msg.what==1){
+////                createQrCode();
+//            }
+//        }
+//    };
     MQService mqService;
     private boolean bound = false;
     ServiceConnection connection = new ServiceConnection() {
@@ -248,6 +248,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String macAddress=intent.getStringExtra("macAddress");
             String noNet=intent.getStringExtra("noNet");
+            DeviceChild deviceChild= (DeviceChild) intent.getSerializableExtra("deviceChild");
             if (!Utils.isEmpty(noNet)){
                 Utils.showToast(ShareDeviceActivity.this,"网络已断开，请设置网络");
             }else {

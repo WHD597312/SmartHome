@@ -69,24 +69,26 @@
             android:layout_width="@dimen/dp_120"
             android:layout_height="wrap_content">
 
-            <ImageView
+            <Button
                 android:id="@+id/btn_editor"
                 android:layout_width="@dimen/dp_60"
                 android:layout_height="@dimen/dp_50"
                 android:background="@color/color_orange"
-                android:src="@mipmap/btn_editmdpi"
-                android:textColor="#ffffff"
-                android:scaleType="centerInside"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_16"
+                android:gravity="center"
+                android:text="编辑"
                 />
 
-            <ImageView
+            <Button
                 android:id="@+id/btn_delete"
                 android:layout_width="@dimen/dp_60"
                 android:layout_height="@dimen/dp_50"
                 android:background="@color/holo_red_light"
-                android:src="@mipmap/btn_delmdpi"
-                android:textColor="#ffffff"
-                android:scaleType="centerInside"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_16"
+                android:gravity="center"
+                android:text="删除"
                 />
         </LinearLayout>
     </LinearLayout>

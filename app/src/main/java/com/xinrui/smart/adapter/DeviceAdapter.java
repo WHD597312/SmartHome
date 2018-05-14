@@ -12,6 +12,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,15 +22,18 @@ import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.DeviceListActivity;
 import com.xinrui.smart.activity.AddDeviceActivity;
+import com.xinrui.smart.activity.LoginActivity;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.fragment.DeviceFragment;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.TimeTask;
 import com.xinrui.smart.pojo.Timer;
+import com.xinrui.smart.util.NoFastClickUtils;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.DeviceChildDialog;
@@ -351,47 +355,48 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
         image_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (entry.getOnLint()) {
-                    String mac = entry.getMacAddress();
-                    if (entry.getImg() == imgs[0]) {
-                        if (bound) {
-                            try {
-                                entry.setImg(imgs[1]);
-                                entry.setDeviceState("open");
-                                deviceChildDao.update(entry);
-                                send(entry);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                if (NoFastClickUtils.isFastClick()){
+                    if (entry.getOnLint()) {
+                        String mac = entry.getMacAddress();
+                        if (entry.getImg() == imgs[0]) {
+                            if (bound) {
+                                try {
+                                    entry.setImg(imgs[1]);
+                                    entry.setDeviceState("open");
+                                    deviceChildDao.update(entry);
+                                    send(entry);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else if (entry.getImg() == imgs[1]) {
+                            if (bound) {
+                                try {
+                                    entry.setImg(imgs[0]);
+                                    entry.setDeviceState("close");
+                                    deviceChildDao.update(entry);
+                                    send(entry);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
-                    } else if (entry.getImg() == imgs[1]) {
-                        if (bound) {
-                            try {
-                                entry.setImg(imgs[0]);
-                                entry.setDeviceState("close");
-                                deviceChildDao.update(entry);
-                                send(entry);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
 //                holder.setImageResource(R.id.image_switch,img);
-                    changeChild(groupPosition, childPosition);
-                } else {
-                    Utils.showToast(context, "该设备离线");
+                        changeChild(groupPosition, childPosition);
+                    } else {
+                        Utils.showToast(context, "该设备离线");
+                    }
                 }
-
             }
         });
-        ImageView btn_editor = (ImageView) holder.itemView.findViewById(R.id.btn_editor);
+        Button btn_editor = (Button) holder.itemView.findViewById(R.id.btn_editor);
         btn_editor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 buildDialog(groupPosition, childPosition);
             }
         });
-        ImageView btn_delete = (ImageView) holder.itemView.findViewById(R.id.btn_delete);
+        Button btn_delete = (Button) holder.itemView.findViewById(R.id.btn_delete);
         btn_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -544,37 +549,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
             MQService.LocalBinder binder = (MQService.LocalBinder) service;
             mqService = binder.getService();
             bound = true;
-            if(bound){
-                if (DeviceFragment.running2 && MainActivity.running){
-                    try {
-                        List<DeviceChild> deviceChildren=deviceChildDao.findAllDevice();
-                        for (DeviceChild deviceChild:deviceChildren){
-                            JSONObject jsonObject=new JSONObject();
-                            jsonObject.put("loadDate","on");
-                            String s=jsonObject.toString();
-                            String mac = deviceChild.getMacAddress();
-                            String topicName="";
-                            boolean success=false;
-                            if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-                                topicName = "rango/" + mac + "/masterController/set";
-                                if (bound) {
-                                    success = mqService.publish(topicName, 2, s);
-                                }
-                            } else {
-                                topicName = "rango/" + mac + "/set";
-                                if (bound) {
-                                    success = mqService.publish(topicName, 2, s);
-                                }
-                            }
-                        }
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-
-                }
-            }
         }
-
         @Override
         public void onServiceDisconnected(ComponentName name) {
             bound = false;
@@ -712,11 +687,11 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
         }
     }
 
+
     public void send(DeviceChild deviceChild) {
         try {
             if (deviceChild != null) {
                 JSONObject maser = new JSONObject();
-
                 maser.put("ctrlMode", deviceChild.getCtrlMode());
                 maser.put("workMode", deviceChild.getWorkMode());
                 maser.put("MatTemp", deviceChild.getManualMatTemp());

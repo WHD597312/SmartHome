@@ -35,6 +35,7 @@ import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.TimeTask;
 import com.xinrui.smart.pojo.Timer;
 import com.xinrui.smart.util.ChineseNumber;
+import com.xinrui.smart.util.NoFastClickUtils;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.CircleSeekBar;
@@ -327,7 +328,7 @@ public class TimeTaskActivity extends AppCompatActivity {
 
     @OnClick({R.id.btn_add, R.id.open_time, R.id.btn_cancle2, R.id.btn_ensure2, R.id.close_time, R.id.tv_temp_num,
             R.id.img_back, R.id.btn_copy, R.id.tv_mon, R.id.tv_tue, R.id.tv_wen, R.id.tv_thu, R.id.tv_fri, R.id.tv_sta, R.id.tv_sun
-            , R.id.btn_publish})
+            , R.id.btn_publish,R.id.btn_cancle})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.tv_mon:
@@ -394,75 +395,27 @@ public class TimeTaskActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.img_back:
-                try {
-                    String jsonData = null;
-                    JSONObject jsonObject=new JSONObject();
-                    jsonObject.put("loadDate","on");
-                    String s=jsonObject.toString();
-                    String topicName;
-                    String mac=deviceChild.getMacAddress();
-                    if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-
-                        topicName = "rango/" + mac + "/masterController/set";
-                        if (bound) {
-                            mqService.publish(topicName, 2, s);
-                        }
-                    } else {
-                        topicName = "rango/" + mac + "/set";
-                        if (bound) {
-                            mqService.publish(topicName, 2, s);
-                        }
-                    }
-//                    int selectedWeek = ChineseNumber.chineseNumber2Int(mSelectedWeek);
-//                    List<Timer> timers = timeDao.findAll(deviceId, selectedWeek);
-//                    Collections.sort(timers, new Comparator<Timer>() {
-//                        @Override
-//                        public int compare(Timer o1, Timer o2) {
-//                            if (o1.getHour() > o2.getHour())
-//                                return 1;
-//                            else if (o1.getHour() < o2.getHour())
-//                                return -1;
-//                            return 0;
-//                        }
-//                    });
-//                    jsonObject.put("timerTaskWeek", selectedWeek);
-//
-//                    for (int i = 0; i < 24; i++) {
-//                        Timer timer = timers.get(i);
-//                        jsonObject.put("h" + i, timer.getOpen());
-//                        jsonObject.put("t" + i, timer.getTemp());
-//                    }
-//                    jsonData = jsonObject.toString();
-//                    if (bound) {
-//                        String mac = deviceChild.getMacAddress();
-//                        String topicName;
-//                        if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-//                            topicName = "rango/" + mac + "/masterController/set";
-//                            boolean success = mqService.publish(topicName, 2, jsonData);
-//                            Log.d("sss", "-->" + success);
-////                            if (success) {
-////                                Utils.showToast(this, "发送成功");
-////                            }
-//                        } else {
-//                            topicName = "rango/" + mac + "/set";
-//                            boolean success = mqService.publish(topicName, 2, jsonData);
-//                            Log.d("sss", "-->" + success);
-////                            if (success) {
-////                                Utils.showToast(this, "发送成功");
-////                            }
-//                        }
-//                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
                 finish();
+                break;
+            case R.id.btn_cancle:
+                if (!pasterWeek.isEmpty()){
+                    String s = btn_copy.getText().toString();
+                    if ("粘贴".equals(s)){
+                        for (Map.Entry<String, TextView> entry : pasterWeek.entrySet()){
+                            TextView textView = entry.getValue();
+                            if (textView!=null){
+                                textView.setBackgroundColor(0);
+                                textView.setTextColor(getResources().getColor(R.color.white));
+                            }
+                        }
+                        btn_copy.setText("复制");
+                    }
+                }
                 break;
             case R.id.btn_copy:
                 String s = btn_copy.getText().toString();
                 if ("复制".equals(s)) {
                     btn_copy.setText("粘贴");
-
                 } else if ("粘贴".equals(s)) {
                     btn_copy.setText("复制");
                     if (pasterWeek.isEmpty()) {
@@ -472,154 +425,13 @@ public class TimeTaskActivity extends AppCompatActivity {
                             String weekStr = entry.getKey();
                             int pastWeek = Integer.parseInt(weekStr);
                             int copyWeek = ChineseNumber.chineseNumber2Int(mSelectedWeek);
-                            List<TimeTask> copyTimeTasks = timeTaskDao.findWeekAll(deviceId, copyWeek);/**要复制的时间段*/
-                            List<TimeTask> timeTasks = timeTaskDao.findWeekAll(deviceId, pastWeek);
 
-                            for (TimeTask pasterTimeTask : timeTasks) {
-                                timeTaskDao.delete(pasterTimeTask);
-                            }
-                            for (TimeTask copytimeTask : copyTimeTasks) {
-                                if (copytimeTask != null) {
-                                    //遍历所有的定时类
-                                    TimeTask timeTask = new TimeTask(deviceId, pastWeek, copytimeTask.getStart(), copytimeTask.getEnd(), copytimeTask.getTemp());
-                                    timeTaskDao.insert(timeTask);
-                                    List<Timer> timers = timeDao.findAll(deviceId, pastWeek);
-                                    if (timers.size() == 24) {
-                                        for (int startTime = timeTask.getStart(); startTime < timeTask.getEnd(); startTime++) {
-                                            if (startTime == timeTask.getEnd()) {
-                                                Timer timer = timers.get(startTime);
-                                                timer.setOpen("off");
-                                                timer.setTemp(timeTask.getTemp());
-                                                timeDao.update(timer);
-                                            } else {
-                                                Timer timer = timers.get(startTime);
-                                                if (timer != null) {
-                                                    timer.setOpen("on");
-                                                    timer.setTemp(timeTask.getTemp());
-                                                    timeDao.update(timer);
-                                                }
-                                            }
-                                        }
-                                        try {
-                                            String jsonData = null;
-                                            JSONObject jsonObject = new JSONObject();
-                                            int selectedWeek = ChineseNumber.chineseNumber2Int(mSelectedWeek);
-                                            List<Timer> timers2 = timeDao.findAll(deviceId, selectedWeek);
-                                            Collections.sort(timers2, new Comparator<Timer>() {
-                                                @Override
-                                                public int compare(Timer o1, Timer o2) {
-                                                    if (o1.getHour() > o2.getHour())
-                                                        return 1;
-                                                    else if (o1.getHour() < o2.getHour())
-                                                        return -1;
-                                                    return 0;
-                                                }
-                                            });
-                                            jsonObject.put("timerTaskWeek", selectedWeek);
-
-                                            for (int i = 0; i < 24; i++) {
-                                                Timer timer = timers.get(i);
-                                                jsonObject.put("h" + i, timer.getOpen());
-                                                jsonObject.put("t" + i, timer.getTemp());
-                                            }
-                                            jsonData = jsonObject.toString();
-                                            if (bound) {
-                                                String mac = deviceChild.getMacAddress();
-                                                String topicName;
-                                                if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-                                                    topicName = "rango/" + mac + "/masterController/set";
-                                                    boolean success = mqService.publish(topicName, 2, jsonData);
-                                                    Log.d("sss", "-->" + success);
-//                            if (success) {
-//                                Utils.showToast(this, "发送成功");
-//                            }
-                                                } else {
-                                                    topicName = "rango/" + mac + "/set";
-                                                    boolean success = mqService.publish(topicName, 2, jsonData);
-                                                    Log.d("sss", "-->" + success);
-//                            if (success) {
-//                                Utils.showToast(this, "发送成功");
-//                            }
-                                                }
-                                            }
-
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-
-                                    }
-                                }
-                            }
-
-//                            for (TimeTask timeTask :copyTimeTasks){
-////                                TimeTask timeTask2 = new TimeTask(deviceId,pastWeek,timeTask.getStart(), timeTask.getEnd(), timeTask.getTemp());
-//                                List<TimeTask> pastTimeTasks=timeTaskDao.findWeekAll(deviceId,pastWeek);
-//
-//                            }
-                            TextView textView = entry.getValue();
-                            textView.setBackgroundColor(0);
-                            textView.setTextColor(getResources().getColor(R.color.white));
-                        }
-                    }
-
-                }
-                break;
-            case R.id.btn_add:/**添加开始设定时间和结束设定时间，温度*/
-                String open = open_time.getText().toString();
-                String close = close_time.getText().toString();
-                String temp = tv_temp_num.getText().toString();
-                if (!Utils.isEmpty(open) && !Utils.isEmpty(close) && !Utils.isEmpty(temp)) {
-                    open = open.substring(0, open.indexOf(":"));
-                    close = close.substring(0, close.indexOf(":"));
-                    temp = temp.substring(0, temp.indexOf("℃"));
-                    int start = Integer.parseInt(open);
-                    int end = Integer.parseInt(close);
-                    if (start > end) {
-                        Utils.showToast(this, "关的时间应大于开的时间");
-                        close_time.setText((start + 1) + ":00");
-                        return;
-                    }
-                    if ("日".equals(mSelectedWeek)) {
-                        mSelectedWeek = "七";
-                    }
-                    int week = ChineseNumber.chineseNumber2Int(mSelectedWeek);
-                    TimeTask timeTask = new TimeTask(deviceId, week, start, end, Integer.parseInt(temp));
-                    if (timeTask != null) {
-                        List<TimeTask> timeTasks = timeTaskDao.findWeekAll(deviceId, week);
-                        int i = 0;
-                        //遍历所有的定时类
-                        for (TimeTask t : timeTasks) {
-                            //判断要添加的对象 开始结束点  是否 都小于等于开始时间 或者都大于等于结束时间
-                            if ((timeTask.getStart() <= t.getStart() && timeTask.getEnd() <= t.getStart()) || (timeTask.getStart() >= t.getEnd() && timeTask.getEnd() >= t.getEnd())) {
-                                i++;
-                            }
-                        }
-                        //如果i和list的长度相等 说明和以前添加的都不交叉 可以添加
-                        if (i == timeTasks.size()) {
-                            timeTaskDao.insert(timeTask);
-                            list.add(timeTask);
-                            List<Timer> timers = timeDao.findAll(deviceId, week);
-                            for (int startTime = timeTask.getStart(); startTime < timeTask.getEnd(); startTime++) {
-                                if (startTime == timeTask.getEnd()) {
-                                    Timer timer = timers.get(startTime);
-                                    timer.setOpen("off");
-                                    timer.setTemp(timeTask.getTemp());
-                                    timeDao.update(timer);
-                                } else {
-                                    Timer timer = timers.get(startTime);
-                                    if (timer != null) {
-                                        timer.setOpen("on");
-                                        timer.setTemp(timeTask.getTemp());
-                                        timeDao.update(timer);
-                                    }
-                                }
-                            }
                             try {
-                                String jsonData = null;
+
                                 JSONObject jsonObject = new JSONObject();
-                                int selectedWeek = ChineseNumber.chineseNumber2Int(mSelectedWeek);
-                                List<Timer> timers2 = timeDao.findAll(deviceId, selectedWeek);
-                                Collections.sort(timers2, new Comparator<Timer>() {
+
+                                List<Timer> timers = timeDao.findAll(deviceId, copyWeek);
+                                Collections.sort(timers, new Comparator<Timer>() {
                                     @Override
                                     public int compare(Timer o1, Timer o2) {
                                         if (o1.getHour() > o2.getHour())
@@ -629,58 +441,151 @@ public class TimeTaskActivity extends AppCompatActivity {
                                         return 0;
                                     }
                                 });
-                                jsonObject.put("timerTaskWeek", selectedWeek);
+                                if (timers.size()==24){
+                                    jsonObject.put("timerTaskWeek", pastWeek);
 
-                                for (int ii = 0; ii < 24; ii++) {
-                                    Timer timer = timers.get(ii);
-                                    jsonObject.put("h" + ii, timer.getOpen());
-                                    jsonObject.put("t" + ii, timer.getTemp());
-                                }
-                                jsonData = jsonObject.toString();
-                                if (bound) {
-                                    String mac = deviceChild.getMacAddress();
-                                    String topicName;
-                                    if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-                                        topicName = "rango/" + mac + "/masterController/set";
-                                        boolean success = mqService.publish(topicName, 2, jsonData);
-                                        Log.d("sss", "-->" + success);
+                                    for (int i = 0; i < 24; i++) {
+                                        Timer timer = timers.get(i);
+                                        jsonObject.put("h" + i, timer.getOpen());
+                                        jsonObject.put("t" + i, timer.getTemp());
+                                    }
+                                    Thread.sleep(300);
+                                    String jsonData = jsonObject.toString();
 
-                                    } else {
+
+                                    if (bound) {
+                                        boolean success = false;
+                                        String mac = deviceChild.getMacAddress();
+                                        String topicName;
                                         topicName = "rango/" + mac + "/set";
-                                        boolean success = mqService.publish(topicName, 2, jsonData);
-                                        Log.d("sss", "-->" + success);
-
+                                        success = mqService.publish(topicName, 2, jsonData);
                                     }
                                 }
 
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        } else {
-                            Utils.showToast(this, "该时间段已存在");
+                            TextView textView = entry.getValue();
+                            textView.setBackgroundColor(0);
+                            textView.setTextColor(getResources().getColor(R.color.white));
                         }
-                        Collections.sort(list, new Comparator<TimeTask>() {
-                            @Override
-                            public int compare(TimeTask o1, TimeTask o2) {
-                                if (o1.getStart() > o2.getStart())
-                                    return 1;
-                                if (o1.getStart() == o2.getStart())
-                                    return 0;
-                                return -1;
+                    }
+
+                }
+                break;
+            case R.id.btn_add:/**添加开始设定时间和结束设定时间，温度*/
+                if (NoFastClickUtils.isFastClick()){
+                    String open = open_time.getText().toString();
+                    String close = close_time.getText().toString();
+                    String temp = tv_temp_num.getText().toString();
+                    if (!Utils.isEmpty(open) && !Utils.isEmpty(close) && !Utils.isEmpty(temp)) {
+                        open = open.substring(0, open.indexOf(":"));
+                        close = close.substring(0, close.indexOf(":"));
+                        temp = temp.substring(0, temp.indexOf("℃"));
+                        int start = Integer.parseInt(open);
+                        int end = Integer.parseInt(close);
+                        if (start > end) {
+                            Utils.showToast(this, "关的时间应大于开的时间");
+                            close_time.setText((start + 1) + ":00");
+                            return;
+                        }
+                        if ("日".equals(mSelectedWeek)) {
+                            mSelectedWeek = "七";
+                        }
+                        int week = ChineseNumber.chineseNumber2Int(mSelectedWeek);
+                        TimeTask timeTask = new TimeTask(deviceId, week, start, end, Integer.parseInt(temp));
+                        if (timeTask != null) {
+                            List<TimeTask> timeTasks = timeTaskDao.findWeekAll(deviceId, week);
+                            int i = 0;
+                            //遍历所有的定时类
+                            for (TimeTask t : timeTasks) {
+                                //判断要添加的对象 开始结束点  是否 都小于等于开始时间 或者都大于等于结束时间
+                                if ((timeTask.getStart() <= t.getStart() && timeTask.getEnd() <= t.getStart()) || (timeTask.getStart() >= t.getEnd() && timeTask.getEnd() >= t.getEnd())) {
+                                    i++;
+                                }
                             }
-                        });
-                        timeTaskAdapter.notifyDataSetChanged();
-                        listview.setVisibility(View.VISIBLE);
-                        seekbar.setDeviceId(deviceId + "");
-                        seekbar.setWeek(week);
-                        seekbar.invalidate();
+                            //如果i和list的长度相等 说明和以前添加的都不交叉 可以添加
+                            if (i == timeTasks.size()) {
+                                timeTaskDao.insert(timeTask);
+                                list.add(timeTask);
+                                List<Timer> timers = timeDao.findAll(deviceId, week);
+                                for (int startTime = timeTask.getStart(); startTime < timeTask.getEnd(); startTime++) {
+                                    if (startTime == timeTask.getEnd()) {
+                                        Timer timer = timers.get(startTime);
+                                        timer.setOpen("off");
+                                        timer.setTemp(timeTask.getTemp());
+                                        timeDao.update(timer);
+                                    } else {
+                                        Timer timer = timers.get(startTime);
+                                        if (timer != null) {
+                                            timer.setOpen("on");
+                                            timer.setTemp(timeTask.getTemp());
+                                            timeDao.update(timer);
+                                        }
+                                    }
+                                }
+                                try {
+                                    String jsonData = null;
+                                    JSONObject jsonObject = new JSONObject();
+                                    int selectedWeek = ChineseNumber.chineseNumber2Int(mSelectedWeek);
+                                    List<Timer> timers2 = timeDao.findAll(deviceId, selectedWeek);
+                                    Collections.sort(timers2, new Comparator<Timer>() {
+                                        @Override
+                                        public int compare(Timer o1, Timer o2) {
+                                            if (o1.getHour() > o2.getHour())
+                                                return 1;
+                                            else if (o1.getHour() < o2.getHour())
+                                                return -1;
+                                            return 0;
+                                        }
+                                    });
+                                    if (timers2.size()==24){
+                                        jsonObject.put("timerTaskWeek", selectedWeek);
+
+                                        for (int ii = 0; ii < 24; ii++) {
+                                            Timer timer = timers.get(ii);
+                                            jsonObject.put("h" + ii, timer.getOpen());
+                                            jsonObject.put("t" + ii, timer.getTemp());
+                                        }
+                                        jsonData = jsonObject.toString();
+                                        if (bound) {
+                                            boolean success = false;
+                                            String mac = deviceChild.getMacAddress();
+                                            String topicName;
+                                            topicName = "rango/" + mac + "/set";
+                                            success = mqService.publish(topicName, 2, jsonData);
+                                        }
+                                    }
+
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                Utils.showToast(this, "该时间段已存在");
+                            }
+                            Collections.sort(list, new Comparator<TimeTask>() {
+                                @Override
+                                public int compare(TimeTask o1, TimeTask o2) {
+                                    if (o1.getStart() > o2.getStart())
+                                        return 1;
+                                    if (o1.getStart() == o2.getStart())
+                                        return 0;
+                                    return -1;
+                                }
+                            });
+                            timeTaskAdapter.notifyDataSetChanged();
+                            listview.setVisibility(View.VISIBLE);
+                            seekbar.setDeviceId(deviceId + "");
+                            seekbar.setWeek(week);
+                            seekbar.invalidate();
+                        }
                     }
                 }
                 break;
             case R.id.btn_publish:
                 finish();
                 break;
-
             case R.id.open_time:/**设定开始时间*/
 
                 linearout.setVisibility(View.VISIBLE);
@@ -695,7 +600,6 @@ public class TimeTaskActivity extends AppCompatActivity {
                 numberPicker.setVisibility(View.GONE);
                 break;
             case R.id.close_time:/**设定结束时间*/
-
                 linearout.setVisibility(View.VISIBLE);
                 tv_clock.setText("结束时间");
                 OPEN_CLOSE = "结束时间";
@@ -726,6 +630,11 @@ public class TimeTaskActivity extends AppCompatActivity {
                 linearout.setVisibility(View.GONE);
                 if ("开始时间".equals(OPEN_CLOSE)) {
                     open_time.setText(hour + ":00");
+                    if (hour==24){
+                        Utils.showToast(this,"24点就是0点哦!");
+                        hour=0;
+                        open_time.setText(hour + ":00");
+                    }
                 } else if ("结束时间".equals(OPEN_CLOSE)) {
                     close_time.setText(hour + ":00");
                     String openTime = open_time.getText().toString();
@@ -748,78 +657,12 @@ public class TimeTaskActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        try {
-            String jsonData = null;
-            JSONObject jsonObject=new JSONObject();
-            jsonObject.put("loadDate","on");
-            String s=jsonObject.toString();
-            String topicName;
-            String mac=deviceChild.getMacAddress();
-            if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-
-                topicName = "rango/" + mac + "/masterController/set";
-                if (bound) {
-                    mqService.publish(topicName, 2, s);
-                }
-            } else {
-                topicName = "rango/" + mac + "/set";
-                if (bound) {
-                    mqService.publish(topicName, 2, s);
-                }
-            }
-//            String jsonData = null;
-//            JSONObject jsonObject = new JSONObject();
-//            int selectedWeek = ChineseNumber.chineseNumber2Int(mSelectedWeek);
-//            List<Timer> timers = timeDao.findAll(deviceId, selectedWeek);
-//            Collections.sort(timers, new Comparator<Timer>() {
-//                @Override
-//                public int compare(Timer o1, Timer o2) {
-//                    if (o1.getHour() > o2.getHour())
-//                        return 1;
-//                    else if (o1.getHour() < o2.getHour())
-//                        return -1;
-//                    return 0;
-//                }
-//            });
-//            jsonObject.put("timerTaskWeek", selectedWeek);
-//
-//            for (int i = 0; i < 24; i++) {
-//                Timer timer = timers.get(i);
-//                jsonObject.put("h" + i, timer.getOpen());
-//                jsonObject.put("t" + i, timer.getTemp());
-//            }
-//            jsonData = jsonObject.toString();
-//            if (bound) {
-//                String mac = deviceChild.getMacAddress();
-//                String topicName;
-//                if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-//                    topicName = "rango/" + mac + "/masterController/set";
-//                    boolean success = mqService.publish(topicName, 2, jsonData);
-//                    Log.d("sss", "-->" + success);
-////                            if (success) {
-////                                Utils.showToast(this, "发送成功");
-////                            }
-//                } else {
-//                    topicName = "rango/" + mac + "/set";
-//                    boolean success = mqService.publish(topicName, 2, jsonData);
-//                    Log.d("sss", "-->" + success);
-////                            if (success) {
-////                                Utils.showToast(this, "发送成功");
-////                            }
-//                }
-//            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private TimeTaskAdapter.MyClickListener myClickListener = new TimeTaskAdapter.MyClickListener() {
         @Override
         public void myOnClick(int position, View view) {
 //            Toast.makeText(TimeTaskActivity.this,"listview的内部的按钮被点击了！，位置是-->" + position + ",内容是-->"+list.get(position),Toast.LENGTH_LONG).show();
-
-
             try {
                 TimeTask timeTask = list.get(position);
                 if (timeTask != null) {
@@ -856,23 +699,11 @@ public class TimeTaskActivity extends AppCompatActivity {
                     }
                     jsonData = jsonObject.toString();
                     if (bound) {
+                        boolean success = false;
                         String mac = deviceChild.getMacAddress();
                         String topicName;
-                        if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-                            topicName = "rango/" + mac + "/masterController/set";
-                            boolean success = mqService.publish(topicName, 2, jsonData);
-                            Log.d("sss", "-->" + success);
-//                            if (success) {
-//                                Utils.showToast(this, "发送成功");
-//                            }
-                        } else {
-                            topicName = "rango/" + mac + "/set";
-                            boolean success = mqService.publish(topicName, 2, jsonData);
-                            Log.d("sss", "-->" + success);
-//                            if (success) {
-//                                Utils.showToast(this, "发送成功");
-//                            }
-                        }
+                        topicName = "rango/" + mac + "/set";
+                        success = mqService.publish(topicName, 2, jsonData);
                     }
 
                 }
@@ -979,7 +810,6 @@ public class TimeTaskActivity extends AppCompatActivity {
                     }
                     break;
 
-
             }
         }
     };
@@ -1036,54 +866,60 @@ public class TimeTaskActivity extends AppCompatActivity {
                 } else {
                     DeviceChild deviceChild2 = deviceChildDao.findDeviceById(deviceId);
                     if (deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
-                    }
-                    if (!timeTasks.isEmpty()) {
-                        list.clear();
-                        list.addAll(timeTasks);
-                        timeTaskDao.updateTaskTimeList(list);
-                        Collections.sort(list, new Comparator<TimeTask>() {
-                            @Override
-                            public int compare(TimeTask o1, TimeTask o2) {
-                                if (o1.getStart() > o2.getStart())
-                                    return 1;
-                                if (o1.getStart() == o2.getStart())
-                                    return 0;
-                                return -1;
-                            }
-                        });
-
-                        if (list.isEmpty()) {
-                            seekbar.setWeek(timerTaskWeek);
-                            seekbar.invalidate();
-                            listview.setVisibility(View.GONE);
-                        } else {
-                            seekbar.setWeek(timerTaskWeek);
-                            seekbar.invalidate();
-                            listview.setVisibility(View.VISIBLE);
-                            timeTaskAdapter.notifyDataSetChanged();
-                        }
-                        TextView tv_week = week[timerTaskWeek - 1];
-                        for (int i = 0; i < week.length; i++) {
-                            if (tv_week == week[i]) {
-                                tv_copy = tv_week;
-                                mSelectedWeek = tv_week.getText().toString();
-                                if ("日".equals(mSelectedWeek)) {
-                                    mSelectedWeek = "七";
-                                } else {
-                                    mSelectedWeek = tv_week.getText().toString();
+                        Calendar calendar = Calendar.getInstance();
+                        int year = calendar.get(Calendar.YEAR);
+                        int month = calendar.get(Calendar.MONTH) + 1;
+                        int day = calendar.get(Calendar.DAY_OF_MONTH);
+                        int week2 = calendar.get(Calendar.DAY_OF_WEEK);
+                        mWeek = Utils.getWeek(year, month, day, week2).substring(2);
+                        int secelctWeek = ChineseNumber.chineseNumber2Int(mWeek);
+                        if (!timeTasks.isEmpty() && secelctWeek == timerTaskWeek) {
+                            list.clear();
+                            list.addAll(timeTasks);
+                            timeTaskDao.updateTaskTimeList(list);
+                            Collections.sort(list, new Comparator<TimeTask>() {
+                                @Override
+                                public int compare(TimeTask o1, TimeTask o2) {
+                                    if (o1.getStart() > o2.getStart())
+                                        return 1;
+                                    if (o1.getStart() == o2.getStart())
+                                        return 0;
+                                    return -1;
                                 }
-                                tv_week.setTextColor(getResources().getColor(R.color.color_black));
-                                tv_week.setBackgroundResource(R.drawable.button_normal);
+                            });
+
+                            if (list.isEmpty()) {
+                                seekbar.setWeek(timerTaskWeek);
+                                seekbar.invalidate();
+                                listview.setVisibility(View.GONE);
                             } else {
-                                week[i].setTextColor(getResources().getColor(R.color.white));
-                                week[i].setBackgroundColor(getResources().getColor(R.color.color_black3));
+                                seekbar.setWeek(timerTaskWeek);
+                                seekbar.invalidate();
+                                listview.setVisibility(View.VISIBLE);
+                                timeTaskAdapter.notifyDataSetChanged();
+                            }
+                            TextView tv_week = week[timerTaskWeek - 1];
+                            for (int i = 0; i < week.length; i++) {
+                                if (tv_week == week[i]) {
+                                    tv_copy = tv_week;
+                                    mSelectedWeek = tv_week.getText().toString();
+                                    if ("日".equals(mSelectedWeek)) {
+                                        mSelectedWeek = "七";
+                                    } else {
+                                        mSelectedWeek = tv_week.getText().toString();
+                                    }
+                                    tv_week.setTextColor(getResources().getColor(R.color.color_black));
+                                    tv_week.setBackgroundResource(R.drawable.button_normal);
+                                } else {
+                                    week[i].setTextColor(getResources().getColor(R.color.white));
+                                    week[i].setBackgroundColor(getResources().getColor(R.color.color_black3));
+                                }
                             }
                         }
                     }
+
                 }
             }
-
-
         }
     }
 
