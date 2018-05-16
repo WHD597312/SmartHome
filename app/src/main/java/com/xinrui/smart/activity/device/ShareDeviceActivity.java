@@ -21,8 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
+
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.R;
@@ -248,7 +247,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String macAddress=intent.getStringExtra("macAddress");
             String noNet=intent.getStringExtra("noNet");
-            DeviceChild deviceChild= (DeviceChild) intent.getSerializableExtra("deviceChild");
+            DeviceChild deviceChild2= (DeviceChild) intent.getSerializableExtra("deviceChild");
             if (!Utils.isEmpty(noNet)){
                 Utils.showToast(ShareDeviceActivity.this,"网络已断开，请设置网络");
             }else {

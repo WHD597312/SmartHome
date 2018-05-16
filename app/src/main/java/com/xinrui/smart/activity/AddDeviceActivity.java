@@ -22,8 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
+
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.esptouch.EspWifiAdminSimple;
@@ -132,6 +131,7 @@ public class AddDeviceActivity extends AppCompatActivity {
             btn_wifi.setVisibility(View.GONE);
             btn_scan.setVisibility(View.GONE);
         }
+        et_pswd.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
     }
 
     private String sharedDeviceId;
@@ -195,7 +195,8 @@ public class AddDeviceActivity extends AppCompatActivity {
                 linearout_add_scan_device.setVisibility(visibilities[0]);
                 break;
             case R.id.btn_scan2:
-                scanQrCode();
+                startActivity(new Intent(this,QRScannerActivity.class));
+//                scanQrCode();
 //                sharedDeviceId="userId";
 //                Map<String,Object> params2=new HashMap<>();
 //                params2.put("deviceId","1067");
@@ -482,40 +483,37 @@ public class AddDeviceActivity extends AppCompatActivity {
     String shareContent;
     String shareMacAddress;
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (intentResult != null) {
-            if (intentResult.getContents() == null) {
-                Toast.makeText(this, "内容为空", Toast.LENGTH_LONG).show();
-            } else {
-                String content = intentResult.getContents();
-                if (!Utils.isEmpty(content)) {
-                    content = new String(Base64.decode(content, Base64.DEFAULT));
-                    if (!Utils.isEmpty(content)) {
-                        String[] ss = content.split("&");
-                        String s0 = ss[0];
-                        String deviceId = s0.substring(s0.indexOf("'") + 1);
-                        String s2 = ss[2];
-                        String macAddress = s2.substring(s2.indexOf("'") + 1);
-                        shareMacAddress = macAddress;
-
-
-                        Map<String, Object> params = new HashMap<>();
-                        params.put("deviceId", deviceId);
-                        params.put("userId", userId);
-                        new QrCodeAsync().execute(params);
-
-                    }
-
-
-                }
-//                tv_result.setText(content);
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+//        if (intentResult != null) {
+//            if (intentResult.getContents() == null) {
+//                Toast.makeText(this, "内容为空", Toast.LENGTH_LONG).show();
+//            } else {
+//                String content = intentResult.getContents();
+//                if (!Utils.isEmpty(content)) {
+//                    content = new String(Base64.decode(content, Base64.DEFAULT));
+//                    if (!Utils.isEmpty(content)) {
+//                        String[] ss = content.split("&");
+//                        String s0 = ss[0];
+//                        String deviceId = s0.substring(s0.indexOf("'") + 1);
+//                        String s2 = ss[2];
+//                        String macAddress = s2.substring(s2.indexOf("'") + 1);
+//                        shareMacAddress = macAddress;
+//                        Map<String, Object> params = new HashMap<>();
+//                        params.put("deviceId", deviceId);
+//                        params.put("userId", userId);
+//                        new QrCodeAsync().execute(params);
+//                    }
+//
+//
+//                }
+////                tv_result.setText(content);
+//            }
+//        } else {
+//            super.onActivityResult(requestCode, resultCode, data);
+//        }
+//    }
 
 //    class LoadUserInfoAsync extends AsyncTask<String,Void,Void>{
 //
@@ -525,15 +523,20 @@ public class AddDeviceActivity extends AppCompatActivity {
 //        }
 //    }
 
-    /**
-     * 扫描二维码
-     */
-    public void scanQrCode() {
-        new IntentIntegrator(this)
-                .setOrientationLocked(true)
-                .setCaptureActivity(ScanActivity.class)
-                .initiateScan();
-    }
+//    /**
+//     * 扫描二维码
+//     */
+//    public void scanQrCode() {
+//
+//        IntentIntegrator integrator = new IntentIntegrator(AddDeviceActivity.this);
+//        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
+//        integrator.setCaptureActivity(ScanActivity.class);
+//        integrator.setPrompt("请扫描二维码"); //底部的提示文字，设为""可以置空
+//        integrator.setCameraId(0); //前置或者后置摄像头
+//        integrator.setBeepEnabled(true); //扫描成功的「哔哔」声，默认开启
+//        integrator.setBarcodeImageEnabled(true);//是否保留扫码成功时候的截图
+//        integrator.initiateScan();
+//    }
 
     private static final String TAG = "Esptouch";
     private EspWifiAdminSimple mWifiAdmin;

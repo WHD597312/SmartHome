@@ -237,7 +237,7 @@ public class TempChartActivity extends AppCompatActivity {
                 lineChartManager1.showLineChart(xValues, yValues.get(0), names.get(0), colours.get(3));
                 lineChartManager1.setDescription("温度");
                 lineChartManager1.setYAxis(60, 0, 24);
-                lineChartManager1.setHightLimitLine(60,"高温报警",Color.RED);
+                lineChartManager1.setHightLimitLine(60,"高温报警",0);
             }
         }
     }

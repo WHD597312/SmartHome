@@ -73,7 +73,7 @@ import static android.content.Context.MODE_PRIVATE;
  * Created by win7 on 2018/3/13.
  */
 
-public class Btn1_fragment extends Fragment{
+public class Btn1_fragment extends Fragment {
     int x;
     int y;
     int width;
@@ -87,11 +87,11 @@ public class Btn1_fragment extends Fragment{
     RoomViewGroup view_background;
     FrameLayout roomViewGroup;
 
-     int item_width;
+    int item_width;
 
     List<Room> room_list = new ArrayList<>();
     List<RoomEntry> roomEntry_list = new ArrayList<>();
-    public List<View> childView_list  = new ArrayList<>();//room的view
+    public List<View> childView_list = new ArrayList<>();//room的view
     public List<Room> room_list1 = new ArrayList<>();//room的对象
     SharedPreferences sharedPreferences;
 
@@ -104,14 +104,15 @@ public class Btn1_fragment extends Fragment{
     GetUrl getUrl = new GetUrl();
     Room room;
     RoomEntry roomEntry;
-    public static int running=0;
+    public static int running = 0;
     private ProgressDialog progressDialog;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        sharedPreferences = getActivity().getSharedPreferences("data",0);
-        house_id = sharedPreferences.getLong("house_id",0);
+        sharedPreferences = getActivity().getSharedPreferences("data", 0);
+        house_id = sharedPreferences.getLong("house_id", 0);
         view_background = (RoomViewGroup) inflater.inflate(R.layout.rooms_background1, container, false);
         roomViewGroup = (FrameLayout) view_background.findViewById(R.id.fl);
         progressDialog = new ProgressDialog(getActivity());
@@ -123,7 +124,7 @@ public class Btn1_fragment extends Fragment{
 
 
     //从服务器获取数据创建房间
-    public void sendRequestForListData(){
+    public void sendRequestForListData() {
         QueryAllRoomAsyncTask queryAllRoomAsyncTask = new QueryAllRoomAsyncTask();
         queryAllRoomAsyncTask.execute();
         queryAllRoomAsyncTask.setOnAsyncResponse(new AsyncResponse() {
@@ -141,11 +142,11 @@ public class Btn1_fragment extends Fragment{
 
 
     //从服务器获取数据创建房间异步请求
-    class QueryAllRoomAsyncTask extends AsyncTask<Void,Void,List<Room>>{
+    class QueryAllRoomAsyncTask extends AsyncTask<Void, Void, List<Room>> {
         WindowManager wm = (WindowManager) getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
         final int width = wm.getDefaultDisplay().getWidth();
-        final int item_width = width/4;
+        final int item_width = width / 4;
         public AsyncResponse asyncResponse;
 
         public void setOnAsyncResponse(AsyncResponse asyncResponse) {
@@ -165,17 +166,17 @@ public class Btn1_fragment extends Fragment{
         @Override
         protected List<Room> doInBackground(Void... voids) {
             deviceGroupDao = new DeviceGroupDaoImpl(getActivity());
-            deviceChildDao=new DeviceChildDaoImpl(getActivity());
+            deviceChildDao = new DeviceChildDaoImpl(getActivity());
             DeviceGroup = deviceGroupDao.findAllDevices();
             List<Room> roomList = new ArrayList<>();
 
             Map<String, Object> params = new HashMap<>();
             params.put("houseId", house_id);
-            long h  = house_id;
+            long h = house_id;
             String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/findAllRoom", params);
             String result = HttpUtils.getOkHpptRequest(url);
             try {
-                if(!Utils.isEmpty(result)) {
+                if (!Utils.isEmpty(result)) {
                     JSONObject jsonObject = new JSONObject(result);
                     JSONObject content = jsonObject.getJSONObject("content");
                     JSONArray array = content.getJSONArray(1 + "");
@@ -230,31 +231,32 @@ public class Btn1_fragment extends Fragment{
 
                         int width_room = ((x_max - x_min) / item_width + 1) * (width / 4);
                         int height_room = ((y_max - y_min) / item_width + 1) * (width / 4);
-                        room = new Room(roomId,roomName,startPoint,points,houseId,devices,layer,x_min,y_min,width_room,height_room,false);//从服务器获取room数据封装成room对象
+                        room = new Room(roomId, roomName, startPoint, points, houseId, devices, layer, x_min, y_min, width_room, height_room, false);//从服务器获取room数据封装成room对象
                         roomList.add(room);
                     }
                     return roomList;
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
         }
+
         @Override
         protected void onPostExecute(List<Room> roomList) {
             progressDialog.dismiss();
-            try{
-                if(roomList != null){
+            try {
+                if (roomList != null) {
                     for (int i = 0; i < roomList.size(); i++) {
-                        roomEntry = new RoomEntry(roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight());
-                        View view = setLayout(roomList.get(i).getDevices(),roomList.get(i).getRoomName(),roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight(),roomList.get(i));//绘制room的view
-                        Room room1 = new Room(view,roomList.get(i).getRoomId(),roomList.get(i).getRoomName(),roomList.get(i).getStartPoint(),roomList.get(i).getPoints(),roomList.get(i).getHouseId(),roomList.get(i).getDevices(),roomList.get(i).getLayer(),roomList.get(i).getX(),roomList.get(i).getY(),roomList.get(i).getWidth(),roomList.get(i).getHeight(),roomList.get(i).isSelected());
+                        roomEntry = new RoomEntry(roomList.get(i).getX(), roomList.get(i).getY(), roomList.get(i).getWidth(), roomList.get(i).getHeight());
+                        View view = setLayout(roomList.get(i).getDevices(), roomList.get(i).getRoomName(), roomEntry.getX(), roomEntry.getY(), roomEntry.getWidth(), roomEntry.getHeight(), roomList.get(i));//绘制room的view
+                        Room room1 = new Room(view, roomList.get(i).getRoomId(), roomList.get(i).getRoomName(), roomList.get(i).getStartPoint(), roomList.get(i).getPoints(), roomList.get(i).getHouseId(), roomList.get(i).getDevices(), roomList.get(i).getLayer(), roomList.get(i).getX(), roomList.get(i).getY(), roomList.get(i).getWidth(), roomList.get(i).getHeight(), roomList.get(i).isSelected());
                         room_list.add(room1);
                         roomEntry_list.add(roomEntry);
                         view.setTag(room1.getRoomId());
                     }
                     asyncResponse.onDataReceivedSuccess(room_list);//通过回调方法将room对象发送给全局
-                    if (roomEntry_list.size() ==0) {//当该页面没有绘制出view就不让滚动
+                    if (roomEntry_list.size() == 0) {//当该页面没有绘制出view就不让滚动
                         view_background.setOnTouchListener(new View.OnTouchListener() {
                             @Override
                             public boolean onTouch(View v, MotionEvent event) {
@@ -262,7 +264,7 @@ public class Btn1_fragment extends Fragment{
                             }
                         });
                         view_background.setVerticalScrollBarEnabled(false);
-                    }else{
+                    } else {
                         view_background.setOnTouchListener(new View.OnTouchListener() {
                             @Override
                             public boolean onTouch(View v, MotionEvent event) {
@@ -272,10 +274,10 @@ public class Btn1_fragment extends Fragment{
                         });
                         view_background.setVerticalScrollBarEnabled(true);
                     }
-                }else {
+                } else {
                     asyncResponse.onDataReceivedFailed();
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -284,56 +286,59 @@ public class Btn1_fragment extends Fragment{
     //回调接口，用于异步返回数据
     public interface AsyncResponse {
         void onDataReceivedSuccess(List<Room> listData);
+
         void onDataReceivedFailed();
     }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
     }
 
-    public void initView(){
+    public void initView() {
         WindowManager wm = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
-        int width =  wm.getDefaultDisplay().getWidth();
-         item_width = width/4;
-         height = wm.getDefaultDisplay().getHeight();
+        int width = wm.getDefaultDisplay().getWidth();
+        item_width = width / 4;
+        height = wm.getDefaultDisplay().getHeight();
         ImageView imageView = (ImageView) roomViewGroup.findViewById(R.id.empty_room_iv1);
-        imageView.setLayoutParams(new FrameLayout.LayoutParams(width,width*2));
+        imageView.setLayoutParams(new FrameLayout.LayoutParams(width, width * 2));
         imageView.setMinimumHeight(view_background.getHeight());
 
     }
 
     //绘制房间view
     @SuppressLint("ClickableViewAccessibility")
-    public View setLayout(JSONArray devices, String roomName, int x, int y, int width, int height ,Room room) {
+    public View setLayout(JSONArray devices, String roomName, int x, int y, int width, int height, Room room) {
         List<Equipment> device_list = new ArrayList<>();//房间设备的list
 
         WindowManager wm = (WindowManager) getActivity()//获取屏幕宽高
                 .getSystemService(Context.WINDOW_SERVICE);
-         int width1 = wm.getDefaultDisplay().getWidth();
-         int item_width = width1/4;
+        int width1 = wm.getDefaultDisplay().getWidth();
+        int item_width = width1 / 4;
 
         int line;//列
 
         //根据绘制view的宽度选择布局
-        if(width == item_width || width < item_width){
+        if (width == item_width || width < item_width) {
             line = 2;
-        }else if(width == 2*item_width ||( 3*item_width > width&& width > item_width )){
+        } else if (width == 2 * item_width || (3 * item_width > width && width > item_width)) {
             line = 4;
-        }else if( width == 3*item_width || (4*item_width > width && width >3*item_width)){
+        } else if (width == 3 * item_width || (4 * item_width > width && width > 3 * item_width)) {
             line = 6;
-        }else {
+        } else {
             line = 8;
         }
         final View childView;
-        if(line == 2){
-             childView = LayoutInflater.from(getActivity()).inflate(R.layout.scene_room_content, null);
+        if (line == 2) {
+            childView = LayoutInflater.from(getActivity()).inflate(R.layout.scene_room_content, null);
 
-        }else {
-             childView = LayoutInflater.from(getActivity()).inflate(R.layout.scene_room_content1, null);
+        } else {
+            childView = LayoutInflater.from(getActivity()).inflate(R.layout.scene_room_content1, null);
         }
         try {
             for (int j = 0; j < devices.length(); j++) {
@@ -348,16 +353,16 @@ public class Btn1_fragment extends Fragment{
                 int controlled = devices_object.getInt("controlled");
                 int masterControllerUserId = devices_object.getInt("masterControllerUserId");
                 int device_drawable = 0;
-                if(type == 1){
+                if (type == 1) {
                     device_drawable = R.drawable.equipment_warmer;
-                }else if(type == 2){
+                } else if (type == 2) {
                     device_drawable = R.drawable.equipment_external_sensor;
                 }
-                Equipment equipment = new Equipment(id,deviceName,device_drawable,macAddress,controlled,type);
+                Equipment equipment = new Equipment(id, deviceName, device_drawable, macAddress, controlled, type);
                 device_list.add(equipment);
 
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(width, height);
@@ -366,11 +371,11 @@ public class Btn1_fragment extends Fragment{
         childView.setLayoutParams(params);
         roomViewGroup.addView(childView);
         //获取RecyclerView控件
-        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), line , GridLayoutManager.VERTICAL ,false);
+        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), line, GridLayoutManager.VERTICAL, false);
         RecyclerView rv = (RecyclerView) childView.findViewById(R.id.scene_device_recyclerView);
         rv.setLayoutManager(layoutManager);
         rv.addItemDecoration(new GridSpacingItemDecoration(
-                line, getResources().getDimensionPixelSize(R.dimen.dp_6),true
+                line, getResources().getDimensionPixelSize(R.dimen.dp_6), true
         ));
         rv.setHasFixedSize(true);
         Scene_deviceAdapter scene_deviceAdapter = new Scene_deviceAdapter(device_list);
@@ -378,7 +383,7 @@ public class Btn1_fragment extends Fragment{
 
         //RecyclerView的本身的点击事件,使用手势处理点击，长按
         final GestureDetector gestureDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {
-//            boolean isSelected = is;//房间选中状态
+            //            boolean isSelected = is;//房间选中状态
             @Override
             public boolean onDown(MotionEvent e) {
 
@@ -398,11 +403,12 @@ public class Btn1_fragment extends Fragment{
                 for (int i = 0; i < room_list.size(); i++) {
                     if (childView.getTag() == room_list.get(i).getView().getTag()) {
                         int roomId = room_list.get(i).getRoomId();
-                        sp.putInt("roomId",roomId);
+                        sp.putInt("roomId", roomId);
                         sp.commit();
                         break;
                     }
                 }
+
                 Intent intent = new Intent(getActivity(), RoomContentActivity.class);
                 startActivity(intent);
                 return false;
@@ -418,15 +424,15 @@ public class Btn1_fragment extends Fragment{
             public void onLongPress(MotionEvent e) {
 //                for (int i = 0; i < room_list.size(); i++) {
 //                    if(room_list.get(i).getView() == childView){
-                        if(childView.isSelected()){
-                            childView.setBackgroundResource(R.drawable.mergeroom_background);
-                            childView_list.remove(childView);
-                            childView.setSelected(false);
-                        }else {
-                            childView.setBackgroundResource(R.drawable.select_mergeroom_background);
-                            childView_list.add(childView);
-                            childView.setSelected(true);
-                        }
+                if (childView.isSelected()) {
+                    childView.setBackgroundResource(R.drawable.mergeroom_background);
+                    childView_list.remove(childView);
+                    childView.setSelected(false);
+                } else {
+                    childView.setBackgroundResource(R.drawable.select_mergeroom_background);
+                    childView_list.add(childView);
+                    childView.setSelected(true);
+                }
 //                    }
 //                }
 
@@ -444,7 +450,7 @@ public class Btn1_fragment extends Fragment{
                 return gestureDetector.onTouchEvent(event);
             }
         });
-        saveViewInstance(roomName,childView,device_list);
+        saveViewInstance(roomName, childView, device_list);
 
         childView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -462,7 +468,7 @@ public class Btn1_fragment extends Fragment{
                 for (int i = 0; i < room_list.size(); i++) {
                     if (childView.getTag() == room_list.get(i).getView().getTag()) {
                         int roomId = room_list.get(i).getRoomId();
-                        sp.putInt("roomId",roomId);
+                        sp.putInt("roomId", roomId);
                         sp.commit();
                         break;
                     }
@@ -481,15 +487,15 @@ public class Btn1_fragment extends Fragment{
             public void onItemLongClick(View view, int position) {
 //                for (int i = 0; i < room_list.size(); i++) {
 //                    if(room_list.get(i).getView().getTag() == view.getTag()){
-                        if(childView.isSelected()){
-                            childView.setBackgroundResource(R.drawable.mergeroom_background);
-                            childView_list.remove(childView);
-                            childView.setSelected(false);
-                        }else {
-                            childView.setBackgroundResource(R.drawable.select_mergeroom_background);
-                            childView_list.add(childView);
-                            childView.setSelected(true);
-                        }
+                if (childView.isSelected()) {
+                    childView.setBackgroundResource(R.drawable.mergeroom_background);
+                    childView_list.remove(childView);
+                    childView.setSelected(false);
+                } else {
+                    childView.setBackgroundResource(R.drawable.select_mergeroom_background);
+                    childView_list.add(childView);
+                    childView.setSelected(true);
+                }
 //                    }
 //                }
 
@@ -502,24 +508,24 @@ public class Btn1_fragment extends Fragment{
 
 
     //每个房间里面的组件
-    public void saveViewInstance(String roomName,final View childView,List<Equipment> device_list){
+    public void saveViewInstance(String roomName, final View childView, List<Equipment> device_list) {
         for (int i = 0; i < device_list.size(); i++) {
-            if(device_list.get(i).getDevice_type() == 2){
-                Equipment equipment=device_list.get(i);
-                long deviceId=equipment.getId();
+            if (device_list.get(i).getDevice_type() == 2) {
+                Equipment equipment = device_list.get(i);
+                long deviceId = equipment.getId();
 
-                DeviceChild deviceChild2=deviceChildDao.findDeviceById(deviceId);
+                DeviceChild deviceChild2 = deviceChildDao.findDeviceById(deviceId);
 
-                if (deviceChild2.getTemp()==0 && deviceChild2.getHum()==0){
+                if (deviceChild2.getTemp() == 0 && deviceChild2.getHum() == 0) {
                     break;
                 }
                 TextView extTemp = (TextView) childView.findViewById(R.id.extTemp);
                 TextView extHut = (TextView) childView.findViewById(R.id.extHut);
-                if (deviceChild2!=null){
-                    String et=deviceChild2.getTemp()+"";
-                    String eh=deviceChild2.getHum()+"";
-                    extTemp.setText(et+"℃");
-                    extHut.setText(eh+"%");
+                if (deviceChild2 != null) {
+                    String et = deviceChild2.getTemp() + "";
+                    String eh = deviceChild2.getHum() + "";
+                    extTemp.setText(et + "℃");
+                    extHut.setText(eh + "%");
                 }
 
 
@@ -532,23 +538,23 @@ public class Btn1_fragment extends Fragment{
 
 
         //注册监听事件
-            room_Name.setOnClickListener(new View.OnClickListener() {
+        room_Name.setOnClickListener(new View.OnClickListener() {
 
             @SuppressLint("CommitPrefEdits")
             @Override
             public void onClick(View v) {
                 for (int i = 0; i < room_list.size(); i++) {
-                    if(childView.getTag() == room_list.get(i).getView().getTag()){
+                    if (childView.getTag() == room_list.get(i).getView().getTag()) {
                         SharedPreferences sp = getActivity().getSharedPreferences("room_postion", MODE_PRIVATE);
                         sp.edit().putInt("room_postion", i);
-                        Intent intent = new Intent(getActivity(),RoomTypesActivity.class);
+                        Intent intent = new Intent(getActivity(), RoomTypesActivity.class);
                         int roomId = room_list.get(i).getRoomId();
-                        sp.edit().putInt("roomId",roomId);
+                        sp.edit().putInt("roomId", roomId);
                         sp.edit().commit();
                         Bundle bundle = new Bundle();
-                        bundle.putInt("roomId",roomId);
+                        bundle.putInt("roomId", roomId);
                         intent.putExtras(bundle);
-                        startActivityForResult(intent,1);
+                        startActivityForResult(intent, 1);
                     }
                 }
 
@@ -560,17 +566,25 @@ public class Btn1_fragment extends Fragment{
             public void onClick(View v) {
                 SharedPreferences.Editor sp = getActivity().getSharedPreferences("roomId", Activity.MODE_PRIVATE).edit();
 
+
                 for (int i = 0; i < room_list.size(); i++) {
                     if (childView.getTag() == room_list.get(i).getView().getTag()) {
                         int roomId = room_list.get(i).getRoomId();
-                        sp.putInt("roomId",roomId);
+                        sp.putInt("roomId", roomId);
                         sp.commit();
                         break;
                     }
                 }
 
-                Intent intent = new Intent(getActivity(), AddEquipmentActivity.class);
-                startActivity(intent);
+
+                List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice(house_id);
+                if (deviceChildren.isEmpty()) {
+                    Utils.showToast(getActivity(), "这个家还没有设备");
+                } else {
+                    Intent intent = new Intent(getActivity(), AddEquipmentActivity.class);
+                    startActivity(intent);
+                }
+
             }
         });
 
@@ -617,65 +631,67 @@ public class Btn1_fragment extends Fragment{
 //        });
     }
 
-        class GetUnboundDeviceAsyncTask extends AsyncTask<Void,Void,Integer>{
-            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data",MODE_PRIVATE);
-            @Override
-            protected Integer doInBackground(Void... voids) {
-                int code = 0;
-                int houseId = (int) sharedPreferences.getLong("house_id",0);
-                Map<String,Object> map = new HashMap<>();
-                map.put("houseId",houseId);
-                String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/getUnboundDevice",map);
-                String result = HttpUtils.getOkHpptRequest(url);
-                try {
-                    if(!Utils.isEmpty(result)){
-                        JSONObject jsonObject = new JSONObject(result);
-                        code = jsonObject.getInt("code");
-                        if(code == 2000){
-                            JSONArray content=jsonObject.getJSONArray("content");
-                        }
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-                return code;
-            }
+    class GetUnboundDeviceAsyncTask extends AsyncTask<Void, Void, Integer> {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data", MODE_PRIVATE);
 
-            @Override
-            protected void onPostExecute(Integer integer) {
-                int code = integer;
-                super.onPostExecute(integer);
+        @Override
+        protected Integer doInBackground(Void... voids) {
+            int code = 0;
+            int houseId = (int) sharedPreferences.getLong("house_id", 0);
+            Map<String, Object> map = new HashMap<>();
+            map.put("houseId", houseId);
+            String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/getUnboundDevice", map);
+            String result = HttpUtils.getOkHpptRequest(url);
+            try {
+                if (!Utils.isEmpty(result)) {
+                    JSONObject jsonObject = new JSONObject(result);
+                    code = jsonObject.getInt("code");
+                    if (code == 2000) {
+                        JSONArray content = jsonObject.getJSONArray("content");
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            return code;
         }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            int code = integer;
+            super.onPostExecute(integer);
+        }
+    }
 
 
     //修改房间类型网络请求方法
-    public void ModificationAsyncTask(){
+    public void ModificationAsyncTask() {
         ModificationAsyncTask modificationAsyncTask = new ModificationAsyncTask();
         modificationAsyncTask.execute();
     }
+
     //修改房间类型异步请求
     @SuppressLint("StaticFieldLeak")
-    class ModificationAsyncTask extends AsyncTask<Void,Void,Integer>{
+    class ModificationAsyncTask extends AsyncTask<Void, Void, Integer> {
         SharedPreferences sp = getActivity().getSharedPreferences("room_postion", MODE_PRIVATE);
 
         @Override
         protected Integer doInBackground(Void... voids) {
             int code = 0;
-            int roomId = sp.getInt("returnRoomId",0);
-            String roomName = sp.getString("returnRoomName","卧室");
-            Map<String,Object> params = new HashMap<>();
-            params.put("roomName",roomName);
-            params.put("roomId",roomId);
+            int roomId = sp.getInt("returnRoomId", 0);
+            String roomName = sp.getString("returnRoomName", "卧室");
+            Map<String, Object> params = new HashMap<>();
+            params.put("roomName", roomName);
+            params.put("roomId", roomId);
             try {
-                String url="http://120.77.36.206:8082/warmer/v1.0/room/changeRoomType?roomId="+roomId+"&roomName="
+                String url = "http://120.77.36.206:8082/warmer/v1.0/room/changeRoomType?roomId=" + roomId + "&roomName="
                         + URLEncoder.encode(roomName);
-                String result=HttpUtils.getOkHpptRequest(url);
-                if(!Utils.isEmpty(result)){
+                String result = HttpUtils.getOkHpptRequest(url);
+                if (!Utils.isEmpty(result)) {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return code;
@@ -686,41 +702,42 @@ public class Btn1_fragment extends Fragment{
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 && resultCode == 2){
+        if (requestCode == 1 && resultCode == 2) {
             Bundle b = data.getExtras();
             String returnName = b.getString("returnName");
             int returnRoomId = b.getInt("returnRoomId");
             SharedPreferences sp = getActivity().getSharedPreferences("room_postion", MODE_PRIVATE);
-            sp.edit().putString("returnName",returnName);
-            sp.edit().putInt("returnRoomId",returnRoomId);
+            sp.edit().putString("returnName", returnName);
+            sp.edit().putInt("returnRoomId", returnRoomId);
             sp.edit().commit();
             int room_postion = sp.getInt("room_postion", 0);
         }
     }
 
     //返回选中的room的view
-    public List<View> getListViews(){
-        Log.i("childView_list1",childView_list.size()+"");
+    public List<View> getListViews() {
+        Log.i("childView_list1", childView_list.size() + "");
         return childView_list;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        sharedPreferences =  getActivity().getSharedPreferences("roomType",Context.MODE_PRIVATE);
+        sharedPreferences = getActivity().getSharedPreferences("roomType", Context.MODE_PRIVATE);
 
 
     }
 
     MessageReceiver receiver = new MessageReceiver();
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        running=2;
-        Intent intent=new Intent(getActivity(),MQService.class);
-        getActivity().bindService(intent,connection,Context.BIND_AUTO_CREATE);
-        IntentFilter intentFilter=new IntentFilter("Btn1_fragment");
-        getActivity().registerReceiver(receiver,intentFilter);
+        running = 2;
+        Intent intent = new Intent(getActivity(), MQService.class);
+        getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        IntentFilter intentFilter = new IntentFilter("Btn1_fragment");
+        getActivity().registerReceiver(receiver, intentFilter);
     }
 
 
@@ -739,6 +756,7 @@ public class Btn1_fragment extends Fragment{
             bound = false;
         }
     };
+
     @Override
     public void onResume() {
         super.onResume();
@@ -746,25 +764,26 @@ public class Btn1_fragment extends Fragment{
 
     @Override
     public void onDestroy() {
-        if (connection!=null){
+        if (connection != null) {
             getActivity().unbindService(connection);
         }
-        if (receiver!=null){
+        if (receiver != null) {
             getActivity().unregisterReceiver(receiver);
         }
         running = 0;
         super.onDestroy();
     }
-    String extTemp ;
+
+    String extTemp;
     String extHut;
 
-    public class MessageReceiver extends BroadcastReceiver{
+    public class MessageReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
-             extTemp = String.valueOf(intent.getIntExtra("extTemp",0));
-             extHut = String.valueOf(intent.getIntExtra("extHum",0));
+            extTemp = String.valueOf(intent.getIntExtra("extTemp", 0));
+            extHut = String.valueOf(intent.getIntExtra("extHum", 0));
             String et = extTemp;
             String eh = extHut;
 //            getData(et,eh);
@@ -777,14 +796,14 @@ public class Btn1_fragment extends Fragment{
                         String macAddress = jsonObject1.getString("macAddress");
 
                         int type = (int) jsonObject1.get("type");
-                        if(type == 2){
-                            if (deviceChild2!=null){
+                        if (type == 2) {
+                            if (deviceChild2 != null) {
                                 String macAddress2 = deviceChild2.getMacAddress();
-                                if(macAddress.equals(macAddress2)){
+                                if (macAddress.equals(macAddress2)) {
                                     TextView extTemp1 = (TextView) room_list.get(i).getView().findViewById(R.id.extTemp);
                                     TextView extHut1 = (TextView) room_list.get(i).getView().findViewById(R.id.extHut);
-                                    extTemp1.setText(deviceChild2.getTemp()+"℃");
-                                    extHut1.setText(deviceChild2.getHum()+"％");
+                                    extTemp1.setText(deviceChild2.getTemp() + "℃");
+                                    extHut1.setText(deviceChild2.getHum() + "％");
                                 }
 
                             }

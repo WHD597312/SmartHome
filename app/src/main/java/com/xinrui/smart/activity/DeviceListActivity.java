@@ -30,10 +30,12 @@ import android.widget.Toast;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
+import com.xinrui.smart.activity.device.AboutUsActivity;
 import com.xinrui.smart.activity.device.ShareDeviceActivity;
 import com.xinrui.smart.adapter.DeviceListAdapter;
 import com.xinrui.smart.fragment.HeaterFragment;
 import com.xinrui.smart.pojo.DeviceChild;
+import com.xinrui.smart.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,6 +69,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     MyApplication application;
     private String childPosition;
     private DeviceChildDaoImpl deviceChildDao;
+    public static boolean running=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,7 +105,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         }
     }
 
-    int mPoistion=0;;// 选中的位置
+    int mPoistion=-1;;// 选中的位置
     private int hour=0;
     int year=0;
     int month;
@@ -120,7 +123,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
         deviceChild=deviceChildDao.findDeviceById(Long.parseLong(childPosition));
 
-
         tv_name.setText(content);
         fragmentManager =getSupportFragmentManager();
 
@@ -131,6 +133,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         heaterFragment.setArguments(bundle);
         fragmentTransaction.replace(R.id.linearout, heaterFragment);
         fragmentTransaction.commit();
+        heaterFragment=null;
 
         list = new ArrayList<>();
         String[] titles = {"分享设备", "时钟设置", "定时任务", "设备状态", "常见问题", "关乎我们"};
@@ -140,7 +143,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
         adapter=new DeviceListAdapter(this,list);
         gradView.setAdapter(adapter);
+
         gradView.setOnItemClickListener(this);
+        adapter.setSelectedPosition(mPoistion);
 
         timePicker.setIs24HourView(true);
         Calendar calendar= Calendar.getInstance();
@@ -167,6 +172,18 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 tv_clock.setText(year+"年"+month+"月"+day+"日"+hour+"时");
             }
         });
+        running=true;
+
+        boolean online=deviceChild.getOnLint();
+        if (online){
+            linearout.setVisibility(View.VISIBLE);
+            tv_offline.setVisibility(View.GONE);
+            gradView.setVisibility(View.VISIBLE);
+        }else {
+            linearout.setVisibility(View.GONE);
+            tv_offline.setVisibility(View.VISIBLE);
+            gradView.setVisibility(View.GONE);
+        }
     }
 
     MessageReceiver receiver;
@@ -193,6 +210,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     protected void onStop() {
         super.onStop();
         deviceChildDao.closeDaoSession();
+        if (receiver!=null){
+            unregisterReceiver(receiver);
+        }
     }
 
     @Override
@@ -202,9 +222,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             //解绑界面元素
             unbinder.unbind();
         }
-        if (receiver!=null){
-           unregisterReceiver(receiver);
-        }
+
         application.removeActivity(this);
     }
 
@@ -236,10 +254,13 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 startActivity(intent3);
                 break;
             case 4:
-                Toast.makeText(this,"我的推荐",Toast.LENGTH_SHORT).show();
+                Intent intent4=new Intent(this,ComProblemActivity.class);
+                intent4.putExtra("deviceId",childPosition);
+                startActivity(intent4);
                 break;
             case 5:
-                Toast.makeText(this,"设置",Toast.LENGTH_SHORT).show();
+                Intent intent5=new Intent(this, AboutUsActivity.class);
+                startActivity(intent5);
                 break;
             default:
                 Toast.makeText(this,"1",Toast.LENGTH_SHORT).show();
@@ -252,17 +273,26 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         public void onReceive(Context context, Intent intent) {
             DeviceChild deviceChild2= (DeviceChild) intent.getSerializableExtra("deviceChild");
             String online=intent.getStringExtra("online");
-            if (deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())){
-                if ("online".equals(online)){
-                    linearout.setVisibility(View.VISIBLE);
-                    tv_offline.setVisibility(View.GONE);
-                    gradView.setVisibility(View.VISIBLE);
-                }else if ("offline".equals(online)){
-                    linearout.setVisibility(View.GONE);
-                    tv_offline.setVisibility(View.VISIBLE);
-                    gradView.setVisibility(View.GONE);
+            String noNet=intent.getStringExtra("noNet");
+            if(Utils.isEmpty(noNet)){
+                if (deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())){
+                    if ("online".equals(online)){
+                        linearout.setVisibility(View.VISIBLE);
+                        tv_offline.setVisibility(View.GONE);
+                        gradView.setVisibility(View.VISIBLE);
+                    }else if ("offline".equals(online)){
+                        linearout.setVisibility(View.GONE);
+                        tv_offline.setVisibility(View.VISIBLE);
+                        gradView.setVisibility(View.GONE);
+                    }
                 }
+            }else {
+                linearout.setVisibility(View.GONE);
+                tv_offline.setVisibility(View.VISIBLE);
+                gradView.setVisibility(View.GONE);
             }
+
+
         }
     }
 

@@ -39,6 +39,7 @@ import com.xinrui.http.HttpUtils;
 import com.xinrui.secen.scene_view_custom.DividerItemDecoration;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
+import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.adapter.CityAdapter;
 import com.xinrui.smart.adapter.DeviceAdapter;
 import com.xinrui.smart.pojo.DeviceChild;
@@ -350,7 +351,12 @@ public class DeviceFragment extends Fragment{
             switch (code){
                 case 2000:
                     Utils.showToast(getActivity(),"删除住所成功");
-                    adapter.notifyDataSetChanged();
+                    List<DeviceChild> children=deviceChildDao.findAllDevice();
+                    if (children==null || children.isEmpty()){
+                        startActivity(new Intent(getActivity(),MainActivity.class));
+                    }else {
+                        adapter.notifyDataSetChanged();
+                    }
                     break;
                 case -3003:
                     Utils.showToast(getActivity(),"删除住所失败");

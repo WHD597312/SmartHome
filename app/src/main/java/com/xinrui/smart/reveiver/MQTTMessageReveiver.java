@@ -26,6 +26,7 @@ import com.xinrui.secen.scene_fragment.Btn4_fragment;
 import com.xinrui.secen.scene_pojo.MessageEvent;
 import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.smart.R;
+import com.xinrui.smart.activity.DeviceListActivity;
 import com.xinrui.smart.activity.TempChartActivity;
 import com.xinrui.smart.activity.TimeTaskActivity;
 import com.xinrui.smart.activity.device.ShareDeviceActivity;
@@ -87,7 +88,11 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                     Intent mqttIntent = new Intent("DeviceFragment");
                     mqttIntent.putExtra("noNet","noNet");
                     context.sendBroadcast(mqttIntent);
-                } else if (HeaterFragment.running) {
+                } else if (DeviceListActivity.running){
+                    Intent mqttIntent = new Intent("DeviceListActivity");
+                    mqttIntent.putExtra("noNet","noNet");
+                    context.sendBroadcast(mqttIntent);
+                }else if (DeviceListActivity.running){
                     Intent mqttIntent = new Intent("HeaterFragment");
                     mqttIntent.putExtra("noNet","noNet");
                     context.sendBroadcast(mqttIntent);

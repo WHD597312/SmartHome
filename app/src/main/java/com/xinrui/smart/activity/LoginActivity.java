@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -145,11 +146,13 @@ public class LoginActivity extends AppCompatActivity {
                 if (!Utils.isEmpty(result)) {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
-                    JSONObject content=jsonObject.getJSONObject("content");
-                    int userId=content.getInt("userId");
-                    String phone=content.getString("phone");
-                    String password=content.getString("password");
+
                     if (code==2000){
+                        JSONObject content=jsonObject.getJSONObject("content");
+                        int userId=content.getInt("userId");
+                        String phone=content.getString("phone");
+                        String password=content.getString("password");
+                        String username=content.getString("username");
                         SharedPreferences.Editor editor=preferences.edit();
                         if (preferences.contains("phone")){
                             String phone2=preferences.getString("phone","");
@@ -161,7 +164,10 @@ public class LoginActivity extends AppCompatActivity {
                         if (!preferences.contains("password")) {
                             editor.putString("phone",phone);
                             editor.putString("password",password);
+
                         }
+
+                        editor.putString("username",username);
                         editor.putString("userId",userId+"");
                         editor.commit();
                     }
@@ -241,15 +247,18 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                         List<DeviceChild> deviceChildren=deviceChildDao.findAllDevice();
                         for (DeviceChild deviceChild:deviceChildren){
+
                             JSONObject jsonObject=new JSONObject();
                             jsonObject.put("loadDate","on");
                             String s=jsonObject.toString();
                             String mac = deviceChild.getMacAddress();
                             String topicName = "rango/" + mac + "/set";
                             boolean success=false;
-                            if (bound) {
-                                success = mqService.publish(topicName, 2, s);
+                            success = mqService.publish(topicName, 1, s);
+                            if (!success){
+                                success = mqService.publish(topicName, 1, s);
                             }
+                            Log.i("ssss","sss"+success);
                         }
 
                 }catch (Exception e){
@@ -362,7 +371,7 @@ public class LoginActivity extends AppCompatActivity {
                                 int version = device.getInt("version");
                                 String macAddress = device.getString("macAddress");
                                 int controlled = device.getInt("controlled");
-                                DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
+                                DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, groupId, masterControllerUserId, type, isUnlock);
                                 deviceChild.setVersion(version);
                                 deviceChild.setMacAddress(macAddress);
                                 deviceChild.setControlled(controlled);

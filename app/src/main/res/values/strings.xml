@@ -82,5 +82,6 @@
     <string name="change_scene">换景</string>
     <string name="device_name">设备名称:</string>
     <string name="hint">温馨提示!</string>
-
+    <string name="scan_text">放入框内,自动扫描</string>
+    <string name="title_activity_about_app">AboutAppActivity</string>
 </resources>

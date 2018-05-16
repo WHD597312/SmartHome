@@ -49,7 +49,7 @@ public class ForgetPswdActivity extends AppCompatActivity {
     EditText et_password;
     @BindView(R.id.btn_get_code)
     Button btn_get_code;
-    private String url = "http://120.77.36.206:8082/warmer/v1.0/user//forgetPassword";
+    private String url = "http://120.77.36.206:8082/warmer/v1.0/user/forgetPassword";
 
     private DeviceChildDaoImpl deviceChildDao;
     private DeviceGroupDaoImpl deviceGroupDao;

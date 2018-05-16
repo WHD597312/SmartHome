@@ -125,24 +125,26 @@
                     android:layout_gravity="bottom"
                     android:layout_alignParentBottom="true"
                     android:layout_marginRight="@dimen/dp_5"
-                    android:layout_marginLeft="@dimen/dp_5"/>
+                    android:layout_marginLeft="@dimen/dp_5"
+                    android:layout_marginBottom="@dimen/dp_50"
+                    />
             </RelativeLayout>
-
         </LinearLayout>
     </FrameLayout>
 
     <RelativeLayout
         android:id="@+id/nav_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@android:color/white"
+        android:layout_marginRight="@dimen/dp_35"
         android:fitsSystemWindows="true">
         <ImageView
             android:id="@+id/image_user"
             android:layout_width="@dimen/dp_60"
             android:layout_height="@dimen/dp_60"
-            android:src="@drawable/example"
+            android:src="@mipmap/leftbar"
             android:scaleType="centerInside"
             />
         <TextView
@@ -170,7 +172,7 @@
         <ListView
             android:id="@+id/listview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/image_user"
             android:divider="@null"
             />

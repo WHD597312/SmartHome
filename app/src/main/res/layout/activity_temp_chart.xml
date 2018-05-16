@@ -13,13 +13,13 @@
         android:layout_height="@dimen/dp_50"
         android:gravity="center_vertical"
         android:id="@+id/relative"
-        android:background="#312728"
+        android:background="#3d3c38"
         >
     <ImageView
         android:id="@+id/img_back"
         android:layout_width="@dimen/dp_40"
         android:layout_height="@dimen/dp_40"
-        android:src="@mipmap/image_back"
+        android:src="@mipmap/nav_backmdpi"
         android:scaleType="centerInside"
         android:layout_marginLeft="@dimen/dp_6"
         android:layout_centerVertical="true"

@@ -386,6 +386,8 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     } else {
                         Utils.showToast(context, "该设备离线");
                     }
+                }else {
+                    Utils.showToast(context,"主人，请对我温柔点!");
                 }
             }
         });
@@ -428,7 +430,6 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                 } else {
                     Utils.showToast(context, "设备名称不能为空");
                 }
-
             }
         });
         dialog.setOnNegativeClickListener(new DeviceChildDialog.OnNegativeClickListener() {
@@ -525,7 +526,12 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
             switch (code) {
                 case 2000:
                     Utils.showToast(context, "解除设备成功");
-                    notifyDataSetChanged();
+                    List<DeviceChild> children=deviceChildDao.findAllDevice();
+                    if (children==null || children.isEmpty()){
+                        context.startActivity(new Intent(context,MainActivity.class));
+                    }else {
+                        notifyDataSetChanged();
+                    }
                     break;
                 case -3009:
                     Utils.showToast(context, "解除设备失败");
@@ -613,7 +619,13 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                 }
                                 childern.get(groupPostion).remove(deviceChild2);
                                 Utils.showToast(context, "该设备已重置");
-                                notifyDataSetChanged();
+
+                               List<DeviceChild> children=deviceChildDao.findAllDevice();
+                               if (children==null || children.isEmpty()){
+                                   context.startActivity(new Intent(context,MainActivity.class));
+                               }else {
+                                   notifyDataSetChanged();
+                               }
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -642,7 +654,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                 child.setImg(imgs[0]);
                                 child.setOnLint(true);
                                 child2.setOnLint(true);
-
+                                child.setControlled(child2.getControlled());
                                 deviceChildDao.update(child2);
 //                    deviceChildDao.update(child);
                                 changeChild(groupPostion, childPosition);
@@ -656,7 +668,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                 child.setOnLint(true);
                                 child2.setOnLint(true);
                                 child2.setRatedPower(child2.getRatedPower());
-
+                                child.setControlled(child2.getControlled());
                                 deviceChildDao.update(child2);
 //                    deviceChildDao.update(child);
                                 changeChild(groupPostion, childPosition);
@@ -680,7 +692,6 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                         changeChild(groupPostion, childPosition);
                     }
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }

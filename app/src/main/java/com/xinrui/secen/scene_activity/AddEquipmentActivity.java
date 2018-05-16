@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,23 +17,44 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
+import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
+import com.xinrui.database.dao.daoimpl.TimeDaoImpl;
+import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.secen.scene_adapter.EquipmentAdapter;
 import com.xinrui.secen.scene_pojo.Equipment;
 import com.xinrui.secen.scene_util.GetUrl;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
+import com.xinrui.smart.activity.LoginActivity;
 import com.xinrui.smart.activity.MainActivity;
+import com.xinrui.smart.activity.MainControlActivity;
+import com.xinrui.smart.activity.PersonInfoActivity;
+import com.xinrui.smart.activity.device.AboutAppActivity;
+import com.xinrui.smart.activity.device.CommonProblemActivity;
+import com.xinrui.smart.activity.device.CommonSetActivity;
+import com.xinrui.smart.adapter.FunctionAdapter;
+import com.xinrui.smart.pojo.DeviceGroup;
+import com.xinrui.smart.pojo.Function;
+import com.xinrui.smart.pojo.TimeTask;
+import com.xinrui.smart.pojo.Timer;
+import com.xinrui.smart.util.GlideCircleTransform;
 import com.xinrui.smart.util.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +80,27 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
     GetUrl getUrl = new GetUrl();
     @BindView(R.id.sure)
     Button sure;
+    @BindView(R.id.tv_user)
+    TextView tv_user;
+    /**
+     * 用户账号
+     */
+    @BindView(R.id.image_user)
+    ImageView image_user;
+    /**
+     * 用户头像
+     */
     private Context mContext;
+    @BindView(R.id.tv_home)
+    TextView tv_home;
+    /**
+     * 家名称
+     */
+    @BindView(R.id.tv_exit)
+    TextView tv_exit;
+    /**
+     * 退出程序
+     */
     //网络返回的数据
     List<Equipment> equipment_network = new ArrayList<>();
     //列表数据
@@ -72,17 +114,11 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
     //全选操作
     private List<Equipment> check_all_cb;
 
-    @OnClick(R.id.return_button)
-    public void return_MainActivity() {
-        //回退到MainActivity判断是哪个fragment，并切换回之前的fragment
-        Intent intent = new Intent(AddEquipmentActivity.this,MainActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("Activity_return", "Activity_return");
-        intent.putExtras(bundle);
-        startActivity(intent);
+    DeviceGroupDaoImpl deviceGroupDao;
 
-    }
     MyApplication application;
+    SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,10 +145,173 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
                 drawer.openDrawer(GravityCompat.START);
             }
         });
-        if (application==null){
-            application= (MyApplication) getApplication();
+
+        function();
+        if (application == null) {
+            application = (MyApplication) getApplication();
+            application.addActivity(this);
+        }
+        deviceGroupDao = new DeviceGroupDaoImpl(MyApplication.getContext());
+        sharedPreferences = getSharedPreferences("data", Context.MODE_PRIVATE);
+        long house_Id = sharedPreferences.getLong("house_id", 0);
+        DeviceGroup deviceGroup = deviceGroupDao.findById(house_Id);
+        if (deviceGroup != null) {
+            String header = deviceGroup.getHeader();
+            if (!Utils.isEmpty(header)) {
+                tv_home.setText(header);
+            }
         }
         getUnboundDevice();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        application.removeActivity(this);
+    }
+
+    SharedPreferences preferences;
+    private Uri outputUri;//裁剪完照片保存地址
+    File file;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
+        file = new File(getExternalCacheDir(), "crop_image2.jpg");
+
+        SharedPreferences preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
+        String phone = preferences.getString("phone", "");
+        String username = preferences.getString("username", "");
+        try {
+            if (file.exists()) {
+                outputUri = Uri.fromFile(file);
+                file.createNewFile();
+                Glide.with(AddEquipmentActivity.this).load(file).transform(new GlideCircleTransform(getApplicationContext())).into(image_user);
+            } else {
+                String userId = preferences.getString("userId", "");
+                String url = "http://120.77.36.206:8082/warmer/v1.0/user/" + userId + "/headImg";
+                Glide.with(AddEquipmentActivity.this).load(url).transform(new GlideCircleTransform(getApplicationContext())).error(R.mipmap.touxiang).into(image_user);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        if (!Utils.isEmpty(username)) {
+            tv_user.setText(username);
+        } else if (!Utils.isEmpty(phone)) {
+            tv_user.setText(phone);
+        }
+
+    }
+
+    @OnClick({R.id.tv_exit, R.id.return_button, R.id.image_user, R.id.tv_user})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_exit:
+                if (file != null && file.exists()) {
+                    file.delete();
+                }
+                DeviceChildDaoImpl deviceChildDao = new DeviceChildDaoImpl(this);
+                SharedPreferences smart = getSharedPreferences("smart", Context.MODE_PRIVATE);
+                SharedPreferences fragmentPreferences = getSharedPreferences("fragment", Context.MODE_PRIVATE);
+                TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(getApplicationContext());
+                List<TimeTask> timeTasks = timeTaskDao.findAll();
+                for (TimeTask timeTask : timeTasks) {
+                    timeTaskDao.delete(timeTask);
+                }
+
+                TimeDaoImpl timeDao = new TimeDaoImpl(getApplicationContext());
+                List<Timer> timers = timeDao.findTimers();
+                for (Timer timer : timers) {
+                    timeDao.delete(timer);
+                }
+                smart.edit().clear().commit();
+//                preferences.edit().clear().commit();/**清空当前用户的所有数据*/
+                if (preferences.contains("password")) {
+                    preferences.edit().remove("password").commit();
+                    preferences.edit().remove("login").commit();
+                    if (preferences.contains("username")) {
+                        preferences.edit().remove("username").commit();
+                    }
+                    fragmentPreferences.edit().clear().commit();
+                    smart.edit().clear().commit();
+                }
+                fragmentPreferences.edit().clear().commit();
+                deviceGroupDao.deleteAll();
+                deviceChildDao.deleteAll();
+
+                application.removeAllFragment();
+
+                deviceChildDao.closeDaoSession();
+                deviceGroupDao.closeDaoSession();
+                timeDao.closeDaoSession();
+                timeTaskDao.closeDaoSession();
+
+                Intent intent2 = new Intent(AddEquipmentActivity.this, LoginActivity.class);
+                startActivity(intent2);
+                break;
+            case R.id.return_button:
+                Intent intent = new Intent(AddEquipmentActivity.this, MainActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("Activity_return", "Activity_return");
+                intent.putExtras(bundle);
+                startActivity(intent);
+                break;
+            case R.id.image_user:
+                Intent change = new Intent(this, PersonInfoActivity.class);
+                change.putExtra("change", "change");
+                startActivity(change);
+                break;
+            case R.id.tv_user:
+                Intent change2 = new Intent(this, PersonInfoActivity.class);
+                change2.putExtra("change", "change");
+                startActivity(change2);
+                break;
+
+        }
+    }
+
+    /**
+     * 设置功能菜单
+     */
+    private void function() {
+        int[] imgs = {R.mipmap.leftbar_main, R.mipmap.leftbar_problum, R.mipmap.leftbar_commen, R.mipmap.leftbar_about};
+        String[] strings = {"主页", "常见问题", "通用设置", "关于应用"};
+        List<Function> functions = new ArrayList<>();
+        for (int i = 0; i < imgs.length; i++) {
+            Function function = new Function(imgs[i], strings[i]);
+            functions.add(function);
+        }
+        FunctionAdapter adapter = new FunctionAdapter(this, functions);
+        listview.setAdapter(adapter);
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        Intent main = new Intent(AddEquipmentActivity.this, MainActivity.class);
+                        startActivity(main);
+                        break;
+                    case 1:
+                        Intent common = new Intent(AddEquipmentActivity.this, CommonProblemActivity.class);
+                        common.putExtra("common", "common");
+                        startActivity(common);
+                        break;
+                    case 2:
+                        Intent common2 = new Intent(AddEquipmentActivity.this, CommonSetActivity.class);
+                        common2.putExtra("common", "common");
+                        startActivity(common2);
+                        break;
+                    case 3:
+                        Intent common3 = new Intent(AddEquipmentActivity.this, AboutAppActivity.class);
+                        common3.putExtra("common", "common");
+                        startActivity(common3);
+                        break;
+                }
+            }
+        });
     }
 
     public void initView() {
@@ -145,27 +344,27 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
     }
 
     @OnClick(R.id.sure)
-    public void onViewClicked(){
-        if(null == checkedList||checkedList.size() == 0){
+    public void onViewClicked() {
+        if (null == checkedList || checkedList.size() == 0) {
 
-        }else {
-            SharedPreferences sharedPreferences1 = getSharedPreferences("roomId",Activity.MODE_PRIVATE);
-            int roomId = sharedPreferences1.getInt("roomId",0);
+        } else {
+            SharedPreferences sharedPreferences1 = getSharedPreferences("roomId", Activity.MODE_PRIVATE);
+            int roomId = sharedPreferences1.getInt("roomId", 0);
             JSONArray jsonArray = new JSONArray();
             for (int i = 0; i < checkedList.size(); i++) {
                 jsonArray.put(checkedList.get(i).getId());
             }
-            try{
+            try {
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("roomId",roomId);
-                jsonObject.put("deviceIds",jsonArray);
+                jsonObject.put("roomId", roomId);
+                jsonObject.put("deviceIds", jsonArray);
                 new AddDevicesAsyncTask().execute(jsonObject);
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             //回退到MainActivity判断是哪个fragment，并切换回之前的fragment
-            Intent intent = new Intent(AddEquipmentActivity.this,MainActivity.class);
+            Intent intent = new Intent(AddEquipmentActivity.this, MainActivity.class);
             Bundle bundle = new Bundle();
             bundle.putString("Activity_return", "Activity_return");
             intent.putExtras(bundle);
@@ -181,35 +380,37 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
         void onDataReceivedFailed();
     }
 
+
     //房间内添加设备
-    class AddDevicesAsyncTask extends AsyncTask<JSONObject,Void,Integer>{
+    class AddDevicesAsyncTask extends AsyncTask<JSONObject, Void, Integer> {
 
         @Override
         protected Integer doInBackground(JSONObject... s) {
             int code = 0;
             JSONObject params = s[0];
             String url = "http://120.77.36.206:8082/warmer/v1.0/room/addDevice";
-            String result = HttpUtils.postOkHpptRequest3(url,params);
-            if(!Utils.isEmpty(result)){
-                try{
+            String result = HttpUtils.postOkHpptRequest3(url, params);
+            if (!Utils.isEmpty(result)) {
+                try {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
                     String message = jsonObject.getString("message");
-                    if(code == 2000){
+                    if (code == 2000) {
                         JSONObject content = jsonObject.getJSONObject("content");
-                    }else if(code == -4004){
+                    } else if (code == -4004) {
                         String error = jsonObject.getString("error");
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
             return code;
         }
     }
+
     //查询住所内未绑定房间的设备
     class GetUnboundDeviceAsyncTask extends AsyncTask<Void, Void, List<Equipment>> {
-        SharedPreferences sharedPreferences = getSharedPreferences("data", Context.MODE_PRIVATE);
+
         AsyncResponse asyncResponse;
 
         void setOnAsyncResponse(AsyncResponse asyncResponse) {
@@ -241,12 +442,12 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
                         int isUnlock = object.getInt("isUnlock");
 
                         int device_drawable = 0;
-                        if(type == 1){
+                        if (type == 1) {
                             device_drawable = R.drawable.equipment_warmer;
-                        }else if(type == 2){
+                        } else if (type == 2) {
                             device_drawable = R.drawable.equipment_external_sensor;
                         }
-                        Equipment equipment = new Equipment(type,id, deviceName, device_drawable, houseId, masterControllerUserId, isUnlock, false);
+                        Equipment equipment = new Equipment(type, id, deviceName, device_drawable, houseId, masterControllerUserId, isUnlock, false);
                         equipment_list.add(equipment);
                     }
                     return equipment_list;
@@ -262,7 +463,7 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
         @Override
         protected void onPostExecute(List<Equipment> equipment_list) {
             try {
-                if (null != equipment_list &&equipment_list.size() != 0) {
+                if (null != equipment_list && equipment_list.size() != 0) {
                     asyncResponse.onDataReceivedSuccess(equipment_list);
                 } else {
                     asyncResponse.onDataReceivedFailed();
@@ -278,7 +479,7 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
     private void initDatas(List<Equipment> equipment) {
         dataArray = new ArrayList<>();
         for (int i = 0; i < equipment.size(); i++) {
-            Equipment equipment1 = new Equipment(equipment.get(i).getType(),equipment.get(i).getId(), equipment.get(i).getDeviceName(), equipment.get(i).getDevice_type(), 0, 0, 0, false);
+            Equipment equipment1 = new Equipment(equipment.get(i).getType(), equipment.get(i).getId(), equipment.get(i).getDeviceName(), equipment.get(i).getDevice_type(), 0, 0, 0, false);
             dataArray.add(equipment1);
         }
     }
@@ -307,11 +508,12 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //回退到MainActivity判断是哪个fragment，并切换回之前的fragment
-        Intent intent = new Intent(AddEquipmentActivity.this,MainActivity.class);
+        Intent intent = new Intent(AddEquipmentActivity.this, MainActivity.class);
         Bundle bundle = new Bundle();
         bundle.putString("Activity_return", "Activity_return");
         intent.putExtras(bundle);
         startActivity(intent);
         return super.onKeyDown(keyCode, event);
     }
+
 }

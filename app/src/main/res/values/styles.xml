@@ -12,10 +12,12 @@
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">#3d3c38</item>
     </style>
+
     <style name="Popupwindow">
         <item name="android:windowEnterAnimation">@anim/window_out</item>
         <item name="android:windowExitAnimation">@anim/window_back</item>
     </style>
+
     <style name="position_dialog_theme" parent="android:Theme.Dialog">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item>
@@ -26,10 +28,12 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowAnimationStyle">@style/MyDialogAnimationStyle</item>
     </style>
+
     <style name="MyDialogAnimationStyle" parent="android:Animation">
         <item name="android:windowEnterAnimation">@anim/in_from_bottom</item>
         <item name="android:windowExitAnimation">@anim/out_from_bottom</item>
     </style>
+
     <style name="MyDialog" parent="android:style/Theme.Dialog">
         <!-- 设置背景和透明度 -->
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -42,6 +46,7 @@
         <!-- 是否模糊 -->
         <item name="android:backgroundDimEnabled">false</item>
     </style>
+
     <style name="CheckBoxSyle" parent="@style/Widget.AppCompat.CompoundButton.CheckBox">
         <item name="android:button">@drawable/selector_round</item>
     </style>
@@ -94,4 +99,8 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
     </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

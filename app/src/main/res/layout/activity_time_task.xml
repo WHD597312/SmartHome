@@ -11,6 +11,7 @@
         android:layout_height="@dimen/dp_50"
         android:gravity="center_vertical"
         android:id="@+id/relative"
+        android:background="#3d3c38"
         >
         <ImageView
             android:id="@+id/img_back"
@@ -39,7 +40,7 @@
             android:layout_height="@dimen/dp_40"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:src="@mipmap/image_home"
+            android:src="@mipmap/nav_home"
             android:scaleType="centerCrop"
             android:layout_marginRight="@dimen/dp_8"
             />
@@ -48,7 +49,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
-
         <Button
             android:id="@+id/btn_cancle"
             android:layout_width="@dimen/dp_60"
@@ -162,14 +162,14 @@
             android:layout_centerInParent="true"
             app:wheel_max_process="24"
             />
-        <TextView
+        <TextClock
             android:id="@+id/textview"
             android:layout_width="wrap_content"
             android:layout_centerInParent="true"
             android:textSize="18sp"
             android:layout_height="wrap_content"
             android:textColor="@color/color_white"
-            android:text=""
+            android:text="sssss"
             />
     </RelativeLayout>
     <LinearLayout
@@ -265,7 +265,7 @@
             android:layout_toRightOf="@+id/tv_open"
             android:gravity="center"
             android:background="@null"
-            android:text="2:00"
+            android:text="0:00"
             android:paddingLeft="@dimen/dp_5"
             android:paddingRight="@dimen/dp_5"
             android:textColor="@color/color_orange" />

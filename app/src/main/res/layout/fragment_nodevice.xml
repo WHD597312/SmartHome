@@ -10,33 +10,32 @@
 
     <ImageView
         android:id="@+id/image_home"
-        android:layout_width="@dimen/dp_45"
-        android:layout_height="@dimen/dp_45"
+        android:layout_width="@dimen/dp_25"
+        android:layout_height="@dimen/dp_25"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="@dimen/dp_90"
-        android:layout_marginLeft="@dimen/dp_30"
-        android:src="@mipmap/home"
-        android:scaleType="centerInside"
-        />
+        android:layout_marginLeft="@dimen/dp_80"
+        android:layout_marginTop="@dimen/dp_80"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/home" />
 
     <TextView
         android:id="@+id/tv_myhome"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/dp_50"
         android:layout_alignBottom="@+id/image_home"
-        android:layout_toRightOf="@+id/image_home"
+        android:layout_toEndOf="@+id/image_home"
         android:text="我的家"
         android:textColor="@color/white"
-        android:textSize="@dimen/sp_25"
-        android:gravity="center"
-        />
+        android:gravity="bottom"
+        android:textSize="@dimen/sp_20" />
 
     <ImageView
         android:id="@+id/image_position"
-        android:layout_width="@dimen/dp_40"
-        android:layout_height="@dimen/dp_40"
+        android:layout_width="@dimen/dp_25"
+        android:layout_height="@dimen/dp_25"
         android:layout_alignBottom="@+id/image_home"
         android:layout_toRightOf="@id/tv_myhome"
+        android:layout_marginLeft="@dimen/dp_20"
         android:paddingBottom="@dimen/dp_5"
         android:scaleType="centerCrop"
         android:src="@mipmap/poistion" />
@@ -49,19 +48,34 @@
         android:layout_alignBottom="@id/image_position"
         android:layout_alignTop="@id/image_position"
         android:gravity="center"
-        android:textSize="@dimen/sp_18"
+        android:textSize="@dimen/sp_15"
         android:textColor="@color/white"
         android:text="慈溪市" />
 
+
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="316dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:layout_centerHorizontal="true"
+        android:layout_marginRight="@dimen/dp_30"
+        android:layout_below="@id/tv_myhome"
+        android:layout_marginTop="@dimen/dp_20"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_16"
+        android:text="添加灯、门锁、取暖器和其他支持Rango的配件，打造属于您的智能个性化的家。" />
     <Button
         android:id="@+id/btn_add_device"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/image_home"
         android:layout_centerHorizontal="true"
+        android:layout_below="@+id/textView"
         android:layout_marginRight="@dimen/dp_30"
-        android:layout_below="@id/image_position"
-        android:layout_marginTop="@dimen/dp_200"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:layout_marginTop="@dimen/dp_230"
         android:background="@drawable/shape_white_button"
         android:text="@string/add_device"
         android:textSize="@dimen/sp_20"

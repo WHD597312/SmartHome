@@ -27,6 +27,7 @@ import com.xinrui.secen.scene_pojo.RoomEntry;
 import com.xinrui.secen.scene_util.GetUrl;
 import com.xinrui.secen.scene_view_custom.CustomDialog;
 import com.xinrui.secen.scene_view_custom.MyGridView;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.util.Utils;
@@ -179,6 +180,7 @@ public class CustomRoomActivity extends AppCompatActivity {
         longTemp = postion;
     }
 
+    MyApplication application;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -196,6 +198,11 @@ public class CustomRoomActivity extends AppCompatActivity {
         }
         //初始化数据
         initRooms();
+        if (application==null){
+            application= (MyApplication) getApplication();
+            application.addActivity(this);
+        }
+
 
     }
 
@@ -248,6 +255,7 @@ public class CustomRoomActivity extends AppCompatActivity {
 
 
     }
+
 
     public void setHandle() {
         new Handler().postDelayed(new Runnable() {

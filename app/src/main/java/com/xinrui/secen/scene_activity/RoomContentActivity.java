@@ -60,6 +60,7 @@ import com.xinrui.secen.scene_util.BitmapCompressUtils;
 import com.xinrui.secen.scene_util.GetUrl;
 import com.xinrui.secen.scene_view_custom.CustomDialog;
 import com.xinrui.secen.scene_view_custom.DragImageView;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.pojo.DeviceChild;
@@ -141,6 +142,7 @@ public class RoomContentActivity extends Activity {
     private CustomDialog mDialog;
     DeviceChildDaoImpl deviceChildDao;
 
+    MyApplication application;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", MODE_PRIVATE);
@@ -161,7 +163,18 @@ public class RoomContentActivity extends Activity {
         initBackgroundImage();
         getRoomAllDevices();
 
+        if (application==null){
+            application= (MyApplication) getApplication();
+            application.addActivity(this);
+        }
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        application.removeActivity(this);
+    }
+
     //服务器获取数据并初始化背景图片
     private void initBackgroundImage() {
         builder = new CustomDialog.Builder(this);

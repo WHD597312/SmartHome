@@ -742,7 +742,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
                     }
                 } else if (current_key == 4) {
-                    final Btn2_fragment btn4_fragment = (Btn2_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
+                    final Btn4_fragment btn4_fragment = (Btn4_fragment) fragmentViewPagerAdapter.getmCurrentFragment();
                     if (btn4_fragment.getListViews().isEmpty() || btn4_fragment.getListViews() == null) {
 
                     } else {

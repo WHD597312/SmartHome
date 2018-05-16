@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:id="@+id/image_clear_cache"
+        android:layout_width="@dimen/dp_50"
+        android:layout_height="@dimen/dp_50"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:src="@mipmap/clear_cache"
+        android:scaleType="centerInside"
+        android:layout_marginTop="@dimen/dp_5"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginBottom="@dimen/dp_10"
+        />
+
+    <TextView
+        android:id="@+id/tv_clear_cache"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_30"
+        android:layout_alignTop="@+id/image_clear_cache"
+        android:text="清除缓存"
+        android:textSize="@dimen/sp_18"
+        android:gravity="center_vertical"
+        android:layout_toRightOf="@+id/image_clear_cache"
+        android:textColor="@color/black"
+        android:layout_marginLeft="@dimen/dp_10"
+        />
+
+    <TextView
+        android:id="@+id/tv_current"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/image_clear_cache"
+        android:layout_alignLeft="@+id/tv_clear_cache"
+        android:textSize="@dimen/sp_16"
+        android:text="TextView" />
+
+    <ImageView
+        android:id="@+id/image_right"
+        android:layout_width="@dimen/dp_50"
+        android:layout_height="@dimen/dp_50"
+        android:layout_alignTop="@+id/image_clear_cache"
+        android:src="@mipmap/nav_back_right"
+        android:scaleType="centerInside"
+        android:layout_alignParentRight="true"
+        />
+</RelativeLayout>

@@ -28,16 +28,16 @@
             android:layout_marginLeft="@dimen/dp_5"
             android:text="TextView" />
 
-        <TextView
+        <ImageView
             android:id="@+id/tv_indicate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
-            android:text=">"
-            android:textSize="25sp"
+            android:src="@mipmap/nav_back_right"
+            android:scaleType="centerInside"
             android:layout_marginRight="@dimen/dp_5"
             />
 

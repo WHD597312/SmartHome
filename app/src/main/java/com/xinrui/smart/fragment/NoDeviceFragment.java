@@ -92,17 +92,20 @@ public class NoDeviceFragment extends Fragment{
         if (deviceGroups.size()==2){
             for (DeviceGroup deviceGroup2:deviceGroups){
                 deviceGroup=deviceGroup2;
-
                 break;
             }
         }
         if (deviceGroup!=null){
             updateDeviceGroup=deviceGroup;
             String location=deviceGroup.getLocation();
+            String houseHome=deviceGroup.getHouseName();
             if (!Utils.isEmpty(location)){
                 tv_city.setText(deviceGroup.getLocation());
             }else {
                 tv_city.setText("北京市");
+            }
+            if (!Utils.isEmpty(houseHome)){
+                tv_myhome.setText(houseHome);
             }
 
         }

@@ -131,6 +131,7 @@ public class MQService extends Service {
                 if (!topicNames.isEmpty()) {
                     for (String topicName : topicNames) {
                         client.subscribe(topicName, 1);
+
                     }
                 }
             } catch (Exception e) {
@@ -203,9 +204,13 @@ public class MQService extends Service {
             String topicName=strings[0];
             Log.i("sssss",topicName);
             String message=strings[1];
+            Log.i("sssss",message);
             int timerTaskWeek =0;
             Log.i("ssss",message);
             if ("There is no need to upgrade".equals(message) || "upgradeFinish".equals(message)){
+                if (message!=null && message.length()==0){
+                    return null;
+                }
                 return null;
             }
             String reSet=null;
@@ -436,8 +441,20 @@ public class MQService extends Service {
                                 child.setRatedPower(ratedPower);
                             if (!Utils.isEmpty(protectEnable))
                                 child.setProtectEnable(protectEnable);
-                            if (!Utils.isEmpty(ctrlMode))
+                            if (!Utils.isEmpty(ctrlMode)){
                                 child.setCtrlMode(ctrlMode);
+                                int type=child.getType();
+                                if (type==1){
+                                    if ("master".equals(ctrlMode)){
+                                        child.setControlled(2);
+                                    }else if ("slave".equals(ctrlMode)){
+                                        child.setControlled(1);
+                                    }else if ("normal".equals(ctrlMode)){
+                                        child.setControlled(0);
+                                    }
+                                }
+                            }
+
                             if (powerValue != 0)
                                 child.setPowerValue(powerValue);
                             if (voltageValue != 0)
@@ -552,8 +569,11 @@ public class MQService extends Service {
                             mqttIntent.putExtra("deviceChild", child);
                             sendBroadcast(mqttIntent);
                         }else {
-                            if (topicName.equals("rango/" + macAddress + "/lwt")){
+                            child = deviceChildDao.findDeviceById(child.getId());
+                            boolean online=child.getOnLint();
+                            if (!online){
                                 child = deviceChildDao.findDeviceById(child.getId());
+
                                 Intent mqttIntent = new Intent("DeviceFragment");
                                 mqttIntent.putExtra("groupPostion", groupPostion);
                                 mqttIntent.putExtra("childPosition", childPosition);
@@ -563,42 +583,44 @@ public class MQService extends Service {
                             }else {
                                 if (device!=null && device.has("deviceState")) {
                                     child = deviceChildDao.findDeviceById(child.getId());
-                                    boolean online=child.getOnLint();
-
-                                    if (online && timerTaskWeek!=0){
+                                    if (timerTaskWeek!=0){/**在线状态下，timerTaskWeek值不为0*/
+                                        Log.i("ss","ss");
                                         Message msg=handler.obtainMessage();
                                         msg.what=1;
                                         msg.obj=child;
                                         handler.sendMessage(msg);
                                     }else {
-                                        if (child.getType()==1){
-                                            if (child.getControlled()==0 || child.getControlled()==2){
+                                        if (child.getType()==1){/**设备类型为1*/
+                                            long shareHouseId = Long.MAX_VALUE;
+                                            long houseId=child.getHouseId();
+                                            if (child.getControlled()==0 || child.getControlled()==2 || houseId==shareHouseId){/**主控，普通设备，分享的设备*/
+                                                Log.i("sss","sss");
                                                 Message msg=handler.obtainMessage();
                                                 msg.what=1;
                                                 msg.obj=child;
                                                 handler.sendMessage(msg);
                                             }
+                                        }else if (child.getType()==2){/**外置温度传感器*/
+                                            Message msg=handler.obtainMessage();
+                                            msg.what=1;
+                                            msg.obj=child;
+                                            handler.sendMessage(msg);
+                                            Log.i("sssssa","sssssa");
                                         }
                                     }
-
-
 //                                    handler.sendMessage(msg);
                                 }
                             }
                         }
-
                     } else if (HeaterFragment.running) {
                         if (!Utils.isEmpty(reSet)){
                             Intent mqttIntent = new Intent("HeaterFragment");
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
                         }else {
-                            if (topicName.equals("rango/" + macAddress + "/lwt")){
-                                Intent mqttIntent = new Intent("DeviceListActivity");
-                                mqttIntent.putExtra("deviceChild", child);
-                                mqttIntent.putExtra("online", "offline");
-                                sendBroadcast(mqttIntent);
-                            }else{
+                            child = deviceChildDao.findDeviceById(child.getId());
+                            boolean online=child.getOnLint();
+                            if (online){
                                 child = deviceChildDao.findDeviceById(child.getId());
                                 long houseId = child.getHouseId();
                                 long deviceId = child.getId();
@@ -612,6 +634,11 @@ public class MQService extends Service {
                                 mqttIntent2.putExtra("online", "online");
                                 mqttIntent2.putExtra("deviceChild", child);
                                 sendBroadcast(mqttIntent2);
+                            }else {
+                                Intent mqttIntent = new Intent("DeviceListActivity");
+                                mqttIntent.putExtra("deviceChild", child);
+                                mqttIntent.putExtra("online", "offline");
+                                sendBroadcast(mqttIntent);
                             }
                         }
                     } else if (TimeTaskActivity.running) {

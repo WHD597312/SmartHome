@@ -6,18 +6,18 @@
 
     <item
         android:drawable="@mipmap/img012x"
-        android:duration="200" />
+        android:duration="250" />
     <item
         android:drawable="@mipmap/img032x"
-        android:duration="200" />
+        android:duration="250" />
 
     <item
         android:drawable="@mipmap/img022x"
-        android:duration="200" />
+        android:duration="250" />
     <item
         android:drawable="@mipmap/img042x"
-        android:duration="200" />
+        android:duration="250" />
     <item
         android:drawable="@mipmap/img052x"
-        android:duration="200" />
+        android:duration="250" />
 </animation-list>

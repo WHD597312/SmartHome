@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="@dimen/dp_50"
+    android:background="#42413f"
+    android:orientation="horizontal"
+    >
+    <ImageView
+        android:id="@+id/back"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/nav_backmdpi"
+        android:scaleType="centerInside"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_40"
+        android:text="扫一扫"
+        android:textSize="@dimen/sp_18"
+        android:gravity="center"
+        android:textColor="@color/white"
+        />
+</RelativeLayout>

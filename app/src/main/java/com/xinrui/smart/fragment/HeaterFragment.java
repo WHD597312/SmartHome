@@ -142,6 +142,7 @@ public class HeaterFragment extends LazyFragment {
         }
         //填充各控件的数据
     }
+    private boolean outside=true;
     @Override
     public void onStart() {
         super.onStart();
@@ -161,18 +162,44 @@ public class HeaterFragment extends LazyFragment {
                     img_circle.setImageResource(R.drawable.lottery_animlist);
                     AnimationDrawable animationDrawable = (AnimationDrawable) img_circle.getDrawable();
                     String module = semicBar.getModule();
-
+                    String workMode = deviceChild.getWorkMode();
+                    String deviceState = deviceChild.getDeviceState();
                     Log.i(TAG, "-->" + seekbar.getmCurAngle());
                     double curAngle = semicBar.getmCurAngle();
                     if ("1".equals(module)) {
-                        if (curAngle > 272 && curAngle <= 310) {
+                        if (curAngle > 272 && curAngle <= 330) {
                             mCurrent = 42;
-                        } else if (curAngle >= 310 && curAngle <= 360) {
-                            mCurrent = 5;
+                            if ("open".equals(deviceState)) {
+                                if ("manual".equals(workMode)) {
+                                    if (outside){
+                                        tv_set_temp.setText(mCurrent + "℃");
+                                        int curTemp = deviceChild.getCurTemp();
+                                        tv_cur_temp.setText(curTemp+"℃");
+                                        deviceChild.setManualMatTemp(mCurrent);
+                                        send(deviceChild);
+                                        outside=false;
+                                    }
+                                }
+                            }
+                        } else if (curAngle >330 && curAngle <= 360) {
+                            if ("open".equals(deviceState)) {
+                                if ("manual".equals(workMode)) {
+                                    outside=true;
+                                    if (outside){
+                                        tv_set_temp.setText(mCurrent + "℃");
+                                        int curTemp = deviceChild.getCurTemp();
+                                        tv_cur_temp.setText(curTemp+"℃");
+                                        deviceChild.setManualMatTemp(mCurrent);
+                                        send(deviceChild);
+                                        outside=false;
+                                    }
+                                }
+                            }
+
                         } else {
                             mCurrent = (int) curAngle / 7 + 3;
                         }
-                        String deviceState = deviceChild.getDeviceState();
+
                         if ("close".equals(deviceState)) {
 //                            Message msg = handler.obtainMessage();
 //                            msg.arg1 = 2;
@@ -183,7 +210,6 @@ public class HeaterFragment extends LazyFragment {
                             tv_cur_temp.setText(curTemp+"℃");
                             tv_outmode.setText("");
                         } else if ("open".equals(deviceState)) {
-                            String workMode = deviceChild.getWorkMode();
                             if ("manual".equals(workMode)) {
                                 deviceChild.setManualMatTemp(mCurrent);
                                 deviceChildDao.update(deviceChild);
@@ -262,13 +288,11 @@ public class HeaterFragment extends LazyFragment {
 
 
                             tv_set_temp.setText(mCurrent + "℃");
-
                             int curTemp = deviceChild.getCurTemp();
                             tv_cur_temp.setText(curTemp+"℃");
 
                         }
                     } else if ("2".equals(module)) {
-                        String deviceState = deviceChild.getDeviceState();
                         if ("close".equals(deviceState)) {
 //                            Message msg = handler.obtainMessage();
 //                            msg.arg1 = 2;
@@ -289,10 +313,33 @@ public class HeaterFragment extends LazyFragment {
                             }else {
                                 animationDrawable.start();
                             }
-                            if (curAngle > 272 && curAngle <= 310) {
-                                mCurrent = 60;
-                            } else if ((curAngle >= 310 && curAngle <= 360)) {
-                                mCurrent = 48;
+                            if (curAngle > 272 && curAngle <= 330) {
+                                outside=true;
+                                if (outside){
+                                    mCurrent = 60;
+                                    deviceChild.setProtectSetTemp(mCurrent);
+                                    deviceChildDao.update(deviceChild);
+                                    tv_set_temp.setText(mCurrent + "℃");
+                                    int curTemp = deviceChild.getProtectProTemp();
+                                    tv_cur_temp.setText(curTemp+"℃");
+                                    send(deviceChild);
+                                    outside=false;
+                                }
+
+                            } else if ((curAngle > 330 && curAngle <= 360)) {
+                                outside=true;
+                                if (outside){
+                                    mCurrent = 48;
+
+                                    deviceChild.setProtectSetTemp(mCurrent);
+                                    deviceChildDao.update(deviceChild);
+                                    tv_set_temp.setText(mCurrent + "℃");
+                                    int curTemp = deviceChild.getProtectProTemp();
+                                    tv_cur_temp.setText(curTemp+"℃");
+                                    send(deviceChild);
+                                    outside=false;
+                                }
+
                             } else {
                                 if (curAngle == 0) {
                                     mCurrent = 48;
@@ -318,8 +365,9 @@ public class HeaterFragment extends LazyFragment {
                                     mCurrent = 58;
                                 } else if (curAngle > 224 && curAngle <= 240) {
                                     mCurrent = 59;
-                                } else if (curAngle > 260 && curAngle <= 272) {
+                                } else if (curAngle > 260 && curAngle <= 280) {
                                     mCurrent = 60;
+
                                 }
 
                                 deviceChild.setProtectSetTemp(mCurrent);
@@ -329,11 +377,12 @@ public class HeaterFragment extends LazyFragment {
                                 tv_cur_temp.setText(curTemp+"℃");
 
                                 if (seekbar.getEnd() == 1) {
+
                                     send(deviceChild);
                                     seekbar.setEnd(0);
                                     Message msg=handler.obtainMessage();
                                     msg.arg1=7;
-                                    handler.sendMessageDelayed(msg,1000);
+                                    handler.sendMessage(msg);
                                 }
                             }
                         }
@@ -601,9 +650,9 @@ public class HeaterFragment extends LazyFragment {
                         setMode(deviceChild);
                         send(deviceChild);
                     }
+                }else {
+                    Utils.showToast(getActivity(), "主人，请对我温柔点!");
                 }
-
-
 //                semicBar.invalidate();
 
                 break;
@@ -672,6 +721,8 @@ public class HeaterFragment extends LazyFragment {
                             send(deviceChild);
                         }
                     }
+                }else {
+                    Utils.showToast(getActivity(), "主人，请对我温柔点!");
                 }
 
 
@@ -718,6 +769,8 @@ public class HeaterFragment extends LazyFragment {
                         setMode(deviceChild);
                         send(deviceChild);
                     }
+                }else {
+                    Utils.showToast(getActivity(), "主人，请对我温柔点!");
                 }
 
 
@@ -738,6 +791,8 @@ public class HeaterFragment extends LazyFragment {
                             send(deviceChild);
                         }
                     }
+                }else {
+                    Utils.showToast(getActivity(), "主人，请对我温柔点!");
                 }
 
                 break;
@@ -757,6 +812,8 @@ public class HeaterFragment extends LazyFragment {
                             send(deviceChild);
                         }
                     }
+                }else {
+                    Utils.showToast(getActivity(), "主人，请对我温柔点!");
                 }
 
                 break;
@@ -816,7 +873,7 @@ public class HeaterFragment extends LazyFragment {
             }
 
             model_protect.setTag("保护");
-            model_protect.setBackgroundResource(R.mipmap.img_temp_circle);
+            model_protect.setBackgroundResource(R.mipmap.img_child_pro);
 
             image_temp.setImageResource(R.mipmap.img_child_pro);
 
@@ -891,25 +948,24 @@ public class HeaterFragment extends LazyFragment {
                 msg.what = timerTemp;
                 handler.sendMessage(msg);
 //                handler.sendMessageDelayed(msg,1000);
-
-
             }
         }
 
         if ("open".equals(BackGroundLED)) {
             image_srceen.setTag("屏保开");
-            image_srceen.setBackgroundResource(R.mipmap.img_temp_circle);
+            image_srceen.setBackgroundResource(R.mipmap.img_screen_open);
         } else if ("close".equals(BackGroundLED)) {
             image_srceen.setTag("屏保关");
+            image_srceen.setImageResource(R.mipmap.img_screen);
             image_srceen.setBackgroundResource(0);
         }
 
         if ("open".equals(LockScreen)) {
             image_lock.setTag("上锁");
-            image_lock.setBackgroundResource(R.mipmap.img_temp_circle);
+            image_lock.setImageResource(R.mipmap.open_lockscreen);
         } else if ("close".equals(LockScreen)) {
             image_lock.setTag("解锁");
-            image_lock.setBackgroundResource(0);
+            image_lock.setImageResource(R.mipmap.close_lockscreen);
         }
         if ("err".equals(tempState)) {
             tv_cur_temp.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
@@ -943,8 +999,6 @@ public class HeaterFragment extends LazyFragment {
             }
         }
     }
-
-
 
     @Override
     public void onDestroyView() {

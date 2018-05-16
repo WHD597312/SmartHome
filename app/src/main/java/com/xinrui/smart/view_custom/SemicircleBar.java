@@ -185,7 +185,7 @@ public class SemicircleBar extends View {
 
         mCurProcess = a.getInt(R.styleable.CircleSeekBar_wheel_cur_process, 0);
         if (mCurProcess > mMaxProcess) mCurProcess = mMaxProcess;
-        mReachedColor = a.getColor(R.styleable.CircleSeekBar_wheel_reached_color, getColor(R.color.color_blank2));
+        mReachedColor = a.getColor(R.styleable.CircleSeekBar_wheel_reached_color, getColor(R.color.color_blank4));
 
         mUnreachedWidth = a.getDimension(R.styleable.CircleSeekBar_wheel_unreached_width,
                 getDimen(R.dimen.def_wheel_width));
@@ -296,7 +296,7 @@ public class SemicircleBar extends View {
             }
             canvas.drawBitmap(mCacheBitmap, 0, 0, null);
         } else {
-            mWheelPaint.setColor(getResources().getColor(R.color.color_black3));
+            mWheelPaint.setColor(getResources().getColor(R.color.color_blank4));
             canvas.drawCircle(centerX, centerY, wheelRadius, mWheelPaint);
 //            canvas.drawArc(new RectF(left, top, right, bottom), -90, (float) 315, false, mWheelPaint);
         }
@@ -313,7 +313,7 @@ public class SemicircleBar extends View {
 
         for (int i = 0; i < 45; i++) {//总共45个点  所以绘制45次  //绘制一圈的小黑点
             if (i > 37) {
-                mPaint.setColor(getResources().getColor(R.color.color_black3));
+                mPaint.setColor(getResources().getColor(R.color.color_blank4));
             }
 //            if (i % 7 == 0) {
 //                canvas.drawRect(centerX - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()),
@@ -373,7 +373,7 @@ public class SemicircleBar extends View {
             if (i == 6) {
                 mPaint.setColor(getResources().getColor(R.color.white));
             } else {
-                mPaint.setColor(getResources().getColor(R.color.color_black3));
+                mPaint.setColor(getResources().getColor(R.color.color_blank4));
             }
 
             mPaint.getTextBounds(strs2[i], 0, strs2[i].length(), rect);
@@ -409,7 +409,7 @@ public class SemicircleBar extends View {
                             getPaddingTop() + mUnreachedWidth + TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, getResources().getDisplayMetrics()), mPaint);
                 } else {
                     if (i == 0) {
-                        mPaint.setColor(getResources().getColor(R.color.color_black3));
+                        mPaint.setColor(getResources().getColor(R.color.color_blank4));
                     } else {
                         mPaint.setColor(getResources().getColor(R.color.color_orange));
                     }

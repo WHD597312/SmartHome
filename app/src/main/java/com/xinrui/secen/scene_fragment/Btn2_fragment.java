@@ -567,8 +567,14 @@ public class Btn2_fragment extends Fragment{
                     }
                 }
 
-                Intent intent = new Intent(getActivity(), AddEquipmentActivity.class);
-                startActivity(intent);
+                List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice(house_id);
+                if (deviceChildren.isEmpty()) {
+                    Utils.showToast(getActivity(), "这个家还没有设备");
+                } else {
+                    Intent intent = new Intent(getActivity(), AddEquipmentActivity.class);
+                    startActivity(intent);
+                }
+
             }
         });
 

@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
+import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -80,6 +81,8 @@ public class TimeTaskActivity extends AppCompatActivity {
     TextView tv_temp_num;//温度计数
     @BindView(R.id.listview)
     ListView listview;
+    @BindView(R.id.textview)
+    TextClock textview;
     /**
      * 开始时间，结束时间，温度列表
      */
@@ -215,7 +218,7 @@ public class TimeTaskActivity extends AppCompatActivity {
             }
         });
         timePicker.setMinValue(0);
-        timePicker.setMaxValue(24);
+        timePicker.setMaxValue(23);
         Calendar calendar = Calendar.getInstance();
 
         hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -241,6 +244,9 @@ public class TimeTaskActivity extends AppCompatActivity {
         int month = calendar.get(Calendar.MONTH) + 1;
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         int week2 = calendar.get(Calendar.DAY_OF_WEEK);
+        int hour=calendar.get(Calendar.HOUR_OF_DAY);
+        int minute=calendar.get(Calendar.MINUTE);
+        textview.setFormat24Hour("H:mm");
         mWeek = Utils.getWeek(year, month, day, week2).substring(2);
 
         mSelectedWeek = mWeek;
@@ -451,14 +457,14 @@ public class TimeTaskActivity extends AppCompatActivity {
                                     }
                                     Thread.sleep(300);
                                     String jsonData = jsonObject.toString();
-
+                                    Log.i("jsonData",jsonData);
 
                                     if (bound) {
                                         boolean success = false;
                                         String mac = deviceChild.getMacAddress();
                                         String topicName;
                                         topicName = "rango/" + mac + "/set";
-                                        success = mqService.publish(topicName, 2, jsonData);
+                                        success = mqService.publish(topicName, 1, jsonData);
                                     }
                                 }
 
@@ -470,7 +476,6 @@ public class TimeTaskActivity extends AppCompatActivity {
                             textView.setTextColor(getResources().getColor(R.color.white));
                         }
                     }
-
                 }
                 break;
             case R.id.btn_add:/**添加开始设定时间和结束设定时间，温度*/
@@ -481,6 +486,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                     if (!Utils.isEmpty(open) && !Utils.isEmpty(close) && !Utils.isEmpty(temp)) {
                         open = open.substring(0, open.indexOf(":"));
                         close = close.substring(0, close.indexOf(":"));
+
                         temp = temp.substring(0, temp.indexOf("℃"));
                         int start = Integer.parseInt(open);
                         int end = Integer.parseInt(close);
@@ -557,7 +563,6 @@ public class TimeTaskActivity extends AppCompatActivity {
                                         }
                                     }
 
-
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -630,22 +635,27 @@ public class TimeTaskActivity extends AppCompatActivity {
                 linearout.setVisibility(View.GONE);
                 if ("开始时间".equals(OPEN_CLOSE)) {
                     open_time.setText(hour + ":00");
-                    if (hour==24){
-                        Utils.showToast(this,"24点就是0点哦!");
-                        hour=0;
-                        open_time.setText(hour + ":00");
-                    }
                 } else if ("结束时间".equals(OPEN_CLOSE)) {
                     close_time.setText(hour + ":00");
                     String openTime = open_time.getText().toString();
                     openTime = openTime.substring(0, openTime.indexOf(":"));
                     String closeTime = close_time.getText().toString();
                     closeTime = closeTime.substring(0, closeTime.indexOf(":"));
+                    Log.i("fff",closeTime);
+
+                    Log.i("fff",closeTime);
 
                     if (Integer.parseInt(openTime) > Integer.parseInt(closeTime)) {
-                        int endTime = Integer.parseInt(openTime);
-                        Utils.showToast(this, "结束时间要大于开始时间");
-                        close_time.setText((endTime + 1) + ":00");
+
+                        int endTime = Integer.parseInt(closeTime);
+                        if (endTime==0){
+                            endTime=24;
+                            close_time.setText((endTime) + ":00");
+                        }else {
+                            Utils.showToast(this, "结束时间要大于开始时间");
+                            close_time.setText((endTime + 1) + ":00");
+                        }
+
                         return;
                     }
                 }
@@ -667,8 +677,8 @@ public class TimeTaskActivity extends AppCompatActivity {
                 TimeTask timeTask = list.get(position);
                 if (timeTask != null) {
                     List<Timer> timers = timeDao.findAll(deviceId, timeTask.getWeek());
-                    if (timers.size() == 24) {
-                        for (int start = timeTask.getStart(); start < timeTask.getEnd(); start++) {
+                    if (timers.size()==24){
+                        for (int start = timeTask.getStart(); start <timeTask.getEnd(); start++) {
                             Timer timer = timers.get(start);
                             if (timer != null) {
                                 timer.setOpen("off");
@@ -698,12 +708,13 @@ public class TimeTaskActivity extends AppCompatActivity {
                         jsonObject.put("t" + i, timer.getTemp());
                     }
                     jsonData = jsonObject.toString();
+
                     if (bound) {
                         boolean success = false;
                         String mac = deviceChild.getMacAddress();
                         String topicName;
                         topicName = "rango/" + mac + "/set";
-                        success = mqService.publish(topicName, 2, jsonData);
+                        success = mqService.publish(topicName, 1, jsonData);
                     }
 
                 }
@@ -763,7 +774,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                                 return -1;
                             }
                         });
-
+                        seekbar.invalidate();
                         if (list.isEmpty()) {
                             seekbar.setWeek(selectedWeek);
                             seekbar.invalidate();
@@ -866,16 +877,20 @@ public class TimeTaskActivity extends AppCompatActivity {
                 } else {
                     DeviceChild deviceChild2 = deviceChildDao.findDeviceById(deviceId);
                     if (deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
-                        Calendar calendar = Calendar.getInstance();
-                        int year = calendar.get(Calendar.YEAR);
-                        int month = calendar.get(Calendar.MONTH) + 1;
-                        int day = calendar.get(Calendar.DAY_OF_MONTH);
-                        int week2 = calendar.get(Calendar.DAY_OF_WEEK);
-                        mWeek = Utils.getWeek(year, month, day, week2).substring(2);
-                        int secelctWeek = ChineseNumber.chineseNumber2Int(mWeek);
-                        if (!timeTasks.isEmpty() && secelctWeek == timerTaskWeek) {
+                        List<TimeTask> timeTaskList=timeTaskDao.findWeekAll(deviceId,timerTaskWeek);
+                        timeTaskDao.updateTaskTimeList(timeTaskList);
+//                        Calendar calendar = Calendar.getInstance();
+//                        int year = calendar.get(Calendar.YEAR);
+//                        int month = calendar.get(Calendar.MONTH) + 1;
+//                        int day = calendar.get(Calendar.DAY_OF_MONTH);
+//                        int week2 = calendar.get(Calendar.DAY_OF_WEEK);
+//                        mWeek = Utils.getWeek(year, month, day, week2).substring(2);
+                        Log.i("sss","ss"+timerTaskWeek);
+                        list.addAll(timeTasks);
+                        int secelctWeek = ChineseNumber.chineseNumber2Int(mSelectedWeek);
+                        if (secelctWeek == timerTaskWeek) {
                             list.clear();
-                            list.addAll(timeTasks);
+                            list.addAll(timeTaskList);
                             timeTaskDao.updateTaskTimeList(list);
                             Collections.sort(list, new Comparator<TimeTask>() {
                                 @Override
@@ -898,6 +913,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                                 listview.setVisibility(View.VISIBLE);
                                 timeTaskAdapter.notifyDataSetChanged();
                             }
+
                             TextView tv_week = week[timerTaskWeek - 1];
                             for (int i = 0; i < week.length; i++) {
                                 if (tv_week == week[i]) {
@@ -916,13 +932,12 @@ public class TimeTaskActivity extends AppCompatActivity {
                                 }
                             }
                         }
-                    }
 
+                    }
                 }
             }
         }
     }
-
 
     @Override
     protected void onDestroy() {
@@ -935,7 +950,6 @@ public class TimeTaskActivity extends AppCompatActivity {
                 unbindService(connection);
 
             }
-
         }
 
     }

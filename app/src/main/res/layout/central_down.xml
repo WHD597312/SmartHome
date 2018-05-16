@@ -6,25 +6,27 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/delete"
+            android:layout_width="@dimen/dp_35"
+            android:layout_height="@dimen/dp_35"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:layout_marginRight="@dimen/dp_10"
+            android:layout_alignParentRight="true"
+            android:background="@color/read"
+            android:scaleType="centerInside"
+            android:src="@drawable/equipment_btn_del"/>
         <Button
             android:id="@+id/custom_house_type"
-            android:layout_width="@dimen/x260"
-            android:layout_height="@dimen/y25"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_35"
             android:layout_marginLeft="@dimen/x15"
             android:layout_marginBottom="@dimen/y5"
             android:textColor="@color/custom_house_button_colir"
             android:background="@drawable/addroom_button"
             android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/delete"
             android:text="@string/custom_house_type" />
-        <ImageButton
-            android:id="@+id/delete"
-            android:layout_width="@dimen/x30"
-            android:layout_height="@dimen/y25"
-            android:layout_marginBottom="@dimen/y5"
-            android:layout_marginLeft="@dimen/x5"
-            android:layout_toRightOf="@+id/custom_house_type"
-            android:background="@color/read"
-            android:scaleType="fitCenter"
-            android:src="@drawable/equipment_btn_del"/>
     </RelativeLayout>
 </RelativeLayout>

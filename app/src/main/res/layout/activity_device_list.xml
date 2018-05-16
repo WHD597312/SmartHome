@@ -4,23 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#312728"
+    android:background="#1A1414"
     android:orientation="vertical"
     android:splitMotionEvents="false"
     >
-
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#312728"
         >
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_50"
             android:gravity="center_vertical"
             android:id="@+id/relative"
+            android:background="#3d3c38"
             >
             <ImageView
                 android:id="@+id/img_back"
@@ -46,14 +45,12 @@
                 android:id="@+id/image_home"
                 android:layout_width="@dimen/dp_40"
                 android:layout_height="@dimen/dp_40"
-                android:src="@mipmap/image_home"
+                android:src="@mipmap/nav_home"
                 android:layout_centerVertical="true"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="@dimen/dp_6"
                 />
         </RelativeLayout>
-
-
         <LinearLayout
             android:id="@+id/linearout"
             android:layout_width="match_parent"
@@ -160,7 +157,7 @@
             android:verticalSpacing="@dimen/dp_2"
             android:horizontalSpacing="@dimen/dp_2"
             android:layout_alignParentBottom="true"
-            android:background="#312728"
+            android:background="#1A1414"
             />
     </RelativeLayout>
 

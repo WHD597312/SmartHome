@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 
 import com.xinrui.secen.scene_adapter.RoomtypeAdapter;
 import com.xinrui.secen.scene_pojo.RoomType;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
 
@@ -41,6 +42,7 @@ public class RoomTypesActivity extends Activity {
     private List<RoomType> mRoomtypelsit = new ArrayList<>();
     private Context mContext;
 
+
     @OnClick(R.id.return_button)
     public void rollback() {
         //回退到MainActivity判断是哪个fragment，并切换回之前的fragment
@@ -55,6 +57,7 @@ public class RoomTypesActivity extends Activity {
 
     SharedPreferences fragmentPreferences;
 
+    MyApplication application;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +95,10 @@ public class RoomTypesActivity extends Activity {
             }
         });
         recyclerView.setAdapter(roomType);
+        if (application==null){
+            application= (MyApplication) getApplication();
+            application.addActivity(this);
+        }
     }
 
 
@@ -127,7 +134,6 @@ public class RoomTypesActivity extends Activity {
         mRoomtypelsit.add(roomType14);
         RoomType roomType15 = new RoomType(R.drawable.balcony, "阳台");
         mRoomtypelsit.add(roomType15);
-
     }
 
     @OnClick({R.id.sure,R.id.homepage})

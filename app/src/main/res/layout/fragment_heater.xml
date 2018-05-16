@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:splitMotionEvents="false"
-    android:background="#312728"
+    android:background="#1A1414"
     android:orientation="vertical">
 
 
@@ -94,7 +94,7 @@
             app:wheel_max_process="360"
             app:wheel_pointer_radius="20dp"
             app:wheel_reached_width="0dp"
-            app:wheel_unreached_color="#312728"
+            app:wheel_unreached_color="#1A1414"
             app:wheel_unreached_width="20dp" />
 
         <ImageView

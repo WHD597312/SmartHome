@@ -26,6 +26,7 @@
     <color name="color_orange">#fc7b00</color>
     <color name="color_blank2">#2f292b</color>
     <color name="color_blank3">#3c3731</color>
+    <color name="color_blank4">#1A1414</color>
     <color name="color_circle">#f2f2f2</color>
     <color name="def_wheel_color">#4E4988</color>
     <color name="def_reached_color">#FFD844</color>
@@ -41,4 +42,7 @@
     <color name="customroom_clicked_background">#FF7640</color>
     <color name="new_floor_button">#D46C42</color>
     <color name="custom_house_button_colir">#E59069</color>
+    <color name="result_view">#b0000000</color>
+    <color name="viewfinder_mask">#60000000</color>
+    <color name="possible_result_points">#c0ffff00</color>
 </resources>
