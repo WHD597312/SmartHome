@@ -64,6 +64,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
     private List<List<DeviceChild>> childern;
     MQService mqService;
     TextView tv_device_child;
+    private boolean isPublish=false;
 
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch, R.mipmap.image_switch2};
 
@@ -645,7 +646,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                         }
                     }
 
-                    if (deviceChild != null && deviceChild.getOnLint() && child != null) {
+                    if (deviceChild != null && deviceChild.getOnLint() && child != null && !isPublish) {
                         if ("close".equals(deviceState)) {
                             if (deviceChild != null) {
                                 DeviceChild child2 = deviceChild;
@@ -731,6 +732,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                         success = mqService.publish(topicName, 2, s);
                     }
                 }
+                isPublish=success;
             }
         } catch (Exception e) {
             e.printStackTrace();
