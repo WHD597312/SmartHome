@@ -114,8 +114,8 @@ public class ForgetPswdActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(phone2)) {
                     Utils.showToast(this, "手机号码不能为空");
                     break;
-                }else if (!Mobile.isMobile(phone2)){
-                    Utils.showToast(this,"手机号码不合法");
+                } else if (!Mobile.isMobile(phone2)) {
+                    Utils.showToast(this, "手机号码不合法");
                     break;
                 }
                 if (TextUtils.isEmpty(code)) {
@@ -124,6 +124,10 @@ public class ForgetPswdActivity extends AppCompatActivity {
                 }
                 if (TextUtils.isEmpty(password)) {
                     Utils.showToast(this, "请输入密码");
+                    break;
+                }
+                if (password.length() < 6) {
+                    Utils.showToast(this, "密码最少6位");
                     break;
                 }
 
@@ -141,13 +145,13 @@ public class ForgetPswdActivity extends AppCompatActivity {
                 if (TextUtils.isEmpty(phone)) {
                     Utils.showToast(this, "手机号码不能为空");
                 } else {
-                    boolean flag=Mobile.isMobile(phone);
-                    if (flag){
+                    boolean flag = Mobile.isMobile(phone);
+                    if (flag) {
                         SMSSDK.getVerificationCode("86", phone);
                         CountTimer countTimer = new CountTimer(60000, 1000);
                         countTimer.start();
-                    }else {
-                        Utils.showToast(this,"手机号码不合法");
+                    } else {
+                        Utils.showToast(this, "手机号码不合法");
                     }
                 }
                 break;
@@ -178,6 +182,7 @@ public class ForgetPswdActivity extends AppCompatActivity {
                         if (preferences.contains("login")) {
                             editor.remove("login").commit();
                         }
+                        editor.commit();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -246,8 +251,10 @@ public class ForgetPswdActivity extends AppCompatActivity {
 //            btn_get_code.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.holo_blue_light));
 //            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
 //            btn_get_code.setTextSize(18);
-            btn_get_code.setText("重新发送");
-            btn_get_code.setClickable(true);
+            if (btn_get_code != null) {
+                btn_get_code.setText("重新发送");
+                btn_get_code.setClickable(true);
+            }
         }
     }
 }

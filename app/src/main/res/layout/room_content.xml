@@ -7,26 +7,28 @@
     <RelativeLayout
         android:id="@+id/rl1"
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/dp_47"
+        android:layout_height="@dimen/dp_50"
         android:background="#3D3C38"
         tools:ignore="InvalidId">
 
         <ImageButton
             android:id="@+id/return_scene"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/dp_25"
-            android:layout_gravity="center_vertical"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
             android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
             android:background="#3D3C38"
-            android:src="@drawable/nav_back" />
+            android:src="@drawable/nav_back"
+            android:scaleType="centerCrop"
+            android:layout_centerVertical="true"
+            />
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_20"
             android:layout_centerVertical="true"
+            android:gravity="center"
             android:text="主卧"/>
         <ImageButton
             android:id="@+id/return_homepage"
@@ -36,6 +38,7 @@
             android:scaleType="fitCenter"
             android:background="#3D3C38"
             android:layout_alignParentRight="true"
+            android:visibility="gone"
             android:src="@drawable/homepage"/>
     </RelativeLayout>
 

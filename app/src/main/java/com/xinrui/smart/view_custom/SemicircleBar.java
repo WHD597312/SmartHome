@@ -444,14 +444,27 @@ public class SemicircleBar extends View {
         mCacheCanvas.drawCircle(centerX, centerY, wheelRadius, mWheelPaint);
     }
 
+    public boolean outside=false;
+
+    public boolean isOutside() {
+        return outside;
+    }
+
+    public void setOutside(boolean outside) {
+        this.outside = outside;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
         end=0;
         float x = event.getX();
         float y = event.getY();
-        if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y))) {
+
+
+        if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y)) && (y>=75 && y<=770)) {
             // 通过当前触摸点搞到cos角度值
+            outside=false;
             float cos = computeCos(x, y);
             // 通过反三角函数获得角度值
             double angle;
@@ -483,16 +496,24 @@ public class SemicircleBar extends View {
                 }else {
                     end=0;
                 }
+                Log.i("mmm","-->"+mUnreachedWidth);
+                Log.i("xxx","-->"+x);
+                Log.i("yyy","-->"+y);
 
                 mChangListener.onChanged(this, mCurProcess);
+                Log.i("out","-->"+outside);
+
             }
             invalidate();
+
             return true;
         } else {
             end=0;
+            Log.i("out","-->"+outside);
             return super.onTouchEvent(event);
 
         }
+
     }
 
     public boolean isCanTouch() {

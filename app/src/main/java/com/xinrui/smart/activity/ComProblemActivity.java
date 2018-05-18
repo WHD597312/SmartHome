@@ -11,6 +11,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.xinrui.secen.scene_activity.AddEquipmentActivity;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.device.ReasonActivity;
 import com.xinrui.smart.util.Utils;
@@ -20,6 +22,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class ComProblemActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
@@ -29,11 +32,16 @@ public class ComProblemActivity extends AppCompatActivity implements AdapterView
     Unbinder unbinder;
     CommonProblemAdapter adapter;
     private List<String> list;
+    MyApplication application;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_com_problem);
         unbinder=ButterKnife.bind(this);
+        if (application==null){
+            application= (MyApplication) getApplication();
+        }
+        application.addActivity(this);
         list=new ArrayList<>();
         list.add("指示灯不亮，加热器不加热");
         list.add("指示灯不亮，加热器加热");
@@ -59,6 +67,19 @@ public class ComProblemActivity extends AppCompatActivity implements AdapterView
         if (unbinder!=null){
             unbinder.unbind();
         }
+    }
+    @OnClick({R.id.image_back})
+    public void onClick(View view){
+        switch (view.getId()){
+            case R.id.image_back:
+                finish();
+                break;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 
     @Override

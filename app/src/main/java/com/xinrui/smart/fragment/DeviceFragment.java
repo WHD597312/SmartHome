@@ -1,6 +1,7 @@
 package com.xinrui.smart.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -51,12 +53,15 @@ import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.DeviceHomeDialog;
 import com.xinrui.smart.view_custom.DeviceUpdateHomeDialog;
+import com.xinrui.smart.view_custom.OnRecyclerItemClickListener;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,6 +115,9 @@ public class DeviceFragment extends Fragment{
     DeviceAdapter.MessageReceiver  receiver;
     int sum=0;
     public static int running=0;
+    List allListData=new ArrayList();
+    ItemTouchHelper touchHelper;
+//    List
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -135,22 +143,109 @@ public class DeviceFragment extends Fragment{
         for (DeviceGroup group:groups){
             deviceGroups.add(group);
         }
-
         for (DeviceGroup deviceGroup:deviceGroups){
             if (deviceGroup!=null){
+                allListData.add(deviceGroup);
                 List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
                 for (DeviceChild deviceChild :deviceChildren){
-                    long id=deviceChild.getId();
-                    String name=deviceChild.getDeviceName();
+                    allListData.add(deviceChild);
                 }
                 childern.add(deviceChildren);
             }
+            allListData.add(new String());
         }
 
         adapter=new DeviceAdapter(getActivity(),deviceGroups,childern);
         rv_list.setAdapter(adapter);
         connection=adapter.getConnection();
         receiver=adapter.getMessageReceiver();
+
+
+
+//        ItemTouchHelper.Callback callback=new ItemTouchHelper.Callback() {
+//            @Override
+//            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+//                int position=viewHolder.getAdapterPosition();
+//                Object o=allListData.get(position);
+//                int dragFlags=0;
+//                if (o instanceof DeviceGroup)
+//                    dragFlags=0;
+//                else
+//                    dragFlags= ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+//                       //允许上下的拖动
+//                return makeMovementFlags(dragFlags,0);
+//            }
+//
+//            @Override
+//            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+//                int position=viewHolder.getAdapterPosition();
+//                int fromPosition = viewHolder.getAdapterPosition();//得到拖动ViewHolder的position
+//                int toPosition = target.getAdapterPosition();//得到目标ViewHolder的position
+//
+//                //使用集合工具类Collections，分别把中间所有的item的位置重新交换
+//                if (fromPosition <=toPosition) {/**从上往下移动*/
+//                    Object o=allListData.get(toPosition);
+//                    if (o instanceof DeviceGroup || o instanceof String){
+//                        return false;
+//                    }else {
+//                        Collections.swap(allListData,fromPosition,toPosition);
+//                    }
+//                } else if (toPosition<=fromPosition){/**从下往上移动*/
+//                    Object o=allListData.get(fromPosition);
+//                    if (o instanceof DeviceGroup || o instanceof String){
+//                        return false;
+//                    }else{
+//                        Collections.swap(allListData, fromPosition, toPosition);
+//                    }
+//                }
+//                //通知Adapter更新状态
+//                adapter.notifyItemMoved(fromPosition, toPosition);
+//                return true;
+//            }
+//
+//            @Override
+//            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+//
+//            }
+//
+//            @Override
+//            public boolean isLongPressDragEnabled() {
+//                return true;
+//            }
+//
+//
+//            @Override
+//            public boolean isItemViewSwipeEnabled() {
+//                return true;
+//            }
+//        };
+//        //用Callback构造ItemtouchHelper
+//        touchHelper = new ItemTouchHelper(callback);
+//        //调用ItemTouchHelper的attachToRecyclerView方法建立联系
+//        touchHelper.attachToRecyclerView(rv_list);
+
+        rv_list.addOnItemTouchListener(new OnRecyclerItemClickListener(rv_list,getContext()) {
+            @Override
+            public void onItemClick(RecyclerView.ViewHolder vh) {
+
+            }
+
+            @Override
+            public void onItemLongClick(RecyclerView.ViewHolder vh) {
+                int position=vh.getAdapterPosition();
+                Object o=allListData.get(position);
+                if (o instanceof DeviceGroup || o instanceof String){
+
+                }else {
+                    touchHelper.startDrag(vh);
+
+                    //获取系统震动服务
+                    Vibrator vib = (Vibrator) getActivity().getSystemService(Service.VIBRATOR_SERVICE);//震动70毫秒
+                    vib.vibrate(70);
+                }
+
+            }
+        });
         return view;
     }
     @Override

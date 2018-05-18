@@ -2,6 +2,7 @@ package com.xinrui.smart.activity;
 
 import android.Manifest;
 import android.app.ActionBar;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -42,6 +43,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -125,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
     private NoDeviceFragment noDeviceFragment;
     private SmartFragmentManager smartFragmentManager;
     private LiveFragment liveFragment;
+    @BindView(R.id.nav_view) RelativeLayout nav_view;
     @BindView(R.id.device_view)
     View device_view;//设备页
     @BindView(R.id.smart_view)
@@ -138,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
     android.support.v4.app.Fragment fragment = new android.support.v4.app.Fragment();
     public static boolean running = false;
     Unbinder unbinder;
+    private ProgressDialog progressDialog;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -166,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         function();
+        progressDialog = new ProgressDialog(this);
     }
 
     public void goLiveFragment() {
@@ -196,8 +201,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
-
 
 
         deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
@@ -290,6 +293,7 @@ public class MainActivity extends AppCompatActivity {
             fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.layout_body, new SmartFragmentManager()).commit();
 
+
             device_view.setVisibility(View.GONE);
             smart_view.setVisibility(View.VISIBLE);
             live_view.setVisibility(View.GONE);
@@ -363,6 +367,9 @@ public class MainActivity extends AppCompatActivity {
                                 String topicName = "rango/" + mac + "/set";
 
                                 boolean success=mqService.publish(topicName, 2, s);
+                                if (!success){
+                                    success=mqService.publish(topicName, 2, s);
+                                }
                                 Log.i("sss","-->"+success);
 
                             }
@@ -529,7 +536,12 @@ public class MainActivity extends AppCompatActivity {
                 smart.edit().clear().commit();
                 break;
             case R.id.tv_smart:
-
+//                toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+////                        drawer.closeDrawer(Gr);
+//                    }
+//                });
                 if (NoFastClickUtils.isFastClick()){
                     fragmentTransaction = fragmentManager.beginTransaction();
                     smartFragmentManager = new SmartFragmentManager();
@@ -542,13 +554,11 @@ public class MainActivity extends AppCompatActivity {
                 smart.edit().clear().commit();
                 break;
             case R.id.tv_live:
-
                 if (NoFastClickUtils.isFastClick()){
                     LiveFragment liveFragment= new LiveFragment();
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
                     transaction.replace(R.id.layout_body, liveFragment);
                     transaction.commit();
-                    liveFragment=null;
                 }
                 device_view.setVisibility(View.GONE);
                 smart_view.setVisibility(View.GONE);
@@ -588,12 +598,20 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        progressDialog.dismiss();
     }
 
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
 
     class LoadDeviceAsync extends AsyncTask<String, Void, Integer> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.setMessage("正在初始化数据...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
 
         @Override
         protected Integer doInBackground(String... strings) {
@@ -713,6 +731,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
+            progressDialog.dismiss();
             switch (code) {
                 case -3004:
                     Utils.showToast(MainActivity.this, "查询失败");

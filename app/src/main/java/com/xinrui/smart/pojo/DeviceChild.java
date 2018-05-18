@@ -55,6 +55,7 @@ public class DeviceChild  implements Serializable{
     private long shareHouseId;
 
 
+
     public DeviceChild() {
     }
 

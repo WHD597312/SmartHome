@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_50"
         android:orientation="horizontal"
-        android:background="#42413f"
+        android:background="#494948"
         >
         <ImageView
             android:id="@+id/image_back"

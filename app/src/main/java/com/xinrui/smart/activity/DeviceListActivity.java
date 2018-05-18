@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,15 +13,18 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -60,10 +64,10 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     private List<String> list;
     DeviceListAdapter adapter;
     private FragmentManager fragmentManager;
-    @BindView(R.id.linearout2) LinearLayout linearout2;
-    @BindView(R.id.timePicker) TimePicker timePicker;
-    @BindView(R.id.datePicker) DatePicker datePicker;
-    @BindView(R.id.tv_clock) TextView tv_clock;
+//    @BindView(R.id.linearout2) LinearLayout linearout2;
+//    @BindView(R.id.timePicker) TimePicker timePicker;
+//    @BindView(R.id.datePicker) DatePicker datePicker;
+//    @BindView(R.id.tv_clock) TextView tv_clock;
     @BindView(R.id.linearout) LinearLayout linearout;
     @BindView(R.id.tv_offline) TextView tv_offline;
     MyApplication application;
@@ -81,7 +85,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         application.addActivity(this);
     }
 
-    @OnClick({R.id.img_back, R.id.image_home,R.id.btn_cancle,R.id.btn_ensure})
+
+    @OnClick({R.id.img_back, R.id.image_home})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.img_back:
@@ -94,14 +99,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 intent2.putExtra("deviceList","deviceList");
                 startActivity(intent2);
                 break;
-            case R.id.btn_cancle:
-                linearout2.setVisibility(View.GONE);
-                gradView.setVisibility(View.VISIBLE);
-                break;
-            case R.id.btn_ensure:
-                linearout2.setVisibility(View.GONE);
-                gradView.setVisibility(View.VISIBLE);
-                break;
+
         }
     }
 
@@ -132,8 +130,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         bundle.putSerializable("deviceChild",deviceChild);
         heaterFragment.setArguments(bundle);
         fragmentTransaction.replace(R.id.linearout, heaterFragment);
-        fragmentTransaction.commit();
-        heaterFragment=null;
+        int commit=fragmentTransaction.commit();
+        Log.i("mmmmm",commit+"");
+
 
         list = new ArrayList<>();
         String[] titles = {"分享设备", "时钟设置", "定时任务", "设备状态", "常见问题", "关乎我们"};
@@ -147,31 +146,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         gradView.setOnItemClickListener(this);
         adapter.setSelectedPosition(mPoistion);
 
-        timePicker.setIs24HourView(true);
-        Calendar calendar= Calendar.getInstance();
-        year=calendar.get(Calendar.YEAR);
-        month=calendar.get(Calendar.MONTH)+1;
-        day=calendar.get(Calendar.DAY_OF_MONTH);
-        hour=calendar.get(Calendar.HOUR_OF_DAY);
 
-        tv_clock.setText(year+"年"+month+"月"+day+"日"+hour+"时");
-        timePicker.setIs24HourView(true);
-        datePicker.init(year, month, day, new DatePicker.OnDateChangedListener() {
-            @Override
-            public void onDateChanged(DatePicker view, int mYear, int monthOfYear, int dayOfMonth) {
-                year=mYear;
-                month=monthOfYear;
-                day=dayOfMonth;
-                tv_clock.setText(year+"年"+month+"月"+day+"日"+hour+"时");
-            }
-        });
-        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
-            @Override
-            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-                hour=hourOfDay;
-                tv_clock.setText(year+"年"+month+"月"+day+"日"+hour+"时");
-            }
-        });
         running=true;
 
         boolean online=deviceChild.getOnLint();
@@ -184,6 +159,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             tv_offline.setVisibility(View.VISIBLE);
             gradView.setVisibility(View.GONE);
         }
+//        linearout2.setVisibility(View.GONE);
     }
 
     MessageReceiver receiver;
@@ -238,8 +214,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 startActivity(intent);
                 break;
             case 1:
-                linearout2.setVisibility(View.VISIBLE);
-                gradView.setVisibility(View.GONE);
+                popupWindow();
+//                linearout2.setVisibility(View.VISIBLE);
+//                gradView.setVisibility(View.GONE);
                 break;
             case 2:
                 Intent timeTask=new Intent(this,TimeTaskActivity.class);
@@ -275,7 +252,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             String online=intent.getStringExtra("online");
             String noNet=intent.getStringExtra("noNet");
             if(Utils.isEmpty(noNet)){
-                if (deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())){
+                if (deviceChild!=null && deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())){
                     if ("online".equals(online)){
                         linearout.setVisibility(View.VISIBLE);
                         tv_offline.setVisibility(View.GONE);
@@ -292,8 +269,82 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 gradView.setVisibility(View.GONE);
             }
 
-
         }
+    }
+
+    private PopupWindow popupWindow;
+    TextView tv_clock;
+
+    //底部popupWindow
+    public void popupWindow() {
+        if (popupWindow != null && popupWindow.isShowing()) {
+            return;
+        }
+        View view = View.inflate(this, R.layout.popup_clockset, null);
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        DatePicker datePicker= (DatePicker) view.findViewById(R.id.datePicker);
+        TimePicker timePicker= (TimePicker) view.findViewById(R.id.timePicker);
+        tv_clock= (TextView) view.findViewById(R.id.tv_clock);
+        Button btn_cancle= (Button) view.findViewById(R.id.btn_cancle);
+        Button btn_ensure= (Button) view.findViewById(R.id.btn_ensure);
+
+        popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        //点击空白处时，隐藏掉pop窗口
+        popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
+        //添加弹出、弹入的动画
+        popupWindow.setAnimationStyle(R.style.Popupwindow);
+
+        ColorDrawable dw = new ColorDrawable(0x30000000);
+        popupWindow.setBackgroundDrawable(dw);
+        popupWindow.showAtLocation(linearout, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+        //添加按键事件监听
+
+        View.OnClickListener listener = new View.OnClickListener() {
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.btn_cancle:
+                        popupWindow.dismiss();
+                        break;
+                    case R.id.btn_ensure:
+                        popupWindow.dismiss();
+                        break;
+
+                }
+
+            }
+        };
+        timePicker.setIs24HourView(true);
+        Calendar calendar= Calendar.getInstance();
+        year=calendar.get(Calendar.YEAR);
+        month=calendar.get(Calendar.MONTH);
+        day=calendar.get(Calendar.DAY_OF_MONTH);
+        hour=calendar.get(Calendar.HOUR_OF_DAY);
+
+
+        timePicker.setIs24HourView(true);
+        datePicker.init(year, month, day, new DatePicker.OnDateChangedListener() {
+            @Override
+            public void onDateChanged(DatePicker view, int mYear, int monthOfYear, int dayOfMonth) {
+                year=mYear;
+                month=monthOfYear;
+                day=dayOfMonth;
+                tv_clock.setText(year+"年"+month+"月"+day+"日"+hour+"时");
+            }
+        });
+        month=month+1;
+        tv_clock.setText(year+"年"+month+"月"+day+"日"+hour+"时");
+        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+            @Override
+            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+                hour=hourOfDay;
+                tv_clock.setText(year+"年"+month+"月"+day+"日"+hour+"时");
+            }
+        });
+
+        btn_cancle.setOnClickListener(listener);
+        btn_ensure.setOnClickListener(listener);
     }
 
 

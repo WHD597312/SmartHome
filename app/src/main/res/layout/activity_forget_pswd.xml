@@ -10,8 +10,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_40"
-        android:background="#3e3d3a"
+        android:layout_height="@dimen/dp_50"
+        android:background="#494948"
         android:gravity="center_vertical"
         >
         <ImageView
@@ -68,7 +68,7 @@
 
     <EditText
         android:id="@+id/et_code"
-        android:layout_width="@dimen/dp_190"
+        android:layout_width="@dimen/dp_200"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/et_phone"
         android:layout_below="@+id/view1"

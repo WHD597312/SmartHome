@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.xinrui.secen.scene_activity.AddEquipmentActivity;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.util.Utils;
@@ -20,11 +21,16 @@ import butterknife.Unbinder;
 public class AboutAppActivity extends AppCompatActivity {
 
     Unbinder unbinder;
+    MyApplication application;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about_app);
         unbinder= ButterKnife.bind(this);
+        if (application==null){
+            application= (MyApplication) getApplication();
+            application.addActivity(this);
+        }
     }
     String main;
     String common;
@@ -65,6 +71,7 @@ public class AboutAppActivity extends AppCompatActivity {
         if (unbinder!=null){
             unbinder.unbind();
         }
+
     }
 
 }

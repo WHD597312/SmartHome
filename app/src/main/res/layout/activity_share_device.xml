@@ -12,7 +12,7 @@
             android:id="@+id/relative"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:background="#3d3c38"
+            android:background="#494948"
             android:layout_height="@dimen/dp_60">
             <ImageView
                 android:id="@+id/img_back"

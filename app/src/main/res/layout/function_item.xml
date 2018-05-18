@@ -30,13 +30,13 @@
 
         <ImageView
             android:id="@+id/tv_indicate"
-            android:layout_width="@dimen/dp_40"
-            android:layout_height="@dimen/dp_40"
+            android:layout_width="@dimen/dp_20"
+            android:layout_height="@dimen/dp_20"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
-            android:src="@mipmap/nav_back_right"
+            android:src="@mipmap/arrow_right"
             android:scaleType="centerInside"
             android:layout_marginRight="@dimen/dp_5"
             />

@@ -131,7 +131,7 @@ public class AddDeviceActivity extends AppCompatActivity {
             btn_wifi.setVisibility(View.GONE);
             btn_scan.setVisibility(View.GONE);
         }
-        et_pswd.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+       et_pswd.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
     }
 
     private String sharedDeviceId;
@@ -621,8 +621,8 @@ public class AddDeviceActivity extends AppCompatActivity {
             @Override
             public void run() {
                 String text = result.getBssid() + " is connected to the wifi";
-                Toast.makeText(AddDeviceActivity.this, text,
-                        Toast.LENGTH_LONG).show();
+//                Toast.makeText(AddDeviceActivity.this, text,
+//                        Toast.LENGTH_LONG).show();
             }
 
         });

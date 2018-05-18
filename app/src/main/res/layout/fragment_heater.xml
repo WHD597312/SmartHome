@@ -72,7 +72,7 @@
             android:layout_toRightOf="@+id/tv_set"
             android:gravity="center"
             android:text="19℃"
-            android:textColor="@color/white"
+            android:textColor="@color/color_orange"
             android:textSize="@dimen/sp_20" />
 
     </RelativeLayout>
@@ -103,6 +103,7 @@
             android:layout_height="@dimen/dp_80"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
+            android:src="@mipmap/img_close"
             android:scaleType="centerInside" />
 
         <ImageView

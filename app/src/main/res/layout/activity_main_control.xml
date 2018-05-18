@@ -12,7 +12,7 @@
         android:layout_height="@dimen/dp_50"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
-        android:background="#42413f"
+        android:background="#494948"
         android:orientation="horizontal">
 
         <ImageView
@@ -41,6 +41,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="@dimen/dp_20"
             android:scaleType="centerInside"
+            android:visibility="gone"
             android:src="@mipmap/nav_home" />
     </RelativeLayout>
 

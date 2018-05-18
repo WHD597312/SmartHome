@@ -28,6 +28,7 @@ import com.google.zxing.Result;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.util.Utils;
@@ -69,6 +70,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
 
     ImageView back;
     Unbinder unbinder;
+    MyApplication application;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +78,10 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.activity_qrscanner);
+        if (application==null){
+            application= (MyApplication) getApplication();
+            application.addActivity(this);
+        }
 
         viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 

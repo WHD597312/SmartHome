@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.xinrui.secen.scene_activity.AddEquipmentActivity;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.ComProblemActivity;
 import com.xinrui.smart.activity.MainActivity;
@@ -32,11 +33,16 @@ public class CommonSetActivity extends AppCompatActivity {
 
     Unbinder unbinder;
     @BindView(R.id.listview) ListView listview;
+    MyApplication application;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_common_set);
         unbinder=ButterKnife.bind(this);
+        if (application==null){
+            application= (MyApplication) getApplication();
+            application.addActivity(this);
+        }
     }
 
     String main;

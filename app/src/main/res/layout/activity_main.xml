@@ -50,13 +50,13 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="设备"
-                        android:textSize="@dimen/dp_20"
+                        android:textSize="@dimen/sp_18"
                         android:textColor="@color/white"
                         />
                     <View
                         android:id="@+id/device_view"
                         android:layout_width="@dimen/dp_50"
-                        android:layout_height="@dimen/dp_5"
+                        android:layout_height="@dimen/dp_2"
                         android:background="@color/color_orange"
                         android:visibility="gone"
                         android:layout_below="@+id/tv_device"
@@ -76,14 +76,14 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="智能"
-                        android:textSize="@dimen/dp_20"
+                        android:textSize="@dimen/sp_18"
                         android:layout_marginLeft="@dimen/dp_5"
                         android:textColor="@color/white"
                         />
                     <View
                         android:id="@+id/smart_view"
                         android:layout_width="@dimen/dp_50"
-                        android:layout_height="@dimen/dp_5"
+                        android:layout_height="@dimen/dp_2"
                         android:background="@color/color_orange"
                         android:visibility="gone"
                         android:layout_below="@+id/tv_smart"
@@ -103,14 +103,14 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="实景"
-                        android:textSize="@dimen/dp_20"
+                        android:textSize="@dimen/sp_18"
                         android:layout_marginLeft="@dimen/dp_5"
                         android:textColor="@color/white"
                         />
                     <View
                         android:id="@+id/live_view"
                         android:layout_width="@dimen/dp_50"
-                        android:layout_height="@dimen/dp_5"
+                        android:layout_height="@dimen/dp_2"
                         android:background="@color/color_orange"
                         android:visibility="gone"
                         android:layout_below="@+id/tv_live"
@@ -156,15 +156,15 @@
             android:gravity="center_vertical"
             android:layout_toRightOf="@+id/image_user"
             android:textSize="@dimen/sp_18"
-            android:text="18794197648" />
+            android:text="" />
 
         <TextView
             android:id="@+id/tv_exit"
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/dp_60"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:gravity="center_vertical"
+            android:gravity="center|right"
             android:layout_alignBottom="@+id/image_user"
             android:layout_alignTop="@id/image_user"
             android:paddingRight="@dimen/dp_5"

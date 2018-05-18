@@ -1,6 +1,7 @@
 package com.xinrui.smart.activity;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -50,6 +51,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText et_pswd;
     String url = "http://120.77.36.206:8082/warmer/v1.0/user/login";
     public static boolean runnning=false;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +65,8 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         application.addActivity(this);
+
+        progressDialog = new ProgressDialog(this);
     }
 
     SharedPreferences preferences;
@@ -115,6 +119,11 @@ public class LoginActivity extends AppCompatActivity {
                 if (Utils.isEmpty(password)) {
                     Utils.showToast(this, "请输入密码");
                     break;
+                }else {
+                    if (password.length()<6){
+                        Utils.showToast(this,"密码最少6位");
+                        break;
+                    }
                 }
                 Map<String, Object> params = new HashMap<>();
                 params.put("phone", phone);
@@ -136,6 +145,14 @@ public class LoginActivity extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
     class LoginAsyncTask extends AsyncTask<Map<String, Object>, Void, Integer> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.setMessage("正在初始化数据...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
 
         @Override
         protected Integer doInBackground(Map<String, Object>... maps) {
@@ -164,7 +181,6 @@ public class LoginActivity extends AppCompatActivity {
                         if (!preferences.contains("password")) {
                             editor.putString("phone",phone);
                             editor.putString("password",password);
-
                         }
 
                         editor.putString("username",username);
@@ -181,13 +197,14 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
+            progressDialog.dismiss();
             switch (code) {
+
                 case -1006:
                     Utils.showToast(LoginActivity.this, "手机号码未注册");
                     break;
                 case -1005:
-                    Utils.showToast(LoginActivity.this, "用户名或密码错误");
-                    et_name.setText("");
+                    Utils.showToast(LoginActivity.this, "密码错误");
                     et_pswd.setText("");
                     break;
                 case 2000:
@@ -272,6 +289,8 @@ public class LoginActivity extends AppCompatActivity {
             bound = false;
         }
     };
+
+
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
     class LoadDeviceAsync extends AsyncTask<String, Void, Integer> {

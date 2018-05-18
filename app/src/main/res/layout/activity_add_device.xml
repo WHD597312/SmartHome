@@ -18,7 +18,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_50"
-            android:background="#42413f">
+            android:background="#494948">
 
             <ImageView
                 android:id="@+id/img_back"
@@ -92,6 +92,7 @@
                 android:background="@color/white"
                 android:hint="wifi名称"
                 android:paddingLeft="@dimen/dp_5"
+                android:inputType="textVisiblePassword"
                 />
             <View
                 android:layout_width="match_parent"
@@ -104,7 +105,7 @@
                 android:layout_height="@dimen/dp_50"
                 android:background="@color/white"
                 android:hint="wifi密码"
-
+                android:inputType="textVisiblePassword"
                 />
             <View
                 android:layout_width="match_parent"
@@ -147,7 +148,7 @@
                 android:id="@+id/btn_scan2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="开始配置"
+                android:text="开始扫描"
                 android:textColor="@color/color_orange"
                 android:gravity="center"
                 android:layout_marginTop="@dimen/dp_10"

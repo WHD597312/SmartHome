@@ -241,9 +241,10 @@ public class PersonInfoActivity extends AppCompatActivity {
         View view = View.inflate(this, R.layout.changepicture, null);
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
-        popupWindow = new PopupWindow(view, width, height);
+        popupWindow = new PopupWindow(view,ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         //点击空白处时，隐藏掉pop窗口
         popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
         //添加弹出、弹入的动画
         popupWindow.setAnimationStyle(R.style.Popupwindow);
 

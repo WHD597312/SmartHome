@@ -138,7 +138,6 @@ public class NoDeviceFragment extends Fragment{
             case R.id.tv_myhome:
                 buildUpdateHomeDialog();
                 break;
-
         }
     }
 

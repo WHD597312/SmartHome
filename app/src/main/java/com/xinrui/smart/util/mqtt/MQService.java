@@ -207,7 +207,7 @@ public class MQService extends Service {
             Log.i("sssss",message);
             int timerTaskWeek =0;
             Log.i("ssss",message);
-            if ("There is no need to upgrade".equals(message) || "upgradeFinish".equals(message)){
+            if ("There is no need to upgrade".equals(message) || "upgradeFinish".equals(message) ||"online".equals(message)){
                 if (message!=null && message.length()==0){
                     return null;
                 }
@@ -618,8 +618,13 @@ public class MQService extends Service {
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
                         }else {
-                            child = deviceChildDao.findDeviceById(child.getId());
-                            boolean online=child.getOnLint();
+                            boolean online=false;
+                            if (child!=null){
+                                child = deviceChildDao.findDeviceById(child.getId());
+                                online=child.getOnLint();
+                            }
+
+
                             if (online){
                                 child = deviceChildDao.findDeviceById(child.getId());
                                 long houseId = child.getHouseId();
@@ -677,7 +682,6 @@ public class MQService extends Service {
                             sendBroadcast(mqttIntent);
                         }
                     }else if (Btn1_fragment.running == 2) {
-
                         Intent mqttIntent = new Intent("Btn1_fragment");
                         mqttIntent.putExtra("extTemp", extTemp);
                         mqttIntent.putExtra("extHum", extHum);
@@ -685,7 +689,6 @@ public class MQService extends Service {
                         mqttIntent.putExtra("message", "测试");
                         sendBroadcast(mqttIntent);
                     } else if (Btn2_fragment.running == 2) {
-
                         Intent mqttIntent = new Intent("Btn1_fragment");
                         mqttIntent.putExtra("extTemp", extTemp);
                         mqttIntent.putExtra("extHum", extHum);
@@ -693,7 +696,6 @@ public class MQService extends Service {
                         mqttIntent.putExtra("message", "测试");
                         sendBroadcast(mqttIntent);
                     } else if (Btn3_fragment.running == 2) {
-
                         Intent mqttIntent = new Intent("Btn1_fragment");
                         mqttIntent.putExtra("extTemp", extTemp);
                         mqttIntent.putExtra("extHum", extHum);
@@ -701,7 +703,6 @@ public class MQService extends Service {
                         mqttIntent.putExtra("message", "测试");
                         sendBroadcast(mqttIntent);
                     } else if (Btn4_fragment.running == 2) {
-
                         Intent mqttIntent = new Intent("Btn1_fragment");
                         mqttIntent.putExtra("extTemp", extTemp);
                         mqttIntent.putExtra("extHum", extHum);

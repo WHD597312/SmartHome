@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.xinrui.secen.scene_activity.AddEquipmentActivity;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.util.Utils;
@@ -20,12 +21,17 @@ public class CommonProblemActivity extends AppCompatActivity {
 
     @BindView(R.id.tv_problem) TextView tv_problem;
     Unbinder unbinder;
+    MyApplication application;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_common_problem);
         unbinder=ButterKnife.bind(this);
         tv_problem.setText("以下情况将无法发现设备\n1.使用配置时必须拥有网络的WiFi;\n2.Wi-Fi名称不能使用中文;\n3.配置时Wi-Fi密码不能输错；\n4.设备只能逐一配置");
+        if (application==null){
+            application= (MyApplication) getApplication();
+            application.addActivity(this);
+        }
     }
 
     String main;

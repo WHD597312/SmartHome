@@ -13,7 +13,7 @@
         android:layout_height="@dimen/dp_50"
         android:gravity="center_vertical"
         android:id="@+id/relative"
-        android:background="#3d3c38"
+        android:background="#494948"
         >
     <ImageView
         android:id="@+id/img_back"

@@ -32,12 +32,12 @@
 
         <ImageView
             android:id="@+id/image_right"
-            android:layout_width="@dimen/dp_30"
-            android:layout_height="@dimen/dp_30"
+            android:layout_width="@dimen/dp_25"
+            android:layout_height="@dimen/dp_25"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/right_arrow"
+            android:src="@mipmap/arrow_right"
             android:scaleType="centerInside"
             android:layout_marginRight="@dimen/dp_10"
             />

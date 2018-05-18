@@ -12,7 +12,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_50"
-        android:background="#42413f"
+        android:background="#494948"
         android:orientation="horizontal">
 
         <ImageView

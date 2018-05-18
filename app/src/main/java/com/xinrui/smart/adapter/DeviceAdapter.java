@@ -336,7 +336,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
                             long id = deviceChild.getId();
                             Intent intent = new Intent(context, DeviceListActivity.class);
-                            intent.putExtra("content", "取暖器");
+                            intent.putExtra("content", deviceChild.getDeviceName());
                             intent.putExtra("childPosition", id + "");
                             context.startActivity(intent);
                         } else if (entry.getControlled() == 1) {
@@ -585,7 +585,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             childern.get(i).set(j, deviceChild);
                         }
                     }
-                    changeChildren(groupPosition);
+                    changeChildren(groupPostion);
                 } else if (!Utils.isEmpty(noNet)) {
                     for (int i = 0; i < groups.size(); i++) {
                         List<DeviceChild> deviceChildren = childern.get(i);
@@ -598,7 +598,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             childern.get(i).set(j, deviceChild);
                         }
                     }
-                    changeChildren(groupPosition);
+                    changeChildren(groupPostion);
                 } else if (Utils.isEmpty(Net) && Utils.isEmpty(noNet)){
                     DeviceChild deviceChild = (DeviceChild) intent.getSerializableExtra("deviceChild");
                     if (deviceChild == null) {
@@ -637,11 +637,11 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                         if (deviceChildren.get(childPosition) == null) {
                             childern.get(groupPostion).add(childPosition, deviceChild);
                             child = deviceChild;
-                            changeChild(groupPosition, childPosition);
+                            changeChild(groupPostion, childPosition);
                         } else {
                             childern.get(groupPostion).set(childPosition, deviceChild);
                             child = deviceChild;
-                            changeChild(groupPosition, childPosition);
+                            changeChild(groupPostion, childPosition);
                         }
                     }
 

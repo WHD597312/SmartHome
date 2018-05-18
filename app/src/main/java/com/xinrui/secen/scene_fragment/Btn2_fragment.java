@@ -150,11 +150,11 @@ public class Btn2_fragment extends Fragment{
 
         @Override
         protected void onPreExecute() {
-            progressDialog.setMessage("请稍后...");
-            progressDialog.setCancelable(false);
-
-
-            progressDialog.show();
+//            progressDialog.setMessage("请稍后...");
+//            progressDialog.setCancelable(false);
+//
+//
+//            progressDialog.show();
             super.onPreExecute();
         }
 

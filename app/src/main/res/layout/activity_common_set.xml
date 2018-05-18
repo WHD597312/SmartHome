@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activity.ComProblemActivity"
-    android:orientation="vertical"
-    >
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".activity.device.CommonSetActivity"
+        android:orientation="vertical"
+        >
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -29,16 +29,16 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_10"
             android:layout_marginRight="@dimen/dp_10"
-            android:text="常见问题"
+            android:text="通用设置"
             android:textColor="@color/white"
             android:layout_centerVertical="true"
             android:gravity="center"
             android:textSize="@dimen/dp_20"
             />
     </RelativeLayout>
+
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-
 </LinearLayout>
