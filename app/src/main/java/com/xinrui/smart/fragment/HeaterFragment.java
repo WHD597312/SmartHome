@@ -612,6 +612,11 @@ public class HeaterFragment extends LazyFragment {
         semicBar.setDeviceId(deviceChild.getId() + "");
 
         if (deviceChild != null) {
+            String outputMode=deviceChild.getOutputMod();
+            String work=deviceChild.getWorkMode();
+            if ("timer".equals(work) && !("childProtect".equals(outputMode))){
+                Utils.showToast(getActivity(),"定时模式下不能滑动圆盘");
+            }
             setMode(deviceChild);
         }
     }
@@ -684,6 +689,7 @@ public class HeaterFragment extends LazyFragment {
                         String handTask = (String) image_hand_task.getTag();
                         if (!"childProtect".equals(deviceChild.getOutputMod())) {
                             if ("手动".equals(handTask)) {
+                                Utils.showToast(getActivity(),"定时模式下不能滑动圆盘");
                                 image_hand_task.setTag("定时");
                                 deviceChild.setWorkMode("timer");
                                 int timerTemp = deviceChild.getTimerTemp();
@@ -698,7 +704,7 @@ public class HeaterFragment extends LazyFragment {
                                     deviceChild.setOutputMod("savePwr");//节能模式
                                 }
                             } else if ("定时".equals(handTask)) {
-                                Utils.showToast(getActivity(),"定时模式下不能滑动圆盘");
+
                                 image_hand_task.setTag("手动");
                                 deviceChild.setWorkMode("manual");
                                 int manualMatTemp = deviceChild.getManualMatTemp();
@@ -800,7 +806,7 @@ public class HeaterFragment extends LazyFragment {
                         } else if ("解锁".equals(lock)) {
                             image_lock.setTag("上锁");
                             deviceChild.setLockScreen("open");
-//                            setMode(deviceChild);
+                            setMode(deviceChild);
                             send(deviceChild);
                         }
                     }
