@@ -646,7 +646,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                         }
                     }
 
-                    if (deviceChild != null && deviceChild.getOnLint() && child != null && !isPublish) {
+                    if (deviceChild != null && deviceChild.getOnLint() && child != null) {
                         if ("close".equals(deviceState)) {
                             if (deviceChild != null) {
                                 DeviceChild child2 = deviceChild;
