@@ -207,6 +207,7 @@ public class MQService extends Service {
             Log.i("sssss",message);
             int timerTaskWeek =0;
             Log.i("ssss",message);
+
             if ("There is no need to upgrade".equals(message) || "upgradeFinish".equals(message) ||"online".equals(message)){
                 if (message!=null && message.length()==0){
                     return null;
@@ -222,6 +223,7 @@ public class MQService extends Service {
                 String macAddress = topicName.substring(6, topicName.lastIndexOf("/"));
 
                 if (!Utils.isEmpty(macAddress)) {
+
                     JSONObject device = null;
                     String wifiVersion = "";
                     String MCUVerion = "";
@@ -554,6 +556,7 @@ public class MQService extends Service {
                         }
                     } else if (topicName.equals("rango/" + macAddress + "/lwt")) {
                         if (child != null) {
+                            send(child);
                             if ("open".equals(child.getDeviceState())){
                                 child.setImg(imgs[2]);
                             }
@@ -846,12 +849,12 @@ public class MQService extends Service {
                     String houseId=deviceChild.getHouseId()+"";
                     topicName = "rango/masterController/"+houseId+"/"+mac+"/set";
 
-                      publish(topicName, 2, s);
+                      publish(topicName, 1, s);
 
                 } else {
                     topicName = "rango/" + mac + "/set";
 
-                        publish(topicName, 2, s);
+                        publish(topicName, 1, s);
 
                 }
             }
