@@ -16,6 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,6 +52,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
     private String share;
     @BindView(R.id.tv_version) TextView tv_version;
     @BindView(R.id.tv_device) TextView tv_device;
+    @BindView(R.id.btn_update_version) Button btn_update_version;
 
     public static boolean running=false;
     SharedPreferences preferences;
@@ -141,6 +144,8 @@ public class ShareDeviceActivity extends AppCompatActivity {
         registerReceiver(receiver, intentFilter);
         running=true;
         new ShareQrCodeAsync().execute();
+
+        new UpdateVersionAsync().execute();
     }
 
     @OnClick({R.id.img_back,R.id.btn_update_version})
@@ -151,7 +156,22 @@ public class ShareDeviceActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.btn_update_version:
-                new UpdateVersionAsync().execute();
+                try {
+                    String mac=deviceChild.getMacAddress();
+                    String topic="rango/"+mac+"/update/firmware";
+                    JSONObject jsonObject2=new JSONObject();
+                    jsonObject2.put("updateWifi",deviceChild.getWifiVersion());
+                    jsonObject2.put("updateMCU",deviceChild.getMCUVerion());
+                    String ss=jsonObject2.toString();
+                    boolean succes=mqService.publish(topic,2,ss);
+                    if (succes){
+                        Utils.showToast(this,"更新成功");
+                    }
+                    Log.d("sss","-->"+succes);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
                 break;
         }
     }
@@ -235,9 +255,12 @@ public class ShareDeviceActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            if (!Utils.isEmpty(s)){
-                Utils.showToast(ShareDeviceActivity.this,s);
-                tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
+            if ("已经是最新版本啦!".equals(s)){
+//                Utils.showToast(ShareDeviceActivity.this,s);
+                btn_update_version.setVisibility(View.GONE);
+//                tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
+            }else {
+                btn_update_version.setVisibility(View.VISIBLE);
             }
         }
     }

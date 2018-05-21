@@ -33,16 +33,15 @@
            android:layout_height="match_parent"
            android:orientation="vertical"
            android:background="@drawable/shape_footer2"
-           android:layout_marginLeft="@dimen/dp_5"
-           android:layout_marginRight="@dimen/dp_5"
+
+           android:layout_marginLeft="@dimen/dp_10"
+           android:layout_marginRight="@dimen/dp_10"
            >
            <ListView
                android:id="@+id/smart_set"
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
                android:divider="@color/color_white"
-               android:layout_marginLeft="@dimen/dp_5"
-               android:layout_marginRight="@dimen/dp_5"
                />
            <RelativeLayout
                android:id="@+id/relative"

@@ -194,22 +194,28 @@ public class DeviceFragment extends Fragment{
                             DeviceChild fromChild= (DeviceChild) from;
                             DeviceChild toDeviceChild= (DeviceChild) to;
                             int fromPoistion2=fromChild.getChildPosition();
+
                             int toPosition2=toDeviceChild.getChildPosition();
 
+                            if (fromPoistion2==toPosition2){
+                                return false;
+                            }else {
+                                fromChild.setChildPosition(toPosition2);
+                                toDeviceChild.setChildPosition(fromPoistion2);
+
+                                deviceChildDao.update(fromChild);
+                                deviceChildDao.update(toDeviceChild);
+//                            adapter.changeChild(fromChild.getGroupPosition());
+
+                                Collections.swap(allListData,fromPosition,toPosition);
+
+                                adapter.notifyItemMoved(fromPosition, toPosition);
+                            }
                             Log.i("hhh","from:"+fromPoistion2);
                             Log.i("hhh","to:"+toPosition2);
 
 
-                            fromChild.setChildPosition(toPosition2);
-                            toDeviceChild.setChildPosition(fromPoistion2);
 
-                            deviceChildDao.update(fromChild);
-                            deviceChildDao.update(toDeviceChild);
-//                            adapter.changeChild(fromChild.getGroupPosition());
-
-                            Collections.swap(allListData,fromPosition,toPosition);
-
-                            adapter.notifyItemMoved(fromPosition, toPosition);
 
                         }
 //                        for (int i = fromPosition; i < toPosition; i++) {
@@ -229,17 +235,22 @@ public class DeviceFragment extends Fragment{
 
                             int fromPoistion2=fromChild.getChildPosition();
                             int toPosition2=toDeviceChild.getChildPosition();
+                            if (fromPoistion2==toPosition2){
+                                return false;
+                            }else {
+                                Log.i("hhh","from:"+fromPoistion2+","+fromChild.getId());
+                                Log.i("hhh","to:"+toPosition2+","+toDeviceChild.getId());
+                                fromChild.setChildPosition(toPosition2);
+                                toDeviceChild.setChildPosition(fromPoistion2);
+                                deviceChildDao.update(fromChild);
+                                deviceChildDao.update(toDeviceChild);
 
-                            Log.i("hhh","from:"+fromPoistion2+","+fromChild.getId());
-                            Log.i("hhh","to:"+toPosition2+","+toDeviceChild.getId());
-                            fromChild.setChildPosition(toPosition2);
-                            toDeviceChild.setChildPosition(fromPoistion2);
-                            deviceChildDao.update(fromChild);
-                            deviceChildDao.update(toDeviceChild);
+                                Collections.swap(allListData,toPosition,fromPosition);
 
-                            Collections.swap(allListData,toPosition,fromPosition);
+                                adapter.notifyItemMoved(fromPosition, toPosition);
+                            }
 
-                            adapter.notifyItemMoved(fromPosition, toPosition);
+
 
 //                            adapter.changeChildren(fromChild.getGroupPosition());
                         }

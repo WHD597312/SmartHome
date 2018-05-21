@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.RegistActivity"
-    android:background="#494948"
+    android:background="#34332f"
     >
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_50"
-        android:background="#3e3d3a"
+        android:background="#494948"
         android:gravity="center_vertical"
         >
         <ImageView

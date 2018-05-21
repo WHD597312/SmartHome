@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#3d3c38"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -12,7 +13,6 @@
         android:layout_height="@dimen/dp_50"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
-        android:background="#494948"
         android:orientation="horizontal">
 
         <ImageView
@@ -49,7 +49,7 @@
         android:id="@+id/layout_body"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#33302b"
+        android:background="#808080"
         android:orientation="vertical"></LinearLayout>
 </LinearLayout>
 

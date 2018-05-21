@@ -180,7 +180,6 @@ public class CircleSeekBar extends View {
         week=a.getInt(R.styleable.CircleSeekBar_week,0);
 
 
-
         mNumColor=a.getColor(R.styleable.CircleSeekBar_numcolor, Color.BLACK);
         mNumSize=a.getInt(R.styleable.CircleSeekBar_numsize,14);
         if (isHasWheelShadow) {

@@ -23,7 +23,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme"
-            app:navigationIcon="@mipmap/img_menu"
+            app:navigationIcon="@mipmap/nav_menu"
             />
         <LinearLayout
             android:layout_width="match_parent"
@@ -62,6 +62,7 @@
                         android:layout_below="@+id/tv_device"
                         android:layout_alignLeft="@+id/tv_device"
                         android:layout_alignRight="@id/tv_device"
+                        android:layout_marginTop="@dimen/dp_10"
                         />
                 </RelativeLayout>
                 <RelativeLayout
@@ -89,6 +90,7 @@
                         android:layout_below="@+id/tv_smart"
                         android:layout_alignLeft="@+id/tv_smart"
                         android:layout_alignRight="@+id/tv_smart"
+                        android:layout_marginTop="@dimen/dp_10"
                         />
                 </RelativeLayout>
                 <RelativeLayout
@@ -116,6 +118,7 @@
                         android:layout_below="@+id/tv_live"
                         android:layout_alignLeft="@+id/tv_live"
                         android:layout_alignRight="@+id/tv_live"
+                        android:layout_marginTop="@dimen/dp_10"
                         />
                 </RelativeLayout>
 
@@ -145,6 +148,8 @@
             android:layout_width="@dimen/dp_60"
             android:layout_height="@dimen/dp_60"
             android:src="@mipmap/leftbar"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_marginTop="@dimen/dp_10"
             android:scaleType="centerInside"
             />
         <TextView

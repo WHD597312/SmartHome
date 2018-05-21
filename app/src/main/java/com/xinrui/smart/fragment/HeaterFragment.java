@@ -455,24 +455,33 @@ public class HeaterFragment extends LazyFragment {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            String workMode=deviceChild.getWorkMode();
+            String output=deviceChild.getOutputMod();
             try {
                 switch (msg.arg1) {
                     case 2:
                         int current=msg.what;
                         semicBar.setmCurAngle(current);
                         semicBar.setCurProcess(current);
+                        semicBar.setWorkMode(workMode);
+                        semicBar.setOutput(output);
                         break;
                     case 3:
                         semicBar.setmCurAngle(0);
-                        semicBar.invalidate();
+                        semicBar.setWorkMode(workMode);
+                        semicBar.setOutput(output);
+
                         break;
                     case 4:
                         semicBar.setmCurAngle(0);
-                        semicBar.invalidate();
+                        semicBar.setWorkMode(workMode);
+                        semicBar.setOutput(output);
                         break;
                     case 5:
                         int temp2 = msg.what;
                         semicBar.setmCurAngle(temp2);
+                        semicBar.setWorkMode(workMode);
+                        semicBar.setOutput(output);
                         break;
                     case 6:
                         int mCurrent6 = msg.what;
@@ -513,13 +522,16 @@ public class HeaterFragment extends LazyFragment {
                             }
                             semicBar.setmCurAngle(mCurrentAngle);
                             semicBar.setCurProcess(mCurrentAngle);
+                            semicBar.setWorkMode(workMode);
+                            semicBar.setOutput(output);
 //                        semicBar.invalidate();
                         }
 
                         break;
                     case 7:
                         semicBar.setEnd(0);
-                        semicBar.invalidate();
+                        semicBar.setWorkMode(workMode);
+                        semicBar.setOutput(output);
                         break;
                 }
             } catch (Exception e) {
@@ -612,11 +624,6 @@ public class HeaterFragment extends LazyFragment {
         semicBar.setDeviceId(deviceChild.getId() + "");
 
         if (deviceChild != null) {
-            String outputMode=deviceChild.getOutputMod();
-            String work=deviceChild.getWorkMode();
-            if ("timer".equals(work) && !("childProtect".equals(outputMode))){
-                Utils.showToast(getActivity(),"定时模式下不能滑动圆盘");
-            }
             setMode(deviceChild);
         }
     }
@@ -689,7 +696,6 @@ public class HeaterFragment extends LazyFragment {
                         String handTask = (String) image_hand_task.getTag();
                         if (!"childProtect".equals(deviceChild.getOutputMod())) {
                             if ("手动".equals(handTask)) {
-                                Utils.showToast(getActivity(),"定时模式下不能滑动圆盘");
                                 image_hand_task.setTag("定时");
                                 deviceChild.setWorkMode("timer");
                                 int timerTemp = deviceChild.getTimerTemp();

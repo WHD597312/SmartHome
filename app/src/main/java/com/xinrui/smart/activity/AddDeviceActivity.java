@@ -37,6 +37,7 @@ import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.view_custom.AddDeviceDialog;
 
 import org.json.JSONObject;
 
@@ -213,15 +214,15 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                            + ", " + " mEdtApPassword = " + apPassword);
                 }
                 if (!Utils.isEmpty(ssid)) {
-//                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
-                    String macAddress="vlinks_test18d634d6d3c5";
-                    Map<String, Object> params = new HashMap<>();
-                    params.put("deviceName", "设备3");
-                    params.put("houseId", houseId);
-                    params.put("masterControllerUserId", Integer.parseInt(userId));
-                    params.put("type", 1);
-                    params.put("macAddress", macAddress);
-                    new WifiConectionAsync().execute(params);
+                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
+//                    String macAddress="vlinks_test18d634d6d3c6";
+//                    Map<String, Object> params = new HashMap<>();
+//                    params.put("deviceName", "设备3");
+//                    params.put("houseId", houseId);
+//                    params.put("masterControllerUserId", Integer.parseInt(userId));
+//                    params.put("type", 1);
+//                    params.put("macAddress", macAddress);
+//                    new WifiConectionAsync().execute(params);
 
                 } else if (!Utils.isEmpty(groupPosition) && !Utils.isEmpty(ssid)) {
                     long group = Long.parseLong(groupPosition);
@@ -620,6 +621,7 @@ public class AddDeviceActivity extends AppCompatActivity {
         }
     }
 
+    private AddDeviceDialog addDeviceDialog;
     private void onEsptoucResultAddedPerform(final IEsptouchResult result) {
         runOnUiThread(new Runnable() {
 
@@ -660,32 +662,34 @@ public class AddDeviceActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            mProgressDialog = new ProgressDialog(AddDeviceActivity.this);
-            mProgressDialog
-                    .setMessage("正在配置, 请耐心等待...");
-            mProgressDialog.setCanceledOnTouchOutside(false);
-            mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    synchronized (mLock) {
-                        if (__IEsptouchTask.DEBUG) {
-                            Log.i(TAG, "progress dialog is canceled");
-                        }
-                        if (mEsptouchTask != null) {
-                            mEsptouchTask.interrupt();
-                        }
-                    }
-                }
-            });
-            mProgressDialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                    "Waiting...", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    });
-            mProgressDialog.show();
-            mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE)
-                    .setEnabled(false);
+            addDeviceDialog=new AddDeviceDialog(AddDeviceActivity.this);
+            addDeviceDialog.show();
+//            mProgressDialog = new ProgressDialog(AddDeviceActivity.this);
+//            mProgressDialog
+//                    .setMessage("正在配置, 请耐心等待...");
+//            mProgressDialog.setCanceledOnTouchOutside(false);
+//            mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+//                @Override
+//                public void onCancel(DialogInterface dialog) {
+//                    synchronized (mLock) {
+//                        if (__IEsptouchTask.DEBUG) {
+//                            Log.i(TAG, "progress dialog is canceled");
+//                        }
+//                        if (mEsptouchTask != null) {
+//                            mEsptouchTask.interrupt();
+//                        }
+//                    }
+//                }
+//            });
+//            mProgressDialog.setButton(DialogInterface.BUTTON_POSITIVE,
+//                    "Waiting...", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                        }
+//                    });
+//            mProgressDialog.show();
+//            mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE)
+//                    .setEnabled(false);
         }
 
         @Override
@@ -708,10 +712,10 @@ public class AddDeviceActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<IEsptouchResult> result) {
-            mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE)
-                    .setEnabled(true);
-            mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE).setText(
-                    "确认");
+//            mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE)
+//                    .setEnabled(true);
+//            mProgressDialog.getButton(DialogInterface.BUTTON_POSITIVE).setText(
+//                    "确认");
             IEsptouchResult firstResult = result.get(0);
             // check whether the task is cancelled and no results received
             if (!firstResult.isCancelled()) {
@@ -800,9 +804,9 @@ public class AddDeviceActivity extends AppCompatActivity {
                         sb.append("\nthere's " + (result.size() - count)
                                 + " more result(s) without showing\n");
                     }
-                    mProgressDialog.setMessage(sb.toString());
+//                    mProgressDialog.setMessage(sb.toString());
                 } else {
-                    mProgressDialog.setMessage("配置失败");
+//                    mProgressDialog.setMessage("配置失败");
                 }
             }
         }
@@ -813,8 +817,8 @@ public class AddDeviceActivity extends AppCompatActivity {
         super.onDestroy();
         deviceChildDao.closeDaoSession();
         deviceGroupDao.closeDaoSession();
-        if (mProgressDialog != null) {
-            mProgressDialog.dismiss();
+        if (addDeviceDialog!=null){
+            addDeviceDialog.dismiss();
         }
     }
 }

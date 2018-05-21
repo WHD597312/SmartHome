@@ -7,6 +7,7 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     android:background="#efeff4"
+    android:id="@+id/linear"
     tools:context="com.xinrui.smart.activity.AddDeviceActivity">
 
 

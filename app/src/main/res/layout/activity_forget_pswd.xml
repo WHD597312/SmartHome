@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.RegistActivity"
-    android:background="#33302c"
+    android:background="#34332f"
     >
 
     <RelativeLayout

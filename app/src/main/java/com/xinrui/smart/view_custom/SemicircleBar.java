@@ -18,8 +18,10 @@ import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.smart.R;
@@ -109,7 +111,10 @@ public class SemicircleBar extends View {
     private OnSeekBarChangeListener mChangListener;
     private int mCurrentAngle;//当前角度
     private int end;
+    private String workMode;
+    private String output;
 
+    DeviceChild deviceChild;
     public SemicircleBar(Context context) {
         this(context, null);
     }
@@ -125,8 +130,7 @@ public class SemicircleBar extends View {
         initPadding();
         initPaints();
         mPaint = new Paint();
-        deviceChildDao = new DeviceChildDaoImpl(context);
-
+        deviceChildDao=new DeviceChildDaoImpl(context);
     }
 
     private void initPaints() {
@@ -204,6 +208,8 @@ public class SemicircleBar extends View {
         mCurAngle = a.getInt(R.styleable.CircleSeekBar_mCurAngle, 0);
         deviceId = a.getString(R.styleable.CircleSeekBar_deviceId);
         end=a.getInt(R.styleable.CircleSeekBar_end,0);
+        workMode=a.getString(R.styleable.CircleSeekBar_workMode);
+        output=a.getString(R.styleable.CircleSeekBar_output);
         if (isHasWheelShadow) {
             mWheelShadowRadius = a.getDimension(R.styleable.CircleSeekBar_wheel_shadow_radius,
                     getDimen(R.dimen.def_shadow_radius));
@@ -288,7 +294,9 @@ public class SemicircleBar extends View {
         float centerX = (left + right) / 2;
         float centerY = (top + bottom) / 2;
 
+
         float wheelRadius = (canvas.getWidth() - getPaddingLeft() - getPaddingRight()) / 2 - mUnreachedWidth / 2;
+
 
         if (isHasCache) {
             if (mCacheCanvas == null) {
@@ -310,6 +318,7 @@ public class SemicircleBar extends View {
         mPaint.setAntiAlias(true);//去除边缘锯齿，优化绘制效果
         mPaint.setColor(getResources().getColor(R.color.color_white));
         canvas.save();//保存当前的状态
+
 
         for (int i = 0; i < 45; i++) {//总共45个点  所以绘制45次  //绘制一圈的小黑点
             if (i > 37) {
@@ -444,6 +453,22 @@ public class SemicircleBar extends View {
         mCacheCanvas.drawCircle(centerX, centerY, wheelRadius, mWheelPaint);
     }
 
+    public void setWorkMode(String workMode) {
+        this.workMode = workMode;
+    }
+
+    public String getWorkMode() {
+        return workMode;
+    }
+
+    public void setOutput(String output) {
+        this.output = output;
+    }
+
+    public String getOutput() {
+        return output;
+    }
+
     public boolean outside=false;
 
     public boolean isOutside() {
@@ -457,11 +482,17 @@ public class SemicircleBar extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
+
         end=0;
         float x = event.getX();
         float y = event.getY();
 
 
+        if ("timer".equals(workMode) && !"childProtect".equals(output) && event.getAction()==MotionEvent.ACTION_DOWN){
+            Toast toast=Toast.makeText(getContext(),"定时模式下不能滑动",Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER,0,0);
+            toast.show();
+        }
         if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y)) && (y>=75 && y<=770)) {
             // 通过当前触摸点搞到cos角度值
             outside=false;
