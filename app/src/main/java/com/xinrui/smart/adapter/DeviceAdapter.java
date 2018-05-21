@@ -182,7 +182,6 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
             holder.itemView.setBackgroundResource(R.drawable.shape_header);
         }
 
-
         if (holder != null) {
             holder.setText(R.id.tv_header, entry.getHeader());
             TextView tv_open = (TextView) holder.itemView.findViewById(R.id.tv_open);
@@ -308,8 +307,18 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
             } else if (entry.getType() == 2) {
                 tv_state.setText("温度：" + entry.getTemp() + "℃");
             }
+            if ("open".equals(entry.getDeviceState())){
+                holder.setImageResource(R.id.image_switch,imgs[1]);
+            }else if ("close".equals(entry.getDeviceState())){
+                holder.setImageResource(R.id.image_switch,imgs[0]);
+            }
         } else {
             tv_state.setText("离线");
+            if ("open".equals(entry.getDeviceState())){
+                holder.setImageResource(R.id.image_switch,imgs[2]);
+            }else if ("close".equals(entry.getDeviceState())){
+                holder.setImageResource(R.id.image_switch,imgs[0]);
+            }
         }
 
         if (entry.getType() == 1) {
@@ -364,6 +373,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                 try {
                                     entry.setImg(imgs[1]);
                                     entry.setDeviceState("open");
+                                    image_switch.setImageResource(imgs[1]);
                                     deviceChildDao.update(entry);
                                     send(entry);
                                 } catch (Exception e) {
@@ -375,6 +385,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                 try {
                                     entry.setImg(imgs[0]);
                                     entry.setDeviceState("close");
+                                    image_switch.setImageResource(imgs[0]);
                                     deviceChildDao.update(entry);
                                     send(entry);
                                 } catch (Exception e) {
@@ -383,7 +394,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             }
                         }
 //                holder.setImageResource(R.id.image_switch,img);
-                        changeChild(groupPosition, childPosition);
+//                        changeChild(groupPosition, childPosition);
                     } else {
                         Utils.showToast(context, "该设备离线");
                     }
@@ -514,6 +525,11 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                         timeDao.delete(timer);
                     }
                     childern.get(groupPosition).remove(childPosition);
+                    for (int i = childPosition; i <childern.get(groupPosition).size() ; i++) {
+                        DeviceChild child=childern.get(groupPosition).get(i);
+                        child.setChildPosition(i);
+                        deviceChildDao.update(child);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -531,6 +547,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                     if (children==null || children.isEmpty()){
                         context.startActivity(new Intent(context,MainActivity.class));
                     }else {
+
                         notifyDataSetChanged();
                     }
                     break;
@@ -645,7 +662,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             changeChild(groupPostion, childPosition);
                         }
                     }
-                    changeGroup(groupPostion);
+//                    changeGroup(groupPostion);
                     if (deviceChild != null && deviceChild.getOnLint() && child != null) {
                         if ("close".equals(deviceState)) {
                             if (deviceChild != null) {

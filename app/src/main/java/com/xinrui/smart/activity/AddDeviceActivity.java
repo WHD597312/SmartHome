@@ -213,15 +213,15 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                            + ", " + " mEdtApPassword = " + apPassword);
                 }
                 if (!Utils.isEmpty(ssid)) {
-                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
-//                    String macAddress="vlinks_test18d634d6d3c4";
-//                    Map<String, Object> params = new HashMap<>();
-//                    params.put("deviceName", "设备3");
-//                    params.put("houseId", houseId);
-//                    params.put("masterControllerUserId", Integer.parseInt(userId));
-//                    params.put("type", 1);
-//                    params.put("macAddress", macAddress);
-//                    new WifiConectionAsync().execute(params);
+//                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
+                    String macAddress="vlinks_test18d634d6d3c5";
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("deviceName", "设备3");
+                    params.put("houseId", houseId);
+                    params.put("masterControllerUserId", Integer.parseInt(userId));
+                    params.put("type", 1);
+                    params.put("macAddress", macAddress);
+                    new WifiConectionAsync().execute(params);
 
                 } else if (!Utils.isEmpty(groupPosition) && !Utils.isEmpty(ssid)) {
                     long group = Long.parseLong(groupPosition);
@@ -269,6 +269,11 @@ public class AddDeviceActivity extends AppCompatActivity {
                         deviceChild.setControlled(controlled);
                         deviceChild.setOnLint(true);
                         deviceChild.setDeviceState("open");
+                        deviceChild.setOnLint(true);
+                        List<DeviceChild> deviceChildren2=deviceChildDao.findGroupIdAllDevice((long)houseId);
+                        deviceChild.setChildPosition(deviceChildren2.size());
+
+
 
                         List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice((long) houseId);
                         DeviceChild deviceChild3 = null;

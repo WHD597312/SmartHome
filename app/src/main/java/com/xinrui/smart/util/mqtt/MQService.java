@@ -306,7 +306,14 @@ public class MQService extends Service {
                                 }
                             }
 
+                            for (int i = child.getChildPosition(); i < deviceChildren.size(); i++) {
+                                DeviceChild deviceChild=deviceChildren.get(i);
+                                deviceChild.setChildPosition(i);
+                                deviceChildDao.update(deviceChild);
+                            }
                             deviceChildDao.delete(child);
+
+
                             List<TimeTask> timeTasks = timeTaskDao.findTimeTasks(child.getId());
                             for (TimeTask timeTask : timeTasks) {
                                 timeTaskDao.delete(timeTask);/**删除定时任务的时间段*/
@@ -749,6 +756,7 @@ public class MQService extends Service {
             switch (msg.what){
                 case 1:
                     DeviceChild child= (DeviceChild) msg.obj;
+                    childPosition=child.getChildPosition();
                     Intent mqttIntent = new Intent("DeviceFragment");
                     mqttIntent.putExtra("groupPostion", groupPostion);
                     mqttIntent.putExtra("childPosition", childPosition);

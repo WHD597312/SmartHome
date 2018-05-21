@@ -184,15 +184,13 @@ public class DeviceFragment extends Fragment{
                 int toPosition = target.getAdapterPosition();//得到目标ViewHolder的position
 
                 //使用集合工具类Collections，分别把中间所有的item的位置重新交换
-                if (fromPosition <=toPosition) {/**从上往下移动*/
+                if (fromPosition <toPosition) {/**从上往下移动*/
                     Object to=allListData.get(toPosition);
+                    Object from=allListData.get(fromPosition);
                     if (to instanceof DeviceGroup || to instanceof String){
                         return false;
                     }else {
-                        Object from=allListData.get(fromPosition);
-
                         if (to instanceof DeviceChild && from instanceof DeviceChild){
-
                             DeviceChild fromChild= (DeviceChild) from;
                             DeviceChild toDeviceChild= (DeviceChild) to;
                             int fromPoistion2=fromChild.getChildPosition();
@@ -209,20 +207,22 @@ public class DeviceFragment extends Fragment{
                             deviceChildDao.update(toDeviceChild);
 //                            adapter.changeChild(fromChild.getGroupPosition());
 
+                            Collections.swap(allListData,fromPosition,toPosition);
+
+                            adapter.notifyItemMoved(fromPosition, toPosition);
 
                         }
 //                        for (int i = fromPosition; i < toPosition; i++) {
 //                            Collections.swap(allListData, i, i + 1);
 //                        }
                     }
-                    Collections.swap(allListData,fromPosition,toPosition);
-                } else if (toPosition<=fromPosition){/**从下往上移动*/
+
+                } else if (toPosition<fromPosition){/**从下往上移动*/
                     Object from=allListData.get(fromPosition);
+                    Object to=allListData.get(toPosition);
                     if (from instanceof DeviceGroup || from instanceof String){
                         return false;
                     }else{
-
-                        Object to=allListData.get(toPosition);
                         if (to instanceof DeviceChild && from instanceof DeviceChild){
                             DeviceChild fromChild= (DeviceChild) from;
                             DeviceChild toDeviceChild= (DeviceChild) to;
@@ -237,13 +237,14 @@ public class DeviceFragment extends Fragment{
                             deviceChildDao.update(fromChild);
                             deviceChildDao.update(toDeviceChild);
 
+                            Collections.swap(allListData,toPosition,fromPosition);
 
-
+                            adapter.notifyItemMoved(fromPosition, toPosition);
 
 //                            adapter.changeChildren(fromChild.getGroupPosition());
                         }
 
-                        Collections.swap(allListData,toPosition,fromPosition);
+
 //                        for (int i = fromPosition; i > toPosition; i--) {
 //                            Collections.swap(allListData, i, i - 1);
 //                        }
@@ -251,7 +252,7 @@ public class DeviceFragment extends Fragment{
                 }
 
                 //通知Adapter更新状态
-                adapter.notifyItemMoved(fromPosition, toPosition);
+
                 return true;
             }
 
