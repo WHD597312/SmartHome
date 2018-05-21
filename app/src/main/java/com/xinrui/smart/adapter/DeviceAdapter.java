@@ -404,9 +404,9 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
             @Override
             public void onClick(View v) {
 
-                    DeviceAdapter.this.groupPosition = groupPosition;
-                    DeviceAdapter.this.childPosition = childPosition;
-                    new DeleteDeviceAsync().execute(entry);
+                DeviceAdapter.this.groupPosition = groupPosition;
+                DeviceAdapter.this.childPosition = childPosition;
+                new DeleteDeviceAsync().execute(entry);
 
             }
         });
@@ -621,12 +621,12 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                 childern.get(groupPostion).remove(deviceChild2);
                                 Utils.showToast(context, "该设备已重置");
 
-                               List<DeviceChild> children=deviceChildDao.findAllDevice();
-                               if (children==null || children.isEmpty()){
-                                   context.startActivity(new Intent(context,MainActivity.class));
-                               }else {
-                                   notifyDataSetChanged();
-                               }
+                                List<DeviceChild> children=deviceChildDao.findAllDevice();
+                                if (children==null || children.isEmpty()){
+                                    context.startActivity(new Intent(context,MainActivity.class));
+                                }else {
+                                    notifyDataSetChanged();
+                                }
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -645,7 +645,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             changeChild(groupPostion, childPosition);
                         }
                     }
-
+                    changeGroup(groupPostion);
                     if (deviceChild != null && deviceChild.getOnLint() && child != null) {
                         if ("close".equals(deviceState)) {
                             if (deviceChild != null) {
@@ -698,7 +698,6 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
             }
         }
     }
-
 
     public void send(DeviceChild deviceChild) {
         try {

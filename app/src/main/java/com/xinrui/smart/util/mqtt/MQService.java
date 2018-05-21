@@ -531,7 +531,7 @@ public class MQService extends Service {
                                                 if (temp == timers.get(end).getTemp()) {
                                                     end++;
                                                 }
-                                                    break;
+                                                break;
                                             } else {
                                                 break;
                                             }
@@ -849,12 +849,12 @@ public class MQService extends Service {
                     String houseId=deviceChild.getHouseId()+"";
                     topicName = "rango/masterController/"+houseId+"/"+mac+"/set";
 
-                      publish(topicName, 1, s);
+                    publish(topicName, 1, s);
 
                 } else {
                     topicName = "rango/" + mac + "/set";
 
-                        publish(topicName, 1, s);
+                    publish(topicName, 1, s);
 
                 }
             }

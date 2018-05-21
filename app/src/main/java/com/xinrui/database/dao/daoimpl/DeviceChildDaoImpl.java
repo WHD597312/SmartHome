@@ -75,7 +75,7 @@ public class DeviceChildDaoImpl {
     }
     public List<DeviceChild> findGroupIdAllDevice(Long groupId){
         List<DeviceChild> deviceChildren=new ArrayList<>();
-        List<DeviceChild> children=deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.HouseId.eq(groupId)).list();
+        List<DeviceChild> children=deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.HouseId.eq(groupId)).orderAsc(DeviceChildDao.Properties.ChildPosition).list();
         deviceChildren.addAll(children);
         return deviceChildren;
     }

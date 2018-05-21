@@ -19,6 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -162,67 +163,117 @@ public class DeviceFragment extends Fragment{
 
 
 
-//        ItemTouchHelper.Callback callback=new ItemTouchHelper.Callback() {
-//            @Override
-//            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-//                int position=viewHolder.getAdapterPosition();
-//                Object o=allListData.get(position);
-//                int dragFlags=0;
-//                if (o instanceof DeviceGroup)
-//                    dragFlags=0;
-//                else
-//                    dragFlags= ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-//                       //允许上下的拖动
-//                return makeMovementFlags(dragFlags,0);
-//            }
-//
-//            @Override
-//            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-//                int position=viewHolder.getAdapterPosition();
-//                int fromPosition = viewHolder.getAdapterPosition();//得到拖动ViewHolder的position
-//                int toPosition = target.getAdapterPosition();//得到目标ViewHolder的position
-//
-//                //使用集合工具类Collections，分别把中间所有的item的位置重新交换
-//                if (fromPosition <=toPosition) {/**从上往下移动*/
-//                    Object o=allListData.get(toPosition);
-//                    if (o instanceof DeviceGroup || o instanceof String){
-//                        return false;
-//                    }else {
-//                        Collections.swap(allListData,fromPosition,toPosition);
-//                    }
-//                } else if (toPosition<=fromPosition){/**从下往上移动*/
-//                    Object o=allListData.get(fromPosition);
-//                    if (o instanceof DeviceGroup || o instanceof String){
-//                        return false;
-//                    }else{
-//                        Collections.swap(allListData, fromPosition, toPosition);
-//                    }
-//                }
-//                //通知Adapter更新状态
-//                adapter.notifyItemMoved(fromPosition, toPosition);
-//                return true;
-//            }
-//
-//            @Override
-//            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-//
-//            }
-//
-//            @Override
-//            public boolean isLongPressDragEnabled() {
-//                return true;
-//            }
-//
-//
-//            @Override
-//            public boolean isItemViewSwipeEnabled() {
-//                return true;
-//            }
-//        };
-//        //用Callback构造ItemtouchHelper
-//        touchHelper = new ItemTouchHelper(callback);
-//        //调用ItemTouchHelper的attachToRecyclerView方法建立联系
-//        touchHelper.attachToRecyclerView(rv_list);
+        ItemTouchHelper.Callback callback=new ItemTouchHelper.Callback() {
+            @Override
+            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                int position=viewHolder.getAdapterPosition();
+                Object o=allListData.get(position);
+                int dragFlags=0;
+                if (o instanceof DeviceGroup)
+                    dragFlags=0;
+                else
+                    dragFlags= ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+                       //允许上下的拖动
+                return makeMovementFlags(dragFlags,0);
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                int position=viewHolder.getAdapterPosition();
+                int fromPosition = viewHolder.getAdapterPosition();//得到拖动ViewHolder的position
+                int toPosition = target.getAdapterPosition();//得到目标ViewHolder的position
+
+                //使用集合工具类Collections，分别把中间所有的item的位置重新交换
+                if (fromPosition <=toPosition) {/**从上往下移动*/
+                    Object to=allListData.get(toPosition);
+                    if (to instanceof DeviceGroup || to instanceof String){
+                        return false;
+                    }else {
+                        Object from=allListData.get(fromPosition);
+
+                        if (to instanceof DeviceChild && from instanceof DeviceChild){
+
+                            DeviceChild fromChild= (DeviceChild) from;
+                            DeviceChild toDeviceChild= (DeviceChild) to;
+                            int fromPoistion2=fromChild.getChildPosition();
+                            int toPosition2=toDeviceChild.getChildPosition();
+
+                            Log.i("hhh","from:"+fromPoistion2);
+                            Log.i("hhh","to:"+toPosition2);
+
+
+                            fromChild.setChildPosition(toPosition2);
+                            toDeviceChild.setChildPosition(fromPoistion2);
+
+                            deviceChildDao.update(fromChild);
+                            deviceChildDao.update(toDeviceChild);
+//                            adapter.changeChild(fromChild.getGroupPosition());
+
+
+                        }
+//                        for (int i = fromPosition; i < toPosition; i++) {
+//                            Collections.swap(allListData, i, i + 1);
+//                        }
+                    }
+                    Collections.swap(allListData,fromPosition,toPosition);
+                } else if (toPosition<=fromPosition){/**从下往上移动*/
+                    Object from=allListData.get(fromPosition);
+                    if (from instanceof DeviceGroup || from instanceof String){
+                        return false;
+                    }else{
+
+                        Object to=allListData.get(toPosition);
+                        if (to instanceof DeviceChild && from instanceof DeviceChild){
+                            DeviceChild fromChild= (DeviceChild) from;
+                            DeviceChild toDeviceChild= (DeviceChild) to;
+
+                            int fromPoistion2=fromChild.getChildPosition();
+                            int toPosition2=toDeviceChild.getChildPosition();
+
+                            Log.i("hhh","from:"+fromPoistion2+","+fromChild.getId());
+                            Log.i("hhh","to:"+toPosition2+","+toDeviceChild.getId());
+                            fromChild.setChildPosition(toPosition2);
+                            toDeviceChild.setChildPosition(fromPoistion2);
+                            deviceChildDao.update(fromChild);
+                            deviceChildDao.update(toDeviceChild);
+
+
+
+
+//                            adapter.changeChildren(fromChild.getGroupPosition());
+                        }
+
+                        Collections.swap(allListData,toPosition,fromPosition);
+//                        for (int i = fromPosition; i > toPosition; i--) {
+//                            Collections.swap(allListData, i, i - 1);
+//                        }
+                    }
+                }
+
+                //通知Adapter更新状态
+                adapter.notifyItemMoved(fromPosition, toPosition);
+                return true;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
+            }
+
+            @Override
+            public boolean isLongPressDragEnabled() {
+                return true;
+            }
+
+            @Override
+            public boolean isItemViewSwipeEnabled() {
+                return true;
+            }
+        };
+        //用Callback构造ItemtouchHelper
+        touchHelper = new ItemTouchHelper(callback);
+        //调用ItemTouchHelper的attachToRecyclerView方法建立联系
+        touchHelper.attachToRecyclerView(rv_list);
 
         rv_list.addOnItemTouchListener(new OnRecyclerItemClickListener(rv_list,getContext()) {
             @Override

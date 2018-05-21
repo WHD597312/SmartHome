@@ -34,6 +34,7 @@ public class DeviceGroupDao extends AbstractDao<DeviceGroup, Long> {
         public final static Property MasterControllerDeviceId = new Property(7, int.class, "masterControllerDeviceId", false, "MASTER_CONTROLLER_DEVICE_ID");
         public final static Property ExternalSensorsId = new Property(8, int.class, "externalSensorsId", false, "EXTERNAL_SENSORS_ID");
         public final static Property Layers = new Property(9, String.class, "layers", false, "LAYERS");
+        public final static Property GroupPosition = new Property(10, int.class, "groupPosition", false, "GROUP_POSITION");
     }
 
 
@@ -58,7 +59,8 @@ public class DeviceGroupDao extends AbstractDao<DeviceGroup, Long> {
                 "\"LOCATION\" TEXT," + // 6: location
                 "\"MASTER_CONTROLLER_DEVICE_ID\" INTEGER NOT NULL ," + // 7: masterControllerDeviceId
                 "\"EXTERNAL_SENSORS_ID\" INTEGER NOT NULL ," + // 8: externalSensorsId
-                "\"LAYERS\" TEXT);"); // 9: layers
+                "\"LAYERS\" TEXT," + // 9: layers
+                "\"GROUP_POSITION\" INTEGER NOT NULL );"); // 10: groupPosition
     }
 
     /** Drops the underlying database table. */
@@ -104,6 +106,7 @@ public class DeviceGroupDao extends AbstractDao<DeviceGroup, Long> {
         if (layers != null) {
             stmt.bindString(10, layers);
         }
+        stmt.bindLong(11, entity.getGroupPosition());
     }
 
     @Override
@@ -143,6 +146,7 @@ public class DeviceGroupDao extends AbstractDao<DeviceGroup, Long> {
         if (layers != null) {
             stmt.bindString(10, layers);
         }
+        stmt.bindLong(11, entity.getGroupPosition());
     }
 
     @Override
@@ -162,7 +166,8 @@ public class DeviceGroupDao extends AbstractDao<DeviceGroup, Long> {
             cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // location
             cursor.getInt(offset + 7), // masterControllerDeviceId
             cursor.getInt(offset + 8), // externalSensorsId
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9) // layers
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // layers
+            cursor.getInt(offset + 10) // groupPosition
         );
         return entity;
     }
@@ -179,6 +184,7 @@ public class DeviceGroupDao extends AbstractDao<DeviceGroup, Long> {
         entity.setMasterControllerDeviceId(cursor.getInt(offset + 7));
         entity.setExternalSensorsId(cursor.getInt(offset + 8));
         entity.setLayers(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
+        entity.setGroupPosition(cursor.getInt(offset + 10));
      }
     
     @Override

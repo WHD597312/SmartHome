@@ -19,6 +19,7 @@ public class DeviceGroup implements Comparable<DeviceGroup>{
     private int masterControllerDeviceId;
     private int externalSensorsId;
     private String layers;
+    private int groupPosition;
     public DeviceGroup(){}
 
     public DeviceGroup(Long id, String header, String houseName, String location, int masterControllerDeviceId, int externalSensorsId, String layers) {
@@ -31,9 +32,9 @@ public class DeviceGroup implements Comparable<DeviceGroup>{
         this.layers = layers;
     }
 
-    @Generated(hash = 1421572116)
+    @Generated(hash = 1004227873)
     public DeviceGroup(Long id, int userId, String header, String footer, int color, String houseName, String location, int masterControllerDeviceId,
-            int externalSensorsId, String layers) {
+            int externalSensorsId, String layers, int groupPosition) {
         this.id = id;
         this.userId = userId;
         this.header = header;
@@ -44,6 +45,7 @@ public class DeviceGroup implements Comparable<DeviceGroup>{
         this.masterControllerDeviceId = masterControllerDeviceId;
         this.externalSensorsId = externalSensorsId;
         this.layers = layers;
+        this.groupPosition = groupPosition;
     }
 
     public Long getId() {
@@ -149,5 +151,13 @@ public class DeviceGroup implements Comparable<DeviceGroup>{
         else if (this.getId()==o.getId())
             return 0;
         return 0;
+    }
+
+    public int getGroupPosition() {
+        return this.groupPosition;
+    }
+
+    public void setGroupPosition(int groupPosition) {
+        this.groupPosition = groupPosition;
     }
 }

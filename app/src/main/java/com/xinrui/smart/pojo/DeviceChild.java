@@ -53,6 +53,8 @@ public class DeviceChild  implements Serializable{
     private String reSet;
     private String timerShutdown;
     private long shareHouseId;
+    private int groupPosition;
+    private int childPosition;
 
 
 
@@ -384,7 +386,23 @@ public class DeviceChild  implements Serializable{
         this.shareHouseId = shareHouseId;
     }
 
-    @Generated(hash = 1024848042)
+    public int getChildPosition() {
+        return this.childPosition;
+    }
+
+    public void setChildPosition(int childPosition) {
+        this.childPosition = childPosition;
+    }
+
+    public int getGroupPosition() {
+        return this.groupPosition;
+    }
+
+    public void setGroupPosition(int groupPosition) {
+        this.groupPosition = groupPosition;
+    }
+
+    @Generated(hash = 1293817504)
     public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
             Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
             int version, int ratedPower, int MatTemp, String workMode, String LockScreen,
@@ -393,7 +411,7 @@ public class DeviceChild  implements Serializable{
             int voltageValue, int currentValue, String machineFall, int protectSetTemp,
             int protectProTemp, String wifiVersion, String MCUVerion, int manualMatTemp,
             int timerTemp, boolean onLint, int temp, int hum, String reSet,
-            String timerShutdown, long shareHouseId) {
+            String timerShutdown, long shareHouseId, int groupPosition, int childPosition) {
         this.id = id;
         this.deviceName = deviceName;
         this.macAddress = macAddress;
@@ -432,6 +450,8 @@ public class DeviceChild  implements Serializable{
         this.reSet = reSet;
         this.timerShutdown = timerShutdown;
         this.shareHouseId = shareHouseId;
+        this.groupPosition = groupPosition;
+        this.childPosition = childPosition;
     }
 
 }

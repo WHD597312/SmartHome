@@ -318,6 +318,8 @@ public class LoginActivity extends AppCompatActivity {
                                 int externalSensorsId = house.getInt("externalSensorsId");
                                 String layers = house.getString("layers");
                                 DeviceGroup deviceGroup = new DeviceGroup((long) houseId, houseName + "." + location, houseName, location, masterControllerDeviceId, externalSensorsId, layers);
+                                deviceGroup.setGroupPosition(i);
+
                                 if (deviceGroupDao.findById((long) houseId) != null) {
                                     deviceGroupDao.update(deviceGroup);
                                 } else {
@@ -349,12 +351,16 @@ public class LoginActivity extends AppCompatActivity {
                                             child.setVersion(version);
                                             child.setMacAddress(macAddress);
                                             child.setControlled(controlled);
+                                            child.setGroupPosition(i);
+                                            child.setChildPosition(j);
                                             deviceChildDao.update(child);
                                         } else {
                                             DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
                                             deviceChild.setVersion(version);
                                             deviceChild.setMacAddress(macAddress);
                                             deviceChild.setControlled(controlled);
+                                            deviceChild.setGroupPosition(i);
+                                            deviceChild.setChildPosition(j);
                                             deviceChildDao.insert(deviceChild);
                                         }
                                     }
@@ -368,10 +374,12 @@ public class LoginActivity extends AppCompatActivity {
 
                         shareHouseId = Long.MAX_VALUE;
                         DeviceGroup deviceGroup = deviceGroupDao.findById(shareHouseId);
+                        List<DeviceGroup> deviceGroups=deviceGroupDao.findAllDevices();
                         if (deviceGroup == null) {
                             deviceGroup = new DeviceGroup();
                             deviceGroup.setId(shareHouseId);
                             deviceGroup.setHeader("分享的设备");
+                            deviceGroup.setGroupPosition(deviceGroups.size());
                             deviceGroupDao.insert(deviceGroup);
                         } else {
                             deviceGroupDao.update(deviceGroup);
@@ -395,6 +403,8 @@ public class LoginActivity extends AppCompatActivity {
                                 deviceChild.setMacAddress(macAddress);
                                 deviceChild.setControlled(controlled);
                                 deviceChild.setShareHouseId(houseId);
+                                deviceChild.setGroupPosition(deviceGroups.size());
+                                deviceChild.setChildPosition(x);
                                 DeviceChild deviceChild2 = deviceChildDao.findDeviceChild((long) deviceId);
                                 if (deviceChild2 == null) {
                                     deviceChildDao.insert(deviceChild);
