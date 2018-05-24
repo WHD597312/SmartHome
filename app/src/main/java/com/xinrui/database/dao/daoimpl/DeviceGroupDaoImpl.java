@@ -45,7 +45,7 @@ public class DeviceGroupDaoImpl {
         return deviceGroupDao.load(id);
     }
     public List<DeviceGroup> findAllDevices(){
-        return deviceGroupDao.loadAll();
+        return deviceGroupDao.queryBuilder().orderAsc(DeviceGroupDao.Properties.Id).list();
     }
     public void closeDaoSession(){
         if (session!=null){

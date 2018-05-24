@@ -56,7 +56,7 @@ public class AddDeviceDialog extends Dialog {
                 .load(R.drawable.touxiang)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .centerCrop()
-                .into(new GlideDrawableImageViewTarget(add_image, 100));
+                .into(new GlideDrawableImageViewTarget(add_image, 1000));
     }
 
 

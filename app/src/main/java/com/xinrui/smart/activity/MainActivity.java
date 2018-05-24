@@ -76,6 +76,7 @@ import com.xinrui.smart.pojo.Function;
 import com.xinrui.smart.pojo.TimeTask;
 import com.xinrui.smart.pojo.Timer;
 import com.xinrui.smart.reveiver.MQTTMessageReveiver;
+import com.xinrui.smart.util.GlideCacheUtil;
 import com.xinrui.smart.util.GlideCircleTransform;
 import com.xinrui.smart.util.NoFastClickUtils;
 import com.xinrui.smart.util.Utils;
@@ -171,6 +172,33 @@ public class MainActivity extends AppCompatActivity {
         });
         function();
         progressDialog = new ProgressDialog(this);
+        preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
+        String username=preferences.getString("username","");
+        String phone = preferences.getString("phone", "");
+        if (!Utils.isEmpty(username)){
+            tv_user.setText(username);
+        }else if (!Utils.isEmpty(phone)) {
+            tv_user.setText(phone);
+        }
+        try {
+            String image=preferences.getString("image","");
+            if (!Utils.isEmpty(image)){
+                File file=new File(image);
+                if (file.exists()){
+                    Glide.with(MainActivity.this).load(file).transform(new GlideCircleTransform(getApplicationContext())).into(image_user);
+                }else {
+                    String userId = preferences.getString("userId", "");
+                    String url = "http://120.77.36.206:8082/warmer/v1.0/user/" + userId + "/headImg";
+                    Glide.with(MainActivity.this).load(url).transform(new GlideCircleTransform(getApplicationContext())).error(R.mipmap.touxiang).into(image_user);
+                }
+            }else {
+                String userId = preferences.getString("userId", "");
+                String url = "http://120.77.36.206:8082/warmer/v1.0/user/" + userId + "/headImg";
+                Glide.with(MainActivity.this).load(url).transform(new GlideCircleTransform(getApplicationContext())).error(R.mipmap.touxiang).into(image_user);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void goLiveFragment() {
@@ -197,42 +225,17 @@ public class MainActivity extends AppCompatActivity {
     String mainControl;
 
     private Uri outputUri;//裁剪完照片保存地址
-    File file;
     @Override
     protected void onStart() {
         super.onStart();
 
-
         deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
         deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
-        preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
-        String username=preferences.getString("username","");
 
         preferences.edit().putString("main", "1").commit();
 
 
-        file = new File(getExternalCacheDir(), "crop_image2.jpg");
 
-        try {
-            if (file.exists()) {
-                outputUri = Uri.fromFile(file);
-                file.createNewFile();
-                Glide.with(MainActivity.this).load(file).transform(new GlideCircleTransform(getApplicationContext())).into(image_user);
-            }else {
-                String userId = preferences.getString("userId", "");
-                String url = "http://120.77.36.206:8082/warmer/v1.0/user/" + userId + "/headImg";
-
-                Glide.with(MainActivity.this).load(url).transform(new GlideCircleTransform(getApplicationContext())).error(R.mipmap.touxiang).into(image_user);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String phone = preferences.getString("phone", "");
-        if (!Utils.isEmpty(username)){
-            tv_user.setText(username);
-        }else if (!Utils.isEmpty(phone)) {
-            tv_user.setText(phone);
-        }
         smart = getSharedPreferences("smart", Context.MODE_PRIVATE);
         deviceChildren = deviceChildDao.findAllDevice();
 
@@ -253,6 +256,10 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
 
 
+        noDeviceFragment=new NoDeviceFragment();
+        deviceFragment=new DeviceFragment();
+        smartFragmentManager=new SmartFragmentManager();
+        liveFragment=new LiveFragment();
         if (Utils.isEmpty(mainControl) && Utils.isEmpty(deviceList)&& Utils.isEmpty(Activity_return)) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
             if (!preferences.contains("login") || deviceChildren.isEmpty()) {
@@ -273,12 +280,12 @@ public class MainActivity extends AppCompatActivity {
         String fragmentS = fragmentPreferences.getString("fragment", "");
         if ("1".equals(fragmentS)) {
             deviceGroups = deviceGroupDao.findAllDevices();
+            deviceChildren = deviceChildDao.findAllDevice();
             fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
             if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
-                fragmentTransaction.replace(R.id.layout_body, new NoDeviceFragment()).commit();
-
+                fragmentTransaction.replace(R.id.layout_body, noDeviceFragment).commit();
             } else {
-                fragmentTransaction.replace(R.id.layout_body, new DeviceFragment()).commit();
+                fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
                 preferences.edit().putString("main", "1").commit();
                 if (!Utils.isEmpty(deviceId)) {
                     Intent service = new Intent(MainActivity.this, MQService.class);
@@ -291,8 +298,7 @@ public class MainActivity extends AppCompatActivity {
             smart.edit().clear().commit();
         } else if ("2".equals(fragmentS)) {
             fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.layout_body, new SmartFragmentManager()).commit();
-
+            fragmentTransaction.replace(R.id.layout_body,smartFragmentManager).commit();
 
             device_view.setVisibility(View.GONE);
             smart_view.setVisibility(View.VISIBLE);
@@ -301,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
         } else if ("3".equals(fragmentS)) {
 
             fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.layout_body, new LiveFragment()).commit();
+            fragmentTransaction.replace(R.id.layout_body, liveFragment).commit();
 
 
             fragmentPreferences.edit().putString("fragment", "3").commit();
@@ -371,7 +377,6 @@ public class MainActivity extends AppCompatActivity {
                                     success=mqService.publish(topicName, 2, s);
                                 }
                                 Log.i("sss","-->"+success);
-
                             }
                         }
                     } else {
@@ -389,7 +394,6 @@ public class MainActivity extends AppCompatActivity {
                                 if (!success){
                                     success = mqService.publish(topicName, 1, s);
                                 }
-
                                Log.i("sss","-->"+success);
                             }
                         }
@@ -469,20 +473,18 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(device2);
                 break;
             case R.id.tv_exit:
-                if (file!=null && file.exists()){
-                    file.delete();
-                }
-                TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(getApplicationContext());
-                List<TimeTask> timeTasks = timeTaskDao.findAll();
-                for (TimeTask timeTask : timeTasks) {
-                    timeTaskDao.delete(timeTask);
-                }
 
-                TimeDaoImpl timeDao = new TimeDaoImpl(getApplicationContext());
-                List<Timer> timers = timeDao.findTimers();
-                for (Timer timer : timers) {
-                    timeDao.delete(timer);
-                }
+//                TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(getApplicationContext());
+//                List<TimeTask> timeTasks = timeTaskDao.findAll();
+//                for (TimeTask timeTask : timeTasks) {
+//                    timeTaskDao.delete(timeTask);
+//                }
+//
+//                TimeDaoImpl timeDao = new TimeDaoImpl(getApplicationContext());
+//                List<Timer> timers = timeDao.findTimers();
+//                for (Timer timer : timers) {
+//                    timeDao.delete(timer);
+//                }
                 smart.edit().clear().commit();
 //                preferences.edit().clear().commit();/**清空当前用户的所有数据*/
                 if (preferences.contains("password")) {
@@ -494,20 +496,35 @@ public class MainActivity extends AppCompatActivity {
                     fragmentPreferences.edit().clear().commit();
                     smart.edit().clear().commit();
                 }
-
+                GlideCacheUtil glideCacheUtil=new GlideCacheUtil(MainActivity.this);
+                glideCacheUtil.clearImageAllCache();
+                glideCacheUtil.clearImageDiskCache();
+                glideCacheUtil.clearImageMemoryCache();
+//                if (preferences.contains("image")){
+//                    String image=preferences.getString("image","");
+//                    if (!Utils.isEmpty(image)){
+//                        File file=new File(image);
+//                        if (file.exists()){
+//                            file.delete();
+//                        }
+//                    }
+//                    preferences.edit().remove("image").commit();
+//                }
                 fragmentPreferences.edit().clear().commit();
-                deviceGroupDao.deleteAll();
-                deviceChildDao.deleteAll();
+
+
+//                deviceGroupDao.deleteAll();
+//                deviceChildDao.deleteAll();
 
 
                 application.removeAllFragment();
 
 
                 running = false;
-                deviceChildDao.closeDaoSession();
-                deviceGroupDao.closeDaoSession();
-                timeDao.closeDaoSession();
-                timeTaskDao.closeDaoSession();
+//                deviceChildDao.closeDaoSession();
+//                deviceGroupDao.closeDaoSession();
+//                timeDao.closeDaoSession();
+//                timeTaskDao.closeDaoSession();
 
 
                 Intent service = new Intent(this, MQService.class);
@@ -518,22 +535,23 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.tv_device:
                 if (NoFastClickUtils.isFastClick()){
+                    deviceGroups = deviceGroupDao.findAllDevices();
+                    deviceChildren = deviceChildDao.findAllDevice();
                     fragmentTransaction = fragmentManager.beginTransaction();
                     if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
-                        noDeviceFragment = new NoDeviceFragment();
                         fragmentTransaction.replace(R.id.layout_body, noDeviceFragment).commit();
-                        noDeviceFragment=null;
                     }else {
-                        deviceFragment = new DeviceFragment();
                         fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
-                        deviceFragment=null;
                     }
+                    device_view.setVisibility(View.VISIBLE);
+                    smart_view.setVisibility(View.GONE);
+                    live_view.setVisibility(View.GONE);
+                    smart.edit().clear().commit();
+                }else {
+                    break;
                 }
 
-                device_view.setVisibility(View.VISIBLE);
-                smart_view.setVisibility(View.GONE);
-                live_view.setVisibility(View.GONE);
-                smart.edit().clear().commit();
+
                 break;
             case R.id.tv_smart:
 //                toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -544,14 +562,15 @@ public class MainActivity extends AppCompatActivity {
 //                });
                 if (NoFastClickUtils.isFastClick()){
                     fragmentTransaction = fragmentManager.beginTransaction();
-                    smartFragmentManager = new SmartFragmentManager();
                     fragmentTransaction.replace(R.id.layout_body, smartFragmentManager).commit();
-                    smartFragmentManager=null;
+                    device_view.setVisibility(View.GONE);
+                    smart_view.setVisibility(View.VISIBLE);
+                    live_view.setVisibility(View.GONE);
+                    smart.edit().clear().commit();
+                }else {
+                    break;
                 }
-                device_view.setVisibility(View.GONE);
-                smart_view.setVisibility(View.VISIBLE);
-                live_view.setVisibility(View.GONE);
-                smart.edit().clear().commit();
+
                 break;
             case R.id.tv_live:
                 if (NoFastClickUtils.isFastClick()){
@@ -559,11 +578,13 @@ public class MainActivity extends AppCompatActivity {
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
                     transaction.replace(R.id.layout_body, liveFragment);
                     transaction.commit();
+                    device_view.setVisibility(View.GONE);
+                    smart_view.setVisibility(View.GONE);
+                    live_view.setVisibility(View.VISIBLE);
+                    smart.edit().clear();
+                }else {
+                    break;
                 }
-                device_view.setVisibility(View.GONE);
-                smart_view.setVisibility(View.GONE);
-                live_view.setVisibility(View.VISIBLE);
-                smart.edit().clear();
                 break;
         }
     }
@@ -719,8 +740,8 @@ public class MainActivity extends AppCompatActivity {
                                 deviceChild.setMacAddress(macAddress);
                                 deviceChild.setControlled(controlled);
                                 deviceChild.setShareHouseId(houseId);
-                                deviceChild.setGroupPosition(deviceGroups.size());
-                                deviceChild.setChildPosition(x);
+//                                deviceChild.setGroupPosition(deviceGroups.size());
+//                                deviceChild.setChildPosition(x);
                                 DeviceChild deviceChild2 = deviceChildDao.findDeviceChild((long) deviceId);
                                 if (deviceChild2 == null) {
                                     deviceChildDao.insert(deviceChild);

@@ -87,6 +87,7 @@ public class MainControlFragment extends Fragment{
         long id=Long.parseLong(houseId);
         DeviceGroup deviceGroup=deviceGroupDao.findById(id);
 
+        tv_home.setBackgroundResource(R.drawable.shape_main_control_header);
         houseName=deviceGroup.getHeader();
         if (!Utils.isEmpty(houseName)){
             tv_home.setText(houseName);
@@ -276,7 +277,6 @@ public class MainControlFragment extends Fragment{
                             }else {
                                 isSelected.put(i, false);
                             }
-
                         }
                         // 清除已经选择的项
                         if (beSelectedData.size() > 0) {

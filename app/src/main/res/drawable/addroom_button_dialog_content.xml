@@ -22,7 +22,10 @@
 
     </stroke>
 
-    <solid android:color="@color/white"></solid>
-
+    <solid android:color="@color/white"/>
+    <corners
+        android:bottomLeftRadius="@dimen/dp_10"
+        android:bottomRightRadius="@dimen/dp_10"
+        />
 
 </shape>

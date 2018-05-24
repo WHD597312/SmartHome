@@ -69,38 +69,18 @@ import butterknife.OnClick;
  */
 
 public class AddEquipmentActivity extends AppCompatActivity implements EquipmentAdapter.CheckItemListener {
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.drawer_layout)
-    DrawerLayout drawer;
-    @BindView(R.id.listview)
-    ListView listview;
-    @BindView(R.id.return_button)
-    ImageView returnButton;
+
+
     GetUrl getUrl = new GetUrl();
     @BindView(R.id.sure)
     Button sure;
-    @BindView(R.id.tv_user)
-    TextView tv_user;
-    /**
-     * 用户账号
-     */
-    @BindView(R.id.image_user)
-    ImageView image_user;
-    /**
-     * 用户头像
-     */
     private Context mContext;
     @BindView(R.id.tv_home)
     TextView tv_home;
-    /**
-     * 家名称
-     */
-    @BindView(R.id.tv_exit)
-    TextView tv_exit;
-    /**
-     * 退出程序
-     */
+    @BindView(R.id.tv_main_device) TextView tv_main_device;
+
+    String houseName;
+
     //网络返回的数据
     List<Equipment> equipment_network = new ArrayList<>();
     //列表数据
@@ -124,29 +104,7 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_equipment);
         ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-        //设置左上角的图标响应
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-        toggle.setDrawerIndicatorEnabled(false);//修改DrawerLayout侧滑菜单图标
-        //这样修改了图标，但是这个图标的点击事件会消失，点击图标不能打开侧边栏
-        //所以还要加上如下代码
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                drawer.openDrawer(GravityCompat.START);
-            }
-        });
-
-        function();
         if (application == null) {
             application = (MyApplication) getApplication();
             application.addActivity(this);
@@ -172,147 +130,32 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
 
     SharedPreferences preferences;
     private Uri outputUri;//裁剪完照片保存地址
-    File file;
 
     @Override
     protected void onStart() {
         super.onStart();
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
-        file = new File(getExternalCacheDir(), "crop_image2.jpg");
-
-        SharedPreferences preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
-        String phone = preferences.getString("phone", "");
-        String username = preferences.getString("username", "");
-        try {
-            if (file.exists()) {
-                outputUri = Uri.fromFile(file);
-                file.createNewFile();
-                Glide.with(AddEquipmentActivity.this).load(file).transform(new GlideCircleTransform(getApplicationContext())).into(image_user);
-            } else {
-                String userId = preferences.getString("userId", "");
-                String url = "http://120.77.36.206:8082/warmer/v1.0/user/" + userId + "/headImg";
-                Glide.with(AddEquipmentActivity.this).load(url).transform(new GlideCircleTransform(getApplicationContext())).error(R.mipmap.touxiang).into(image_user);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
 
-        if (!Utils.isEmpty(username)) {
-            tv_user.setText(username);
-        } else if (!Utils.isEmpty(phone)) {
-            tv_user.setText(phone);
-        }
-
+        Intent intent=getIntent();
+        String houseName=intent.getStringExtra("houseName");
+        tv_main_device.setText(houseName);
     }
 
-    @OnClick({R.id.tv_exit, R.id.return_button, R.id.image_user, R.id.tv_user})
+    @OnClick({R.id.img_back})
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.tv_exit:
-                if (file != null && file.exists()) {
-                    file.delete();
-                }
-                DeviceChildDaoImpl deviceChildDao = new DeviceChildDaoImpl(this);
-                SharedPreferences smart = getSharedPreferences("smart", Context.MODE_PRIVATE);
-                SharedPreferences fragmentPreferences = getSharedPreferences("fragment", Context.MODE_PRIVATE);
-                TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(getApplicationContext());
-                List<TimeTask> timeTasks = timeTaskDao.findAll();
-                for (TimeTask timeTask : timeTasks) {
-                    timeTaskDao.delete(timeTask);
-                }
-
-                TimeDaoImpl timeDao = new TimeDaoImpl(getApplicationContext());
-                List<Timer> timers = timeDao.findTimers();
-                for (Timer timer : timers) {
-                    timeDao.delete(timer);
-                }
-                smart.edit().clear().commit();
-//                preferences.edit().clear().commit();/**清空当前用户的所有数据*/
-                if (preferences.contains("password")) {
-                    preferences.edit().remove("password").commit();
-                    preferences.edit().remove("login").commit();
-                    if (preferences.contains("username")) {
-                        preferences.edit().remove("username").commit();
-                    }
-                    fragmentPreferences.edit().clear().commit();
-                    smart.edit().clear().commit();
-                }
-                fragmentPreferences.edit().clear().commit();
-                deviceGroupDao.deleteAll();
-                deviceChildDao.deleteAll();
-
-                application.removeAllFragment();
-
-                deviceChildDao.closeDaoSession();
-                deviceGroupDao.closeDaoSession();
-                timeDao.closeDaoSession();
-                timeTaskDao.closeDaoSession();
-
-                Intent intent2 = new Intent(AddEquipmentActivity.this, LoginActivity.class);
-                startActivity(intent2);
-                break;
-            case R.id.return_button:
+            case R.id.img_back:
                 Intent intent = new Intent(AddEquipmentActivity.this, MainActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("Activity_return", "Activity_return");
                 intent.putExtras(bundle);
                 startActivity(intent);
                 break;
-            case R.id.image_user:
-                Intent change = new Intent(this, PersonInfoActivity.class);
-                change.putExtra("change", "change");
-                startActivity(change);
-                break;
-            case R.id.tv_user:
-                Intent change2 = new Intent(this, PersonInfoActivity.class);
-                change2.putExtra("change", "change");
-                startActivity(change2);
-                break;
-
         }
     }
 
-    /**
-     * 设置功能菜单
-     */
-    private void function() {
-        int[] imgs = {R.mipmap.leftbar_main, R.mipmap.leftbar_problum, R.mipmap.leftbar_commen, R.mipmap.leftbar_about};
-        String[] strings = {"主页", "常见问题", "通用设置", "关于应用"};
-        List<Function> functions = new ArrayList<>();
-        for (int i = 0; i < imgs.length; i++) {
-            Function function = new Function(imgs[i], strings[i]);
-            functions.add(function);
-        }
-        FunctionAdapter adapter = new FunctionAdapter(this, functions);
-        listview.setAdapter(adapter);
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                switch (position) {
-                    case 0:
-                        Intent main = new Intent(AddEquipmentActivity.this, MainActivity.class);
-                        startActivity(main);
-                        break;
-                    case 1:
-                        Intent common = new Intent(AddEquipmentActivity.this, CommonProblemActivity.class);
-                        common.putExtra("common", "common");
-                        startActivity(common);
-                        break;
-                    case 2:
-                        Intent common2 = new Intent(AddEquipmentActivity.this, CommonSetActivity.class);
-                        common2.putExtra("common", "common");
-                        startActivity(common2);
-                        break;
-                    case 3:
-                        Intent common3 = new Intent(AddEquipmentActivity.this, AboutAppActivity.class);
-                        common3.putExtra("common", "common");
-                        startActivity(common3);
-                        break;
-                }
-            }
-        });
-    }
+
 
     public void initView() {
         checkedList = new ArrayList<>();

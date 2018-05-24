@@ -100,6 +100,7 @@ public class ControlledFragment extends Fragment{
         long id=Long.parseLong(houseId);
         DeviceGroup deviceGroup=deviceGroupDao.findById(id);
 
+        tv_home.setBackgroundResource(R.drawable.shape_controled_header);
         houseName=deviceGroup.getHeader();
         if (!Utils.isEmpty(houseName)){
             tv_home.setText(houseName);

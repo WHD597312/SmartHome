@@ -18,11 +18,16 @@ import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.ComProblemActivity;
 import com.xinrui.smart.activity.MainActivity;
+import com.xinrui.smart.activity.PersonInfoActivity;
 import com.xinrui.smart.pojo.CommonSet;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.view_custom.DeviceUpdateAppDialog;
+import com.xinrui.smart.view_custom.DeviceUpdatePersonDialog;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,9 +54,14 @@ public class CommonSetActivity extends AppCompatActivity {
     String common;
     private List<CommonSet> list;
     CommonSetAdapter adapter;
+    private int mPosition=-1;
+    DeviceUpdateAppDialog dialog;
     @Override
     protected void onStart() {
         super.onStart();
+        if (dialog==null){
+            dialog = new DeviceUpdateAppDialog(this);
+        }
         Intent intent=getIntent();
         main=intent.getStringExtra("main");
         common=intent.getStringExtra("common");
@@ -70,10 +80,16 @@ public class CommonSetActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 switch (position){
                     case 0:
-                        Utils.showToast(CommonSetActivity.this,"缓存已清!");
+//                        Utils.showToast(CommonSetActivity.this,"缓存已清!");
+                        mPosition=0;
+                        buildUpdatePersonDialog();
+                        if (dialog!=null){
+                            dialog.et_name.setText("是否立即清除缓存?");
+                        }
                         break;
                     case 1:
                         Utils.showToast(CommonSetActivity.this,"已经是最新版本啦!");
+                        mPosition=1;
                         break;
                     case 2:
                         Utils.showToast(CommonSetActivity.this,"同步成功!");
@@ -111,6 +127,34 @@ public class CommonSetActivity extends AppCompatActivity {
         if (unbinder!=null){
             unbinder.unbind();
         }
+    }
+
+
+    private void buildUpdatePersonDialog() {
+
+        dialog.setOnNegativeClickListener(new DeviceUpdateAppDialog.OnNegativeClickListener() {
+            @Override
+            public void onNegativeClick() {
+                dialog.dismiss();
+            }
+        });
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnPositiveClickListener(new DeviceUpdateAppDialog.OnPositiveClickListener() {
+            @Override
+            public void onPositiveClick() {
+                switch (mPosition){
+                    case 0:
+                        Utils.showToast(CommonSetActivity.this,"缓存已清");
+                        dialog.dismiss();
+                        break;
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                }
+            }
+        });
+        dialog.show();
     }
 
     class CommonSetAdapter extends BaseAdapter {

@@ -1,180 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:openDrawer="start">
+    android:orientation="vertical">
 
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
-        android:orientation="horizontal"
-        >
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme"
-            app:navigationIcon="@mipmap/img_menu"
-            />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            >
+            android:background="#808080"
+            android:orientation="vertical">
+
             <RelativeLayout
-                android:layout_marginTop="@dimen/dp_13"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/dp_50"
                 android:layout_gravity="center_horizontal"
+                android:background="#3D3C38"
                 android:gravity="center_horizontal"
-                android:layout_marginLeft="@dimen/dp_20"
-                android:orientation="horizontal"
-                >
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/img_back"
+                    android:layout_width="@dimen/dp_40"
+                    android:layout_height="@dimen/dp_40"
+                    android:src="@mipmap/nav_backmdpi"
+                    android:scaleType="centerInside"
+                    android:layout_marginLeft="@dimen/dp_6"
+                    android:layout_centerVertical="true"
+                    />
                 <TextView
                     android:id="@+id/tv_main_device"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:gravity="center"
-                    android:text="@string/add_equipment"
-                    android:textSize="@dimen/sp_20"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginRight="@dimen/dp_25"
+                    android:text="卧室"
                     android:textColor="@color/white"
-                    />
-                <ImageView
-                    android:id="@+id/return_button"
-                    android:layout_width="@dimen/dp_40"
-                    android:layout_height="@dimen/dp_40"
-                    android:src="@mipmap/img_delate"
-                    android:scaleType="centerInside"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginRight="@dimen/dp_20"
-                    />
+                    android:textSize="@dimen/sp_20" />
+
+
             </RelativeLayout>
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:background="#33302b">
+                android:background="#808080"
+                android:orientation="vertical">
+
                 <RelativeLayout
                     android:id="@+id/rl1"
-                    android:layout_alignParentTop="true"
-                    android:layout_above="@+id/sure"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/dp_5"
+                    android:layout_above="@+id/sure"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginBottom="@dimen/dp_30"
                     android:layout_marginLeft="@dimen/dp_5"
-                    android:layout_marginBottom="@dimen/dp_30">
+                    android:layout_marginRight="@dimen/dp_5">
+
                     <TextView
                         android:id="@+id/tv_home"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/dp_50"
-                        android:text="我的家.慈溪市"
-                        android:background="@drawable/shape_main_control_header"
-                        android:textSize="@dimen/sp_16"
-                        android:textColor="@color/white"
+                        android:layout_marginLeft="@dimen/dp_2"
+                        android:layout_marginRight="@dimen/dp_3"
+                        android:layout_marginTop="@dimen/dp_10"
+                        android:background="@drawable/shape_header_blue"
                         android:gravity="center_vertical"
                         android:paddingLeft="@dimen/dp_20"
-                        android:layout_marginTop="@dimen/dp_10"
-                        android:layout_marginRight="@dimen/dp_3"
-                        android:layout_marginLeft="@dimen/dp_2"
-                        />
+                        android:text="我的家.慈溪市"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/sp_16" />
+
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/add_equipment"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_home"
+                        android:layout_marginLeft="@dimen/dp_2"
+                        android:layout_marginRight="@dimen/dp_3"
                         android:divider="@color/color_gray2"
                         android:dividerHeight="@dimen/dp_1"
-                        android:layout_below="@+id/tv_home"
-                        android:layout_marginRight="@dimen/dp_3"
-                        android:layout_marginLeft="@dimen/dp_2"
                         android:fastScrollEnabled="true"
                         android:scrollbars="none"
-                        android:scrollingCache="false">
-                    </android.support.v7.widget.RecyclerView>
+                        android:scrollingCache="false"></android.support.v7.widget.RecyclerView>
+
                     <View
+                        android:id="@+id/view"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/dp_50"
-                        android:id="@+id/view"
-                        android:background="@drawable/shape_main_control_footer"
                         android:layout_below="@+id/add_equipment"
-                        android:layout_marginRight="@dimen/dp_3"
                         android:layout_marginLeft="@dimen/dp_2"
-                        />
+                        android:layout_marginRight="@dimen/dp_3"
+                        android:background="@drawable/shape_main_control_footer" />
                 </RelativeLayout>
+
                 <Button
                     android:id="@+id/sure"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="@dimen/dp_50"
+                    android:layout_marginLeft="@dimen/dp_5"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:background="@drawable/shape_white_button"
+                    android:gravity="center"
                     android:text="@string/ensure"
                     android:textColor="@color/color_orange"
-                    android:textSize="@dimen/sp_16"
-                    android:gravity="center"
-                    android:background="@drawable/shape_white_button"
-                    android:layout_gravity="bottom"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginRight="@dimen/dp_5"
-                    android:layout_marginLeft="@dimen/dp_5"
-                    android:layout_marginBottom="@dimen/dp_50"
-                    />
+                    android:textSize="@dimen/sp_16" />
             </RelativeLayout>
         </LinearLayout>
-    </FrameLayout>
 
-    <RelativeLayout
-        android:id="@+id/nav_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@android:color/white"
-        android:layout_marginRight="@dimen/dp_35"
-        android:fitsSystemWindows="true">
-        <ImageView
-            android:id="@+id/image_user"
-            android:layout_width="@dimen/dp_60"
-            android:layout_height="@dimen/dp_60"
-            android:src="@mipmap/leftbar"
-            android:scaleType="centerInside"
-            />
-        <TextView
-            android:id="@+id/tv_user"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/image_user"
-            android:layout_alignTop="@id/image_user"
-            android:gravity="center_vertical"
-            android:layout_toRightOf="@+id/image_user"
-            android:text="18794197648" />
-
-        <TextView
-            android:id="@+id/tv_exit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:gravity="center_vertical"
-            android:layout_alignBottom="@+id/image_user"
-            android:layout_alignTop="@id/image_user"
-            android:paddingRight="@dimen/dp_5"
-            android:textSize="@dimen/sp_16"
-            android:text="退出" />
-        <ListView
-            android:id="@+id/listview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/image_user"
-            android:divider="@null"
-            />
-    </RelativeLayout>
-</android.support.v4.widget.DrawerLayout>
+</LinearLayout>

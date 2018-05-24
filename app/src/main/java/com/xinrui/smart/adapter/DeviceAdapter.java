@@ -300,20 +300,42 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
         if (entry.getOnLint()) {
             if (entry.getType() == 1) {
                 if (entry.getControlled() == 2 || entry.getControlled() == 0) {
-                    tv_state.setText(entry.getRatedPower() + "w");
+//                    tv_state.setText(entry.getRatedPower() + "w");
+                    if ("fall".equals(entry.getMachineFall())){
+                        tv_state.setText("设备已倾倒");
+                    }else {
+                        tv_state.setText(entry.getRatedPower() + "w");
+                    }
                 } else if (entry.getControlled() == 1) {
-                    tv_state.setText("受控机模式");
+                    if ("fall".equals(entry.getMachineFall())){
+                        tv_state.setText("设备已倾倒");
+                    }else {
+                        tv_state.setText("受控机模式");
+                    }
+
                 }
             } else if (entry.getType() == 2) {
-                tv_state.setText("温度：" + entry.getTemp() + "℃");
+                if ("fall".equals(entry.getMachineFall())){
+                    tv_state.setText("设备已倾倒");
+                }else {
+                    tv_state.setText("温度：" + entry.getTemp() + "℃");
+                }
             }
             if ("open".equals(entry.getDeviceState())){
-                holder.setImageResource(R.id.image_switch,imgs[1]);
+                if ("fall".equals(entry.getMachineFall())){
+                    holder.setImageResource(R.id.image_switch,imgs[2]);
+                }else {
+                    holder.setImageResource(R.id.image_switch,imgs[1]);
+                }
             }else if ("close".equals(entry.getDeviceState())){
                 holder.setImageResource(R.id.image_switch,imgs[0]);
             }
         } else {
-            tv_state.setText("离线");
+            if ("fall".equals(entry.getMachineFall())){
+                tv_state.setText("设备已倾倒");
+            }else {
+                tv_state.setText("离线");
+            }
             if ("open".equals(entry.getDeviceState())){
                 holder.setImageResource(R.id.image_switch,imgs[2]);
             }else if ("close".equals(entry.getDeviceState())){
@@ -395,6 +417,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                         }
 //                holder.setImageResource(R.id.image_switch,img);
 //                        changeChild(groupPosition, childPosition);
+//                        notifyDataSetChanged();
                     } else {
                         Utils.showToast(context, "该设备离线");
                     }
@@ -586,7 +609,9 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
             try {
                 DeviceChild child = null;
                 int groupPostion = intent.getIntExtra("groupPostion", 0);
+                Log.i("group","-->"+groupPostion);
                 int childPosition = intent.getIntExtra("childPosition", 0);
+                Log.i("childPosition","-->"+childPosition);
                 String deviceState = intent.getStringExtra("deviceState");
                 String noNet = intent.getStringExtra("noNet");
                 String Net=intent.getStringExtra("Net");
@@ -603,7 +628,8 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             childern.get(i).set(j, deviceChild);
                         }
                     }
-                    changeChildren(groupPostion);
+//                    changeChildren(groupPostion);
+                    notifyDataSetChanged();
                 } else if (!Utils.isEmpty(noNet)) {
                     for (int i = 0; i < groups.size(); i++) {
                         List<DeviceChild> deviceChildren = childern.get(i);
@@ -616,13 +642,13 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             childern.get(i).set(j, deviceChild);
                         }
                     }
-                    changeChildren(groupPostion);
+//                    changeChildren(groupPostion);
+                    notifyDataSetChanged();
                 } else if (Utils.isEmpty(Net) && Utils.isEmpty(noNet)){
                     DeviceChild deviceChild = (DeviceChild) intent.getSerializableExtra("deviceChild");
                     if (deviceChild == null) {
-                        DeviceChild deviceChild2 = childern.get(groupPostion).get(childPosition);
-                        if (deviceChild2 != null) {
                             try {
+                                childern.get(groupPostion).remove(childPosition);
                                 List<DeviceChild> deviceChildren = childern.get(groupPostion);
                                 for (int i = 0; i < deviceChildren.size(); i++) {
                                     DeviceChild deviceChild3 = deviceChildren.get(i);
@@ -634,8 +660,9 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                         deviceChild3.setControlled(0);
                                         childern.get(groupPostion).set(i, deviceChild3);
                                     }
+                                    deviceChild3.setChildPosition(i);
+                                    deviceChildDao.update(deviceChild3);
                                 }
-                                childern.get(groupPostion).remove(deviceChild2);
                                 Utils.showToast(context, "该设备已重置");
 
                                 List<DeviceChild> children=deviceChildDao.findAllDevice();
@@ -647,7 +674,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        }
+
                     } else if (deviceChild != null) {
 
                         List<DeviceChild> deviceChildren = childern.get(groupPostion);
@@ -655,13 +682,17 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                         if (deviceChildren.get(childPosition) == null) {
                             childern.get(groupPostion).add(childPosition, deviceChild);
                             child = deviceChild;
-                            changeChild(groupPostion, childPosition);
+//                            changeChild(groupPostion, childPosition);
+                            notifyDataSetChanged();
                         } else {
                             childern.get(groupPostion).set(childPosition, deviceChild);
                             child = deviceChild;
-                            changeChild(groupPostion, childPosition);
+//                            changeChild(groupPostion, childPosition);
+                            notifyDataSetChanged();
                         }
                     }
+
+
 //                    changeGroup(groupPostion);
                     if (deviceChild != null && deviceChild.getOnLint() && child != null) {
                         if ("close".equals(deviceState)) {
@@ -675,21 +706,38 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                 child.setControlled(child2.getControlled());
                                 deviceChildDao.update(child2);
 //                    deviceChildDao.update(child);
-                                changeChild(groupPostion, childPosition);
+//                                changeChild(groupPostion, childPosition);
+                                notifyDataSetChanged();
                             }
                         } else if ("open".equals(deviceState)) {
                             if (child != null) {
-                                DeviceChild child2 = deviceChild;
-                                child.setRatedPower(child2.getRatedPower());
-                                child2.setImg(imgs[1]);
-                                child.setImg(imgs[1]);
-                                child.setOnLint(true);
-                                child2.setOnLint(true);
-                                child2.setRatedPower(child2.getRatedPower());
-                                child.setControlled(child2.getControlled());
-                                deviceChildDao.update(child2);
+                                if ("fall".equals(child.getMachineFall())){
+                                    DeviceChild child2 = deviceChild;
+                                    child.setRatedPower(child2.getRatedPower());
+                                    child2.setImg(imgs[2]);
+                                    child.setImg(imgs[2]);
+                                    child.setOnLint(true);
+                                    child2.setOnLint(true);
+                                    child2.setRatedPower(child2.getRatedPower());
+                                    child.setControlled(child2.getControlled());
+                                    deviceChildDao.update(child2);
 //                    deviceChildDao.update(child);
-                                changeChild(groupPostion, childPosition);
+//                                    changeChild(groupPostion, childPosition);
+                                    notifyDataSetChanged();
+                                }else{
+                                    DeviceChild child2 = deviceChild;
+                                    child.setRatedPower(child2.getRatedPower());
+                                    child2.setImg(imgs[1]);
+                                    child.setImg(imgs[1]);
+                                    child.setOnLint(true);
+                                    child2.setOnLint(true);
+                                    child2.setRatedPower(child2.getRatedPower());
+                                    child.setControlled(child2.getControlled());
+                                    deviceChildDao.update(child2);
+//                    deviceChildDao.update(child);
+//                                    changeChild(groupPostion, childPosition);
+                                    notifyDataSetChanged();
+                                }
                             }
                         }
                     } else if (deviceChild!=null&& !deviceChild.getOnLint()) {
@@ -697,6 +745,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                         child.setRatedPower(child2.getRatedPower());
                         child2.setImg(imgs[0]);
                         child.setImg(imgs[0]);
+
                         if ("open".equals(child.getDeviceState())) {
                             child.setImg(imgs[2]);
                             child2.setImg(imgs[2]);
@@ -707,7 +756,8 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                         child2.setRatedPower(child2.getRatedPower());
                         deviceChildDao.update(child2);
 //                    deviceChildDao.update(child);
-                        changeChild(groupPostion, childPosition);
+//                        changeChild(groupPostion, childPosition);
+                        notifyDataSetChanged();
                     }
                 }
             } catch (Exception e) {

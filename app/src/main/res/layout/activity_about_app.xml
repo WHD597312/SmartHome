@@ -19,8 +19,6 @@
             android:id="@+id/image_back"
             android:layout_width="@dimen/dp_40"
             android:layout_height="@dimen/dp_40"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
             android:layout_centerVertical="true"
             android:scaleType="centerInside"
             android:src="@drawable/nav_back" />
@@ -70,7 +68,7 @@
             android:layout_alignBottom="@+id/imageView"
             android:layout_alignLeft="@+id/textView2"
             android:text="可以配置和控制使用使用rango方案的智能设备"
-            android:textSize="@dimen/sp_14"
+            android:textSize="@dimen/sp_13"
             />
 
         <View

@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
@@ -148,6 +149,18 @@ public class HeaterFragment extends LazyFragment {
     @Override
     public void onStart() {
         super.onStart();
+        WindowManager wm = (WindowManager) getActivity()
+                .getSystemService(Context.WINDOW_SERVICE);
+        int width = wm.getDefaultDisplay().getWidth()-200;
+        Log.w("width","width"+width);
+
+        RelativeLayout.LayoutParams params=new RelativeLayout.LayoutParams(width,width);
+        params.leftMargin=100;
+        semicBar.setLayoutParams(params);
+//        params=new RelativeLayout.LayoutParams(width/2+100,width/2+100);
+//        params.leftMargin=200;
+//
+//        img_circle.setLayoutParams(params);
         semicBar.setModule("1");
         semicBar.setCanTouch(false);
 
@@ -457,6 +470,7 @@ public class HeaterFragment extends LazyFragment {
             super.handleMessage(msg);
             String workMode=deviceChild.getWorkMode();
             String output=deviceChild.getOutputMod();
+            String online=deviceChild.getDeviceState();
             try {
                 switch (msg.arg1) {
                     case 2:
@@ -465,23 +479,26 @@ public class HeaterFragment extends LazyFragment {
                         semicBar.setCurProcess(current);
                         semicBar.setWorkMode(workMode);
                         semicBar.setOutput(output);
+                        semicBar.setOnline(online);
                         break;
                     case 3:
                         semicBar.setmCurAngle(0);
                         semicBar.setWorkMode(workMode);
                         semicBar.setOutput(output);
-
+                        semicBar.setOnline(online);
                         break;
                     case 4:
                         semicBar.setmCurAngle(0);
                         semicBar.setWorkMode(workMode);
                         semicBar.setOutput(output);
+                        semicBar.setOnline(online);
                         break;
                     case 5:
                         int temp2 = msg.what;
                         semicBar.setmCurAngle(temp2);
                         semicBar.setWorkMode(workMode);
                         semicBar.setOutput(output);
+                        semicBar.setOnline(online);
                         break;
                     case 6:
                         int mCurrent6 = msg.what;
@@ -524,6 +541,7 @@ public class HeaterFragment extends LazyFragment {
                             semicBar.setCurProcess(mCurrentAngle);
                             semicBar.setWorkMode(workMode);
                             semicBar.setOutput(output);
+                            semicBar.setOnline(online);
 //                        semicBar.invalidate();
                         }
 
@@ -532,6 +550,7 @@ public class HeaterFragment extends LazyFragment {
                         semicBar.setEnd(0);
                         semicBar.setWorkMode(workMode);
                         semicBar.setOutput(output);
+                        semicBar.setOnline(online);
                         break;
                 }
             } catch (Exception e) {

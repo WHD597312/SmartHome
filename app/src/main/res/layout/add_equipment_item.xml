@@ -32,14 +32,18 @@
 
         <CheckBox
             android:id="@+id/equipment_ischeked"
-            android:layout_width="@dimen/dp_45"
-            android:layout_height="@dimen/dp_45"
+            android:layout_width="@dimen/dp_30"
+            android:layout_height="@dimen/dp_30"
+            android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:layout_marginEnd="@dimen/dp_10"
-            android:layout_marginRight="@dimen/dp_10"
-            android:scaleY="1.5"
-            android:scaleX="1.5"
-            android:checked="false" />
+            android:layout_marginRight="@dimen/dp_22"
+            android:scaleType="centerInside"
+            android:layout_marginTop="@dimen/dp_3"
+            android:background="@drawable/selector_round"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:button="@null" />
     </RelativeLayout>
 
     <View

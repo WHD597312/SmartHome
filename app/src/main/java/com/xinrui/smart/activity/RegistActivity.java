@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -75,6 +76,7 @@ public class RegistActivity extends AppCompatActivity {
     }
 
 
+    Toast toast;
     @Override
     protected void onStart() {
         super.onStart();
@@ -83,6 +85,7 @@ public class RegistActivity extends AppCompatActivity {
 
         deviceGroupDao = new DeviceGroupDaoImpl(this);
         deviceChildDao = new DeviceChildDaoImpl(this);
+
     }
 
 
@@ -212,18 +215,30 @@ public class RegistActivity extends AppCompatActivity {
             super.onPostExecute(code);
             switch (code) {
                 case -1001:
-                    Utils.showToast(RegistActivity.this, "创建用户失败，请重试");
+//                    Utils.showToast(RegistActivity.this, "创建用户失败，请重试");
+                    toast=Toast.makeText(RegistActivity.this,"创建用户失败，请重试",Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER,0,0);
+                    toast.show();
                     break;
                 case -1002:
-                    Utils.showToast(RegistActivity.this, "手机帐号已被注册");
+//                    Utils.showToast(RegistActivity.this, "手机帐号已被注册");
+                    toast=Toast.makeText(RegistActivity.this,"手机帐号已被注册",Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER,0,0);
+                    toast.show();
                     break;
                 case 2000:
-                    Utils.showToast(RegistActivity.this, "创建成功");
+//                    Utils.showToast(RegistActivity.this, "创建成功");
+                    toast=Toast.makeText(RegistActivity.this,"注册成功",Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER,0,0);
+                    toast.show();
                     Intent intent = new Intent(RegistActivity.this, MainActivity.class);
                     startActivity(intent);
                     break;
                 case -1003:
-                    Utils.showToast(RegistActivity.this, "手机验证妈错误");
+//                    Utils.showToast(RegistActivity.this, "手机验证码错误");
+                    toast=Toast.makeText(RegistActivity.this,"手机验证码错误",Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER,0,0);
+                    toast.show();
                     break;
             }
         }

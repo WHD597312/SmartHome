@@ -111,9 +111,9 @@
             android:layout_height="wrap_content">
             <ImageView
                 android:id="@+id/add_equipment"
-                android:layout_width="@dimen/dp_30"
-                android:layout_height="@dimen/dp_20"
-                android:scaleType="fitCenter"
+                android:layout_width="@dimen/dp_35"
+                android:layout_height="@dimen/dp_25"
+                android:scaleType="centerInside"
                 android:src="@drawable/add_equment" />
         </LinearLayout>
 

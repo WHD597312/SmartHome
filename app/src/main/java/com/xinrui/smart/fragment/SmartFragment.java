@@ -111,7 +111,7 @@ public class SmartFragment extends Fragment {
                     if (tv_smart!=null){
                         String content=tv_smart.getText().toString();
                         Intent intent=new Intent(getActivity(), MainControlActivity.class);
-                        if ("主控制设置".equals(content)){
+                        if ("主控机设置".equals(content)){
 
                             if (!Utils.isEmpty(houseId)){
                                 List<DeviceChild> deviceChildren=deviceChildDao.findDeviceType(Long.parseLong(houseId),1);

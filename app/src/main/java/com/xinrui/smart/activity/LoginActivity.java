@@ -19,11 +19,15 @@ import android.widget.EditText;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
+import com.xinrui.database.dao.daoimpl.TimeDaoImpl;
+import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
+import com.xinrui.smart.pojo.TimeTask;
+import com.xinrui.smart.pojo.Timer;
 import com.xinrui.smart.util.Mobile;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
@@ -31,6 +35,7 @@ import com.xinrui.smart.util.mqtt.MQService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
@@ -149,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.setMessage("正在初始化数据...");
+            progressDialog.setMessage("正在登录中...");
             progressDialog.setCancelable(false);
             progressDialog.show();
         }
@@ -174,8 +179,18 @@ public class LoginActivity extends AppCompatActivity {
                         if (preferences.contains("phone")){
                             String phone2=preferences.getString("phone","");
                             if (!phone2.equals(phone)){
-                                new DeviceGroupDaoImpl(LoginActivity.this).deleteAll();
-                                new DeviceChildDaoImpl(LoginActivity.this).deleteAll();
+                                if (preferences.contains("image")){
+                                    String image=preferences.getString("image","");
+                                    if (!Utils.isEmpty(image)){
+                                        File file=new File(image);
+                                        if (file.exists()){
+                                            file.delete();
+                                        }
+                                    }
+                                    preferences.edit().remove("image").commit();
+                                }
+//                                new DeviceGroupDaoImpl(LoginActivity.this).deleteAll();
+//                                new DeviceChildDaoImpl(LoginActivity.this).deleteAll();
                             }
                         }
                         if (!preferences.contains("password")) {
@@ -293,12 +308,34 @@ public class LoginActivity extends AppCompatActivity {
 
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
+    File file;
     class LoadDeviceAsync extends AsyncTask<String, Void, Integer> {
 
         @Override
         protected Integer doInBackground(String... strings) {
             int code = 0;
             try {
+                file = new File(getExternalCacheDir(), "crop_image2.jpg");
+                if (file!=null && file.exists()){
+                    file.delete();
+                }
+                TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(getApplicationContext());
+                List<TimeTask> timeTasks = timeTaskDao.findAll();
+                for (TimeTask timeTask : timeTasks) {
+                    timeTaskDao.delete(timeTask);
+                }
+
+                TimeDaoImpl timeDao = new TimeDaoImpl(getApplicationContext());
+                List<Timer> timers = timeDao.findTimers();
+                for (Timer timer : timers) {
+                    timeDao.delete(timer);
+                }
+                deviceGroupDao.deleteAll();
+                deviceChildDao.deleteAll();
+                deviceChildDao.closeDaoSession();
+                deviceGroupDao.closeDaoSession();
+                timeDao.closeDaoSession();
+                timeTaskDao.closeDaoSession();
                 String userId = preferences.getString("userId", "");
                 String allDeviceUrl = "http://120.77.36.206:8082/warmer/v1.0/device/findAll?userId=" + URLEncoder.encode(userId, "utf-8");
                 String result = HttpUtils.getOkHpptRequest(allDeviceUrl);

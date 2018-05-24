@@ -316,7 +316,8 @@ public class Btn1_fragment extends Fragment {
     public View setLayout(JSONArray devices, String roomName, int x, int y, int width, int height, Room room) {
         List<Equipment> device_list = new ArrayList<>();//房间设备的list
 
-        WindowManager wm = (WindowManager) getActivity()//获取屏幕宽高
+        //获取屏幕宽高
+        WindowManager wm = (WindowManager) getActivity()
                 .getSystemService(Context.WINDOW_SERVICE);
         int width1 = wm.getDefaultDisplay().getWidth();
         int item_width = width1 / 4;
@@ -506,9 +507,12 @@ public class Btn1_fragment extends Fragment {
         return childView;
     }
 
+    String houseName;
 
     //每个房间里面的组件
     public void saveViewInstance(String roomName, final View childView, List<Equipment> device_list) {
+        houseName=roomName;
+        Log.i("houseName",houseName);
         for (int i = 0; i < device_list.size(); i++) {
             if (device_list.get(i).getDevice_type() == 2) {
                 Equipment equipment = device_list.get(i);
@@ -582,6 +586,7 @@ public class Btn1_fragment extends Fragment {
                     Utils.showToast(getActivity(), "这个家还没有设备");
                 } else {
                     Intent intent = new Intent(getActivity(), AddEquipmentActivity.class);
+                    intent.putExtra("houseName",houseName);
                     startActivity(intent);
                 }
 

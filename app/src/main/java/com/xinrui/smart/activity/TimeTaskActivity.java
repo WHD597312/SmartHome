@@ -17,11 +17,13 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
+import android.widget.RelativeLayout;
 import android.widget.TextClock;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -239,6 +241,12 @@ public class TimeTaskActivity extends AppCompatActivity {
             mWeek = "七";
             mSelectedWeek = mWeek;
         }
+        WindowManager wm = (WindowManager)this.getSystemService(Context.WINDOW_SERVICE);
+        int width = wm.getDefaultDisplay().getWidth()-200;
+        RelativeLayout.LayoutParams params=new RelativeLayout.LayoutParams(width,width);
+        params.leftMargin=100;
+        seekbar.setLayoutParams(params);
+        Log.w("width","width"+width);
         int week3 = ChineseNumber.chineseNumber2Int(mWeek);
         seekbar.setWeek(week3);
         seekbar.setDeviceId(deviceId + "");

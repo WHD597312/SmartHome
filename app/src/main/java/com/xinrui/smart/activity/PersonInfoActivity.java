@@ -77,18 +77,20 @@ public class PersonInfoActivity extends AppCompatActivity {
     ImageView image_user;
     @BindView(R.id.tv_user_name)
     TextView tv_user_name;
-    @BindView(R.id.tv_user) TextView tv_user;
+    @BindView(R.id.tv_user)
+    TextView tv_user;
     Unbinder unbinder;
     SharedPreferences preferences;
 
     MyApplication application;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_person_info);
         unbinder = ButterKnife.bind(this);
-        if (application==null){
-            application= (MyApplication) getApplication();
+        if (application == null) {
+            application = (MyApplication) getApplication();
             application.addActivity(this);
         }
     }
@@ -96,32 +98,39 @@ public class PersonInfoActivity extends AppCompatActivity {
     String device;
     String change;
     String content;
+
     @Override
     protected void onStart() {
         super.onStart();
 
-        Intent intent=getIntent();
+        Intent intent = getIntent();
 
-        device=intent.getStringExtra("device");
-        change=intent.getStringExtra("change");
+        device = intent.getStringExtra("device");
+        change = intent.getStringExtra("change");
         preferences = getSharedPreferences("my", MODE_PRIVATE);
 
-        File file = new File(getExternalCacheDir(), "crop_image2.jpg");
+//        File file = new File(getExternalCacheDir(), "crop_image2.jpg");
 
         try {
-            if (file.exists()) {
-                outputUri = Uri.fromFile(file);
-                file.createNewFile();
-                Glide.with(PersonInfoActivity.this).load(file).transform(new GlideCircleTransform(getApplicationContext())).into(image_user);
+            String image=preferences.getString("image","");
+            if (!Utils.isEmpty(image)){
+                File file=new File(image);
+                if (file.exists()){
+                    Glide.with(PersonInfoActivity.this).load(file).transform(new GlideCircleTransform(getApplicationContext())).into(image_user);
+                }else {
+                    String userId = preferences.getString("userId", "");
+                    String url = "http://120.77.36.206:8082/warmer/v1.0/user/" + userId + "/headImg";
+                    Glide.with(PersonInfoActivity.this).load(url).transform(new GlideCircleTransform(getApplicationContext())).error(R.mipmap.touxiang).into(image_user);
+                }
             }else {
                 String userId = preferences.getString("userId", "");
                 String url = "http://120.77.36.206:8082/warmer/v1.0/user/" + userId + "/headImg";
                 Glide.with(PersonInfoActivity.this).load(url).transform(new GlideCircleTransform(getApplicationContext())).error(R.mipmap.touxiang).into(image_user);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        String username=preferences.getString("username","");
+        String username = preferences.getString("username", "");
         String phone = preferences.getString("phone", "");
         tv_user.setText(phone);
         tv_user_name.setText(username);
@@ -134,7 +143,7 @@ public class PersonInfoActivity extends AppCompatActivity {
         application.removeActivity(this);
     }
 
-    @OnClick({R.id.head_linearout, R.id.head_name,R.id.img_back})
+    @OnClick({R.id.head_linearout, R.id.head_name, R.id.img_back})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.head_linearout:
@@ -144,11 +153,11 @@ public class PersonInfoActivity extends AppCompatActivity {
                 buildUpdatePersonDialog();
                 break;
             case R.id.img_back:
-                if (!Utils.isEmpty(device)){
-                    Intent intent=new Intent(this,MainActivity.class);
+                if (!Utils.isEmpty(device)) {
+                    Intent intent = new Intent(this, MainActivity.class);
                     startActivity(intent);
-                }else if (!Utils.isEmpty(change)){
-                    Intent intent=new Intent(this,AddEquipmentActivity.class);
+                } else if (!Utils.isEmpty(change)) {
+                    Intent intent = new Intent(this, AddEquipmentActivity.class);
                     startActivity(intent);
                 }
                 break;
@@ -157,21 +166,25 @@ public class PersonInfoActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        Intent intent=new Intent(this,MainActivity.class);
+
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+
     }
 
     private String name;
+    DeviceUpdatePersonDialog dialog;
 
     private void buildUpdatePersonDialog() {
-        final DeviceUpdatePersonDialog dialog = new DeviceUpdatePersonDialog(this);
+        dialog = new DeviceUpdatePersonDialog(this);
         dialog.setOnNegativeClickListener(new DeviceUpdatePersonDialog.OnNegativeClickListener() {
             @Override
             public void onNegativeClick() {
                 dialog.dismiss();
+                dialog = null;
             }
         });
+        dialog.setCanceledOnTouchOutside(false);
         dialog.setOnPositiveClickListener(new DeviceUpdatePersonDialog.OnPositiveClickListener() {
             @Override
             public void onPositiveClick() {
@@ -186,7 +199,7 @@ public class PersonInfoActivity extends AppCompatActivity {
 //                        new UpdateHomeNameAsync().execute(updateDeviceGroup);
                     new UpdatePersonAsync().execute(map);
                     dialog.dismiss();
-
+                    dialog = null;
                 }
             }
         });
@@ -241,7 +254,7 @@ public class PersonInfoActivity extends AppCompatActivity {
         View view = View.inflate(this, R.layout.changepicture, null);
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
-        popupWindow = new PopupWindow(view,ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         //点击空白处时，隐藏掉pop窗口
         popupWindow.setFocusable(true);
         popupWindow.setOutsideTouchable(true);
@@ -325,7 +338,7 @@ public class PersonInfoActivity extends AppCompatActivity {
     //拍照
     public void startCamera() {
         File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        imageFile = new File(getExternalCacheDir(), "background.png");
+        imageFile = new File(getExternalCacheDir(), "background2.png");
         try {
             if (imageFile.exists()) {
                 imageFile.delete();
@@ -366,7 +379,7 @@ public class PersonInfoActivity extends AppCompatActivity {
         int width = wm.getDefaultDisplay().getWidth();
         int height = wm.getDefaultDisplay().getHeight();
         // 创建File对象，用于存储裁剪后的图片，避免更改原图
-        File file = new File(getExternalCacheDir(), "crop_image.jpg");
+        File file = new File(getExternalCacheDir(), "crop_image2.jpg");
         try {
             if (file.exists()) {
                 file.delete();
@@ -444,13 +457,13 @@ public class PersonInfoActivity extends AppCompatActivity {
     }
 
     File file2;
+
     private void upImage(File file) {
 
         if (file != null) {
             new LoadUserInfo().execute(file);
-            file2=file;
+            file2 = file;
         }
-
     }
 
     class LoadUserInfo extends AsyncTask<File, Void, Integer> {
@@ -478,6 +491,15 @@ public class PersonInfoActivity extends AppCompatActivity {
                     String url = "http://120.77.36.206:8082/warmer/v1.0/user/" + userId + "/headImg";
 //                    Picasso.with(PersonInfoActivity.this).load(url).error(R.drawable.bedroom1).memoryPolicy(MemoryPolicy.NO_CACHE).into(image_user);
                     Glide.with(PersonInfoActivity.this).load(file2).transform(new GlideCircleTransform(getApplicationContext())).into(image_user);
+                    Log.i("file",file2.getPath());
+                    String image=preferences.getString("image","");
+                    if (!Utils.isEmpty(image)){
+                        File file=new File(image);
+                        if (file.exists()){
+                            file.delete();
+                        }
+                    }
+                    preferences.edit().putString("image",file2.getPath()).commit();
                     break;
                 default:
                     Utils.showToast(PersonInfoActivity.this, "上传失败");
@@ -509,7 +531,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                         handleImageBeforeKitKat(data);
                     }
                 } else {
-                    Intent intent = new Intent(this, RoomContentActivity.class);
+                    Intent intent = new Intent(this, MainActivity.class);
                     startActivity(intent);
                 }
                 break;

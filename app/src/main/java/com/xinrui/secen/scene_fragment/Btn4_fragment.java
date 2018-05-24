@@ -496,8 +496,11 @@ public class Btn4_fragment extends Fragment{
         return childView;
     }
 
+    String houseName;
     //每个房间里面的空间
     public void saveViewInstance(String roomName,final View childView,List<Equipment> device_list){
+        houseName=roomName;
+        Log.i("houseName",houseName);
         for (int i = 0; i < device_list.size(); i++) {
             if(device_list.get(i).getDevice_type() == 2){
 
@@ -569,6 +572,7 @@ public class Btn4_fragment extends Fragment{
                     Utils.showToast(getActivity(), "这个家还没有设备");
                 } else {
                     Intent intent = new Intent(getActivity(), AddEquipmentActivity.class);
+                    intent.putExtra("houseName",houseName);
                     startActivity(intent);
                 }
             }

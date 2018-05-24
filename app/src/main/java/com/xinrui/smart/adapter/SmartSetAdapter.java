@@ -46,7 +46,7 @@ public class SmartSetAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder=null;
         int[] imgs={R.mipmap.master, R.mipmap.controlled,R.mipmap.estsensor};
-        String[] str={"主控制设置","受控机设置","外置传感器"};
+        String[] str={"主控机设置","受控机设置","外置传感器"};
         switch (position){
             case 0:
                 convertView= View.inflate(context, R.layout.smartset,null);

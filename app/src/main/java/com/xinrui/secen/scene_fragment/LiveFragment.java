@@ -194,12 +194,14 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         return view;
     }
 
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (unbinder != null) {
             unbinder.unbind();
         }
+
 
     }
 
@@ -228,6 +230,9 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
     @Override
     public void onStop() {
         super.onStop();
+        if (dialog!=null){
+            dialog.dismiss();
+        }
     }
 
     //初始化View
@@ -247,7 +252,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
 
         if(user_Id != userId){
             house_id = deviceGroup.getId();
-            house_Name = deviceGroup.getHouseName() + "(" + house_id + ")";
+            house_Name = deviceGroup.getHouseName();
             String s1=deviceGroup.getLayers();
             add_key= Integer.parseInt(s1.substring(s1.length()-1,s1.length()));
             location = deviceGroup.getLocation().replace("市", "");
@@ -321,7 +326,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         if(isNet){
             house_id = DeviceGroup.get(position).getId();
             DeviceGroup deviceGroup = deviceGroupDao.findById(house_id);
-            house_Name = deviceGroup.getHouseName() + "(" + house_id + ")";
+            house_Name = deviceGroup.getHouseName();
             location = deviceGroup.getLocation().replace("市", "");
             houseId.setText(house_Name);
             WeatherAsyncTask weatherAsyncTask = new WeatherAsyncTask();
@@ -1299,15 +1304,24 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
                 temperature.setText("无数据");
             }
            else {
-                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
+//                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
                 String airCondition = sharedPreferences.getString("airCondition", "良好");
                 String humidity1 = sharedPreferences.getString("humidity", "60%").substring(3);
                 String city1 = sharedPreferences.getString("city", "北京");
                 String temperature1 = sharedPreferences.getString("temperature", "28℃");
-                airQuality.setText("室外空气:" + airCondition);
-                humidity.setText(humidity1);
-                temperature.setText(temperature1);
-                city.setText(city1);}
+                if (airQuality!=null){
+                    airQuality.setText("室外空气:" + airCondition);
+                }if (humidity!=null){
+                    humidity.setText(humidity1);
+                }if (temperature!=null){
+                    temperature.setText(temperature1);
+                }if (city!=null){
+                    city.setText(city1);
+                }
+
+
+
+               }
             super.onPostExecute(s);
         }
 

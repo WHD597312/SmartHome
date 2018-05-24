@@ -83,6 +83,7 @@ public class SemicircleBar extends View {
     private int mPointerColor;
     private float mPointerRadius;
     private String module;
+    private String online;/**设备开关机*/
     /**
      * 模式
      */
@@ -270,6 +271,14 @@ public class SemicircleBar extends View {
 
     public int getEnd() {
         return end;
+    }
+
+    public void setOnline(String online) {
+        this.online = online;
+    }
+
+    public String getOnline() {
+        return online;
     }
 
     @Override
@@ -488,7 +497,7 @@ public class SemicircleBar extends View {
         float y = event.getY();
 
 
-        if ("timer".equals(workMode) && !"childProtect".equals(output) && event.getAction()==MotionEvent.ACTION_DOWN){
+        if ("open".equals(online) && "timer".equals(workMode) && !"childProtect".equals(output) && event.getAction()==MotionEvent.ACTION_DOWN){
             Toast toast=Toast.makeText(getContext(),"定时模式下不能滑动",Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER,0,0);
             toast.show();

@@ -118,6 +118,7 @@ public class DeviceFragment extends Fragment{
     public static int running=0;
     List allListData=new ArrayList();
     ItemTouchHelper touchHelper;
+    public static boolean drag=false;
 //    List
     @Nullable
     @Override
@@ -131,8 +132,6 @@ public class DeviceFragment extends Fragment{
         view=inflater.inflate(R.layout.fragment_device,container,false);
 
         unbinder=ButterKnife.bind(this,view);
-
-
 
         rv_list.setLayoutManager(new LinearLayoutManager(getActivity()));
         rv_list.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
@@ -169,7 +168,7 @@ public class DeviceFragment extends Fragment{
                 int position=viewHolder.getAdapterPosition();
                 Object o=allListData.get(position);
                 int dragFlags=0;
-                if (o instanceof DeviceGroup)
+                if (o instanceof DeviceGroup || o instanceof String)
                     dragFlags=0;
                 else
                     dragFlags= ItemTouchHelper.UP | ItemTouchHelper.DOWN;
@@ -179,6 +178,7 @@ public class DeviceFragment extends Fragment{
 
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                drag=true;
                 int position=viewHolder.getAdapterPosition();
                 int fromPosition = viewHolder.getAdapterPosition();//得到拖动ViewHolder的position
                 int toPosition = target.getAdapterPosition();//得到目标ViewHolder的position
@@ -187,78 +187,74 @@ public class DeviceFragment extends Fragment{
                 if (fromPosition <toPosition) {/**从上往下移动*/
                     Object to=allListData.get(toPosition);
                     Object from=allListData.get(fromPosition);
-                    if (to instanceof DeviceGroup || to instanceof String){
+                    if (from instanceof DeviceGroup || from instanceof String || to instanceof DeviceGroup || to instanceof String){/**拖拽到设备组头部或者是设备组尾部，就直接返回，什么也不做*/
                         return false;
                     }else {
-                        if (to instanceof DeviceChild && from instanceof DeviceChild){
-                            DeviceChild fromChild= (DeviceChild) from;
-                            DeviceChild toDeviceChild= (DeviceChild) to;
-                            int fromPoistion2=fromChild.getChildPosition();
+                        if (to instanceof DeviceChild && from instanceof DeviceChild){/**两个交换的对象都是DeviceChild类*/
 
-                            int toPosition2=toDeviceChild.getChildPosition();
+                            DeviceChild fromChild= (DeviceChild) from;/**拖拽的对象*/
+                            DeviceChild toDeviceChild= (DeviceChild) to;/**目标对象*/
+                            int fromPoistion2=fromChild.getChildPosition();/**拖拽的位置*/
+                            int toPosition2=toDeviceChild.getChildPosition();/**目标位置*/
 
-                            if (fromPoistion2==toPosition2){
-                                return false;
-                            }else {
-                                fromChild.setChildPosition(toPosition2);
-                                toDeviceChild.setChildPosition(fromPoistion2);
-
+                            if (fromPoistion2==toPosition2){/**如果交换的两个对象的原始位置相同,就重新开始排列这一设备组中的所有数据*/
+                                List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(fromChild.getHouseId());/**从数据库中拿出这一设备组中的所有数据*/
+                                for (int i = 0; i < deviceChildren.size(); i++) {
+                                    DeviceChild deviceChild=deviceChildren.get(i);
+                                    deviceChild.setChildPosition(i);
+                                    deviceChildDao.update(deviceChild);/**对设备的位置重新开始排列*/
+                                }
+                                deviceChildren=deviceChildDao.findGroupIdAllDevice(fromChild.getHouseId());/**重新从数据库中拿取这一组的所有设备数据*/
+                                childern.set(fromChild.getGroupPosition(),deviceChildren);
+                                adapter.changeChildren(fromChild.getGroupPosition());/**重新设置这一组的所有数据*/
+                            }else {/**否则就开始交换两个对象*/
+                                fromChild.setChildPosition(toPosition2);/**交换的时候，只是交换的顺序位置，不是交换的两个对象的实质内容*/
+                                toDeviceChild.setChildPosition(fromPoistion2);/**因此在更新数据的时候，就只需更新两个对象的顺序位置就可以了*/
                                 deviceChildDao.update(fromChild);
                                 deviceChildDao.update(toDeviceChild);
-//                            adapter.changeChild(fromChild.getGroupPosition());
-
                                 Collections.swap(allListData,fromPosition,toPosition);
-
                                 adapter.notifyItemMoved(fromPosition, toPosition);
+                                drag=false;
                             }
-                            Log.i("hhh","from:"+fromPoistion2);
-                            Log.i("hhh","to:"+toPosition2);
-
-
-
-
                         }
-//                        for (int i = fromPosition; i < toPosition; i++) {
-//                            Collections.swap(allListData, i, i + 1);
-//                        }
                     }
 
                 } else if (toPosition<fromPosition){/**从下往上移动*/
-                    Object from=allListData.get(fromPosition);
-                    Object to=allListData.get(toPosition);
-                    if (from instanceof DeviceGroup || from instanceof String){
+                    Object from=allListData.get(fromPosition);/**拖拽的对象*/
+                    Object to=allListData.get(toPosition);/**目标对象*/
+                    if (from instanceof DeviceGroup || from instanceof String || to instanceof DeviceGroup || to instanceof String){/**如果拖拽对象与目标对象不是DeviceChild类，那么就什么都不用做*/
                         return false;
                     }else{
-                        if (to instanceof DeviceChild && from instanceof DeviceChild){
+                        if (to instanceof DeviceChild && from instanceof DeviceChild){/**两个交换的对象都属于DeviceChild类，就开始交换*/
                             DeviceChild fromChild= (DeviceChild) from;
                             DeviceChild toDeviceChild= (DeviceChild) to;
-
                             int fromPoistion2=fromChild.getChildPosition();
                             int toPosition2=toDeviceChild.getChildPosition();
                             if (fromPoistion2==toPosition2){
-                                return false;
+                                List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(fromChild.getHouseId());
+                                for (int i = 0; i < deviceChildren.size(); i++) {
+                                    DeviceChild deviceChild=deviceChildren.get(i);
+                                    deviceChild.setChildPosition(i);
+                                    deviceChildDao.update(deviceChild);
+                                }
+                                deviceChildren=deviceChildDao.findGroupIdAllDevice(fromChild.getHouseId());
+                                childern.set(fromChild.getGroupPosition(),deviceChildren);
+                                adapter.changeChildren(fromChild.getGroupPosition());
                             }else {
                                 Log.i("hhh","from:"+fromPoistion2+","+fromChild.getId());
                                 Log.i("hhh","to:"+toPosition2+","+toDeviceChild.getId());
+
+
                                 fromChild.setChildPosition(toPosition2);
                                 toDeviceChild.setChildPosition(fromPoistion2);
                                 deviceChildDao.update(fromChild);
                                 deviceChildDao.update(toDeviceChild);
 
                                 Collections.swap(allListData,toPosition,fromPosition);
-
                                 adapter.notifyItemMoved(fromPosition, toPosition);
+                                drag=false;
                             }
-
-
-
-//                            adapter.changeChildren(fromChild.getGroupPosition());
                         }
-
-
-//                        for (int i = fromPosition; i > toPosition; i--) {
-//                            Collections.swap(allListData, i, i - 1);
-//                        }
                     }
                 }
 
@@ -536,6 +532,7 @@ public class DeviceFragment extends Fragment{
                 dialog.dismiss();
             }
         });
+        dialog.setCanceledOnTouchOutside(false);
         dialog.setOnPositiveClickListener(new DeviceHomeDialog.OnPositiveClickListener() {
             @Override
             public void onPositiveClick() {

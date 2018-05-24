@@ -3,41 +3,63 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@drawable/roombackground"
     android:layout_height="match_parent"
+    android:background="@drawable/roombackground"
     android:orientation="vertical">
-<LinearLayout
-    android:id="@+id/Cofen"
-    android:layout_width="match_parent"
-    android:layout_alignParentTop="true"
-    android:layout_height="wrap_content">
-    <TextView
-        android:id="@+id/houseId"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/y37"
-        android:textColor="@color/white"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="@dimen/x12"
-        android:gravity="center_vertical"
-        android:text="我的家"/>
-</LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/Cofen"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal"
+        >
+
+        <TextView
+            android:id="@+id/houseId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_alignParentTop="true"
+            android:text="我的家"
+            android:gravity="center_vertical"
+            android:layout_marginTop="5dp"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_20"
+            />
+        <ImageView
+            android:layout_width="@dimen/dp_20"
+            android:layout_height="@dimen/dp_25"
+            android:layout_centerVertical="true"
+            android:layout_alignTop="@+id/houseId"
+            android:layout_alignBottom="@+id/houseId"
+            android:layout_marginTop="2dp"
+            android:layout_toRightOf="@+id/houseId"
+            android:src="@mipmap/nav_backmdpi2"
+            android:scaleType="centerCrop"
+            />
+    </RelativeLayout>
+
     <LinearLayout
         android:id="@+id/central"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/Cofen"
         android:layout_weight="1"
-        android:background="@color/central_background"
-        android:layout_height="wrap_content">
+        android:background="@color/central_background">
+
         <include layout="@layout/central"></include>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/central"
         android:layout_alignParentBottom="true"
+        android:layout_below="@+id/central"
         android:background="@color/central_background">
-        <include layout="@layout/central_down"
+
+        <include
+            layout="@layout/central_down"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"></include>

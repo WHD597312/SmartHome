@@ -7,22 +7,42 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.gifdecoder.GifDecoder;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.bumptech.glide.request.target.Target;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.esptouch.EspWifiAdminSimple;
@@ -42,6 +62,11 @@ import com.xinrui.smart.view_custom.AddDeviceDialog;
 import org.json.JSONObject;
 
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,9 +75,12 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
 
 public class AddDeviceActivity extends AppCompatActivity {
 
+    private boolean running=false;
     MyApplication application;
     @BindView(R.id.btn_wifi)
     Button btn_wifi;
@@ -69,6 +97,7 @@ public class AddDeviceActivity extends AppCompatActivity {
     String group;
     String groupPosition;
     private long houseId;
+    @BindView(R.id.add_image) pl.droidsonroids.gif.GifImageView add_image;
     private DeviceGroupDaoImpl deviceGroupDao;
     private DeviceChildDaoImpl deviceChildDao;
 
@@ -80,6 +109,8 @@ public class AddDeviceActivity extends AppCompatActivity {
     LinearLayout linearout_add_wifi_device;
     @BindView(R.id.linearout_add_scan_device)
     LinearLayout linearout_add_scan_device;
+    @BindView(R.id.img_back) ImageView img_back;
+    @BindView(R.id.linear) LinearLayout linear;
     int[] visibilities = {View.GONE, View.VISIBLE};
     int visibility;
     int wifi_drawable;
@@ -92,11 +123,24 @@ public class AddDeviceActivity extends AppCompatActivity {
     private String wifiConnectionUrl = "http://120.77.36.206:8082/warmer/v1.0/device/registerDevice";
     private String qrCodeConnectionUrl = "http://120.77.36.206:8082/warmer/v1.0/device/createShareDevice";
 
+    private AddDeviceDialog addDeviceDialog;
+
+    GifDrawable gifDrawable;
+    int getAlpha;
+    int getAlpha2;
+
+    float alpha=0;
+    WindowManager.LayoutParams lp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_device);
         ButterKnife.bind(this);
+        add_image= (GifImageView) findViewById(R.id.add_image);
+
+
+        getAlpha=linear.getBackground().mutate().getAlpha();
+        getAlpha2=add_image.getBackground().mutate().getAlpha();
 
         mWifiAdmin = new EspWifiAdminSimple(this);
         SharedPreferences my = getSharedPreferences("my", MODE_PRIVATE);
@@ -123,6 +167,8 @@ public class AddDeviceActivity extends AppCompatActivity {
                 linearout_add_scan_device.setVisibility(View.GONE);
                 btn_wifi.setVisibility(View.GONE);
                 btn_scan.setVisibility(View.GONE);
+
+
             } else if ("share".equals(wifi)) {
                 linearout_add_scan_device.setVisibility(View.VISIBLE);
                 linearout_add_wifi_device.setVisibility(View.GONE);
@@ -138,10 +184,20 @@ public class AddDeviceActivity extends AppCompatActivity {
     private String sharedDeviceId;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
 
+
     @OnClick({R.id.img_back, R.id.btn_wifi, R.id.btn_scan, R.id.btn_scan2, R.id.btn_match})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.img_back:
+                Log.i("dialog","sssssss");
+                if (gifDrawable!=null && gifDrawable.isPlaying()){
+                    gifDrawable.stop();
+                    add_image.setVisibility(View.GONE);
+                    et_ssid.setEnabled(true);
+                    et_pswd.setEnabled(true);
+                    btn_match.setEnabled(true);
+                    break;
+                }
                 Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
                 intent.putExtra("deviceList", "deviceList");
                 startActivity(intent);
@@ -205,6 +261,7 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                new QrCodeAsync().execute(params2);
                 break;
             case R.id.btn_match:
+
                 String ssid = et_ssid.getText().toString();
                 String apPassword = et_pswd.getText().toString();
                 String apBssid = mWifiAdmin.getWifiConnectedBssid();
@@ -213,7 +270,38 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                    Log.d(TAG, "mBtnConfirm is clicked, mEdtApSsid = " + apSsid
 //                            + ", " + " mEdtApPassword = " + apPassword);
                 }
+                if (Utils.isEmpty(apPassword)){
+                    Utils.showToast(AddDeviceActivity.this,"请输入wifi密码");
+                    break;
+                }
                 if (!Utils.isEmpty(ssid)) {
+//                    popupWindow();
+                    add_image.setVisibility(View.VISIBLE);
+                    et_ssid.setEnabled(false);
+                    et_pswd.setEnabled(false);
+                    btn_match.setEnabled(false);
+                    try {
+                        gifDrawable=new GifDrawable(getResources(),R.mipmap.touxiang3);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    if (gifDrawable!=null){
+                        gifDrawable.start();
+                        add_image.setImageDrawable(gifDrawable);
+                    }
+
+
+//                    lp.alpha = 0.4f;
+//                    getWindow().setAttributes(lp);
+//                    linear.getBackground().mutate().setAlpha(100);
+
+                    add_image.getBackground().mutate().setAlpha(0);
+//                    add_image.getBackground().mutate().setAlpha((int) alpha);
+
+//                    WindowManager.LayoutParams lp=getWindow().getAttributes();
+//                    lp.alpha = 0.4f;
+//                    getWindow().setAttributes(lp);
+
                     new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
 //                    String macAddress="vlinks_test18d634d6d3c6";
 //                    Map<String, Object> params = new HashMap<>();
@@ -236,6 +324,7 @@ public class AddDeviceActivity extends AppCompatActivity {
         }
     }
 
+
     String macAddress;
     int deviceId;
 
@@ -251,7 +340,6 @@ public class AddDeviceActivity extends AppCompatActivity {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
                     if (code == 2001) {
-
                         JSONObject content = jsonObject.getJSONObject("content");
                         deviceId = content.getInt("id");
                         String deviceName = content.getString("deviceName");
@@ -268,12 +356,14 @@ public class AddDeviceActivity extends AppCompatActivity {
                         deviceChild.setMacAddress(macAddress);
                         deviceChild.setVersion(version);
                         deviceChild.setControlled(controlled);
-                        deviceChild.setOnLint(true);
-                        deviceChild.setDeviceState("open");
+//                        deviceChild.setOnLint(true);
                         deviceChild.setOnLint(true);
                         List<DeviceChild> deviceChildren2=deviceChildDao.findGroupIdAllDevice((long)houseId);
                         deviceChild.setChildPosition(deviceChildren2.size());
-
+                        DeviceGroup deviceGroup=deviceGroupDao.findById((long)houseId);
+                        Log.i("position","-->"+deviceGroup.getGroupPosition());
+                        Log.i("position","-->"+deviceChild.getChildPosition());
+                        deviceChild.setGroupPosition(deviceGroup.getGroupPosition());
 
 
                         List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice((long) houseId);
@@ -298,7 +388,6 @@ public class AddDeviceActivity extends AppCompatActivity {
                             deviceChild3.setMacAddress(macAddress);
                             deviceChild3.setControlled(controlled);
                             deviceChild3.setOnLint(true);
-                            deviceChild3.setDeviceState("open");
                             deviceChildDao.update(deviceChild3);
                         }
                     }
@@ -314,6 +403,13 @@ public class AddDeviceActivity extends AppCompatActivity {
             super.onPostExecute(code);
             switch (code) {
                 case 2001:
+//                    if (popupWindow!=null && popupWindow.isShowing()){
+//                        popupWindow.dismiss();
+//                    }
+                    if (gifDrawable!=null){
+                        gifDrawable.stop();
+                    }
+
                     Utils.showToast(AddDeviceActivity.this, "创建成功");
                     Intent intent2 = new Intent(AddDeviceActivity.this, MainActivity.class);
                     intent2.putExtra("deviceList", "deviceList");
@@ -461,7 +557,7 @@ public class AddDeviceActivity extends AppCompatActivity {
         deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
         deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
-
+        Log.i("AddDevice","-->"+"onStart");
     }
 
     @Override
@@ -483,6 +579,33 @@ public class AddDeviceActivity extends AppCompatActivity {
             et_pswd.setText(pswd);
             et_pswd.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         }
+        Log.i("AddDevice","-->"+"onResume");
+
+        running=true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i("AddDevice","-->"+"onPause");
+        if (popupWindow != null && popupWindow.isShowing()) {
+            img_back.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    popupWindow.dismiss();
+                    Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
+                    intent.putExtra("deviceList", "deviceList");
+                    startActivity(intent);
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i("AddDevice","-->"+"onStop");
+        running=false;
     }
 
     String shareDeviceId;
@@ -621,7 +744,7 @@ public class AddDeviceActivity extends AppCompatActivity {
         }
     }
 
-    private AddDeviceDialog addDeviceDialog;
+
     private void onEsptoucResultAddedPerform(final IEsptouchResult result) {
         runOnUiThread(new Runnable() {
 
@@ -647,6 +770,7 @@ public class AddDeviceActivity extends AppCompatActivity {
     int count = 0;
 
     private ProgressDialog mProgressDialog;
+    private PopupWindow popupWindow;
 
     private class EsptouchAsyncTask3 extends AsyncTask<String, Void, List<IEsptouchResult>> {
 
@@ -662,8 +786,11 @@ public class AddDeviceActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            addDeviceDialog=new AddDeviceDialog(AddDeviceActivity.this);
-            addDeviceDialog.show();
+//            popupWindow();
+//            addDeviceDialog=new AddDeviceDialog(AddDeviceActivity.this);
+//            addDeviceDialog.setCanceledOnTouchOutside(false);
+//            addDeviceDialog.show();
+
 //            mProgressDialog = new ProgressDialog(AddDeviceActivity.this);
 //            mProgressDialog
 //                    .setMessage("正在配置, 请耐心等待...");
@@ -806,6 +933,20 @@ public class AddDeviceActivity extends AppCompatActivity {
                     }
 //                    mProgressDialog.setMessage(sb.toString());
                 } else {
+
+
+                    if (running){
+                        if (gifDrawable!=null && gifDrawable.isPlaying()){
+                            gifDrawable.stop();
+                            if (add_image!=null){
+                                add_image.setVisibility(View.GONE);
+                                et_ssid.setEnabled(true);
+                                et_pswd.setEnabled(true);
+                                btn_match.setEnabled(true);
+                            }
+                        }
+                        Utils.showToast(AddDeviceActivity.this,"配置失败");
+                    }
 //                    mProgressDialog.setMessage("配置失败");
                 }
             }
@@ -813,12 +954,78 @@ public class AddDeviceActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        if (gifDrawable!=null && gifDrawable.isPlaying()){
+            gifDrawable.stop();
+            add_image.setVisibility(View.GONE);
+            et_ssid.setEnabled(true);
+            et_pswd.setEnabled(true);
+            btn_match.setEnabled(true);
+            return;
+        }
+        Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
+        intent.putExtra("deviceList", "deviceList");
+        startActivity(intent);
+    }
+
+    int duration=0;
+    int MESSAGE_SUCCESS=0;
+    public void popupWindow() {
+        if (popupWindow != null && popupWindow.isShowing()) {
+            return;
+        }
+
+        View view = View.inflate(this, R.layout.dialog_add_device, null);
+        int width = getResources().getDisplayMetrics().widthPixels;
+        final int height = getResources().getDisplayMetrics().heightPixels;
+
+//        ImageView add_image= (ImageView) view.findViewById(R.id.add_image);
+        GifImageView add_image= (GifImageView) view.findViewById(R.id.add_image);
+
+        if (gifDrawable!=null){
+            gifDrawable.start();
+            add_image.setImageDrawable(gifDrawable);
+        }
+
+//        // 从Assets中获取
+//        GifDrawable gifFromAssets = new GifDrawable(getAssets(), "anim.gif");
+//// 从drawable或者raw中获取
+
+
+//从输入流中获取，如果GifDrawable不再使用，输入流会自动关闭。另外，你还可以通过调用recycle()关闭不再使用的输入流
+
+//        Glide.with(AddDeviceActivity.this)
+//                .load(R.mipmap.touxiang3)
+//                .centerCrop()
+//                .into(add_image);
+        popupWindow = new PopupWindow(view, width, height, true);
+        //点击空白处时，隐藏掉pop窗口
+        popupWindow.setFocusable(false);
+        popupWindow.setOutsideTouchable(false);
+        //添加弹出、弹入的动画
+        popupWindow.setAnimationStyle(R.style.Popupwindow);
+
+        ColorDrawable dw = new ColorDrawable(0x30000000);
+        popupWindow.setBackgroundDrawable(new BitmapDrawable());
+//        popupWindow.showAtLocation(AddDeviceActivity.this.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+        popupWindow.showAtLocation(btn_match, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+        //添加按键事件监听
+    }
+    Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (popupWindow!=null){
+                popupWindow.dismiss();
+            }
+        }
+    };
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         deviceChildDao.closeDaoSession();
         deviceGroupDao.closeDaoSession();
-        if (addDeviceDialog!=null){
-            addDeviceDialog.dismiss();
-        }
+
+
     }
 }

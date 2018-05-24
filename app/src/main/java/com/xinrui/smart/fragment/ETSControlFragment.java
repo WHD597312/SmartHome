@@ -90,6 +90,7 @@ public class ETSControlFragment extends Fragment{
         DeviceGroup deviceGroup=deviceGroupDao.findById(id);
 
         houseName=deviceGroup.getHeader();
+        tv_home.setBackgroundResource(R.drawable.shape_estcontrol_header);
         if (!Utils.isEmpty(houseName)){
             tv_home.setText(houseName);
         }

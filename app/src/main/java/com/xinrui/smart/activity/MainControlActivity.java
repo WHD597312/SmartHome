@@ -90,7 +90,7 @@ public class MainControlActivity extends AppCompatActivity{
         tv_main_device.setText(content);
         fragmentManager=getFragmentManager();
 
-        if ("主控制设置".equals(content)){
+        if ("主控机设置".equals(content)){
             FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
             MainControlFragment mainControlFragment=new MainControlFragment();
             fragmentTransaction.replace(R.id.layout_body, mainControlFragment);

@@ -12,9 +12,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
@@ -66,6 +68,7 @@ public class ForgetPswdActivity extends AppCompatActivity {
         application.addActivity(this);
     }
 
+    Toast toast;
 
     @Override
     protected void onStart() {
@@ -196,13 +199,22 @@ public class ForgetPswdActivity extends AppCompatActivity {
             super.onPostExecute(code);
             switch (code) {
                 case -1006:
-                    Utils.showToast(ForgetPswdActivity.this, "手机号码未注册");
+                    toast=Toast.makeText(ForgetPswdActivity.this,"手机号码未注册",Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER,0,0);
+                    toast.show();
+//                    Utils.showToast(ForgetPswdActivity.this, "手机号码未注册");
                     break;
                 case -1003:
-                    Utils.showToast(ForgetPswdActivity.this, "验证码错误");
+                    toast=Toast.makeText(ForgetPswdActivity.this,"验证码错误",Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER,0,0);
+                    toast.show();
+//                    Utils.showToast(ForgetPswdActivity.this, "验证码错误");
                     break;
                 case 2000:
-                    Utils.showToast(ForgetPswdActivity.this, "重新设置密码成功");
+                    toast=Toast.makeText(ForgetPswdActivity.this,"重新设置密码成功",Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER,0,0);
+                    toast.show();
+//                    Utils.showToast(ForgetPswdActivity.this, "重新设置密码成功");
                     Intent intent = new Intent(ForgetPswdActivity.this, MainActivity.class);
                     startActivity(intent);
                     break;
@@ -233,9 +245,12 @@ public class ForgetPswdActivity extends AppCompatActivity {
         @Override
         public void onTick(long millisUntilFinished) {
             Log.e("Tag", "倒计时=" + (millisUntilFinished / 1000));
-            btn_get_code.setText(millisUntilFinished / 1000 + "s后重新发送");
-            //设置倒计时中的按钮外观
-            btn_get_code.setClickable(false);//倒计时过程中将按钮设置为不可点击
+            if (btn_get_code!=null){
+                btn_get_code.setText(millisUntilFinished / 1000 + "s后重新发送");
+                //设置倒计时中的按钮外观
+                btn_get_code.setClickable(false);//倒计时过程中将按钮设置为不可点击
+            }
+
 //            btn_get_code.setBackgroundColor(Color.parseColor("#c7c7c7"));
 //            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
 //            btn_get_code.setTextSize(16);

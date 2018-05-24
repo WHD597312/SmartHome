@@ -1,5 +1,8 @@
 package com.xinrui.smart.util.mqtt;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +13,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -26,6 +30,7 @@ import com.xinrui.secen.scene_fragment.Btn2_fragment;
 import com.xinrui.secen.scene_fragment.Btn3_fragment;
 import com.xinrui.secen.scene_fragment.Btn4_fragment;
 import com.xinrui.smart.R;
+import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.activity.TempChartActivity;
 import com.xinrui.smart.activity.TimeTaskActivity;
 import com.xinrui.smart.activity.device.ShareDeviceActivity;
@@ -36,6 +41,7 @@ import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.TimeTask;
 import com.xinrui.smart.pojo.Timer;
+import com.xinrui.smart.util.UUID;
 import com.xinrui.smart.util.Utils;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -74,7 +80,7 @@ public class MQService extends Service {
 
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private LocalBinder binder = new LocalBinder();
-
+    String clientId;
     private  int times=0;
     @Nullable
     @Override
@@ -87,6 +93,8 @@ public class MQService extends Service {
         super.onCreate();
         deviceChildDao = new DeviceChildDaoImpl(this);
         Log.d(TAG, "onCreate");
+        clientId=UUID.getUUID(this);
+        Log.i("clientId","-->"+clientId);
         init();
         connect();
     }
@@ -131,7 +139,6 @@ public class MQService extends Service {
                 if (!topicNames.isEmpty()) {
                     for (String topicName : topicNames) {
                         client.subscribe(topicName, 1);
-
                     }
                 }
             } catch (Exception e) {
@@ -146,7 +153,8 @@ public class MQService extends Service {
     private void init() {
         try {
             //host为主机名，test为clientid即连接MQTT的客户端ID，一般以客户端唯一标识符表示，MemoryPersistence设置clientid的保存形式，默认为以内存保存
-            client = new MqttClient(host, "",
+
+            client = new MqttClient(host, clientId,
                     new MemoryPersistence());
             //MQTT的连接设置
             options = new MqttConnectOptions();
@@ -259,31 +267,54 @@ public class MQService extends Service {
                     TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(MQService.this);
                     List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
 
-                    List<List<DeviceChild>> childern = new ArrayList<>();
+//                    List<List<DeviceChild>> childern = new ArrayList<>();
 
-                    for (DeviceGroup deviceGroup : deviceGroups) {
-                        List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
-                        childern.add(deviceChildren);
-                    }
                     groupPostion=0;
-                    for (List<DeviceChild> deviceChildren : childern) {
-                        childPosition = 0;
-                        for (DeviceChild deviceChild : deviceChildren) {
-                            String mac = deviceChild.getMacAddress();
-                            if (!Utils.isEmpty(mac) && macAddress.equals(mac)) {
-                                child = deviceChild;
-                                break;
-                            }
-                            childPosition++;
-                        }
-                        if (child != null) {
+                    for (int i = 0; i < deviceGroups.size(); i++) {
+                        if (child!=null){
                             break;
                         }
-                        groupPostion++;
+                        DeviceGroup deviceGroup=deviceGroups.get(i);
+                        if (deviceGroup!=null){
+                            groupPostion=i;
+                            List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
+                            for (int j = 0; j < deviceChildren.size(); j++) {
+                                DeviceChild deviceChild=deviceChildren.get(j);
+                                if (deviceChild!=null){
+                                    String mac = deviceChild.getMacAddress();
+                                    if (!Utils.isEmpty(mac) && macAddress.equals(mac)) {
+                                        child = deviceChild;
+                                        childPosition=j;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
+//                    for (DeviceGroup deviceGroup : deviceGroups) {
+//                        List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
+//                        childern.add(deviceChildren);
+//                    }
+//                    groupPostion=0;
+//                    for (List<DeviceChild> deviceChildren : childern) {
+//                        childPosition = 0;
+//                        for (DeviceChild deviceChild : deviceChildren) {
+//                            String mac = deviceChild.getMacAddress();
+//                            if (!Utils.isEmpty(mac) && macAddress.equals(mac)) {
+//                                child = deviceChild;
+//                                break;
+//                            }
+//                            childPosition++;
+//                        }
+//                        if (child != null) {
+//                            break;
+//                        }
+//                        groupPostion++;
+//                    }
+                    Log.i("groupPostion2","-->"+groupPostion);
                     if (!Utils.isEmpty(reSet)){
                         if (child!=null){/**删除和这个设备相关的所有数据*/
-
+                            Log.i("groupPostion","-->"+groupPostion);
                             new DeleteDeviceAsync().execute(child);
 
 //                            Map<String,Object> params=new HashMap<>();
@@ -308,7 +339,6 @@ public class MQService extends Service {
 
                             for (int i = child.getChildPosition(); i < deviceChildren.size(); i++) {
                                 DeviceChild deviceChild=deviceChildren.get(i);
-                                deviceChild.setChildPosition(i);
                                 deviceChildDao.update(deviceChild);
                             }
                             deviceChildDao.delete(child);
@@ -434,7 +464,6 @@ public class MQService extends Service {
                                     child.setImg(imgs[0]);
                                 }
                                 child.setDeviceState(deviceState);
-
                             }
 
                             if (!Utils.isEmpty(timerShutDown)){
@@ -470,8 +499,32 @@ public class MQService extends Service {
                                 child.setVoltageValue(voltageValue);
                             if (currentValue != 0)
                                 child.setCurrentValue(currentValue);
-                            if (!Utils.isEmpty(machineFall))
+                            if (!Utils.isEmpty(machineFall)){
                                 child.setMachineFall(machineFall);
+                                if ("fall".equals(machineFall)){
+                                    NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
+                                    Intent notifyIntent = new Intent(getApplicationContext(), MainActivity.class);
+
+                                    notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                            | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                                    PendingIntent notifyPendingIntent =
+                                            PendingIntent.getActivity(getApplicationContext(), 0, notifyIntent,
+                                                    PendingIntent.FLAG_UPDATE_CURRENT);
+
+                                    builder.setContentText(child.getDeviceName()+"已倾倒")
+                                            .setSmallIcon(R.mipmap.ic_launcher)
+                                            .setDefaults(Notification.DEFAULT_VIBRATE)
+                                            .setAutoCancel(true);
+                                    builder.setContentIntent(notifyPendingIntent);
+                                    NotificationManager mNotificationManager =
+                                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                                    mNotificationManager.notify(0, builder.build());
+                                }
+                                child.setMachineFall(machineFall);
+                            }
+
+
                             if (protectSetTemp != 0)
                                 child.setProtectSetTemp(protectSetTemp);
                             if (protectProTemp != 0)
@@ -574,6 +627,7 @@ public class MQService extends Service {
                     if (DeviceFragment.running == 1) {
                         if (child==null){
                             Intent mqttIntent = new Intent("DeviceFragment");
+                            Log.i("groupPostion","-->"+groupPostion);
                             mqttIntent.putExtra("groupPostion", groupPostion);
                             mqttIntent.putExtra("childPosition", childPosition);
                             mqttIntent.putExtra("deviceChild", child);
@@ -583,7 +637,6 @@ public class MQService extends Service {
                             boolean online=child.getOnLint();
                             if (!online){
                                 child = deviceChildDao.findDeviceById(child.getId());
-
                                 Intent mqttIntent = new Intent("DeviceFragment");
                                 mqttIntent.putExtra("groupPostion", groupPostion);
                                 mqttIntent.putExtra("childPosition", childPosition);
@@ -600,6 +653,7 @@ public class MQService extends Service {
                                         msg.obj=child;
                                         handler.sendMessage(msg);
                                     }else {
+                                        Log.i("drag","-->"+DeviceFragment.drag);
                                         if (child.getType()==1){/**设备类型为1*/
                                             long shareHouseId = Long.MAX_VALUE;
                                             long houseId=child.getHouseId();
@@ -648,6 +702,7 @@ public class MQService extends Service {
                                 Intent mqttIntent2 = new Intent("DeviceListActivity");
                                 mqttIntent2.putExtra("online", "online");
                                 mqttIntent2.putExtra("deviceChild", child);
+                                mqttIntent2.putExtra("machineFall",child.getMachineFall());
                                 sendBroadcast(mqttIntent2);
                             }else {
                                 Intent mqttIntent = new Intent("DeviceListActivity");
@@ -756,7 +811,6 @@ public class MQService extends Service {
             switch (msg.what){
                 case 1:
                     DeviceChild child= (DeviceChild) msg.obj;
-                    childPosition=child.getChildPosition();
                     Intent mqttIntent = new Intent("DeviceFragment");
                     mqttIntent.putExtra("groupPostion", groupPostion);
                     mqttIntent.putExtra("childPosition", childPosition);

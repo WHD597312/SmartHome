@@ -51,6 +51,7 @@
         <attr name="end" format="integer"/>
         <attr name="workMode" format="string"/>
         <attr name="output" format="string"/>
+        <attr name="online" format="string"/>
     </declare-styleable>
     <declare-styleable name="SemicircleBar">
         <attr name="semicircle_max_precess" format="integer"/>

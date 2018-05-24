@@ -135,7 +135,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
 
         list = new ArrayList<>();
-        String[] titles = {"分享设备", "时钟设置", "定时任务", "设备状态", "常见问题", "关乎我们"};
+        String[] titles = {"分享设备", "时钟设置", "定时任务", "设备状态", "常见问题", "关于我们"};
         for (int i = 0; i < titles.length; i++) {
             list.add(titles[i]);
         }
@@ -251,22 +251,39 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             DeviceChild deviceChild2= (DeviceChild) intent.getSerializableExtra("deviceChild");
             String online=intent.getStringExtra("online");
             String noNet=intent.getStringExtra("noNet");
+            String machineFall=intent.getStringExtra("machineFall");
             if(Utils.isEmpty(noNet)){
                 if (deviceChild!=null && deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())){
                     if ("online".equals(online)){
-                        linearout.setVisibility(View.VISIBLE);
-                        tv_offline.setVisibility(View.GONE);
-                        gradView.setVisibility(View.VISIBLE);
+                        if ("fall".equals(machineFall)){
+                            linearout.setVisibility(View.GONE);
+                            tv_offline.setVisibility(View.VISIBLE);
+                            tv_offline.setText("设备已倾倒");
+                            gradView.setVisibility(View.GONE);
+                        }else {
+                            linearout.setVisibility(View.VISIBLE);
+                            tv_offline.setVisibility(View.GONE);
+                            gradView.setVisibility(View.VISIBLE);
+                        }
                     }else if ("offline".equals(online)){
                         linearout.setVisibility(View.GONE);
                         tv_offline.setVisibility(View.VISIBLE);
+                        tv_offline.setText("设备已离线");
                         gradView.setVisibility(View.GONE);
                     }
                 }
             }else {
-                linearout.setVisibility(View.GONE);
-                tv_offline.setVisibility(View.VISIBLE);
-                gradView.setVisibility(View.GONE);
+                if ("fall".equals(deviceChild.getMachineFall())){
+                    linearout.setVisibility(View.GONE);
+                    tv_offline.setVisibility(View.VISIBLE);
+                    tv_offline.setText("设备已倾倒");
+                    gradView.setVisibility(View.GONE);
+                }else {
+                    linearout.setVisibility(View.GONE);
+                    tv_offline.setVisibility(View.VISIBLE);
+                    gradView.setVisibility(View.GONE);
+                    tv_offline.setText("设备已离线");
+                }
             }
 
         }

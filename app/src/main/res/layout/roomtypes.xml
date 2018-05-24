@@ -3,28 +3,29 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_47"
         android:orientation="horizontal"
         android:background="#3D3C38">
         <ImageButton
             android:id="@+id/return_button"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/dp_20"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
             android:layout_gravity="center_vertical"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:background="#3D3C38"
+            android:scaleType="centerInside"
             android:src="@drawable/nav_back"
             />
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:textColor="@color/white"
             android:textSize="@dimen/dp_20"
             android:layout_gravity="center"
+            android:layout_centerVertical="true"
             android:gravity="center"
             android:text="@string/rooms_type"/>
         <ImageButton
@@ -37,7 +38,7 @@
             android:layout_alignParentRight="true"
             android:visibility="gone"
             android:src="@drawable/homepage"/>
-    </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="@dimen/dp_50">
 
 
     <ImageView
@@ -43,11 +43,12 @@
 
     <ImageView
         android:id="@+id/image_right"
-        android:layout_width="@dimen/dp_50"
-        android:layout_height="@dimen/dp_50"
-        android:layout_alignTop="@+id/image_clear_cache"
-        android:src="@mipmap/nav_back_right"
+        android:layout_width="@dimen/dp_20"
+        android:layout_height="@dimen/dp_20"
+        android:src="@mipmap/arrow_right"
         android:scaleType="centerInside"
         android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/dp_10"
         />
 </RelativeLayout>

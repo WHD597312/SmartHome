@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -31,6 +32,7 @@ import com.xinrui.http.HttpUtils;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
+import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.camera.CameraManager;
 import com.xinrui.smart.util.decoding.CaptureActivityHandler;
@@ -234,8 +236,15 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                         deviceChild.setVersion(version);
                         deviceChild.setControlled(controlled);
                         deviceChild.setOnLint(true);
-                        deviceChild.setDeviceState("open");
                         deviceChild.setShareHouseId(shareHouseId);
+
+
+                        List<DeviceChild> deviceChildren2=deviceChildDao.findGroupIdAllDevice(houseId);
+                        deviceChild.setChildPosition(deviceChildren2.size());
+                        DeviceGroup deviceGroup=deviceGroupDao.findById(houseId);
+                        deviceChild.setGroupPosition(deviceGroup.getGroupPosition());
+                        Log.i("position","-->"+deviceGroup.getGroupPosition());
+                        Log.i("position","-->"+deviceChild.getChildPosition());
 
                         List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice(houseId);
                         DeviceChild deviceChild3 = null;
@@ -252,14 +261,13 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                             deviceChild3 = deviceChildDao.findDeviceById(deviceChild3.getId());
                             deviceChild3.setType(type);
                             deviceChild3.setDeviceName(deviceName);
-                            deviceChild3.setHouseId((long) houseId);
+                            deviceChild3.setHouseId(houseId);
                             deviceChild3.setMasterControllerUserId(masterControllerUserId);
                             deviceChild3.setIsUnlock(isUnlock);
                             deviceChild3.setVersion(version);
                             deviceChild3.setMacAddress(macAddress);
                             deviceChild3.setControlled(controlled);
                             deviceChild3.setOnLint(true);
-                            deviceChild3.setDeviceState("open");
                             deviceChildDao.update(deviceChild3);
                         }
                     }
