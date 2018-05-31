@@ -497,17 +497,32 @@ public class SemicircleBar extends View {
         float y = event.getY();
 
 
+
+
+        Log.i("yyyy","-->"+y);
+        int height=getHeight();
+        int width=getWidth();
+        Log.i("height","-->"+height);
+        Log.i("width","-->"+width);
+
         if ("open".equals(online) && "timer".equals(workMode) && !"childProtect".equals(output) && event.getAction()==MotionEvent.ACTION_DOWN){
             Toast toast=Toast.makeText(getContext(),"定时模式下不能滑动",Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER,0,0);
             toast.show();
         }
-        if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y)) && (y>=75 && y<=770)) {
+        if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y)) && y>820){
+            end=1;
+            mChangListener.onChanged(this, mCurProcess);
+            invalidate();
+            return true;
+        }
+        if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y)) && (y>=75 && y<=820)) {
             // 通过当前触摸点搞到cos角度值
             outside=false;
             float cos = computeCos(x, y);
             // 通过反三角函数获得角度值
             double angle;
+
             if (x < getWidth() / 2) { // 滑动超过180度
                 angle = Math.PI * RADIAN + Math.acos(cos) * RADIAN;
             } else { // 没有超过180度

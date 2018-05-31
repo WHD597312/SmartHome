@@ -93,7 +93,6 @@
             android:background="@color/white"
             android:text="版本升级"
             android:textSize="@dimen/sp_16"
-            android:visibility="gone"
             android:textColor="@color/color_orange" />
 
         <ImageView

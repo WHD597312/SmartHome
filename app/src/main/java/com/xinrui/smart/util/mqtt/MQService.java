@@ -267,52 +267,53 @@ public class MQService extends Service {
                     TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(MQService.this);
                     List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
 
-//                    List<List<DeviceChild>> childern = new ArrayList<>();
+                    List<List<DeviceChild>> childern = new ArrayList<>();
 
-                    groupPostion=0;
-                    for (int i = 0; i < deviceGroups.size(); i++) {
-                        if (child!=null){
-                            break;
-                        }
-                        DeviceGroup deviceGroup=deviceGroups.get(i);
-                        if (deviceGroup!=null){
-                            groupPostion=i;
-                            List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
-                            for (int j = 0; j < deviceChildren.size(); j++) {
-                                DeviceChild deviceChild=deviceChildren.get(j);
-                                if (deviceChild!=null){
-                                    String mac = deviceChild.getMacAddress();
-                                    if (!Utils.isEmpty(mac) && macAddress.equals(mac)) {
-                                        child = deviceChild;
-                                        childPosition=j;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-//                    for (DeviceGroup deviceGroup : deviceGroups) {
-//                        List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
-//                        childern.add(deviceChildren);
-//                    }
 //                    groupPostion=0;
-//                    for (List<DeviceChild> deviceChildren : childern) {
-//                        childPosition = 0;
-//                        for (DeviceChild deviceChild : deviceChildren) {
-//                            String mac = deviceChild.getMacAddress();
-//                            if (!Utils.isEmpty(mac) && macAddress.equals(mac)) {
-//                                child = deviceChild;
-//                                break;
-//                            }
-//                            childPosition++;
-//                        }
-//                        if (child != null) {
+//                    for (int i = 0; i < deviceGroups.size(); i++) {
+//                        if (child!=null){
 //                            break;
 //                        }
-//                        groupPostion++;
+//                        DeviceGroup deviceGroup=deviceGroups.get(i);
+//                        if (deviceGroup!=null){
+//                            groupPostion=i;
+//                            List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
+//                            for (int j = 0; j < deviceChildren.size(); j++) {
+//                                DeviceChild deviceChild=deviceChildren.get(j);
+//                                if (deviceChild!=null){
+//                                    String mac = deviceChild.getMacAddress();
+//                                    if (!Utils.isEmpty(mac) && macAddress.equals(mac)) {
+//                                        child = deviceChild;
+//                                        childPosition=j;
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                        }
 //                    }
+                    for (DeviceGroup deviceGroup : deviceGroups) {
+                        List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
+                        childern.add(deviceChildren);
+                    }
+                    groupPostion=0;
+                    for (List<DeviceChild> deviceChildren : childern) {
+                        childPosition = 0;
+                        for (DeviceChild deviceChild : deviceChildren) {
+                            String mac = deviceChild.getMacAddress();
+                            if (!Utils.isEmpty(mac) && macAddress.equals(mac)) {
+                                child = deviceChild;
+                                break;
+                            }
+                            childPosition++;
+                        }
+                        if (child != null) {
+                            break;
+                        }
+                        groupPostion++;
+                    }
                     Log.i("groupPostion2","-->"+groupPostion);
                     if (!Utils.isEmpty(reSet)){
+                        Log.i("groupPostion2","-->"+groupPostion);
                         if (child!=null){/**删除和这个设备相关的所有数据*/
                             Log.i("groupPostion","-->"+groupPostion);
                             new DeleteDeviceAsync().execute(child);
@@ -616,7 +617,7 @@ public class MQService extends Service {
                         }
                     } else if (topicName.equals("rango/" + macAddress + "/lwt")) {
                         if (child != null) {
-                            send(child);
+//                            send(child);
                             if ("open".equals(child.getDeviceState())){
                                 child.setImg(imgs[2]);
                             }
@@ -631,6 +632,7 @@ public class MQService extends Service {
                             mqttIntent.putExtra("groupPostion", groupPostion);
                             mqttIntent.putExtra("childPosition", childPosition);
                             mqttIntent.putExtra("deviceChild", child);
+                            mqttIntent.putExtra("macAddress",macAddress);
                             sendBroadcast(mqttIntent);
                         }else {
                             child = deviceChildDao.findDeviceById(child.getId());
@@ -688,7 +690,6 @@ public class MQService extends Service {
                                 online=child.getOnLint();
                             }
 
-
                             if (online){
                                 child = deviceChildDao.findDeviceById(child.getId());
                                 long houseId = child.getHouseId();
@@ -735,6 +736,11 @@ public class MQService extends Service {
                             Intent mqttIntent = new Intent("ShareDeviceActivity");
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
+                        }else {
+                            Message msg=handler.obtainMessage();
+                            msg.what=1;
+                            msg.obj=child;
+                            handler.sendMessage(msg);
                         }
                     }else if (TempChartActivity.running){
                         if (!Utils.isEmpty(reSet)){

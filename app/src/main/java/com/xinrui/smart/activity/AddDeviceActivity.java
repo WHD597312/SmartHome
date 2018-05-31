@@ -359,11 +359,11 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                        deviceChild.setOnLint(true);
                         deviceChild.setOnLint(true);
                         List<DeviceChild> deviceChildren2=deviceChildDao.findGroupIdAllDevice((long)houseId);
-                        deviceChild.setChildPosition(deviceChildren2.size());
+//                        deviceChild.setChildPosition(deviceChildren2.size());
                         DeviceGroup deviceGroup=deviceGroupDao.findById((long)houseId);
                         Log.i("position","-->"+deviceGroup.getGroupPosition());
                         Log.i("position","-->"+deviceChild.getChildPosition());
-                        deviceChild.setGroupPosition(deviceGroup.getGroupPosition());
+//                        deviceChild.setGroupPosition(deviceGroup.getGroupPosition());
 
 
                         List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice((long) houseId);

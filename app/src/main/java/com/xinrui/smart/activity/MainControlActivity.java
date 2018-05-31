@@ -71,16 +71,6 @@ public class MainControlActivity extends AppCompatActivity{
             application= (MyApplication) getApplication();
         }
         application.addActivity(this);
-    }
-
-    private DeviceGroupDaoImpl deviceGroupDao;
-    private DeviceChildDaoImpl deviceChildDao;
-    String houseId;
-    String content;
-    @Override
-    protected void onStart() {
-        super.onStart();
-
         Intent intent=getIntent();
         content=intent.getStringExtra("content");
         houseId=intent.getStringExtra("houseId");
@@ -89,6 +79,16 @@ public class MainControlActivity extends AppCompatActivity{
 
         tv_main_device.setText(content);
         fragmentManager=getFragmentManager();
+    }
+
+
+    String houseId;
+    String content;
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+
 
         if ("主控机设置".equals(content)){
             FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();

@@ -395,7 +395,6 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                 try {
                                     entry.setImg(imgs[1]);
                                     entry.setDeviceState("open");
-                                    image_switch.setImageResource(imgs[1]);
                                     deviceChildDao.update(entry);
                                     send(entry);
                                 } catch (Exception e) {
@@ -407,7 +406,6 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                 try {
                                     entry.setImg(imgs[0]);
                                     entry.setDeviceState("close");
-                                    image_switch.setImageResource(imgs[0]);
                                     deviceChildDao.update(entry);
                                     send(entry);
                                 } catch (Exception e) {
@@ -416,7 +414,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             }
                         }
 //                holder.setImageResource(R.id.image_switch,img);
-//                        changeChild(groupPosition, childPosition);
+                        changeChild(groupPosition, childPosition);
 //                        notifyDataSetChanged();
                     } else {
                         Utils.showToast(context, "该设备离线");
@@ -612,6 +610,7 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                 Log.i("group","-->"+groupPostion);
                 int childPosition = intent.getIntExtra("childPosition", 0);
                 Log.i("childPosition","-->"+childPosition);
+                String macAddress=intent.getStringExtra("macAddress");
                 String deviceState = intent.getStringExtra("deviceState");
                 String noNet = intent.getStringExtra("noNet");
                 String Net=intent.getStringExtra("Net");
@@ -642,14 +641,24 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                             childern.get(i).set(j, deviceChild);
                         }
                     }
-//                    changeChildren(groupPostion);
-                    notifyDataSetChanged();
+                    changeChildren(groupPostion);
+//                    notifyDataSetChanged();
                 } else if (Utils.isEmpty(Net) && Utils.isEmpty(noNet)){
                     DeviceChild deviceChild = (DeviceChild) intent.getSerializableExtra("deviceChild");
                     if (deviceChild == null) {
+
                             try {
-                                childern.get(groupPostion).remove(childPosition);
+
                                 List<DeviceChild> deviceChildren = childern.get(groupPostion);
+                                if (!Utils.isEmpty(macAddress)){
+                                    for (int i = 0; i < deviceChildren.size(); i++) {
+                                        DeviceChild deviceChild2=deviceChildren.get(i);
+                                        if (deviceChild2!=null && macAddress.equals(deviceChild2.getMacAddress())){
+                                            childern.get(groupPostion).remove(deviceChild2);
+                                            break;
+                                        }
+                                    }
+                                }
                                 for (int i = 0; i < deviceChildren.size(); i++) {
                                     DeviceChild deviceChild3 = deviceChildren.get(i);
                                     if (deviceChild3.getType() == 1 && deviceChild3.getControlled() == 1) {
@@ -660,9 +669,11 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                                         deviceChild3.setControlled(0);
                                         childern.get(groupPostion).set(i, deviceChild3);
                                     }
-                                    deviceChild3.setChildPosition(i);
-                                    deviceChildDao.update(deviceChild3);
                                 }
+//                                DeviceChild deviceChild2=childern.get(groupPostion).get(childPosition);
+//                                if (deviceChild2!=null){
+//                                    childern.get(groupPostion).remove(deviceChild2);
+//                                }
                                 Utils.showToast(context, "该设备已重置");
 
                                 List<DeviceChild> children=deviceChildDao.findAllDevice();
@@ -679,21 +690,16 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
 
                         List<DeviceChild> deviceChildren = childern.get(groupPostion);
 
-                        if (deviceChildren.get(childPosition) == null) {
-                            childern.get(groupPostion).add(childPosition, deviceChild);
-                            child = deviceChild;
-//                            changeChild(groupPostion, childPosition);
-                            notifyDataSetChanged();
-                        } else {
-                            childern.get(groupPostion).set(childPosition, deviceChild);
-                            child = deviceChild;
-//                            changeChild(groupPostion, childPosition);
-                            notifyDataSetChanged();
-                        }
+
+                        childern.get(groupPostion).set(childPosition, deviceChild);
+                        child = deviceChild;
+                        changeChild(groupPostion, childPosition);
+//                            notifyDataSetChanged();
+
                     }
 
-
-//                    changeGroup(groupPostion);
+//                    notifyDataSetChanged();
+                    changeGroup(groupPostion);
                     if (deviceChild != null && deviceChild.getOnLint() && child != null) {
                         if ("close".equals(deviceState)) {
                             if (deviceChild != null) {
