@@ -145,7 +145,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
         running=true;
         new ShareQrCodeAsync().execute();
 
-        new UpdateVersionAsync().execute();
+
     }
 
     @OnClick({R.id.img_back,R.id.btn_update_version})
@@ -156,21 +156,22 @@ public class ShareDeviceActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.btn_update_version:
-                try {
-                    String mac=deviceChild.getMacAddress();
-                    String topic="rango/"+mac+"/update/firmware";
-                    JSONObject jsonObject2=new JSONObject();
-                    jsonObject2.put("updateWifi",deviceChild.getWifiVersion());
-                    jsonObject2.put("updateMCU",deviceChild.getMCUVerion());
-                    String ss=jsonObject2.toString();
-                    boolean succes=mqService.publish(topic,2,ss);
-                    if (succes){
-                        Utils.showToast(this,"更新成功");
-                    }
-                    Log.d("sss","-->"+succes);
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
+                new UpdateVersionAsync().execute();
+//                try {
+//                    String mac=deviceChild.getMacAddress();
+//                    String topic="rango/"+mac+"/update/firmware";
+//                    JSONObject jsonObject2=new JSONObject();
+//                    jsonObject2.put("updateWifi",deviceChild.getWifiVersion());
+//                    jsonObject2.put("updateMCU",deviceChild.getMCUVerion());
+//                    String ss=jsonObject2.toString();
+//                    boolean succes=mqService.publish(topic,2,ss);
+//                    if (succes){
+//                        Utils.showToast(this,"更新成功");
+//                    }
+//                    Log.d("sss","-->"+succes);
+//                }catch (Exception e){
+//                    e.printStackTrace();
+//                }
 
                 break;
         }
@@ -226,22 +227,36 @@ public class ShareDeviceActivity extends AppCompatActivity {
                             String wifiVersion2=content.getString(0);
                             String mcuVersion2=content.getString(1);
                             String wifiVersion=deviceChild.getWifiVersion();
+                            Log.i("wifiVersion2","wifiVersion2->"+wifiVersion2);
+                            Log.i("mcuVersion2","mcuVersion2->"+mcuVersion2);
                             String mcuVersion=deviceChild.getMCUVerion();
+
+
+                            double wifiVersion0=Double.parseDouble(deviceChild.getWifiVersion().substring(1));
+                            double mcuVersion0=Double.parseDouble(deviceChild.getMCUVerion().substring(1));
+                            Log.i("wifiVersion0","wifiVersion0->"+wifiVersion0);
+                            Log.i("mcuVersion0","mcuVersion0->"+mcuVersion0);
                             if (wifiVersion2.equals(wifiVersion) && mcuVersion2.equals(mcuVersion)){
                                 s="已经是最新版本啦!";
                             }else {
                                 s="版本更新成功";
-                                deviceChild.setWifiVersion(wifiVersion2);
-                                deviceChild.setMCUVerion(mcuVersion2);
-                                deviceChildDao.update(deviceChild);
-                                String mac=deviceChild.getMacAddress();
-                                String topic="rango/"+mac+"/update/firmware";
-                                JSONObject jsonObject2=new JSONObject();
-                                jsonObject2.put("updateWifi",wifiVersion2);
-                                jsonObject2.put("updateMCU",mcuVersion2);
-                                String ss=jsonObject2.toString();
-                                boolean succes=mqService.publish(topic,2,ss);
-                                Log.d("sss","-->"+succes);
+                                double wifiVersion3=Double.parseDouble(wifiVersion2.substring(1));
+                                double mcuVersion3=Double.parseDouble(mcuVersion2.substring(1));
+//                                double wifiVersion0=Double.parseDouble(deviceChild.getWifiVersion().substring(1));
+//                                double mcuVersion0=Double.parseDouble(deviceChild.getMCUVerion().substring(1));
+                                if (wifiVersion3>wifiVersion0 || mcuVersion3>mcuVersion0){
+                                    deviceChild.setWifiVersion(wifiVersion2);
+                                    deviceChild.setMCUVerion(mcuVersion2);
+                                    deviceChildDao.update(deviceChild);
+                                    String mac=deviceChild.getMacAddress();
+                                    String topic="rango/"+mac+"/update/firmware";
+                                    JSONObject jsonObject2=new JSONObject();
+                                    jsonObject2.put("updateWifi",wifiVersion2);
+                                    jsonObject2.put("updateMCU",mcuVersion2);
+                                    String ss=jsonObject2.toString();
+                                    boolean succes=mqService.publish(topic,1,ss);
+                                    Log.i("sss","-->"+succes);
+                                }
                             }
                         }
                     }catch (Exception e){
@@ -256,11 +271,13 @@ public class ShareDeviceActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             if ("已经是最新版本啦!".equals(s)){
-//                Utils.showToast(ShareDeviceActivity.this,s);
-                btn_update_version.setVisibility(View.GONE);
-//                tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
+                Utils.showToast(ShareDeviceActivity.this,s);
+//                btn_update_version.setVisibility(View.GONE);
+                tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
             }else {
-                btn_update_version.setVisibility(View.VISIBLE);
+//                btn_update_version.setVisibility(View.VISIBLE);
+                Utils.showToast(ShareDeviceActivity.this,s);
+                tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
             }
         }
     }
@@ -279,6 +296,10 @@ public class ShareDeviceActivity extends AppCompatActivity {
                     Intent intent2=new Intent(ShareDeviceActivity.this,MainActivity.class);
                     intent2.putExtra("deviceList","deviceList");
                     startActivity(intent2);
+                }else if (Utils.isEmpty(macAddress) && deviceChild2!=null && deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())){
+                    deviceChild=deviceChild2;
+                    deviceChildDao.update(deviceChild);
+                    tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
                 }
             }
         }
@@ -316,5 +337,4 @@ public class ShareDeviceActivity extends AppCompatActivity {
             }
         }
     }
-
 }

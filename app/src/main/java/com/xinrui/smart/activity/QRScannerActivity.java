@@ -137,7 +137,6 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
         }
 //        initBeepSound();
         vibrate = true;
-
     }
 
     @OnClick({R.id.back})
@@ -240,9 +239,9 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
 
 
                         List<DeviceChild> deviceChildren2=deviceChildDao.findGroupIdAllDevice(houseId);
-                        deviceChild.setChildPosition(deviceChildren2.size());
+//                        deviceChild.setChildPosition(deviceChildren2.size());
                         DeviceGroup deviceGroup=deviceGroupDao.findById(houseId);
-                        deviceChild.setGroupPosition(deviceGroup.getGroupPosition());
+//                        deviceChild.setGroupPosition(deviceGroup.getGroupPosition());
                         Log.i("position","-->"+deviceGroup.getGroupPosition());
                         Log.i("position","-->"+deviceChild.getChildPosition());
 

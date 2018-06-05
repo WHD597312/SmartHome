@@ -363,6 +363,7 @@ public class CircleSeekBar extends View {
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
+        isCanTouch=false;
         if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y))) {
             // 通过当前触摸点搞到cos角度值
             float cos = computeCos(x, y);

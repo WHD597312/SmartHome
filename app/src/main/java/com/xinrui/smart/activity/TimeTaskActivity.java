@@ -433,6 +433,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                                 textView.setTextColor(getResources().getColor(R.color.white));
                             }
                         }
+                        pasterWeek.clear();
                         btn_copy.setText("复制");
                     }
                 }
@@ -621,7 +622,6 @@ public class TimeTaskActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.open_time:/**设定开始时间*/
-
                 linearout.setVisibility(View.VISIBLE);
                 tv_clock.setText("开始时间");
                 OPEN_CLOSE = "开始时间";
@@ -703,6 +703,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                 textView.setBackgroundColor(0);
                 textView.setTextColor(getResources().getColor(R.color.white));
             }
+            pasterWeek.clear();
             if ("复制成功".equals(s)){
                 Utils.showToast(TimeTaskActivity.this,"复制成功");
             }

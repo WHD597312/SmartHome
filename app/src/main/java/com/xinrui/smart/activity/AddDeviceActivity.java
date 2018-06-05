@@ -359,11 +359,11 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                        deviceChild.setOnLint(true);
                         deviceChild.setOnLint(true);
                         List<DeviceChild> deviceChildren2=deviceChildDao.findGroupIdAllDevice((long)houseId);
-                        deviceChild.setChildPosition(deviceChildren2.size());
+//                        deviceChild.setChildPosition(deviceChildren2.size());
                         DeviceGroup deviceGroup=deviceGroupDao.findById((long)houseId);
                         Log.i("position","-->"+deviceGroup.getGroupPosition());
                         Log.i("position","-->"+deviceChild.getChildPosition());
-                        deviceChild.setGroupPosition(deviceGroup.getGroupPosition());
+//                        deviceChild.setGroupPosition(deviceGroup.getGroupPosition());
 
 
                         List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice((long) houseId);
@@ -908,7 +908,7 @@ public class AddDeviceActivity extends AppCompatActivity {
                                 String s = et_ssid.getText().toString().trim();
                                 String macAddress = s + ssid;
                                 Map<String, Object> params = new HashMap<>();
-                                params.put("deviceName", "设备");
+                                params.put("deviceName", ssid);
                                 params.put("houseId", houseId);
                                 params.put("masterControllerUserId", Integer.parseInt(userId));
                                 params.put("type", type);

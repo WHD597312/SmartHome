@@ -144,6 +144,7 @@ public class TempChartActivity extends AppCompatActivity {
                     if (code==2000){
                         list=new ArrayList<>();
                         JSONObject jsonObject=jsonObject2.getJSONObject("content");
+                        int zero=jsonObject.getInt("zero");
                         int one=jsonObject.getInt("one");
                         int two=jsonObject.getInt("two");
                         int three=jsonObject.getInt("three");
@@ -167,7 +168,7 @@ public class TempChartActivity extends AppCompatActivity {
                         int twentyOne=jsonObject.getInt("twentyOne");
                         int twentyTwo=jsonObject.getInt("twentyTwo");
                         int twentyThree=jsonObject.getInt("twentyThree");
-                        int twentyFour=jsonObject.getInt("twentyFour");
+                        list.add(zero);
                         list.add(one);
                         list.add(two);
                         list.add(three);
@@ -191,7 +192,6 @@ public class TempChartActivity extends AppCompatActivity {
                         list.add(twentyOne);
                         list.add(twentyTwo);
                         list.add(twentyThree);
-                        list.add(twentyFour);
                     }
                 }
             }catch (Exception e){

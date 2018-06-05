@@ -68,18 +68,6 @@ public class MainControlFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         view=inflater.inflate(R.layout.fragment_control,container,false);
         unbinder= ButterKnife.bind(this,view);
-        return view;
-    }
-
-    private String houseId;
-    private String houseName;
-    private DeviceChildDaoImpl deviceChildDao;
-    private DeviceGroupDaoImpl deviceGroupDao;
-    private int unbindPosition=-1;
-
-    @Override
-    public void onStart() {
-        super.onStart();
         Bundle bundle=getArguments();
         houseId=bundle.getString("houseId");
         deviceGroupDao=new DeviceGroupDaoImpl(MyApplication.getContext());
@@ -101,6 +89,19 @@ public class MainControlFragment extends Fragment{
         new GetMainControlAsync().execute();
         adapter=new MainControlAdapter(mainControls,getActivity());
         lv_homes.setAdapter(adapter);
+
+        return view;
+    }
+
+    private String houseId;
+    private String houseName;
+    private DeviceChildDaoImpl deviceChildDao;
+    private DeviceGroupDaoImpl deviceGroupDao;
+    private int unbindPosition=-1;
+
+    @Override
+    public void onStart() {
+        super.onStart();
 
     }
     private boolean isBound=false;

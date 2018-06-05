@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
@@ -54,6 +55,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText et_name;
     @BindView(R.id.et_pswd)
     EditText et_pswd;
+    @BindView(R.id.btn_login) Button btn_login;/**登录按钮*/
     String url = "http://120.77.36.206:8082/warmer/v1.0/user/login";
     public static boolean runnning=false;
     private ProgressDialog progressDialog;
@@ -72,6 +74,13 @@ public class LoginActivity extends AppCompatActivity {
         application.addActivity(this);
 
         progressDialog = new ProgressDialog(this);
+
+        if (preferences.contains("phone") && preferences.contains("password")){
+//            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            runnning=false;
+            startActivity(new Intent(this,MainActivity.class));
+
+        }
     }
 
     SharedPreferences preferences;
@@ -79,6 +88,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
 
         if (preferences.contains("phone")){
             String phone = preferences.getString("phone", "");
@@ -96,13 +106,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (preferences.contains("phone") && preferences.contains("password")){
-//            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            if (preferences.contains("login")){
-                runnning=false;
-                startActivity(new Intent(this,MainActivity.class));
-            }
-        }
+
         runnning=true;
     }
 
@@ -157,6 +161,7 @@ public class LoginActivity extends AppCompatActivity {
             progressDialog.setMessage("正在登录中...");
             progressDialog.setCancelable(false);
             progressDialog.show();
+            btn_login.setClickable(false);
         }
 
         @Override
@@ -189,8 +194,7 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                     preferences.edit().remove("image").commit();
                                 }
-//                                new DeviceGroupDaoImpl(LoginActivity.this).deleteAll();
-//                                new DeviceChildDaoImpl(LoginActivity.this).deleteAll();
+
                             }
                         }
                         if (!preferences.contains("password")) {
@@ -200,6 +204,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         editor.putString("username",username);
                         editor.putString("userId",userId+"");
+                        editor.putString("login","login");
                         editor.commit();
                     }
                 }
@@ -216,9 +221,11 @@ public class LoginActivity extends AppCompatActivity {
             switch (code) {
 
                 case -1006:
+                    btn_login.setClickable(true);
                     Utils.showToast(LoginActivity.this, "手机号码未注册");
                     break;
                 case -1005:
+                    btn_login.setClickable(true);
                     Utils.showToast(LoginActivity.this, "密码错误");
                     et_pswd.setText("");
                     break;
@@ -319,6 +326,8 @@ public class LoginActivity extends AppCompatActivity {
                 if (file!=null && file.exists()){
                     file.delete();
                 }
+                deviceGroupDao.deleteAll();
+                deviceChildDao.deleteAll();
                 TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(getApplicationContext());
                 List<TimeTask> timeTasks = timeTaskDao.findAll();
                 for (TimeTask timeTask : timeTasks) {
@@ -355,7 +364,7 @@ public class LoginActivity extends AppCompatActivity {
                                 int externalSensorsId = house.getInt("externalSensorsId");
                                 String layers = house.getString("layers");
                                 DeviceGroup deviceGroup = new DeviceGroup((long) houseId, houseName + "." + location, houseName, location, masterControllerDeviceId, externalSensorsId, layers);
-                                deviceGroup.setGroupPosition(i);
+//                                deviceGroup.setGroupPosition(i);
 
                                 if (deviceGroupDao.findById((long) houseId) != null) {
                                     deviceGroupDao.update(deviceGroup);
@@ -388,16 +397,16 @@ public class LoginActivity extends AppCompatActivity {
                                             child.setVersion(version);
                                             child.setMacAddress(macAddress);
                                             child.setControlled(controlled);
-                                            child.setGroupPosition(i);
-                                            child.setChildPosition(j);
+//                                            child.setGroupPosition(i);
+//                                            child.setChildPosition(j);
                                             deviceChildDao.update(child);
                                         } else {
                                             DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
                                             deviceChild.setVersion(version);
                                             deviceChild.setMacAddress(macAddress);
                                             deviceChild.setControlled(controlled);
-                                            deviceChild.setGroupPosition(i);
-                                            deviceChild.setChildPosition(j);
+//                                            deviceChild.setGroupPosition(i);
+//                                            deviceChild.setChildPosition(j);
                                             deviceChildDao.insert(deviceChild);
                                         }
                                     }
@@ -440,8 +449,8 @@ public class LoginActivity extends AppCompatActivity {
                                 deviceChild.setMacAddress(macAddress);
                                 deviceChild.setControlled(controlled);
                                 deviceChild.setShareHouseId(houseId);
-                                deviceChild.setGroupPosition(deviceGroups.size());
-                                deviceChild.setChildPosition(x);
+//                                deviceChild.setGroupPosition(deviceGroups.size());
+//                                deviceChild.setChildPosition(x);
                                 DeviceChild deviceChild2 = deviceChildDao.findDeviceChild((long) deviceId);
                                 if (deviceChild2 == null) {
                                     deviceChildDao.insert(deviceChild);

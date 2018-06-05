@@ -180,6 +180,7 @@ public class HeaterFragment extends LazyFragment {
                     String workMode = deviceChild.getWorkMode();
                     String deviceState = deviceChild.getDeviceState();
                     Log.i(TAG, "-->" + seekbar.getmCurAngle());
+                    Log.i("curValue","curValue:"+curValue);
                     double curAngle = semicBar.getmCurAngle();
                     if ("1".equals(module)) {
                         if (curAngle > 272 && curAngle <= 330) {
@@ -191,21 +192,23 @@ public class HeaterFragment extends LazyFragment {
                                         int curTemp = deviceChild.getCurTemp();
                                         tv_cur_temp.setText(curTemp+"℃");
                                         deviceChild.setManualMatTemp(mCurrent);
-                                        send(deviceChild);
+//                                        send(deviceChild);
                                         outside=false;
                                     }
                                 }
                             }
                         } else if (curAngle >330 && curAngle <= 360) {
+
                             if ("open".equals(deviceState)) {
                                 if ("manual".equals(workMode)) {
                                     outside=true;
+                                    mCurrent=5;
                                     if (outside){
                                         tv_set_temp.setText(mCurrent + "℃");
                                         int curTemp = deviceChild.getCurTemp();
                                         tv_cur_temp.setText(curTemp+"℃");
                                         deviceChild.setManualMatTemp(mCurrent);
-                                        send(deviceChild);
+//                                        send(deviceChild);
                                         outside=false;
                                     }
                                 }
@@ -213,6 +216,9 @@ public class HeaterFragment extends LazyFragment {
 
                         } else {
                             mCurrent = (int) curAngle / 7 + 3;
+                            if (mCurrent<5){
+                                mCurrent=5;
+                            }
                         }
 
                         if ("close".equals(deviceState)) {
@@ -337,7 +343,7 @@ public class HeaterFragment extends LazyFragment {
                                     tv_set_temp.setText(mCurrent + "℃");
                                     int curTemp = deviceChild.getProtectProTemp();
                                     tv_cur_temp.setText(curTemp+"℃");
-                                    send(deviceChild);
+//                                    send(deviceChild);
                                     outside=false;
                                 }
 
@@ -351,7 +357,7 @@ public class HeaterFragment extends LazyFragment {
                                     tv_set_temp.setText(mCurrent + "℃");
                                     int curTemp = deviceChild.getProtectProTemp();
                                     tv_cur_temp.setText(curTemp+"℃");
-                                    send(deviceChild);
+//                                    send(deviceChild);
                                     outside=false;
                                 }
 
@@ -432,7 +438,8 @@ public class HeaterFragment extends LazyFragment {
                 String mac = deviceChild.getMacAddress();
                 if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
                     String houseId=deviceChild.getHouseId()+"";
-                    topicName = "rango/masterController/"+houseId+"/"+mac+"/set";
+//                    topicName = "rango/masterController/"+houseId+"/"+mac+"/set";
+                    topicName = "rango/" + mac + "/set";
                     if (bound) {
                         success = mqService.publish(topicName, 2, s);
                     }
@@ -585,7 +592,12 @@ public class HeaterFragment extends LazyFragment {
                         deviceChildDao.update(deviceChild);
                         if (deviceChild != null) {
                             if (deviceChild.getOnLint()){
-                                setMode(deviceChild);
+                                if (position==0 || position==1){
+
+                                }else {
+                                    setMode(deviceChild);
+                                }
+
                             }else {
                                 Utils.showToast(getActivity(),"该设备已离线");
                             }
@@ -680,14 +692,18 @@ public class HeaterFragment extends LazyFragment {
         });
         dialog.show();
     }
+    private int position=-1;
     @OnClick({R.id.image_switch, R.id.image_mode2, R.id.image_mode, R.id.image_mode3, R.id.image_mode4})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.image_switch:
                 if (NoFastClickUtils.isFastClick()){
+
                     String deviceState = deviceChild.getDeviceState();
                     if ("open".equals(deviceState)) {
-
+                        position=0;
+                        relative4.setVisibility(View.GONE);
+                        relative5.setVisibility(View.VISIBLE);
                         image_switch.setTag("关");
                         deviceChild.setDeviceState("close");
                         deviceChild.setImg(imgs[0]);
@@ -695,13 +711,19 @@ public class HeaterFragment extends LazyFragment {
                         setMode(deviceChild);
                         send(deviceChild);
                         tv_timeShutDown.setVisibility(View.GONE);
+
+
                     } else {
+                        position=1;
+                        relative4.setVisibility(View.VISIBLE);
+                        relative5.setVisibility(View.GONE);
                         image_switch.setTag("开");
                         deviceChild.setDeviceState("open");
                         deviceChild.setImg(imgs[1]);
                         deviceChildDao.update(deviceChild);
                         setMode(deviceChild);
                         send(deviceChild);
+
                     }
                 }else {
                     Utils.showToast(getActivity(), "主人，请对我温柔点!");
@@ -711,6 +733,7 @@ public class HeaterFragment extends LazyFragment {
                 break;
             case R.id.image_mode:
                 if(NoFastClickUtils.isFastClick()){
+                    position=-1;
                     if ("open".equals(deviceChild.getDeviceState())){
                         String handTask = (String) image_hand_task.getTag();
                         if (!"childProtect".equals(deviceChild.getOutputMod())) {
@@ -776,6 +799,7 @@ public class HeaterFragment extends LazyFragment {
             case R.id.image_mode2:
                 if (NoFastClickUtils.isFastClick()){
 //                    buildOpenChildProjectDialog();
+                    position=-1;
                     String outputMode = deviceChild.getOutputMod();
                     if ("childProtect".equals(outputMode)) {
                         model_protect.setTag("不保护");
@@ -821,6 +845,7 @@ public class HeaterFragment extends LazyFragment {
                 break;
             case R.id.image_mode3:
                 if (NoFastClickUtils.isFastClick()){
+                    position=-1;
                     if ("open".equals(deviceChild.getDeviceState())) {
                         String lock = (String) image_lock.getTag();
                         if ("上锁".equals(lock)) {
@@ -842,6 +867,7 @@ public class HeaterFragment extends LazyFragment {
                 break;
             case R.id.image_mode4:
                 if (NoFastClickUtils.isFastClick()){
+                    position=-1;
                     if ("open".equals(deviceChild.getDeviceState())) {
                         String srceen = (String) image_srceen.getTag();
                         if ("屏保关".equals(srceen)) {

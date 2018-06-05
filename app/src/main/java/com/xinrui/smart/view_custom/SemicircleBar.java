@@ -114,6 +114,7 @@ public class SemicircleBar extends View {
     private int end;
     private String workMode;
     private String output;
+    private int rangRadus=0;
 
     DeviceChild deviceChild;
     public SemicircleBar(Context context) {
@@ -287,6 +288,7 @@ public class SemicircleBar extends View {
         int width = getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec);
         int min = Math.min(width, height);
         setMeasuredDimension(min, min);
+        rangRadus=width/2;
 
         refershPosition();
         refershUnreachedWidth();
@@ -497,17 +499,33 @@ public class SemicircleBar extends View {
         float y = event.getY();
 
 
+
+
+        Log.i("yyyy","-->"+y);
+        int height=getHeight();
+        int width=getWidth();
+        Log.i("height","-->"+height);
+        Log.i("width","-->"+width);
+
         if ("open".equals(online) && "timer".equals(workMode) && !"childProtect".equals(output) && event.getAction()==MotionEvent.ACTION_DOWN){
             Toast toast=Toast.makeText(getContext(),"定时模式下不能滑动",Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER,0,0);
             toast.show();
         }
-        if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y)) && (y>=75 && y<=770)) {
+//        if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y)) && isInCiecle(x,y)){
+//            end=1;
+//            mChangListener.onChanged(this, mCurProcess);
+//            invalidate();
+//            return true;
+//        }
+
+        if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y)) && isInCiecle(x,y)) {
             // 通过当前触摸点搞到cos角度值
             outside=false;
             float cos = computeCos(x, y);
             // 通过反三角函数获得角度值
             double angle;
+
             if (x < getWidth() / 2) { // 滑动超过180度
                 angle = Math.PI * RADIAN + Math.acos(cos) * RADIAN;
             } else { // 没有超过180度
@@ -547,7 +565,12 @@ public class SemicircleBar extends View {
             invalidate();
 
             return true;
-        } else {
+        } else if (isCanTouch && (event.getAction() == MotionEvent.ACTION_UP && isInCiecle(x,y))){
+            end=1;
+            mChangListener.onChanged(this, mCurProcess);
+            invalidate();
+            return true;
+        }else {
             end=0;
             Log.i("out","-->"+outside);
             return super.onTouchEvent(event);
@@ -556,6 +579,19 @@ public class SemicircleBar extends View {
 
     }
 
+    /**判断落点是否在圆环上*/
+    public boolean isInCiecle(float x,float y){
+        Log.i("x","-->"+x);
+        Log.i("y","-->"+y);
+        float distance = (float) Math.sqrt((x-rangRadus)*(x-rangRadus)+(y-rangRadus)*(y-rangRadus));
+        Log.i("distance","-->"+distance);
+        int smallCircleRadus=rangRadus/2+50;
+        Log.i("smallCircleRadus","-->"+smallCircleRadus);
+        if (distance>=smallCircleRadus && distance<=rangRadus)
+            return true;
+        else
+            return false;
+    }
     public boolean isCanTouch() {
         return isCanTouch;
     }
