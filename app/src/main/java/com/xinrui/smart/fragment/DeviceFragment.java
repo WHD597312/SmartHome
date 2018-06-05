@@ -1448,6 +1448,7 @@ public class DeviceFragment extends Fragment {
                 public void onPositiveClick() {
                     String child = dialog.getName();
                     if (!Utils.isEmpty(child)) {
+                        
                         DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
                         deviceChild.setDeviceName(child);
                         DeviceAdapter.this.groupPosition = groupPosition;
