@@ -565,7 +565,7 @@ public class SemicircleBar extends View {
             invalidate();
 
             return true;
-        } else if (isCanTouch && (event.getAction() == MotionEvent.ACTION_UP && isInCiecle(x,y))){
+        } else if (isCanTouch && (event.getAction() == MotionEvent.ACTION_UP)){
             end=1;
             mChangListener.onChanged(this, mCurProcess);
             invalidate();

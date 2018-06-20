@@ -164,6 +164,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
         if (unbinder!=null){
             unbinder.unbind();
         }
+        application.removeActivity(this);
     }
 
     /**
@@ -181,6 +182,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
             if (!Utils.isEmpty(content)) {
                 content = new String(Base64.decode(content, Base64.DEFAULT));
                 if (!Utils.isEmpty(content)) {
+                    shareContent=content;
                     String[] ss = content.split("&");
                     String s0 = ss[0];
                     String deviceId = s0.substring(s0.indexOf("'") + 1);
@@ -193,6 +195,9 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                     params.put("deviceId", deviceId);
                     params.put("userId", userId);
                     new QrCodeAsync().execute(params);
+
+
+
                 }
             }
 //                tv_result.setText(content);
@@ -204,75 +209,82 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
     int deviceId;
     private String sharedDeviceId;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
-    class LoadDevice extends AsyncTask<String, Void, Integer> {
 
+
+    private String qrCodeConnectionUrl = "http://47.98.131.11:8082/warmer/v1.0/device/createShareDevice";
+    class QrCodeAsync extends AsyncTask<Map<String, Object>, Void, Integer> {
         @Override
-        protected Integer doInBackground(String... strings) {
+        protected Integer doInBackground(Map<String, Object>... maps) {
             int code = 0;
-            String url = strings[0];
-            String result = HttpUtils.getOkHpptRequest(url);
-            try {
-                if (!Utils.isEmpty(result)) {
+            Map<String, Object> params = maps[0];
+            String result = HttpUtils.postOkHpptRequest(qrCodeConnectionUrl, params);
+            if (!Utils.isEmpty(result)) {
+                try {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
                     if (code == 2000) {
+                        if (!Utils.isEmpty(shareContent)){
+                            shareContent=shareContent.replace("'", "");
+                            int deviceId;
+                            int userId;
+                            String macAddress;
+                            int type;
+                            int controlled;
+                            int shareHouseId;
+                            String deviceName;
+                            String ss[]=shareContent.split("&");
+                            deviceId=Integer.parseInt(ss[0].substring(8));
+                            QRScannerActivity.this.deviceId=deviceId;
+                            userId=Integer.parseInt(ss[1].substring(6));
+                            macAddress=ss[2].substring(10);
+                            type=Integer.parseInt(ss[3].substring(4));
+                            controlled=Integer.parseInt(ss[4].substring(10));
+                            shareHouseId=Integer.parseInt(ss[5].substring(7));
+                            deviceName=ss[6].substring(10);
 
-                        JSONObject content = jsonObject.getJSONObject("content");
-                        deviceId = content.getInt("id");
-                        String deviceName = content.getString("deviceName");
-                        int type = content.getInt("type");
-                        int shareHouseId = content.getInt("houseId");
-                        int masterControllerUserId = content.getInt("masterControllerUserId");
-                        int isUnlock = content.getInt("isUnlock");
-                        int version = content.getInt("version");
-                        macAddress = content.getString("macAddress");
-                        int controlled = content.getInt("controlled");
-
-                        long houseId = Long.MAX_VALUE;
-                        DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, houseId, masterControllerUserId, type, isUnlock);
-                        deviceChild.setImg(imgs[0]);
-                        deviceChild.setMacAddress(macAddress);
-                        deviceChild.setVersion(version);
-                        deviceChild.setControlled(controlled);
-                        deviceChild.setOnLint(true);
-                        deviceChild.setShareHouseId(shareHouseId);
+                            long houseId = Long.MAX_VALUE;
+                            DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, houseId, userId, type, 0);
+                            deviceChild.setImg(imgs[0]);
+                            deviceChild.setMacAddress(macAddress);
+                            deviceChild.setVersion(0);
+                            deviceChild.setControlled(controlled);
+                            deviceChild.setOnLint(true);
+                            deviceChild.setShareHouseId(shareHouseId);
 
 
-                        List<DeviceChild> deviceChildren2=deviceChildDao.findGroupIdAllDevice(houseId);
-//                        deviceChild.setChildPosition(deviceChildren2.size());
-                        DeviceGroup deviceGroup=deviceGroupDao.findById(houseId);
-//                        deviceChild.setGroupPosition(deviceGroup.getGroupPosition());
-                        Log.i("position","-->"+deviceGroup.getGroupPosition());
-                        Log.i("position","-->"+deviceChild.getChildPosition());
+                            List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice(houseId);
+                            DeviceChild deviceChild3 = null;
 
-                        List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice(houseId);
-                        DeviceChild deviceChild3 = null;
-
-                        for (DeviceChild deviceChild2 : deviceChildren) {
-                            if (macAddress.equals(deviceChild2.getMacAddress())) {
-                                deviceChild3 = deviceChild2;
-                                break;
+                            for (DeviceChild deviceChild2 : deviceChildren) {
+                                if (macAddress.equals(deviceChild2.getMacAddress())) {
+                                    deviceChild3 = deviceChild2;
+                                    break;
+                                }
+                            }
+                            if (deviceChild3 == null) {
+                                deviceChildDao.insert(deviceChild);
+                            } else {
+                                deviceChild3 = deviceChildDao.findDeviceById(deviceChild3.getId());
+                                deviceChild3.setType(type);
+                                deviceChild3.setDeviceName(deviceName);
+                                deviceChild3.setHouseId(houseId);
+                                deviceChild3.setMasterControllerUserId(userId);
+                                deviceChild3.setIsUnlock(0);
+                                deviceChild3.setVersion(0);
+                                deviceChild3.setMacAddress(macAddress);
+                                deviceChild3.setControlled(controlled);
+                                deviceChild3.setOnLint(true);
+                                deviceChild3.setShareHouseId(shareHouseId);
+                                deviceChildDao.update(deviceChild3);
                             }
                         }
-                        if (deviceChild3 == null) {
-                            deviceChildDao.insert(deviceChild);
-                        } else {
-                            deviceChild3 = deviceChildDao.findDeviceById(deviceChild3.getId());
-                            deviceChild3.setType(type);
-                            deviceChild3.setDeviceName(deviceName);
-                            deviceChild3.setHouseId(houseId);
-                            deviceChild3.setMasterControllerUserId(masterControllerUserId);
-                            deviceChild3.setIsUnlock(isUnlock);
-                            deviceChild3.setVersion(version);
-                            deviceChild3.setMacAddress(macAddress);
-                            deviceChild3.setControlled(controlled);
-                            deviceChild3.setOnLint(true);
-                            deviceChildDao.update(deviceChild3);
-                        }
+
+//                        String deviceId = (String) params.get("deviceId");
+
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
             return code;
         }
@@ -288,48 +300,11 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                     intent2.putExtra("deviceId", deviceId + "");
                     startActivity(intent2);
                     break;
-                default:
-                    Utils.showToast(QRScannerActivity.this, "创建失败");
-                    break;
-            }
-        }
-    }
-
-    private String qrCodeConnectionUrl = "http://120.77.36.206:8082/warmer/v1.0/device/createShareDevice";
-    class QrCodeAsync extends AsyncTask<Map<String, Object>, Void, Integer> {
-        @Override
-        protected Integer doInBackground(Map<String, Object>... maps) {
-            int code = 0;
-            Map<String, Object> params = maps[0];
-            String result = HttpUtils.postOkHpptRequest(qrCodeConnectionUrl, params);
-            if (!Utils.isEmpty(result)) {
-                try {
-                    JSONObject jsonObject = new JSONObject(result);
-                    code = jsonObject.getInt("code");
-                    if (code == 2000) {
-                        String deviceId = (String) params.get("deviceId");
-                        String url = "http://120.77.36.206:8082/warmer/v1.0/device/getDeviceById?deviceId=" + deviceId;
-                        new LoadDevice().execute(url);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            return code;
-        }
-
-        @Override
-        protected void onPostExecute(Integer code) {
-            super.onPostExecute(code);
-            switch (code) {
-                case 2000:
-//                    Utils.showToast(AddDeviceActivity.this, "分享设备创建成功");
-//                    Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
-//                    intent.putExtra("shareMacAddress", shareMacAddress);
-//                    startActivity(intent);
-                    break;
                 case -3007:
                     Utils.showToast(QRScannerActivity.this, "分享设备添加失败");
+                    break;
+                case -3018:
+                    Utils.showToast(QRScannerActivity.this, "自己的设备只能分享给别人");
                     break;
             }
         }

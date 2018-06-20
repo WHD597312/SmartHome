@@ -36,22 +36,38 @@ public class CommonProblemActivity extends AppCompatActivity {
 
     String main;
     String common;
+    String device;
+    String change;
+    String smart;
+    String live;
     @Override
     protected void onStart() {
         super.onStart();
         Intent intent=getIntent();
         main=intent.getStringExtra("main");
         common=intent.getStringExtra("common");
+        device = intent.getStringExtra("device");
+        change = intent.getStringExtra("change");
+        smart=intent.getStringExtra("smart");
+        live=intent.getStringExtra("live");
     }
 
     @OnClick({R.id.image_back})
     public void onClick(View view){
         switch (view.getId()){
             case R.id.image_back:
-                if (!Utils.isEmpty(main) && Utils.isEmpty(common)){
-                    startActivity(new Intent(this,MainActivity.class));
-                }else if (Utils.isEmpty(main) && !Utils.isEmpty(common)){
-                    startActivity(new Intent(this,AddEquipmentActivity.class));
+                if (!Utils.isEmpty(device)){
+                    Intent intent=new Intent(this,MainActivity.class);
+                    intent.putExtra("deviceList","deviceList");
+                    startActivity(intent);
+                } else if (!Utils.isEmpty(smart)){
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("mainControl","mainControl");
+                    startActivity(intent);
+                }else if (!Utils.isEmpty(live)){
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("live","live");
+                    startActivity(intent);
                 }
                 break;
         }
@@ -60,10 +76,18 @@ public class CommonProblemActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if (!Utils.isEmpty(main) && Utils.isEmpty(common)){
-            startActivity(new Intent(this,MainActivity.class));
-        }else if (Utils.isEmpty(main) && !Utils.isEmpty(common)){
-            startActivity(new Intent(this,AddEquipmentActivity.class));
+        if (!Utils.isEmpty(device)){
+            Intent intent=new Intent(this,MainActivity.class);
+            intent.putExtra("deviceList","deviceList");
+            startActivity(intent);
+        } else if (!Utils.isEmpty(smart)){
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("mainControl","mainControl");
+            startActivity(intent);
+        }else if (!Utils.isEmpty(live)){
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("live","live");
+            startActivity(intent);
         }
     }
 

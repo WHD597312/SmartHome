@@ -45,6 +45,9 @@ import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.CircleSeekBar;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -171,6 +174,7 @@ public class TimeTaskActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private TextView[] week = new TextView[7];
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -179,9 +183,9 @@ public class TimeTaskActivity extends AppCompatActivity {
         if (application == null) {
             application = (MyApplication) getApplication();
         }
+
         application.addActivity(this);
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
-
 
         progressDialog = new ProgressDialog(this);
 
@@ -197,7 +201,10 @@ public class TimeTaskActivity extends AppCompatActivity {
         timeTaskDao = new TimeTaskDaoImpl(getApplicationContext());
         deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
         deviceChild = deviceChildDao.findDeviceById(deviceId);
+
+
         timeDao = new TimeDaoImpl(this);
+
 
 //        week.setOnItemClickListener(this);
 
@@ -218,7 +225,6 @@ public class TimeTaskActivity extends AppCompatActivity {
 
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         timePicker.setValue(hour);
-
 
         timePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
@@ -290,15 +296,6 @@ public class TimeTaskActivity extends AppCompatActivity {
                 tv_copy.setBackgroundResource(R.drawable.button_normal);
             }
         }
-    }
-
-    long deviceId;
-    private DeviceChild deviceChild;
-    MessageReceiver receiver;
-
-    @Override
-    public void onStart() {
-        super.onStart();
 
         Intent intent = new Intent(this, MQService.class);
         isBound = bindService(intent, connection, Context.BIND_AUTO_CREATE);
@@ -306,7 +303,18 @@ public class TimeTaskActivity extends AppCompatActivity {
         IntentFilter intentFilter = new IntentFilter("TimeTaskActivity");
         receiver = new MessageReceiver();
         registerReceiver(receiver, intentFilter);
+    }
 
+    long deviceId;
+    private DeviceChild deviceChild;
+    MessageReceiver receiver;
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+//        String mac=deviceChild.getMacAddress();
+//        String topicName = "rango/" + mac + "/set";
     }
 
 
@@ -314,12 +322,9 @@ public class TimeTaskActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         running = true;
-
     }
 
-
     TextView tv_copy;
-
     private void setBack(TextView tv_week) {
         String copy = btn_copy.getText().toString();
         if ("复制".equals(copy)) {
@@ -445,11 +450,8 @@ public class TimeTaskActivity extends AppCompatActivity {
                     btn_copy.setText("粘贴");
                     progressDialog.dismiss();
                 } else if ("粘贴".equals(s)) {
-
-
                     if (pasterWeek.isEmpty()) {
                         Utils.showToast(this, "请选择要复制的星期");
-
                     } else {
                         new PasteWeekAsync().execute(pasterWeek);
 //                        int count = 0;
@@ -943,6 +945,7 @@ public class TimeTaskActivity extends AppCompatActivity {
             unregisterReceiver(receiver);
         }
 
+
     }
 
     MQService mqService;
@@ -953,6 +956,25 @@ public class TimeTaskActivity extends AppCompatActivity {
             MQService.LocalBinder binder = (MQService.LocalBinder) service;
             mqService = binder.getService();
             bound = true;
+            String mac=deviceChild.getMacAddress();
+            String topic = "rango/" + mac + "/set";
+            int count=timeDao.findAll(deviceId).size();
+            Log.i("connection","-->"+count);
+            if (mqService!=null && count!=168){
+                try {
+                    Log.i("ggggggggg","-->"+"ggggggggggggggggg");
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("loadDate", "7");
+                    String s = jsonObject.toString();
+                    boolean success = false;
+                    success = mqService.publish(topic, 1, s);
+                    if (!success) {
+                        success = mqService.publish(topic, 1, s);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
         }
 
         @Override
@@ -981,6 +1003,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                         startActivity(intent2);
                     }
                 } else {
+                    Log.i("deviceChild","-->"+deviceChild.getMacAddress());
                     DeviceChild deviceChild2 = deviceChildDao.findDeviceById(deviceId);
                     if (deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
                         List<TimeTask> timeTaskList = timeTaskDao.findWeekAll(deviceId, timerTaskWeek);

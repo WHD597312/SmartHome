@@ -117,7 +117,7 @@ public class CustomRoomActivity extends AppCompatActivity {
     private CustomDialog.Builder builder2;
     private CustomDialog mDialog;
     private CustomDialog mDialog1;
-    String url = "http://120.77.36.206:8082/warmer/v1.0/room/registerRoom";
+    String url = "http://47.98.131.11:8082/warmer/v1.0/room/registerRoom";
 
     List<List<Integer>> list_all = new ArrayList<>();
     int colors[] = {R.drawable.merge_room, R.drawable.merge_room1, R.drawable.merge_room2, R.drawable.merge_room3,
@@ -447,7 +447,7 @@ public class CustomRoomActivity extends AppCompatActivity {
             int layer = current_key;
             params.put("houseId", houseId);
             params.put("layer", layer);
-            String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/cleanRoom", params);
+            String url = getUrl.getRqstUrl("http://47.98.131.11:8082/warmer/v1.0/room/cleanRoom", params);
             String result = HttpUtils.getOkHpptRequest(url);
 
             if (!Utils.isEmpty(result)) {

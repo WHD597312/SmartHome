@@ -64,7 +64,7 @@ public class ETSControlFragment extends Fragment{
 
     private List<DeviceChild> beSelectedData = new ArrayList();
 
-    private String extSensorUrl="http://120.77.36.206:8082/warmer/v1.0/device/setExtSensor";
+    private String extSensorUrl="http://47.98.131.11:8082/warmer/v1.0/device/setExtSensor";
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -298,7 +298,7 @@ public class ETSControlFragment extends Fragment{
         protected Integer doInBackground(Void... voids) {
             int code=0;
             try {
-                String getAllMainControl="http://120.77.36.206:8082/warmer/v1.0/device/getExtSensor?houseId="+ URLEncoder.encode(houseId,"utf-8");
+                String getAllMainControl="http://47.98.131.11:8082/warmer/v1.0/device/getExtSensor?houseId="+ URLEncoder.encode(houseId,"utf-8");
                 String result= HttpUtils.getOkHpptRequest(getAllMainControl);
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
@@ -321,7 +321,7 @@ public class ETSControlFragment extends Fragment{
 
                                 DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
                                 deviceChild.setControlled(controlled);
-                                deviceChildDao.update(deviceChild);
+//                                deviceChildDao.update(deviceChild);
                                 mainControls.add(deviceChild);
                                 if (controlled==1){
                                     deviceChild2=deviceChild;

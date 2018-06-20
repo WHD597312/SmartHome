@@ -84,7 +84,7 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
                     }
                     deviceChildDao.update(deviceChild);
                 }
-                if (DeviceFragment.running == 1) {
+                if (DeviceFragment.running) {
                     Intent mqttIntent = new Intent("DeviceFragment");
                     mqttIntent.putExtra("noNet","noNet");
                     context.sendBroadcast(mqttIntent);

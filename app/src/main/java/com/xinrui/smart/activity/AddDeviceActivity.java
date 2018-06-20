@@ -120,8 +120,8 @@ public class AddDeviceActivity extends AppCompatActivity {
 
 
     private String userId;
-    private String wifiConnectionUrl = "http://120.77.36.206:8082/warmer/v1.0/device/registerDevice";
-    private String qrCodeConnectionUrl = "http://120.77.36.206:8082/warmer/v1.0/device/createShareDevice";
+    private String wifiConnectionUrl = "http://47.98.131.11:8082/warmer/v1.0/device/registerDevice";
+    private String qrCodeConnectionUrl = "http://47.98.131.11:8082/warmer/v1.0/device/createShareDevice";
 
     private AddDeviceDialog addDeviceDialog;
 
@@ -312,13 +312,6 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                    params.put("macAddress", macAddress);
 //                    new WifiConectionAsync().execute(params);
 
-                } else if (!Utils.isEmpty(groupPosition) && !Utils.isEmpty(ssid)) {
-                    long group = Long.parseLong(groupPosition);
-                    DeviceChild deviceChild = new DeviceChild();
-                    deviceChild.setHouseId(group);
-                    deviceChild.setDeviceName(ssid);
-                    deviceChild.setImg(imgs[0]);
-                    deviceChildDao.insert(deviceChild);
                 }
                 break;
         }
@@ -521,7 +514,7 @@ public class AddDeviceActivity extends AppCompatActivity {
                     code = jsonObject.getInt("code");
                     if (code == 2000) {
                         String deviceId = (String) params.get("deviceId");
-                        String url = "http://120.77.36.206:8082/warmer/v1.0/device/getDeviceById?deviceId=" + deviceId;
+                        String url = "http://47.98.131.11:8082/warmer/v1.0/device/getDeviceById?deviceId=" + deviceId;
                         new LoadDevice().execute(url);
                     }
                 } catch (Exception e) {

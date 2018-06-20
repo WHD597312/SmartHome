@@ -58,6 +58,7 @@ public class MainControlActivity extends AppCompatActivity{
     @BindView(R.id.img_cancel) ImageView img_cancel;//返回键
     private FragmentManager fragmentManager;
     MyApplication application;
+    DeviceChildDaoImpl deviceChildDao;
 
 
     public final static int MAINCONTROL=1;
@@ -70,11 +71,12 @@ public class MainControlActivity extends AppCompatActivity{
         if (application==null){
             application= (MyApplication) getApplication();
         }
+        deviceChildDao=new DeviceChildDaoImpl(this);
         application.addActivity(this);
         Intent intent=getIntent();
         content=intent.getStringExtra("content");
         houseId=intent.getStringExtra("houseId");
-
+        List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(Long.parseLong(houseId));
 
 
         tv_main_device.setText(content);
@@ -87,8 +89,6 @@ public class MainControlActivity extends AppCompatActivity{
     @Override
     protected void onStart() {
         super.onStart();
-
-
 
         if ("主控机设置".equals(content)){
             FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
@@ -127,6 +127,11 @@ public class MainControlActivity extends AppCompatActivity{
     public void onClick(View view){
         switch (view.getId()){
             case R.id.img_back:
+                List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(Long.parseLong(houseId));
+                for (int i = 0; i < deviceChildren.size(); i++) {
+                    DeviceChild deviceChildr2=deviceChildren.get(i);
+                    Log.i("deviceChildAddress",deviceChildr2.getMacAddress()+","+deviceChildr2.getControlled());
+                }
                 Intent intent2=new Intent(this,MainActivity.class);
                 intent2.putExtra("mainControl","mainControl");
                 startActivity(intent2);
@@ -136,8 +141,6 @@ public class MainControlActivity extends AppCompatActivity{
                 intent.putExtra("mainControl","mainControl");
                 startActivity(intent);
                 break;
-
-
         }
     }
     @Override

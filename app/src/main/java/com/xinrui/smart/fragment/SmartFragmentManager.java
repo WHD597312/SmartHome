@@ -70,22 +70,6 @@ public class SmartFragmentManager extends Fragment {
 
         view = inflater.inflate(R.layout.fragment_smart_manager, container, false);
         unbinder = ButterKnife.bind(this, view);
-        return view;
-    }
-
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (unbinder != null) {
-            unbinder.unbind();
-        }
-    }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
         //初始化fragment
         deviceGroupDao = new DeviceGroupDaoImpl(MyApplication.getContext());
         deviceGroups = deviceGroupDao.findAllDevices();
@@ -120,6 +104,22 @@ public class SmartFragmentManager extends Fragment {
             msg.what = 0;
             handler.sendMessage(msg);
         }
+        return view;
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (unbinder != null) {
+            unbinder.unbind();
+        }
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
 

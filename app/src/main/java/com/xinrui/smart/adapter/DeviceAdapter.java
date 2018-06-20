@@ -331,11 +331,12 @@ public class DeviceAdapter extends GroupedRecyclerViewAdapter {
                 holder.setImageResource(R.id.image_switch,imgs[0]);
             }
         } else {
-            if ("fall".equals(entry.getMachineFall())){
-                tv_state.setText("设备已倾倒");
-            }else {
-                tv_state.setText("离线");
-            }
+//            if ("fall".equals(entry.getMachineFall())){
+//                tv_state.setText("设备已倾倒");
+//            }else {
+//                tv_state.setText("离线");
+//            }
+            tv_state.setText("离线");
             if ("open".equals(entry.getDeviceState())){
                 holder.setImageResource(R.id.image_switch,imgs[2]);
             }else if ("close".equals(entry.getDeviceState())){

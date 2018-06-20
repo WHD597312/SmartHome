@@ -55,7 +55,7 @@ public class RegistActivity extends AppCompatActivity {
     EditText et_password;
     @BindView(R.id.btn_get_code)
     Button btn_get_code;
-    private String url = "http://120.77.36.206:8082/warmer/v1.0/user/register";
+    private String url = "http://47.98.131.11:8082/warmer/v1.0/user/register";
 
     SharedPreferences preferences;
     private DeviceChildDaoImpl deviceChildDao;

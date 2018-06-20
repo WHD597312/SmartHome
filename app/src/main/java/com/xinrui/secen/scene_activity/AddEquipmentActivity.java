@@ -231,7 +231,7 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
         protected Integer doInBackground(JSONObject... s) {
             int code = 0;
             JSONObject params = s[0];
-            String url = "http://120.77.36.206:8082/warmer/v1.0/room/addDevice";
+            String url = "http://47.98.131.11:8082/warmer/v1.0/room/addDevice";
             String result = HttpUtils.postOkHpptRequest3(url, params);
             if (!Utils.isEmpty(result)) {
                 try {
@@ -266,7 +266,7 @@ public class AddEquipmentActivity extends AppCompatActivity implements Equipment
             int house_Id = (int) sharedPreferences.getLong("house_id", 0);
             Map<String, Object> map = new HashMap<>();
             map.put("houseId", house_Id);
-            String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/getUnboundDevice", map);
+            String url = getUrl.getRqstUrl("http://47.98.131.11:8082/warmer/v1.0/room/getUnboundDevice", map);
             String result = HttpUtils.getOkHpptRequest(url);
             try {
                 JSONObject jsonObject = new JSONObject(result);

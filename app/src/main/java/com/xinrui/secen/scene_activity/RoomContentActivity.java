@@ -148,7 +148,7 @@ public class RoomContentActivity extends Activity {
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", MODE_PRIVATE);
         int roomId = sharedPreferences.getInt("roomId", 0);
         sharedPreferences1 = this.getSharedPreferences("data",0);
-        url = "http://120.77.36.206:8082/warmer/v1.0/room/" + roomId + "/background";
+        url = "http://47.98.131.11:8082/warmer/v1.0/room/" + roomId + "/background";
 //        running=2;
         Intent intent=new Intent(this,MQService.class);
         bindService(intent,connection,Context.BIND_AUTO_CREATE);
@@ -325,7 +325,7 @@ public class RoomContentActivity extends Activity {
             params.put("roomId", roomId);
             List<Equipment> list = new ArrayList<>();
             try {
-                String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/getRoomDevices", params);
+                String url = getUrl.getRqstUrl("http://47.98.131.11:8082/warmer/v1.0/room/getRoomDevices", params);
                 String result = HttpUtils.getOkHpptRequest(url);
 
                 JSONObject jsonObject = new JSONObject(result);
@@ -417,7 +417,7 @@ public class RoomContentActivity extends Activity {
             JSONArray request = jsonArrays[0];
             Map<String, Object> params = new HashMap<>();
             params.put("deviceId", deviceId);
-            String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/deleteDevice", params);
+            String url = getUrl.getRqstUrl("http://47.98.131.11:8082/warmer/v1.0/room/deleteDevice", params);
 
             String result = HttpUtils.doDelete(url, request);
             if (!Utils.isEmpty(result)) {
@@ -460,7 +460,7 @@ public class RoomContentActivity extends Activity {
         File file;
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", MODE_PRIVATE);
         int roomId = sharedPreferences.getInt("roomId", 0);
-        String url = "http://120.77.36.206:8082/warmer/v1.0/room/" + roomId + "/background";
+        String url = "http://47.98.131.11:8082/warmer/v1.0/room/" + roomId + "/background";
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("onActivityResult", "requestCode" + requestCode + "resultCode" + resultCode);
         switch (requestCode) {
@@ -635,7 +635,7 @@ public class RoomContentActivity extends Activity {
     private void upImage(File file) {
         SharedPreferences sharedPreferences = getSharedPreferences("roomId", MODE_PRIVATE);
         int roomId = sharedPreferences.getInt("roomId", 0);
-        String url = "http://120.77.36.206:8082/warmer/v1.0/room/" + roomId + "/background";
+        String url = "http://47.98.131.11:8082/warmer/v1.0/room/" + roomId + "/background";
 
         if (file != null) {
             new AddPicuterAsync().execute(url, file);

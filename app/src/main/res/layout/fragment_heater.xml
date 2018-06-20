@@ -80,13 +80,16 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        >
 
         <com.xinrui.smart.view_custom.SemicircleBar
             android:id="@+id/semicBar"
             android:layout_width="@dimen/dp_270"
             android:layout_height="@dimen/dp_270"
             android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_centerInParent="true"
             app:mCurAngle="30"
             app:semicircle_module="1"
             app:wheel_cur_process="1"
@@ -124,11 +127,10 @@
             android:id="@+id/tv_outmode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_5"
             android:gravity="center"
             android:text="输出模式"
             android:textColor="@color/white"
-            android:textSize="@dimen/sp_16" />
+            android:textSize="@dimen/sp_18" />
     </LinearLayout>
     <TextView
         android:id="@+id/tv_timeShutDown"
@@ -162,6 +164,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/linearout"
         android:layout_gravity="center"
+        android:layout_marginTop="@dimen/dp_5"
         android:gravity="center">
 
         <TextView

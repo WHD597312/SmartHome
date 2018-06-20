@@ -166,7 +166,7 @@ public class Btn3_fragment extends Fragment{
 
             Map<String, Object> params = new HashMap<>();
             params.put("houseId", house_id);
-            String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/findAllRoom", params);
+            String url = getUrl.getRqstUrl("http://47.98.131.11:8082/warmer/v1.0/room/findAllRoom", params);
             String result = HttpUtils.getOkHpptRequest(url);
             try {
                 if(!Utils.isEmpty(result)) {
@@ -632,7 +632,7 @@ public class Btn3_fragment extends Fragment{
                 int houseId = (int) sharedPreferences.getLong("house_id",0);
                 Map<String,Object> map = new HashMap<>();
                 map.put("houseId",houseId);
-                String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/getUnboundDevice",map);
+                String url = getUrl.getRqstUrl("http://47.98.131.11:8082/warmer/v1.0/room/getUnboundDevice",map);
                 String result = HttpUtils.getOkHpptRequest(url);
                 try {
                     if(!Utils.isEmpty(result)){
@@ -675,7 +675,7 @@ public class Btn3_fragment extends Fragment{
             params.put("roomName",roomName);
             params.put("roomId",roomId);
             try {
-                String url="http://120.77.36.206:8082/warmer/v1.0/room/changeRoomType?roomId="+roomId+"&roomName="
+                String url="http://47.98.131.11:8082/warmer/v1.0/room/changeRoomType?roomId="+roomId+"&roomName="
                         + URLEncoder.encode(roomName);
                 String result=HttpUtils.getOkHpptRequest(url);
                 if(!Utils.isEmpty(result)){

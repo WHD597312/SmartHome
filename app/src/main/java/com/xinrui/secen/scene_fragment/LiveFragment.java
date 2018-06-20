@@ -76,6 +76,7 @@ import static android.content.Context.MODE_PRIVATE;
  */
 
 public class LiveFragment extends Fragment implements OnItemClickListener {
+    public static boolean running=false;
     @BindView(R.id.custom_house_type)
     Button customHouseType;
     @BindView(R.id.delete)
@@ -176,7 +177,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         getActivity().getSupportFragmentManager().findFragmentByTag("");
 
         if(!isNet){
-            NetWorkUtil.getInstance().setNetworkMethod(getActivity());
+//            NetWorkUtil.getInstance().setNetworkMethod(getActivity());
             houseId.setEnabled(false);
             customHouseType.setEnabled(false);
             btn1.setEnabled(false);
@@ -201,22 +202,18 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         if (unbinder != null) {
             unbinder.unbind();
         }
-
-
     }
-
 
     @Override
     public void onStart() {
-
         super.onStart();
-
     }
 
     @Override
     public void onResume() {
 
         super.onResume();
+        running=true;
     }
 
     @Override
@@ -233,6 +230,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         if (dialog!=null){
             dialog.dismiss();
         }
+        running=false;
     }
 
     //初始化View
@@ -464,7 +462,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             DeviceGroup = deviceGroupDao.findAllDevices();
             Map<String, Object> params = new HashMap<>();
             params.put("houseId", house_id);
-            String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/house/createLayer", params);
+            String url = getUrl.getRqstUrl("http://47.98.131.11:8082/warmer/v1.0/house/createLayer", params);
             String result = HttpUtils.getOkHpptRequest(url);
             try {
                 if (!Utils.isEmpty(result)) {
@@ -489,7 +487,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
         protected Integer doInBackground(JSONArray... s) {
             int code = 0;
             JSONArray request = s[0];
-            String url = "http://120.77.36.206:8082/warmer/v1.0/room/deleteRoom";
+            String url = "http://47.98.131.11:8082/warmer/v1.0/room/deleteRoom";
             String result = HttpUtils.doDelete(url, request);
             if (!Utils.isEmpty(result)) {
                 try {
@@ -515,7 +513,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             DeviceGroup = deviceGroupDao.findAllDevices();
             Map<String, Object> params = new HashMap<>();
             params.put("houseId", house_id);
-            String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/findAllRoom", params);
+            String url = getUrl.getRqstUrl("http://47.98.131.11:8082/warmer/v1.0/room/findAllRoom", params);
             String result = HttpUtils.getOkHpptRequest(url);
             try {
                 if (!Utils.isEmpty(result)) {
@@ -547,7 +545,7 @@ public class LiveFragment extends Fragment implements OnItemClickListener {
             DeviceGroup = deviceGroupDao.findAllDevices();
             Map<String, Object> params = new HashMap<>();
             params.put("houseId", house_id);
-            String url = getUrl.getRqstUrl("http://120.77.36.206:8082/warmer/v1.0/room/findAllRoom", params);
+            String url = getUrl.getRqstUrl("http://47.98.131.11:8082/warmer/v1.0/room/findAllRoom", params);
             String result = HttpUtils.getOkHpptRequest(url);
             try {
                 if (!Utils.isEmpty(result)) {

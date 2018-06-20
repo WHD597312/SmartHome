@@ -50,8 +50,13 @@ public class CommonSetActivity extends AppCompatActivity {
         }
     }
 
+
     String main;
     String common;
+    String device;
+    String change;
+    String smart;
+    String live;
     private List<CommonSet> list;
     CommonSetAdapter adapter;
     private int mPosition=-1;
@@ -65,6 +70,11 @@ public class CommonSetActivity extends AppCompatActivity {
         Intent intent=getIntent();
         main=intent.getStringExtra("main");
         common=intent.getStringExtra("common");
+        device = intent.getStringExtra("device");
+        change = intent.getStringExtra("change");
+        smart=intent.getStringExtra("smart");
+        live=intent.getStringExtra("live");
+
         CommonSet commonSet=new CommonSet("清除缓存","当前版本1.0",R.mipmap.clear_cache);
         CommonSet commonSe2=new CommonSet("检查当前版本更新","当前App版本版本rango 1.0",R.mipmap.app_update);
         CommonSet commonSe3=new CommonSet("刷新用户配置","点击立即和服务器同步账户信息",R.mipmap.image_refresh);
@@ -103,10 +113,18 @@ public class CommonSetActivity extends AppCompatActivity {
     public void onClick(View view){
         switch (view.getId()){
             case R.id.image_back:
-                if (!Utils.isEmpty(main) && Utils.isEmpty(common)){
-                    startActivity(new Intent(this,MainActivity.class));
-                }else if (Utils.isEmpty(main) && !Utils.isEmpty(common)){
-                    startActivity(new Intent(this,AddEquipmentActivity.class));
+                if (!Utils.isEmpty(device)){
+                    Intent intent=new Intent(this,MainActivity.class);
+                    intent.putExtra("deviceList","deviceList");
+                    startActivity(intent);
+                } else if (!Utils.isEmpty(smart)){
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("mainControl","mainControl");
+                    startActivity(intent);
+                }else if (!Utils.isEmpty(live)){
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("live","live");
+                    startActivity(intent);
                 }
                 break;
         }
@@ -115,10 +133,18 @@ public class CommonSetActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if (!Utils.isEmpty(main) && Utils.isEmpty(common)){
-            startActivity(new Intent(this,MainActivity.class));
-        }else if (Utils.isEmpty(main) && !Utils.isEmpty(common)){
-            startActivity(new Intent(this,AddEquipmentActivity.class));
+        if (!Utils.isEmpty(device)){
+            Intent intent=new Intent(this,MainActivity.class);
+            intent.putExtra("deviceList","deviceList");
+            startActivity(intent);
+        } else if (!Utils.isEmpty(smart)){
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("mainControl","mainControl");
+            startActivity(intent);
+        }else if (!Utils.isEmpty(live)){
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("live","live");
+            startActivity(intent);
         }
     }
     @Override

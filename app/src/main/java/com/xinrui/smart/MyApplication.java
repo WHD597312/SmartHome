@@ -133,6 +133,7 @@ public class MyApplication extends Application {
         });
     }
 
+
     public void addActivity(Activity activity){
         if (!activities.contains(activity)){
             activities.add(activity);

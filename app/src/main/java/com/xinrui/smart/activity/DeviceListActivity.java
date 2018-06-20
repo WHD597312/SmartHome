@@ -64,7 +64,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     private List<String> list;
     DeviceListAdapter adapter;
     private FragmentManager fragmentManager;
-//    @BindView(R.id.linearout2) LinearLayout linearout2;
+    //    @BindView(R.id.linearout2) LinearLayout linearout2;
 //    @BindView(R.id.timePicker) TimePicker timePicker;
 //    @BindView(R.id.datePicker) DatePicker datePicker;
 //    @BindView(R.id.tv_clock) TextView tv_clock;
@@ -149,16 +149,57 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
         running=true;
 
+        IntentFilter intentFilter = new IntentFilter("DeviceListActivity");
+        receiver = new MessageReceiver();
+        registerReceiver(receiver, intentFilter);
         boolean online=deviceChild.getOnLint();
+        Log.i("online","-->"+online);
+        String machineFall=deviceChild.getMachineFall();
+        Log.i("machineFall","-->"+machineFall);
         if (online){
-            linearout.setVisibility(View.VISIBLE);
-            tv_offline.setVisibility(View.GONE);
-            gradView.setVisibility(View.VISIBLE);
-        }else {
-            linearout.setVisibility(View.GONE);
-            tv_offline.setVisibility(View.VISIBLE);
-            gradView.setVisibility(View.GONE);
+            if ("fall".equals(machineFall)){
+                linearout.setVisibility(View.GONE);
+                tv_offline.setVisibility(View.VISIBLE);
+                tv_offline.setText("设备已倾倒");
+                gradView.setVisibility(View.GONE);
+            }else {
+                linearout.setVisibility(View.VISIBLE);
+                tv_offline.setVisibility(View.GONE);
+                gradView.setVisibility(View.VISIBLE);
+            }
+        }else{
+            if ("fall".equals(machineFall)){
+                linearout.setVisibility(View.GONE);
+                tv_offline.setVisibility(View.VISIBLE);
+                tv_offline.setText("设备已倾倒");
+                gradView.setVisibility(View.GONE);
+            }else {
+                linearout.setVisibility(View.GONE);
+                tv_offline.setVisibility(View.VISIBLE);
+                tv_offline.setText("设备已离线");
+                gradView.setVisibility(View.GONE);
+            }
+
         }
+//        if ("fall".equals(machineFall)){
+//            linearout.setVisibility(View.GONE);
+//            tv_offline.setVisibility(View.VISIBLE);
+//            tv_offline.setText("设备已倾倒");
+//            gradView.setVisibility(View.GONE);
+//        }else {
+//            linearout.setVisibility(View.VISIBLE);
+//            tv_offline.setVisibility(View.GONE);
+//            gradView.setVisibility(View.VISIBLE);
+//        }
+//        if (online){
+//            linearout.setVisibility(View.VISIBLE);
+//            tv_offline.setVisibility(View.GONE);
+//            gradView.setVisibility(View.VISIBLE);
+//        }else {
+//            linearout.setVisibility(View.GONE);
+//            tv_offline.setVisibility(View.VISIBLE);
+//            gradView.setVisibility(View.GONE);
+//        }
 //        linearout2.setVisibility(View.GONE);
     }
 
@@ -166,9 +207,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     @Override
     protected void onResume() {
         super.onResume();
-        IntentFilter intentFilter = new IntentFilter("DeviceListActivity");
-        receiver = new MessageReceiver();
-        registerReceiver(receiver, intentFilter);
+
+        running=true;
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -189,6 +229,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         if (receiver!=null){
             unregisterReceiver(receiver);
         }
+        running=false;
     }
 
     @Override
@@ -245,47 +286,60 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         }
     }
     class MessageReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             DeviceChild deviceChild2= (DeviceChild) intent.getSerializableExtra("deviceChild");
             String online=intent.getStringExtra("online");
             String noNet=intent.getStringExtra("noNet");
             String machineFall=intent.getStringExtra("machineFall");
-            if(Utils.isEmpty(noNet)){
-                if (deviceChild!=null && deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())){
-                    if ("online".equals(online)){
-                        if ("fall".equals(machineFall)){
+            Log.i("machineFall","-->"+machineFall);
+            String macAddress2=intent.getStringExtra("macAddress2");
+            String macAddress=intent.getStringExtra("macAddress");
+            if (!Utils.isEmpty(macAddress) && macAddress.equals(deviceChild.getMacAddress())){
+                Utils.showToast(DeviceListActivity.this,"该设备已被重置");
+                Intent intent2=new Intent(DeviceListActivity.this,MainActivity.class);
+                intent2.putExtra("deviceList","deviceList");
+                startActivity(intent2);
+
+            } else if (!Utils.isEmpty(macAddress2) && macAddress2.equals(deviceChild.getMacAddress())){
+                Intent intent2=new Intent(DeviceListActivity.this,MainActivity.class);
+                intent2.putExtra("deviceList","deviceList");
+                startActivity(intent2);
+            }else {
+                if(Utils.isEmpty(noNet)){
+                    if (deviceChild!=null && deviceChild2!=null &&deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())){
+                        if ("online".equals(online)){
+                            if ("fall".equals(machineFall)){
+                                linearout.setVisibility(View.GONE);
+                                tv_offline.setVisibility(View.VISIBLE);
+                                tv_offline.setText("设备已倾倒");
+                                gradView.setVisibility(View.GONE);
+                            }else {
+                                linearout.setVisibility(View.VISIBLE);
+                                tv_offline.setVisibility(View.GONE);
+                                gradView.setVisibility(View.VISIBLE);
+                            }
+                        }else if ("offline".equals(online)){
                             linearout.setVisibility(View.GONE);
                             tv_offline.setVisibility(View.VISIBLE);
-                            tv_offline.setText("设备已倾倒");
+                            tv_offline.setText("设备已离线");
                             gradView.setVisibility(View.GONE);
-                        }else {
-                            linearout.setVisibility(View.VISIBLE);
-                            tv_offline.setVisibility(View.GONE);
-                            gradView.setVisibility(View.VISIBLE);
                         }
-                    }else if ("offline".equals(online)){
+                    }
+                }else {
+                    if ("fall".equals(deviceChild.getMachineFall())){
                         linearout.setVisibility(View.GONE);
                         tv_offline.setVisibility(View.VISIBLE);
-                        tv_offline.setText("设备已离线");
+                        tv_offline.setText("设备已倾倒");
                         gradView.setVisibility(View.GONE);
+                    }else {
+                        linearout.setVisibility(View.GONE);
+                        tv_offline.setVisibility(View.VISIBLE);
+                        gradView.setVisibility(View.GONE);
+                        tv_offline.setText("设备已离线");
                     }
                 }
-            }else {
-                if ("fall".equals(deviceChild.getMachineFall())){
-                    linearout.setVisibility(View.GONE);
-                    tv_offline.setVisibility(View.VISIBLE);
-                    tv_offline.setText("设备已倾倒");
-                    gradView.setVisibility(View.GONE);
-                }else {
-                    linearout.setVisibility(View.GONE);
-                    tv_offline.setVisibility(View.VISIBLE);
-                    gradView.setVisibility(View.GONE);
-                    tv_offline.setText("设备已离线");
-                }
             }
-
         }
     }
 

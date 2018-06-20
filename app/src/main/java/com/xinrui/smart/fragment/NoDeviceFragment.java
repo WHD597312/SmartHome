@@ -69,8 +69,9 @@ public class NoDeviceFragment extends Fragment{
     private String province;
     private String city;
     private boolean first=true;
-    private String homeUrl="http://120.77.36.206:8082/warmer/v1.0/house/registerHouse";
+    private String homeUrl="http://47.98.131.11:8082/warmer/v1.0/house/registerHouse";
     DeviceGroup deviceGroup=null;
+    public static boolean running=false;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -144,6 +145,7 @@ public class NoDeviceFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
+        running=true;
         initJsonData();
     }
 
@@ -183,7 +185,7 @@ public class NoDeviceFragment extends Fragment{
             int code=0;
             updateDeviceGroup=deviceGroups[0];
             try {
-                String updateHomeUrl="http://120.77.36.206:8082/warmer/v1.0/house/changeHouseName?houseId="+
+                String updateHomeUrl="http://47.98.131.11:8082/warmer/v1.0/house/changeHouseName?houseId="+
                         URLEncoder.encode(updateDeviceGroup.getId()+"","UTF-8")+"&houseName="+URLEncoder.encode(updateDeviceGroup.getHouseName(),"UTF-8");
                 String result=HttpUtils.getOkHpptRequest(updateHomeUrl);
                 if (!Utils.isEmpty(result)){
@@ -216,7 +218,7 @@ public class NoDeviceFragment extends Fragment{
             int code=0;
             DeviceGroup updateDeviceGroup=deviceGroups[0];
             try {
-                String updateHomeUrl="http://120.77.36.206:8082/warmer/v1.0/house/changeHouseLocation?houseId="+
+                String updateHomeUrl="http://47.98.131.11:8082/warmer/v1.0/house/changeHouseLocation?houseId="+
                         URLEncoder.encode(updateDeviceGroup.getId()+"","UTF-8")+"&houseLocation="+URLEncoder.encode(updateDeviceGroup.getLocation(),"UTF-8");
                 String result=HttpUtils.getOkHpptRequest(updateHomeUrl);
                 if (!Utils.isEmpty(result)){
@@ -254,6 +256,7 @@ public class NoDeviceFragment extends Fragment{
     public void onStop() {
         super.onStop();
         deviceGroupDao.closeDaoSession();
+        running=false;
     }
 
     @Override
