@@ -701,6 +701,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         preferences.edit().remove("login").commit();
+        fragmentPreferences.edit().putString("fragment", "1").commit();
         if (preferences.contains("deviceList")){
             preferences.edit().remove("deviceList").commit();
         }

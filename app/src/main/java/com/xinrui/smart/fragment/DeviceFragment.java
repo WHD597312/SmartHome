@@ -771,6 +771,7 @@ public class DeviceFragment extends Fragment {
             @Override
             public void onPositiveClick() {
                 houseName = dialog.getName();
+
                 if (Utils.isEmpty(houseName)) {
                     Utils.showToast(getActivity(), "住所名称不能为空");
                 } else {
