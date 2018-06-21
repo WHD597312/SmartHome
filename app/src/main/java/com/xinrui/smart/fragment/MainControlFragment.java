@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
@@ -347,7 +348,7 @@ public class MainControlFragment extends Fragment {
                                 if (value == false && postion == unbindPosition && deviceChild.getType() == 1 && deviceChild.getControlled() == 0) {
                                     mastetDevice = deviceChild;
                                     deviceChild.setControlled(0);
-//                                    deviceChildDao.update(deviceChild);
+                                    deviceChildDao.update(deviceChild);
                                     mastetDevice.setId(0L);
                                     break;
                                 }
@@ -364,11 +365,9 @@ public class MainControlFragment extends Fragment {
                             Utils.showToast(getActivity(), "没有设置主控设备");
                         }
                     }
-
                 } else if (children.size() < 2) {
                     Utils.showToast(getActivity(), "设备数量不足");
                 }
-
                 break;
         }
     }
@@ -441,7 +440,6 @@ public class MainControlFragment extends Fragment {
                                     send(deviceChild2);
                                 }
                             }
-
                         } else {
                             for (DeviceChild deviceChild : mainControls) {
                                 deviceChild.setControlled(0);
@@ -471,6 +469,7 @@ public class MainControlFragment extends Fragment {
                     startActivity(intent);
                     break;
                 case -3010:
+
                     break;
             }
         }
@@ -518,16 +517,11 @@ public class MainControlFragment extends Fragment {
                     if (success){
                         if ("master".equals(deviceChild.getCtrlMode())){
                             deviceChild.setControlled(2);
-                            deviceChildDao.update(deviceChild);
-                            deviceChild=deviceChildDao.findDeviceById(deviceChild.getId());
                             mqService.updateDevice(deviceChild);
                             Log.i("deviceAddress","-->"+deviceChild.getControlled());
                         }else if ("normal".equals(deviceChild.getCtrlMode())){
+                            Log.i("normal","-->"+deviceChild.getControlled());
                             deviceChild.setControlled(0);
-                            deviceChildDao.update(deviceChild);
-                            deviceChild=deviceChildDao.findDeviceById(deviceChild.getId());
-                            Log.i("deviceAddress","-->"+deviceChild.getControlled());
-                            mqService.updateDevice(deviceChild);
                         }
                     }
                 }

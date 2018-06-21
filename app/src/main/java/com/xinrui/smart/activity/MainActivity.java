@@ -154,11 +154,13 @@ public class MainActivity extends AppCompatActivity {
     private int load = -1;
     String fall;
     String login;
+    public static boolean active=false;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         unbinder = ButterKnife.bind(this);
+
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -172,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
             startService(service);
         }
         application.addActivity(this);
+        active=true;
         drawer.setDrawerListener(toggle);
         toggle.syncState();
         toggle.setDrawerIndicatorEnabled(false);//修改DrawerLayout侧滑菜单图标
@@ -193,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (!Utils.isEmpty(phone)) {
             tv_user.setText(phone);
         }
+
 
         try {
 
@@ -559,6 +563,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.tv_exit:
 
+                active=false;
 //                TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(getApplicationContext());
 //                List<TimeTask> timeTasks = timeTaskDao.findAll();
 //                for (TimeTask timeTask : timeTasks) {

@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -32,6 +33,7 @@ import com.xinrui.secen.scene_fragment.Btn4_fragment;
 import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.DeviceListActivity;
+import com.xinrui.smart.activity.LoginActivity;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.activity.TempChartActivity;
 import com.xinrui.smart.activity.TimeTaskActivity;
@@ -82,7 +84,6 @@ public class MQService extends Service {
     public String myTopic = "rango/dc4f220aa96e/transfer";
     private LinkedList<String> offlineList=new LinkedList<String>();
 
-
     private DeviceChildDaoImpl deviceChildDao;
     DeviceGroupDaoImpl deviceGroupDao;
     private MqttConnectOptions options;
@@ -92,8 +93,10 @@ public class MQService extends Service {
     String clientId;
     private  int times=0;
     private Map<String,DeviceChild> offlineDevices=new LinkedHashMap<>();
+    String  reconnect=null;
     @Nullable
     @Override
+
     public IBinder onBind(Intent intent) {
         return binder;
     }
@@ -114,11 +117,15 @@ public class MQService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand");
+        reconnect=intent.getStringExtra("reconnect");
+        if (!Utils.isEmpty(reconnect)){
+            Log.i("reconnect","-->"+reconnect);
+            CountTimer countTimer=new CountTimer(1000,1000);
+            countTimer.start();
+        }
         return super.onStartCommand(intent, flags, startId);
     }
-
     public class LocalBinder extends Binder {
-
         public MQService getService() {
             Log.i(TAG, "Binder");
             return MQService.this;
@@ -143,7 +150,6 @@ public class MQService extends Service {
     public boolean stopService(Intent name) {
         Log.i(TAG, "stopService");
         return super.stopService(name);
-
     }
 
     public void connect() {
@@ -211,7 +217,6 @@ public class MQService extends Service {
                 @Override
                 public void messageArrived(String topicName, MqttMessage message) {
                     try {
-
                         new LoadAsyncTask().execute(topicName,message.toString());
 
                     }catch (Exception e){
@@ -565,7 +570,7 @@ public class MQService extends Service {
                                 if ("fall".equals(machineFall)){
                                     child.setMachineFall("fall");
                                     NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
-                                    Intent notifyIntent = new Intent(getApplicationContext(), MainActivity.class);
+                                    Intent notifyIntent = new Intent(getApplicationContext(), LoginActivity.class);
                                     notifyIntent.putExtra("fall","fall");
                                     notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                             | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -736,6 +741,10 @@ public class MQService extends Service {
                                 long houseId = child.getHouseId();
                                 long deviceId = child.getId();
                                 Intent mqttIntent2 = new Intent("DeviceListActivity");
+                                if ("slave".equals(child.getCtrlMode())){
+                                    mqttIntent2.putExtra("macAddress3", child.getMacAddress());
+                                }
+
                                 mqttIntent2.putExtra("online", "online");
                                 mqttIntent2.putExtra("deviceChild", child);
                                 mqttIntent2.putExtra("machineFall",child.getMachineFall());
@@ -898,7 +907,7 @@ public class MQService extends Service {
                     connect();
                 }
             }
-        }, 0 * 1000, 1 * 1000, TimeUnit.MILLISECONDS);
+        }, 0, 1000, TimeUnit.MILLISECONDS);
     }
 
     public void updateDevice(DeviceChild deviceChild){
@@ -907,7 +916,6 @@ public class MQService extends Service {
     public boolean publish(String topicName, int qos, String payload) {
         boolean flag = false;
         if (client != null && client.isConnected()) {
-
             try {
                 MqttMessage message = new MqttMessage(payload.getBytes("utf-8"));
                 qos=1;
@@ -1033,8 +1041,6 @@ public class MQService extends Service {
             }
             return code;
         }
-
-
     }
     public static boolean isGoodJson(String json) {
         try {
@@ -1154,6 +1160,73 @@ public class MQService extends Service {
                 e.printStackTrace();
             }
             return null;
+        }
+    }
+
+    class LoadMqttAsync3 extends AsyncTask<List<DeviceChild>,Void,String>{
+
+
+        @Override
+        protected String doInBackground(List<DeviceChild>... lists) {
+            List<DeviceChild> deviceChildren=lists[0];
+            String result=null;
+            try {
+                for (int i = 0; i <deviceChildren.size() ; i++) {
+                    DeviceChild deviceChild = deviceChildren.get(i);
+                    String mac = deviceChild.getMacAddress();
+                    String topic = "rango/" + mac + "/set";
+                    Log.i("macAddress2", "-->" + mac);
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("loadDate", "1");
+                    String s = jsonObject.toString();
+                    boolean success = false;
+
+                    success = publish(topic, 1, s);
+                    if (!success) {
+                        success = publish(topic, 1, s);
+                    }else {
+                        Thread.currentThread().sleep(300);
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return result;
+        }
+    }
+    class CountTimer extends CountDownTimer {
+        public CountTimer(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+
+        /**
+         * 倒计时过程中调用
+         *
+         * @param millisUntilFinished
+         */
+        @Override
+        public void onTick(long millisUntilFinished) {
+            Log.e("Tag", "倒计时=" + (millisUntilFinished / 1000));
+//            btn_get_code.setBackgroundColor(Color.parseColor("#c7c7c7"));
+//            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
+//            btn_get_code.setTextSize(16);
+        }
+
+        /**
+         * 倒计时完成后调用
+         */
+        @Override
+        public void onFinish() {
+            Log.e("Tag", "倒计时完成");
+            //设置倒计时结束之后的按钮样式
+//            btn_get_code.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.holo_blue_light));
+//            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
+//            btn_get_code.setTextSize(18);
+//            if (progressDialog != null) {
+//                progressDialog.dismiss();
+//            }
+            List<DeviceChild> deviceChildren=deviceChildDao.findAllDevice();
+            new LoadMqttAsync3().execute(deviceChildren);
         }
     }
 

@@ -108,7 +108,6 @@
             android:name=".util.mqtt.MQService"
             android:enabled="true"
             android:exported="true" />
-
         <receiver
             android:name=".reveiver.MQTTMessageReveiver"
             android:enabled="true"

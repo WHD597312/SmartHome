@@ -295,7 +295,13 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             Log.i("machineFall","-->"+machineFall);
             String macAddress2=intent.getStringExtra("macAddress2");
             String macAddress=intent.getStringExtra("macAddress");
-            if (!Utils.isEmpty(macAddress) && macAddress.equals(deviceChild.getMacAddress())){
+            String macAddress3=intent.getStringExtra("macAddress3");
+            if (!Utils.isEmpty(macAddress3)  && macAddress3.equals(deviceChild.getMacAddress())){
+                Utils.showToast(DeviceListActivity.this,"该设备类型已为受控机");
+                Intent intent2=new Intent(DeviceListActivity.this,MainActivity.class);
+                intent2.putExtra("deviceList","deviceList");
+                startActivity(intent2);
+            } else if (!Utils.isEmpty(macAddress) && macAddress.equals(deviceChild.getMacAddress())){
                 Utils.showToast(DeviceListActivity.this,"该设备已被重置");
                 Intent intent2=new Intent(DeviceListActivity.this,MainActivity.class);
                 intent2.putExtra("deviceList","deviceList");

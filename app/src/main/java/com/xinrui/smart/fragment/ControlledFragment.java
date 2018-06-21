@@ -1,6 +1,7 @@
 package com.xinrui.smart.fragment;
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -71,11 +72,13 @@ public class ControlledFragment extends Fragment{
     private Map<Integer, Boolean> isSelected;
     private List<DeviceChild> beSelectedData = new ArrayList();
 
+    private ProgressDialog progressDialog;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         view=inflater.inflate(R.layout.fragment_control,container,false);
         unbinder=ButterKnife.bind(this,view);
+        progressDialog = new ProgressDialog(getActivity());
         return view;
     }
 
@@ -325,6 +328,16 @@ public class ControlledFragment extends Fragment{
     class ControlledAsync extends AsyncTask<Map<String,Object>,Void,Integer>{
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (progressDialog != null) {
+                progressDialog.setMessage("正在发送数据...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
+        }
+
+        @Override
         protected Integer doInBackground(Map<String, Object>... maps) {
             int code=0;
             Map<String,Object> params=maps[0];
@@ -336,6 +349,7 @@ public class ControlledFragment extends Fragment{
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
                     if (code==2000){
+
                         if (arr!=null && arr.length>0){
                             for(Map.Entry<Long, DeviceChild> childEntry : contollledDeviceChildMap.entrySet()){
                                 DeviceChild deviceChild=childEntry.getValue();
@@ -366,10 +380,10 @@ public class ControlledFragment extends Fragment{
             }
             return code;
         }
-
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
+            progressDialog.dismiss();
             switch (code){
                 case 2000:
                     Utils.showToast(getActivity(),"设置受控设备成功");

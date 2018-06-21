@@ -358,10 +358,8 @@ public class AddDeviceActivity extends AppCompatActivity {
                         Log.i("position","-->"+deviceChild.getChildPosition());
 //                        deviceChild.setGroupPosition(deviceGroup.getGroupPosition());
 
-
-                        List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice((long) houseId);
+                        List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
                         DeviceChild deviceChild3 = null;
-
                         for (DeviceChild deviceChild2 : deviceChildren) {
                             if (macAddress.equals(deviceChild2.getMacAddress())) {
                                 deviceChild3 = deviceChild2;
@@ -371,17 +369,20 @@ public class AddDeviceActivity extends AppCompatActivity {
                         if (deviceChild3 == null) {
                             deviceChildDao.insert(deviceChild);
                         } else {
-                            deviceChild3 = deviceChildDao.findDeviceById(deviceChild3.getId());
-                            deviceChild3.setType(type);
-                            deviceChild3.setDeviceName(deviceName);
-                            deviceChild3.setHouseId((long) houseId);
-                            deviceChild3.setMasterControllerUserId(masterControllerUserId);
-                            deviceChild3.setIsUnlock(isUnlock);
-                            deviceChild3.setVersion(version);
-                            deviceChild3.setMacAddress(macAddress);
-                            deviceChild3.setControlled(controlled);
-                            deviceChild3.setOnLint(true);
-                            deviceChildDao.update(deviceChild3);
+                            deviceChildDao.delete(deviceChild3);
+                            deviceChildDao.insert(deviceChild);
+
+//                            deviceChild3 = deviceChildDao.findDeviceById(deviceChild3.getId());
+//                            deviceChild3.setType(type);
+//                            deviceChild3.setDeviceName(deviceName);
+//                            deviceChild3.setHouseId((long) houseId);
+//                            deviceChild3.setMasterControllerUserId(masterControllerUserId);
+//                            deviceChild3.setIsUnlock(isUnlock);
+//                            deviceChild3.setVersion(version);
+//                            deviceChild3.setMacAddress(macAddress);
+//                            deviceChild3.setControlled(controlled);
+//                            deviceChild3.setOnLint(true);
+//                            deviceChildDao.update(deviceChild3);
                         }
                     }
                 } catch (Exception e) {

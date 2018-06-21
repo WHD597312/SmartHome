@@ -204,6 +204,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                 dialog = null;
             }
         });
+
         dialog.setCanceledOnTouchOutside(false);
         dialog.setOnPositiveClickListener(new DeviceUpdatePersonDialog.OnPositiveClickListener() {
             @Override
