@@ -468,9 +468,9 @@ public class DeviceFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
             if (NetWorkUtil.isConn(getActivity())){
-                if (progressDialog!=null){
+                List<DeviceChild> deviceChildren=deviceChildDao.findAllDevice();
+                if (progressDialog!=null && deviceChildren.size()>0){
                     progressDialog.setMessage("正在加载数据...");
                     progressDialog.setCancelable(false);
                     progressDialog.show();
@@ -668,32 +668,13 @@ public class DeviceFragment extends Fragment {
                     if (code == 2000) {
                         DeviceGroup deviceGroup2 = deviceGroups.get(updateGroupPosition);
                         if (deviceGroup2 != null) {
-
                             List<DeviceChild> deviceChildren3 = childern.get(updateGroupPosition);
                             if (!deviceChildren3.isEmpty()) {
                                 deviceChildDao.deleteGroupDevice(deviceChildren3);
-
                             }
                             deviceGroupDao.delete(deviceGroup2);
                         }
-                        deviceGroups.clear();
-                        childern.clear();
-                        List<DeviceGroup> groups = deviceGroupDao.findAllDevices();
-
-
-                        for (DeviceGroup group : groups) {
-                            deviceGroups.add(group);
-                        }
-                        for (DeviceGroup deviceGroup : deviceGroups) {
-                            if (deviceGroup != null) {
-                                List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice(deviceGroup.getId());
-                                for (DeviceChild deviceChild : deviceChildren) {
-                                    long id = deviceChild.getId();
-                                    String name = deviceChild.getDeviceName();
-                                }
-                                childern.add(deviceChildren);
-                            }
-                        }
+                        deviceGroups.remove(updateGroupPosition);
                     }
                 }
             } catch (Exception e) {
@@ -1319,7 +1300,8 @@ public class DeviceFragment extends Fragment {
             @Override
             public void onTick(long millisUntilFinished) {
                 Log.e("Tag", "倒计时=" + (millisUntilFinished / 1000));
-                if (progressDialog != null) {
+
+                if (progressDialog != null ) {
                     progressDialog.setMessage("正在发送数据...");
                     progressDialog.setCancelable(false);
                     progressDialog.show();
@@ -1937,10 +1919,25 @@ public class DeviceFragment extends Fragment {
 //                        for (Timer timer : timers) {
 //                            timeDao.delete(timer);
 //                        }
+
                         deviceChildDao.delete(deviceChild);
                         childern.get(groupPosition).remove(childPosition);
 
+                        if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
+                            List<DeviceChild> deviceChildren2 = deviceChildDao.findGroupIdAllDevice(deviceChild.getHouseId());
+                            for (DeviceChild deviceChild2 : deviceChildren2) {
+                                if (deviceChild2.getType() == 1 && deviceChild2.getControlled() == 1) {
+                                    deviceChild2.setControlled(0);
+                                    deviceChild2.setCtrlMode("normal");
+                                    deviceChildDao.update(deviceChild2);
+                                    Log.i("controlled22222222","-->"+deviceChild.getType()+","+deviceChild.getControlled());
+                                    send(deviceChild2);
+                                }
+                            }
+                        }
                     }
+
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

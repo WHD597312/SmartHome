@@ -371,18 +371,6 @@ public class AddDeviceActivity extends AppCompatActivity {
                         } else {
                             deviceChildDao.delete(deviceChild3);
                             deviceChildDao.insert(deviceChild);
-
-//                            deviceChild3 = deviceChildDao.findDeviceById(deviceChild3.getId());
-//                            deviceChild3.setType(type);
-//                            deviceChild3.setDeviceName(deviceName);
-//                            deviceChild3.setHouseId((long) houseId);
-//                            deviceChild3.setMasterControllerUserId(masterControllerUserId);
-//                            deviceChild3.setIsUnlock(isUnlock);
-//                            deviceChild3.setVersion(version);
-//                            deviceChild3.setMacAddress(macAddress);
-//                            deviceChild3.setControlled(controlled);
-//                            deviceChild3.setOnLint(true);
-//                            deviceChildDao.update(deviceChild3);
                         }
                     }
                 } catch (Exception e) {
@@ -855,8 +843,9 @@ public class AddDeviceActivity extends AppCompatActivity {
                         if (!Utils.isEmpty(ssid)) {
                             String s = ssid.substring(0, 1);
                             type = Integer.parseInt(s);
-                            if (type == 0)
+                            if (type == 0){
                                 type = 2;
+                            }
                         }
 //                            DatagramPacket datagramPacket = null;
 //                            DatagramSocket datagramSocket=null;
@@ -895,7 +884,6 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                            }
 //                        }
 
-
                         if (deviceGroupDao != null) {
                             DeviceGroup deviceGroup = deviceGroupDao.findById(houseId);
                             if (deviceGroup != null) {
@@ -927,8 +915,6 @@ public class AddDeviceActivity extends AppCompatActivity {
                     }
 //                    mProgressDialog.setMessage(sb.toString());
                 } else {
-
-
                     if (running){
                         if (gifDrawable!=null && gifDrawable.isPlaying()){
                             gifDrawable.stop();

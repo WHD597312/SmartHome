@@ -278,7 +278,6 @@ public class SmartFragmentManager extends Fragment {
                             } else {
                                 smartFragment.relative.setVisibility(View.GONE);
                             }
-
                         }
                     }
                 } catch (Exception e) {
