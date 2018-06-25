@@ -380,6 +380,7 @@ public class AddDeviceActivity extends AppCompatActivity {
             return code;
         }
 
+        
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
