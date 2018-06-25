@@ -349,7 +349,7 @@ public class MQService extends Service {
                         Log.i("groupPostion2", "-->" + groupPostion);
                         if (child != null) {/**删除和这个设备相关的所有数据*/
                             Log.i("groupPostion", "-->" + groupPostion);
-                            new DeleteDeviceAsync().execute(child);
+//                            new DeleteDeviceAsync().execute(child);
                             if (offlineDevices.containsKey(child.getMacAddress())) {
                                 Log.i("offlineDevices", "--->" + child.getMacAddress());
                                 offlineDevices.remove(child.getMacAddress());

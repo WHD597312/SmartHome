@@ -558,6 +558,7 @@ public class DeviceFragment extends Fragment {
 
                 updateGroupPosition = groupPosition;
                 updateDeviceGroup = deviceGroups.get(groupPosition);
+
                 if (groupPosition == deviceGroups.size() - 1) {
                     Utils.showToast(getActivity(), "该设备组不能更改");
                 } else {
@@ -625,16 +626,19 @@ public class DeviceFragment extends Fragment {
                         popWindow.dismiss();
                         break;
                     case R.id.btn_delete_house:
-
-                        DeviceGroup deleteHouse = deviceGroups.get(updateGroupPosition);
-                        if (deleteHouse != null) {
-                            try {
-                                String userId = preferences.getString("userId", "");
-                                String url = "http://47.98.131.11:8082/warmer/v1.0/house/deleteHouse?userId=" + URLEncoder.encode(userId, "utf-8") + "&houseId=" + deleteHouse.getId();
-                                new DeletHouseAsync().execute(url);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                        if (deviceGroups.size()>2){
+                            DeviceGroup deleteHouse = deviceGroups.get(updateGroupPosition);
+                            if (deleteHouse != null) {
+                                try {
+                                    String userId = preferences.getString("userId", "");
+                                    String url = "http://47.98.131.11:8082/warmer/v1.0/house/deleteHouse?userId=" + URLEncoder.encode(userId, "utf-8") + "&houseId=" + deleteHouse.getId();
+                                    new DeletHouseAsync().execute(url);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
+                        }else if (deviceGroups.size()<=2){
+                            Utils.showToast(getActivity(),"你确定要无家可归!");
                         }
                         popWindow.dismiss();
                         break;
@@ -723,7 +727,6 @@ public class DeviceFragment extends Fragment {
                 String name = dialog.getName();
                 if (Utils.isEmpty(name)) {
                     Utils.showToast(getActivity(), "住所名称不能为空");
-
                 } else {
                     Map<String, Object> params = new HashMap<>();
                     String userId = preferences.getString("userId", "");
@@ -767,7 +770,6 @@ public class DeviceFragment extends Fragment {
         dialog.show();
     }
 
-
     class AddHomeAsync extends AsyncTask<Map<String, Object>, Void, Integer> {
 
         @Override
@@ -795,7 +797,6 @@ public class DeviceFragment extends Fragment {
                         DeviceGroup shareDeviceGroup = deviceGroups.get(deviceGroups.size() - 1);
                         childern.remove(deviceGroups.size() - 1);
                         deviceGroups.remove(deviceGroups.size() - 1);
-
 
                         deviceGroups.add(deviceGroup);/**添加新住所，但是没有向里面插入子设备*/
                         childern.add(deviceChildDao.findGroupIdAllDevice(deviceGroup.getId()));
@@ -1218,7 +1219,7 @@ public class DeviceFragment extends Fragment {
 
 
 
-    class LoadMqttAsync extends AsyncTask<List<DeviceChild>, Void, Void> {
+    class LoadMqttAsync extends AsyncTask<List<DeviceChild>, Void, Integer> {
 
         @Override
         protected void onPreExecute() {
@@ -1226,40 +1227,34 @@ public class DeviceFragment extends Fragment {
         }
 
         @Override
-        protected Void doInBackground(List<DeviceChild>... lists) {
+        protected Integer doInBackground(List<DeviceChild>... lists) {
+            int code=0;
             try {
 
                 List<DeviceChild> deviceChildren = lists[0];
                 for (int i = 0; i < deviceChildren.size(); i++) {
-//                    if (i==deviceChildren.size()-1){
-//                        if (progressDialog!=null){
-//                            progressDialog.dismiss();
-//                        }
-//                    }
                     DeviceChild childEntry = deviceChildren.get(i);
                     send(childEntry);
-                    Thread.sleep(100);
 
-//                    if (childEntry.getOnLint()) {
-//                        deviceChildDao.update(childEntry);
-//                        if (childEntry.getType() == 1) {
-//                            if (childEntry.getControlled() == 2 || childEntry.getControlled() == 0) {
-//                                send(childEntry);
-//                                Thread.sleep(100);
-//                            }
-//                        }
-//                    } else {
-//                        childEntry.setImg(imgs[0]);
-//                    }
-//                    if (i == list.size() - 1) {
-//                        keySwitch = false;
-//                    }
+                    Thread.sleep(100);
+                    if (i==deviceChildren.size()-1){
+                        code=2000;
+                    }
+
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return null;
+            return code;
+        }
+
+        @Override
+        protected void onPostExecute(Integer code) {
+            super.onPostExecute(code);
+            if (code==2000){
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -1346,7 +1341,6 @@ public class DeviceFragment extends Fragment {
         public int getGroupCount() {
             return groups == null ? 0 : groups.size();
         }
-
         /**
          * 返回某一组子条目的数目
          *
@@ -1471,31 +1465,28 @@ public class DeviceFragment extends Fragment {
                                         CountTimer countTimer = new CountTimer(millisInFuture, 1000);
                                         countTimer.start();
 
-
                                         List<DeviceChild> deviceChildList = new ArrayList<>();
                                         for (int i = 0; i < list.size(); i++) {
                                             DeviceChild childEntry = list.get(i);
                                             if (childEntry.getOnLint() && childEntry.getDeviceState().equals("close")) {
-                                                childEntry.setImg(imgs[1]);
-//                                        changeChild(groupPosition, childPosition);
-                                                childEntry.setDeviceState("open");
 
-                                                deviceChildDao.update(childEntry);
                                                 keySwitch = true;
 
                                                 if (childEntry.getType() == 1) {
                                                     if (childEntry.getControlled() == 2 || childEntry.getControlled() == 0) {
+                                                        childEntry.setImg(imgs[1]);
+//                                        changeChild(groupPosition, childPosition);
+                                                        childEntry.setDeviceState("open");
+                                                        deviceChildDao.update(childEntry);
                                                         deviceChildList.add(childEntry);
                                                     }
                                                 }
-
                                             } else {
                                                 childEntry.setImg(imgs[0]);
                                             }
                                             if (i == list.size() - 1) {
                                                 keySwitch = false;
                                                 new LoadMqttAsync().execute(deviceChildList);
-//                                            adapter.notifyDataSetChanged();
 //                                            progressDialog.dismiss();
                                             }
                                         }
@@ -1545,11 +1536,11 @@ public class DeviceFragment extends Fragment {
 //                                        countTimer.start();
                                             DeviceChild childEntry = list.get(i);
                                             if (childEntry.getOnLint() && childEntry.getDeviceState().equals("open")) {
-                                                childEntry.setImg(imgs[0]);
-                                                childEntry.setDeviceState("close");
-                                                deviceChildDao.update(childEntry);
                                                 if (childEntry.getType() == 1) {
                                                     if (childEntry.getControlled() == 2 || childEntry.getControlled() == 0) {
+                                                        childEntry.setImg(imgs[0]);
+                                                        childEntry.setDeviceState("close");
+                                                        deviceChildDao.update(childEntry);
                                                         deviceChildList.add(childEntry);
                                                     }
                                                 }
@@ -1714,7 +1705,6 @@ public class DeviceFragment extends Fragment {
                                             success = mqService.publish(topic, 1, s);
                                         }
                                     }
-
                                 }catch (Exception e){
                                     e.printStackTrace();
                                 }
@@ -1738,7 +1728,6 @@ public class DeviceFragment extends Fragment {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-
                         Utils.showToast(context, "该设备离线");
                     }
                 }
@@ -1811,7 +1800,6 @@ public class DeviceFragment extends Fragment {
                     DeviceAdapter.this.groupPosition = groupPosition;
                     DeviceAdapter.this.childPosition = childPosition;
                     new DeviceAdapter.DeleteDeviceAsync().execute(entry);
-
                 }
             });
 
@@ -1920,10 +1908,17 @@ public class DeviceFragment extends Fragment {
 //                            timeDao.delete(timer);
 //                        }
 
+
                         deviceChildDao.delete(deviceChild);
+                        String macAddress=deviceChild.getMacAddress();
+                        String topicName="rango/" + macAddress + "/transfer";
+                        boolean success=mqService.publish(topicName,1,"reSet");
+                        Log.i("delete","-->"+success);
                         childern.get(groupPosition).remove(childPosition);
 
                         if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
+                            deviceChild.setCtrlMode("normal");
+                            send(deviceChild);
                             List<DeviceChild> deviceChildren2 = deviceChildDao.findGroupIdAllDevice(deviceChild.getHouseId());
                             for (DeviceChild deviceChild2 : deviceChildren2) {
                                 if (deviceChild2.getType() == 1 && deviceChild2.getControlled() == 1) {
@@ -2097,15 +2092,7 @@ public class DeviceFragment extends Fragment {
                                         }
                                     }
                                 }
-                                for (int i = 0; i < deviceChildren.size(); i++) {
-                                    DeviceChild deviceChild3 = deviceChildren.get(i);
-                                    if (deviceChild3.getType() == 1 && deviceChild3.getControlled() == 1) {
-                                        deviceChild3.setControlled(0);
-                                    }
-                                    if (deviceChild3.getType() == 2 && deviceChild3.getControlled() == 1) {
-                                        deviceChild3.setControlled(0);
-                                    }
-                                }
+
                                 Utils.showToast(context, "该设备已重置");
                                 List<DeviceChild> children = deviceChildDao.findAllDevice();
                                 if (children != null && children.isEmpty() && deviceGroups.size() == 2) {
