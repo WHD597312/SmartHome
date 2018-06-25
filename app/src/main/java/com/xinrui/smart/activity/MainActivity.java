@@ -153,14 +153,13 @@ public class MainActivity extends AppCompatActivity {
     public static boolean isRunning=false;
     private int load = -1;
     String fall;
+
     String login;
-    public static boolean active=false;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         unbinder = ButterKnife.bind(this);
-
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -174,7 +173,6 @@ public class MainActivity extends AppCompatActivity {
             startService(service);
         }
         application.addActivity(this);
-        active=true;
         drawer.setDrawerListener(toggle);
         toggle.syncState();
         toggle.setDrawerIndicatorEnabled(false);//修改DrawerLayout侧滑菜单图标
@@ -196,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
         } else if (!Utils.isEmpty(phone)) {
             tv_user.setText(phone);
         }
-
 
         try {
 
@@ -251,7 +248,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (Utils.isEmpty(mainControl) && Utils.isEmpty(deviceList) && Utils.isEmpty(Activity_return) && Utils.isEmpty(live)) {
             login=intent.getStringExtra("login");
-            fragmentPreferences.edit().putString("fragment", "1").commit();
             if (!Utils.isEmpty(login)){
                 fragmentPreferences.edit().putString("fragment", "1").commit();
             }
@@ -447,6 +443,8 @@ public class MainActivity extends AppCompatActivity {
                                 if (success)
                                 if (!success) {
                                     success = mqService.publish(topicName, 2, s);
+                                }else {
+                                    Thread.sleep(300);
                                 }
 
                                 Log.i("sss", "-->" + success);
@@ -563,7 +561,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.tv_exit:
 
-                active=false;
 //                TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(getApplicationContext());
 //                List<TimeTask> timeTasks = timeTaskDao.findAll();
 //                for (TimeTask timeTask : timeTasks) {
@@ -637,7 +634,6 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         Bundle bundle=new Bundle();
                         bundle.putString("load","");
-                        deviceFragment=new DeviceFragment();
                         deviceFragment.setArguments(bundle);
                         fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
                     }
@@ -645,7 +641,7 @@ public class MainActivity extends AppCompatActivity {
                     smart_view.setVisibility(View.GONE);
                     live_view.setVisibility(View.GONE);
                     smart.edit().clear().commit();
-                }else {
+                } else {
                     break;
                 }
                 break;
@@ -664,7 +660,7 @@ public class MainActivity extends AppCompatActivity {
                     smart_view.setVisibility(View.VISIBLE);
                     live_view.setVisibility(View.GONE);
                     smart.edit().clear().commit();
-                }else {
+                } else {
                     break;
                 }
                 break;
@@ -678,6 +674,8 @@ public class MainActivity extends AppCompatActivity {
                     smart_view.setVisibility(View.GONE);
                     live_view.setVisibility(View.VISIBLE);
                     smart.edit().clear();
+                } else {
+                    break;
                 }
                 break;
         }
@@ -690,7 +688,6 @@ public class MainActivity extends AppCompatActivity {
         if (preferences.contains("deviceList")){
             preferences.edit().remove("deviceList").commit();
         }
-        fragmentPreferences.edit().putString("fragment", "1").commit();
         application.removeAllActivity();
     }
     @Override
@@ -706,10 +703,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         preferences.edit().remove("login").commit();
-        fragmentPreferences.edit().putString("fragment", "1").commit();
         if (preferences.contains("deviceList")){
             preferences.edit().remove("deviceList").commit();
         }
+
     }
 
     @Override
@@ -721,6 +718,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (myReceiver != null) {
             unregisterReceiver(myReceiver);
+
         }
         running = false;
 //        deviceChildDao.closeDaoSession();
@@ -738,7 +736,6 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.dismiss();
         deviceChildren.clear();
         deviceGroups.clear();
-
     }
 
     public void querryQllDevice(List<DeviceChild> deviceChildren) {
@@ -747,7 +744,6 @@ public class MainActivity extends AppCompatActivity {
 
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
-
 
 
     class LoadDeviceAsync extends AsyncTask<String, Void, Integer> {
@@ -763,6 +759,7 @@ public class MainActivity extends AppCompatActivity {
         protected Integer doInBackground(String... strings) {
             int code = 0;
             try {
+
                 String userId = preferences.getString("userId", "");
                 String allDeviceUrl = "http://47.98.131.11:8082/warmer/v1.0/device/findAll?userId=" + URLEncoder.encode(userId, "utf-8");
                 String result = HttpUtils.getOkHpptRequest(allDeviceUrl);
@@ -773,8 +770,8 @@ public class MainActivity extends AppCompatActivity {
                     if (code == 2000) {
 //                        List<DeviceGroup> groupList=deviceGroupDao.findAllDevices();
 //                        List<DeviceChild> childList=deviceChildDao.findAllDevice();
-                        deviceChildDao.deleteAll();
-                        deviceGroupDao.deleteAll();
+//                        deviceChildDao.deleteAll();
+//                        deviceGroupDao.deleteAll();
                         JSONArray houses = content.getJSONArray("houses");
                         for (int i = 0; i < houses.length(); i++) {
                             JSONObject house = houses.getJSONObject(i);
@@ -855,6 +852,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                         }
+
                         JSONObject sharedDevice = content.getJSONObject("sharedDevice");
                         JSONArray deviceList = sharedDevice.getJSONArray("deviceList");
 
