@@ -23,6 +23,7 @@ import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
@@ -56,9 +57,10 @@ public class LoginActivity extends AppCompatActivity {
     @BindView(R.id.et_pswd)
     EditText et_pswd;
     @BindView(R.id.btn_login) Button btn_login;/**登录按钮*/
-    String url = "http://120.77.36.206:8082/warmer/v1.0/user/login";
+    String url = "http://47.98.131.11:8082/warmer/v1.0/user/login";
     public static boolean runnning=false;
     private ProgressDialog progressDialog;
+    public static boolean loading=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,11 +71,14 @@ public class LoginActivity extends AppCompatActivity {
 
         if (application == null) {
             application = (MyApplication) getApplication();
+
         }
 
         application.addActivity(this);
 
         progressDialog = new ProgressDialog(this);
+
+
     }
 
     SharedPreferences preferences;
@@ -82,6 +87,11 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        if (preferences.contains("phone") && preferences.contains("password")){
+//            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            runnning=false;
+            startActivity(new Intent(this,MainActivity.class));
+        }
         if (preferences.contains("phone")){
             String phone = preferences.getString("phone", "");
             et_name.setText(phone);
@@ -98,13 +108,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (preferences.contains("phone") && preferences.contains("password")){
-//            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            if (preferences.contains("login")){
-                runnning=false;
-                startActivity(new Intent(this,MainActivity.class));
-            }
-        }
         runnning=true;
     }
 
@@ -135,7 +138,13 @@ public class LoginActivity extends AppCompatActivity {
                 Map<String, Object> params = new HashMap<>();
                 params.put("phone", phone);
                 params.put("password", password);
-                new LoginAsyncTask().execute(params);
+                boolean isConn = NetWorkUtil.isConn(MyApplication.getContext());
+                if (isConn){
+                    new LoginAsyncTask().execute(params);
+                }else {
+                    Utils.showToast(this,"请检查你的网络");
+                }
+
                 break;
             case R.id.tv_forget_pswd:
                 startActivity(new Intent(this, ForgetPswdActivity.class));
@@ -151,6 +160,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
     class LoginAsyncTask extends AsyncTask<Map<String, Object>, Void, Integer> {
 
         @Override
@@ -202,11 +212,13 @@ public class LoginActivity extends AppCompatActivity {
 
                         editor.putString("username",username);
                         editor.putString("userId",userId+"");
+                        editor.putString("login","login");
                         editor.commit();
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                progressDialog.dismiss();
             }
             return code;
         }
@@ -216,7 +228,6 @@ public class LoginActivity extends AppCompatActivity {
             super.onPostExecute(code);
             progressDialog.dismiss();
             switch (code) {
-
                 case -1006:
                     btn_login.setClickable(true);
                     Utils.showToast(LoginActivity.this, "手机号码未注册");
@@ -227,6 +238,7 @@ public class LoginActivity extends AppCompatActivity {
                     et_pswd.setText("");
                     break;
                 case 2000:
+                    Utils.showToast(LoginActivity.this, "登录成功");
                     deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
                     deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
                     new LoadDeviceAsync().execute();
@@ -256,16 +268,12 @@ public class LoginActivity extends AppCompatActivity {
         if (unbinder != null) {
             unbinder.unbind();
         }
-        if (isConnected){
-            try {
-                if (isConnected){
-                    if (connection!=null){
-                        unbindService(connection);
-                    }
-                }
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+
+        if (deviceChildDao!=null){
+            deviceChildDao.closeDaoSession();
+        }
+        if (deviceGroupDao!=null){
+            deviceGroupDao.closeDaoSession();
         }
     }
     boolean isConnected=false;
@@ -273,47 +281,20 @@ public class LoginActivity extends AppCompatActivity {
     private DeviceChildDaoImpl deviceChildDao;
     MQService mqService;
     private boolean bound = false;
-    ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MQService.LocalBinder binder = (MQService.LocalBinder) service;
-            mqService = binder.getService();
-            bound = true;
-            if (bound){
-                try {
-                        List<DeviceChild> deviceChildren=deviceChildDao.findAllDevice();
-                        for (DeviceChild deviceChild:deviceChildren){
-
-                            JSONObject jsonObject=new JSONObject();
-                            jsonObject.put("loadDate","on");
-                            String s=jsonObject.toString();
-                            String mac = deviceChild.getMacAddress();
-                            String topicName = "rango/" + mac + "/set";
-                            boolean success=false;
-                            success = mqService.publish(topicName, 1, s);
-                            if (!success){
-                                success = mqService.publish(topicName, 1, s);
-                            }
-                            Log.i("ssss","sss"+success);
-                        }
-
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            bound = false;
-        }
-    };
 
 
     long shareHouseId = 0;
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
     File file;
     class LoadDeviceAsync extends AsyncTask<String, Void, Integer> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.setMessage("正在初始化数据...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+            btn_login.setClickable(false);
+        }
 
         @Override
         protected Integer doInBackground(String... strings) {
@@ -338,12 +319,12 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 deviceGroupDao.deleteAll();
                 deviceChildDao.deleteAll();
-                deviceChildDao.closeDaoSession();
-                deviceGroupDao.closeDaoSession();
-                timeDao.closeDaoSession();
-                timeTaskDao.closeDaoSession();
+//                deviceChildDao.closeDaoSession();
+//                deviceGroupDao.closeDaoSession();
+//                timeDao.closeDaoSession();
+//                timeTaskDao.closeDaoSession();
                 String userId = preferences.getString("userId", "");
-                String allDeviceUrl = "http://120.77.36.206:8082/warmer/v1.0/device/findAll?userId=" + URLEncoder.encode(userId, "utf-8");
+                String allDeviceUrl = "http://47.98.131.11:8082/warmer/v1.0/device/findAll?userId=" + URLEncoder.encode(userId, "utf-8");
                 String result = HttpUtils.getOkHpptRequest(allDeviceUrl);
                 if (!Utils.isEmpty(result)) {
                     JSONObject jsonObject = new JSONObject(result);
@@ -468,16 +449,14 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
+            progressDialog.dismiss();
             switch (code) {
                 case -3004:
                     break;
                 case 2000:
-                    Intent service = new Intent(LoginActivity.this, MQService.class);
-                    isConnected=bindService(service, connection, Context.BIND_AUTO_CREATE);
-                    Utils.showToast(LoginActivity.this, "登录成功");
-                    runnning=false;
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra("login","login");
                     startActivity(intent);
                     break;
             }

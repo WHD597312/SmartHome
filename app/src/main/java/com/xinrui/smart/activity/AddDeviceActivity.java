@@ -120,8 +120,8 @@ public class AddDeviceActivity extends AppCompatActivity {
 
 
     private String userId;
-    private String wifiConnectionUrl = "http://120.77.36.206:8082/warmer/v1.0/device/registerDevice";
-    private String qrCodeConnectionUrl = "http://120.77.36.206:8082/warmer/v1.0/device/createShareDevice";
+    private String wifiConnectionUrl = "http://47.98.131.11:8082/warmer/v1.0/device/registerDevice";
+    private String qrCodeConnectionUrl = "http://47.98.131.11:8082/warmer/v1.0/device/createShareDevice";
 
     private AddDeviceDialog addDeviceDialog;
 

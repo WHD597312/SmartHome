@@ -62,7 +62,7 @@ public class MainControlFragment extends Fragment{
 
     private List<DeviceChild> beSelectedData = new ArrayList();
 
-    private String masterUrl="http://120.77.36.206:8082/warmer/v1.0/house/setMasterDevice";
+    private String masterUrl="http://47.98.131.11:8082/warmer/v1.0/house/setMasterDevice";
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -238,7 +238,7 @@ public class MainControlFragment extends Fragment{
         protected Integer doInBackground(Void... voids) {
             int code=0;
             try {
-                String getAllMainControl="http://120.77.36.206:8082/warmer/v1.0/device/getMasterControlledDevice?houseId="+ URLEncoder.encode(houseId,"utf-8");
+                String getAllMainControl="http://47.98.131.11:8082/warmer/v1.0/device/getMasterControlledDevice?houseId="+ URLEncoder.encode(houseId,"utf-8");
                 String result=HttpUtils.getOkHpptRequest(getAllMainControl);
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
