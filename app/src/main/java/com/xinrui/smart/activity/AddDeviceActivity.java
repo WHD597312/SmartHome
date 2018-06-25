@@ -372,6 +372,7 @@ public class AddDeviceActivity extends AppCompatActivity {
                             deviceChildDao.delete(deviceChild3);
                             deviceChildDao.insert(deviceChild);
                         }
+                        
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -380,7 +381,7 @@ public class AddDeviceActivity extends AppCompatActivity {
             return code;
         }
 
-        
+
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
