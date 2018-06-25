@@ -1,6 +1,7 @@
 package com.xinrui.smart.fragment;
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +40,7 @@ import org.json.JSONObject;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,18 +64,21 @@ public class ControlledFragment extends Fragment{
     ListView lv_homes;
     @BindView(R.id.tv_home) TextView tv_home;//受控机头部
     View view2;//受控机尾部
+    public static boolean running=false;
 
     private List<DeviceChild> controlleds;
     private ControlledAdapter adapter;//受控机适配器
-    private String controlledUrl="http://120.77.36.206:8082/warmer/v1.0/device/setControlled";
+    private String controlledUrl="http://47.98.131.11:8082/warmer/v1.0/device/setControlled";
     private Map<Integer, Boolean> isSelected;
     private List<DeviceChild> beSelectedData = new ArrayList();
 
+    private ProgressDialog progressDialog;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         view=inflater.inflate(R.layout.fragment_control,container,false);
         unbinder=ButterKnife.bind(this,view);
+        progressDialog = new ProgressDialog(getActivity());
         return view;
     }
 
@@ -92,6 +97,7 @@ public class ControlledFragment extends Fragment{
     @Override
     public void onStart() {
         super.onStart();
+        running=true;
 
         Bundle bundle=getArguments();
         houseId=bundle.getString("houseId");
@@ -141,7 +147,6 @@ public class ControlledFragment extends Fragment{
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_ensure:
-
                 Map<String,Object> params=new HashMap<>();
                 params.put("houseId",houseId);
                 long arr[]=new long[controlledDeviceChildren.size()];
@@ -164,6 +169,7 @@ public class ControlledFragment extends Fragment{
         if (unbinder!=null){
             unbinder.unbind();
         }
+        running=false;
     }
 
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
@@ -171,6 +177,7 @@ public class ControlledFragment extends Fragment{
 
 
     private List<DeviceChild>  controlledDeviceChildren=new ArrayList<>();
+    private Map<Long,DeviceChild> contollledDeviceChildMap=new LinkedHashMap<>();
 
 
     public class ControlledAdapter extends BaseAdapter {
@@ -228,12 +235,15 @@ public class ControlledFragment extends Fragment{
                            controlledDeviceChildren.add(list.get(position));
                            DeviceChild deviceChild=list.get(position);
                            deviceChild.setControlled(1);
-                           deviceChildDao.update(deviceChild);
+                           contollledDeviceChildMap.put(deviceChild.getId(),deviceChild);
+//                           deviceChildDao.update(deviceChild);
+
                        }
                    }else {
                        DeviceChild deviceChild=list.get(position);
                        deviceChild.setControlled(0);
-                       deviceChildDao.update(deviceChild);
+//                       deviceChildDao.update(deviceChild);
+                       contollledDeviceChildMap.put(deviceChild.getId(),deviceChild);
                        controlledDeviceChildren.remove(list.get(position));
                    }
                 }
@@ -260,7 +270,7 @@ public class ControlledFragment extends Fragment{
         protected Integer doInBackground(Void... voids) {
             int code=0;
             try {
-                String getAllMainControl="http://120.77.36.206:8082/warmer/v1.0/device/getControlledDevice?houseId="+ URLEncoder.encode(houseId,"utf-8");
+                String getAllMainControl="http://47.98.131.11:8082/warmer/v1.0/device/getControlledDevice?houseId="+ URLEncoder.encode(houseId,"utf-8");
                 String result=HttpUtils.getOkHpptRequest(getAllMainControl);
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
@@ -281,10 +291,11 @@ public class ControlledFragment extends Fragment{
                                 DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
 
                                 deviceChild.setControlled(controlled);
-                                deviceChildDao.update(deviceChild);
+//                                deviceChildDao.update(deviceChild);
                                 controlleds.add(deviceChild);
                                 if (controlled==1){
                                     controlledDeviceChildren.add(deviceChild);
+                                    contollledDeviceChildMap.put((long)id,deviceChild);
                                 }
                             }
                         }
@@ -317,27 +328,47 @@ public class ControlledFragment extends Fragment{
     class ControlledAsync extends AsyncTask<Map<String,Object>,Void,Integer>{
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (progressDialog != null) {
+                progressDialog.setMessage("正在发送数据...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
+        }
+
+        @Override
         protected Integer doInBackground(Map<String, Object>... maps) {
             int code=0;
             Map<String,Object> params=maps[0];
             long arr[]= (long[]) params.get("controlledId");
             String result=HttpUtils.postOkHpptRequest(controlledUrl,params);
+
             if (!Utils.isEmpty(result)){
                 try{
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
                     if (code==2000){
+
                         if (arr!=null && arr.length>0){
-                            for (int i = 0; i < arr.length; i++) {
-                                DeviceChild deviceChild=deviceChildDao.findDeviceChild(arr[i]);
-                                deviceChild.setControlled(1);
-                                deviceChild.setCtrlMode("slave");
-                                deviceChildDao.update(deviceChild);
-                                send(deviceChild);
+                            for(Map.Entry<Long, DeviceChild> childEntry : contollledDeviceChildMap.entrySet()){
+                                DeviceChild deviceChild=childEntry.getValue();
+                                if (deviceChild.getControlled()==0){
+                                    deviceChild.setCtrlMode("normal");
+                                    deviceChild.setControlled(0);
+                                    deviceChildDao.update(deviceChild);
+                                    send(deviceChild);
+                                }else if (deviceChild.getControlled()==1){
+                                    deviceChild.setCtrlMode("slave");
+                                    deviceChild.setControlled(1);
+                                    deviceChildDao.update(deviceChild);
+                                    send(deviceChild);
+                                }
                             }
                         }else {
                             for (DeviceChild deviceChild:controlleds){
                                 deviceChild.setCtrlMode("normal");
+                                deviceChild.setControlled(0);
                                 deviceChildDao.update(deviceChild);
                                 send(deviceChild);
                             }
@@ -349,10 +380,10 @@ public class ControlledFragment extends Fragment{
             }
             return code;
         }
-
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
+            progressDialog.dismiss();
             switch (code){
                 case 2000:
                     Utils.showToast(getActivity(),"设置受控设备成功");
@@ -376,7 +407,6 @@ public class ControlledFragment extends Fragment{
             mqService = binder.getService();
             bound = true;
         }
-
         @Override
         public void onServiceDisconnected(ComponentName name) {
             bound = false;
@@ -398,12 +428,28 @@ public class ControlledFragment extends Fragment{
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
 
+
                 String s = maser.toString();
                 boolean success = false;
                 String mac = deviceChild.getMacAddress();
                 String topicName = "rango/" + mac + "/set";
                 if (bound) {
                     success = mqService.publish(topicName, 2, s);
+                    if (success){
+                        if ("slave".equals(deviceChild.getCtrlMode())){
+                            deviceChild.setControlled(1);
+                            deviceChildDao.update(deviceChild);
+                            deviceChild=deviceChildDao.findDeviceById(deviceChild.getId());
+                            Log.i("deviceAddress","-->"+deviceChild.getControlled());
+                            mqService.updateDevice(deviceChild);
+                        }else if ("normal".equals(deviceChild.getCtrlMode())){
+                            deviceChild.setControlled(0);
+                            deviceChildDao.update(deviceChild);
+                            deviceChild=deviceChildDao.findDeviceById(deviceChild.getId());
+                            Log.i("deviceAddress","-->"+deviceChild.getControlled());
+                            mqService.updateDevice(deviceChild);
+                        }
+                    }
                 }
             }
         } catch (Exception e) {

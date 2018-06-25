@@ -135,7 +135,7 @@ public class TempChartActivity extends AppCompatActivity {
         protected List<Integer> doInBackground(Void... voids) {
             int code=0;
             List<Integer> list=null;
-            String tempUrl="http://120.77.36.206:8082/warmer/v1.0/device/everyHourTemp?deviceId="+deviceId;
+            String tempUrl="http://47.98.131.11:8082/warmer/v1.0/device/everyHourTemp?deviceId="+deviceId;
             try {
                 String result=HttpUtils.getOkHpptRequest(tempUrl);
                 if (!Utils.isEmpty(result)){

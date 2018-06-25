@@ -216,7 +216,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
                 type=deviceChild.getType();
             }
             if (type!=-1){
-                String url="http://120.77.36.206:8082/warmer/v1.0/device/getVersions?type="+type;
+                String url="http://47.98.131.11:8082/warmer/v1.0/device/getVersions?type="+type;
                 String result=HttpUtils.getOkHpptRequest(url);
                 if (!Utils.isEmpty(result)){
                     try {
@@ -236,7 +236,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
                             double mcuVersion0=Double.parseDouble(deviceChild.getMCUVerion().substring(1));
                             Log.i("wifiVersion0","wifiVersion0->"+wifiVersion0);
                             Log.i("mcuVersion0","mcuVersion0->"+mcuVersion0);
-                            if (wifiVersion2.equals(wifiVersion) && mcuVersion2.equals(mcuVersion)){
+                            if (wifiVersion2!=null && wifiVersion2.equals(wifiVersion) && mcuVersion2!=null&& mcuVersion2.equals(mcuVersion)){
                                 s="已经是最新版本啦!";
                             }else {
                                 s="版本更新成功";
@@ -312,7 +312,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
             if (deviceChild!=null){
                 long deviceId=deviceChild.getId();
                 String userId=preferences.getString("userId","");
-                String url="http://120.77.36.206:8082/warmer/v1.0/device/createQRCode?deviceId="+deviceId+"&userId="+userId;
+                String url="http://47.98.131.11:8082/warmer/v1.0/device/createQRCode?deviceId="+deviceId+"&userId="+userId;
                 try {
                     bitmap=Glide.with(ShareDeviceActivity.this)
                             .load(url)

@@ -79,7 +79,7 @@ public class SmartFragment extends Fragment {
         deviceChildDao=new DeviceChildDaoImpl(MyApplication.getContext());
 
         smart_set.setAdapter(adapter);
-        if (houseId!=null){
+        if (houseId!=null){/**判断是不是有外置传感器*/
             DeviceGroup deviceGroup=deviceGroupDao.findById(Long.parseLong(houseId));
             List<DeviceChild> deviceChildren=deviceChildDao.findDeviceType(Long.parseLong(houseId),2);
 
@@ -102,7 +102,6 @@ public class SmartFragment extends Fragment {
             }
         }
 
-
         smart_set.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -112,7 +111,6 @@ public class SmartFragment extends Fragment {
                         String content=tv_smart.getText().toString();
                         Intent intent=new Intent(getActivity(), MainControlActivity.class);
                         if ("主控机设置".equals(content)){
-
                             if (!Utils.isEmpty(houseId)){
                                 List<DeviceChild> deviceChildren=deviceChildDao.findDeviceType(Long.parseLong(houseId),1);
                                 if (deviceChildren.size()<2){

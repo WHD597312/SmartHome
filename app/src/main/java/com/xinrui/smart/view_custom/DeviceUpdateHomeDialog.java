@@ -37,6 +37,7 @@ public class DeviceUpdateHomeDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_update_devicehome);
+
         ButterKnife.bind(this);
     }
 

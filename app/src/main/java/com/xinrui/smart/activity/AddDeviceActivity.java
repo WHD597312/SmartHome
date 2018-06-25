@@ -312,13 +312,6 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                    params.put("macAddress", macAddress);
 //                    new WifiConectionAsync().execute(params);
 
-                } else if (!Utils.isEmpty(groupPosition) && !Utils.isEmpty(ssid)) {
-                    long group = Long.parseLong(groupPosition);
-                    DeviceChild deviceChild = new DeviceChild();
-                    deviceChild.setHouseId(group);
-                    deviceChild.setDeviceName(ssid);
-                    deviceChild.setImg(imgs[0]);
-                    deviceChildDao.insert(deviceChild);
                 }
                 break;
         }
@@ -365,10 +358,8 @@ public class AddDeviceActivity extends AppCompatActivity {
                         Log.i("position","-->"+deviceChild.getChildPosition());
 //                        deviceChild.setGroupPosition(deviceGroup.getGroupPosition());
 
-
-                        List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice((long) houseId);
+                        List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
                         DeviceChild deviceChild3 = null;
-
                         for (DeviceChild deviceChild2 : deviceChildren) {
                             if (macAddress.equals(deviceChild2.getMacAddress())) {
                                 deviceChild3 = deviceChild2;
@@ -378,17 +369,8 @@ public class AddDeviceActivity extends AppCompatActivity {
                         if (deviceChild3 == null) {
                             deviceChildDao.insert(deviceChild);
                         } else {
-                            deviceChild3 = deviceChildDao.findDeviceById(deviceChild3.getId());
-                            deviceChild3.setType(type);
-                            deviceChild3.setDeviceName(deviceName);
-                            deviceChild3.setHouseId((long) houseId);
-                            deviceChild3.setMasterControllerUserId(masterControllerUserId);
-                            deviceChild3.setIsUnlock(isUnlock);
-                            deviceChild3.setVersion(version);
-                            deviceChild3.setMacAddress(macAddress);
-                            deviceChild3.setControlled(controlled);
-                            deviceChild3.setOnLint(true);
-                            deviceChildDao.update(deviceChild3);
+                            deviceChildDao.delete(deviceChild3);
+                            deviceChildDao.insert(deviceChild);
                         }
                     }
                 } catch (Exception e) {
@@ -521,7 +503,7 @@ public class AddDeviceActivity extends AppCompatActivity {
                     code = jsonObject.getInt("code");
                     if (code == 2000) {
                         String deviceId = (String) params.get("deviceId");
-                        String url = "http://120.77.36.206:8082/warmer/v1.0/device/getDeviceById?deviceId=" + deviceId;
+                        String url = "http://47.98.131.11:8082/warmer/v1.0/device/getDeviceById?deviceId=" + deviceId;
                         new LoadDevice().execute(url);
                     }
                 } catch (Exception e) {
@@ -861,8 +843,9 @@ public class AddDeviceActivity extends AppCompatActivity {
                         if (!Utils.isEmpty(ssid)) {
                             String s = ssid.substring(0, 1);
                             type = Integer.parseInt(s);
-                            if (type == 0)
+                            if (type == 0){
                                 type = 2;
+                            }
                         }
 //                            DatagramPacket datagramPacket = null;
 //                            DatagramSocket datagramSocket=null;
@@ -901,14 +884,13 @@ public class AddDeviceActivity extends AppCompatActivity {
 //                            }
 //                        }
 
-
                         if (deviceGroupDao != null) {
                             DeviceGroup deviceGroup = deviceGroupDao.findById(houseId);
                             if (deviceGroup != null) {
                                 String s = et_ssid.getText().toString().trim();
                                 String macAddress = s + ssid;
                                 Map<String, Object> params = new HashMap<>();
-                                params.put("deviceName", "设备");
+                                params.put("deviceName", ssid);
                                 params.put("houseId", houseId);
                                 params.put("masterControllerUserId", Integer.parseInt(userId));
                                 params.put("type", type);
@@ -933,8 +915,6 @@ public class AddDeviceActivity extends AppCompatActivity {
                     }
 //                    mProgressDialog.setMessage(sb.toString());
                 } else {
-
-
                     if (running){
                         if (gifDrawable!=null && gifDrawable.isPlaying()){
                             gifDrawable.stop();

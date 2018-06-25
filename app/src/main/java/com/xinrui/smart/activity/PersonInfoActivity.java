@@ -98,7 +98,8 @@ public class PersonInfoActivity extends AppCompatActivity {
     String device;
     String change;
     String content;
-
+    String smart;
+    String live;
     @Override
     protected void onStart() {
         super.onStart();
@@ -107,6 +108,8 @@ public class PersonInfoActivity extends AppCompatActivity {
 
         device = intent.getStringExtra("device");
         change = intent.getStringExtra("change");
+        smart=intent.getStringExtra("smart");
+        live=intent.getStringExtra("live");
         preferences = getSharedPreferences("my", MODE_PRIVATE);
 
 //        File file = new File(getExternalCacheDir(), "crop_image2.jpg");
@@ -119,12 +122,12 @@ public class PersonInfoActivity extends AppCompatActivity {
                     Glide.with(PersonInfoActivity.this).load(file).transform(new GlideCircleTransform(getApplicationContext())).into(image_user);
                 }else {
                     String userId = preferences.getString("userId", "");
-                    String url = "http://120.77.36.206:8082/warmer/v1.0/user/" + userId + "/headImg";
+                    String url = "http://47.98.131.11:8082/warmer/v1.0/user/" + userId + "/headImg";
                     Glide.with(PersonInfoActivity.this).load(url).transform(new GlideCircleTransform(getApplicationContext())).error(R.mipmap.touxiang).into(image_user);
                 }
             }else {
                 String userId = preferences.getString("userId", "");
-                String url = "http://120.77.36.206:8082/warmer/v1.0/user/" + userId + "/headImg";
+                String url = "http://47.98.131.11:8082/warmer/v1.0/user/" + userId + "/headImg";
                 Glide.with(PersonInfoActivity.this).load(url).transform(new GlideCircleTransform(getApplicationContext())).error(R.mipmap.touxiang).into(image_user);
             }
         } catch (Exception e) {
@@ -155,9 +158,15 @@ public class PersonInfoActivity extends AppCompatActivity {
             case R.id.img_back:
                 if (!Utils.isEmpty(device)) {
                     Intent intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("deviceList","deviceList");
                     startActivity(intent);
-                } else if (!Utils.isEmpty(change)) {
-                    Intent intent = new Intent(this, AddEquipmentActivity.class);
+                } else if (!Utils.isEmpty(smart)) {
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("mainControl","mainControl");
+                    startActivity(intent);
+                }else if (!Utils.isEmpty(live)){
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("live","live");
                     startActivity(intent);
                 }
                 break;
@@ -167,8 +176,19 @@ public class PersonInfoActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        if (!Utils.isEmpty(device)) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("deviceList","deviceList");
+            startActivity(intent);
+        }else if (!Utils.isEmpty(smart)) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("mainControl","mainControl");
+            startActivity(intent);
+        }else if (!Utils.isEmpty(live)){
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("live","live");
+            startActivity(intent);
+        }
 
     }
 
@@ -184,6 +204,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                 dialog = null;
             }
         });
+
         dialog.setCanceledOnTouchOutside(false);
         dialog.setOnPositiveClickListener(new DeviceUpdatePersonDialog.OnPositiveClickListener() {
             @Override
@@ -213,7 +234,7 @@ public class PersonInfoActivity extends AppCompatActivity {
             int code = 0;
             Map<String, Object> map = maps[0];
             try {
-                String updateUrl = "http://120.77.36.206:8082/warmer/v1.0/user/modInfo";
+                String updateUrl = "http://47.98.131.11:8082/warmer/v1.0/user/modInfo";
                 String result = HttpUtils.postOkHpptRequest(updateUrl, map);
 
                 if (!Utils.isEmpty(result)) {
@@ -473,7 +494,7 @@ public class PersonInfoActivity extends AppCompatActivity {
             int code = 0;
             File file = files[0];
             String userId = preferences.getString("userId", "");
-            String url = "http://120.77.36.206:8082/warmer/v1.0/user/" + userId + "/headImg";
+            String url = "http://47.98.131.11:8082/warmer/v1.0/user/" + userId + "/headImg";
             String result = HttpUtils.upLoadFile(url, "HeadPortrait2.jpg", file);
             if (!Utils.isEmpty(result)) {
                 code = Integer.parseInt(result);
@@ -488,7 +509,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                 case 201:
                     Utils.showToast(PersonInfoActivity.this, "上传成功");
                     String userId = preferences.getString("userId", "");
-                    String url = "http://120.77.36.206:8082/warmer/v1.0/user/" + userId + "/headImg";
+                    String url = "http://47.98.131.11:8082/warmer/v1.0/user/" + userId + "/headImg";
 //                    Picasso.with(PersonInfoActivity.this).load(url).error(R.drawable.bedroom1).memoryPolicy(MemoryPolicy.NO_CACHE).into(image_user);
                     Glide.with(PersonInfoActivity.this).load(file2).transform(new GlideCircleTransform(getApplicationContext())).into(image_user);
                     Log.i("file",file2.getPath());

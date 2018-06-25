@@ -31,7 +31,7 @@
             android:layout_marginLeft="@dimen/dp_10"
             android:layout_marginRight="@dimen/dp_10"
             android:gravity="center"
-            android:text="应用程序信息"
+            android:text="应用信息"
             android:textColor="@color/white"
             android:textSize="@dimen/dp_20" />
     </RelativeLayout>

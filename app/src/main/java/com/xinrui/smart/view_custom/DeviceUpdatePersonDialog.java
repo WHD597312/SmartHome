@@ -36,7 +36,7 @@ public class DeviceUpdatePersonDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_update_devicehome);
+        setContentView(R.layout.dialog_update_peron);
         ButterKnife.bind(this);
     }
 

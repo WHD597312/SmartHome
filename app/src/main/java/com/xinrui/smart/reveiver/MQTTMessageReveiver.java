@@ -38,6 +38,7 @@ import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.TimeTask;
 import com.xinrui.smart.pojo.Timer;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
@@ -59,16 +60,19 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
         NetworkInfo  wifiNetInfo=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
         if (!mobNetInfo.isConnected() && !wifiNetInfo.isConnected()) {
-            Utils.showToast(context, "网络不可以用");
+            Utils.showToast(context, "网络不可用");
             //改变背景或者 处理网络的全局变量
-        }else {
-            //改变背景或者 处理网络的全局变量
-        }
+        }else if (mobNetInfo.isConnected() || wifiNetInfo.isConnected()){
+//            Utils.showToast(context,"网络已连接");
+//            DeviceChildDaoImpl deviceChildDao = new DeviceChildDaoImpl(context);
+//            List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
 
+            Intent mqttIntent = new Intent(context,MQService.class);
+            mqttIntent.putExtra("reconnect","reconnect");
+            context.startService(mqttIntent);
+        }
         int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch,R.mipmap.image_switch2};
         if (!isConn) {
-//            NetWorkUtil.getInstance().setNetworkMethod(context);
-            Utils.showToast(context,"网络已断开，请设置网络");
             SharedPreferences preferences=context.getSharedPreferences("net",Context.MODE_PRIVATE);
             SharedPreferences.Editor editor=preferences.edit();
             editor.putString("from","1");
@@ -128,5 +132,6 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
      * 检测网络是否连接
      * @return
      */
+
 
 }

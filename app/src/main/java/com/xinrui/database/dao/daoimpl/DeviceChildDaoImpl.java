@@ -74,10 +74,8 @@ public class DeviceChildDaoImpl {
         return deviceChildDao.queryBuilder().where(whereCondition).list();
     }
     public List<DeviceChild> findGroupIdAllDevice(Long groupId){
-        List<DeviceChild> deviceChildren=new ArrayList<>();
-        List<DeviceChild> children=deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.HouseId.eq(groupId)).list();
-        deviceChildren.addAll(children);
-        return deviceChildren;
+        List<DeviceChild> children=deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.HouseId.eq(groupId)).orderAsc(DeviceChildDao.Properties.Id).list();
+        return children;
     }
     public DeviceChild findDeviceById(long id){
         return deviceChildDao.load(id);
@@ -90,5 +88,13 @@ public class DeviceChildDaoImpl {
             session.clear();
             session=null;
         }
+    }
+    public List<Long> findAllDeviceKey(Long groupId){
+        List<Long> list=new ArrayList<>();
+        List<DeviceChild> deviceChildren=findGroupIdAllDevice(groupId);
+        for (int i = 0; i < deviceChildren.size(); i++) {
+            list.add(deviceChildren.get(i).getId());
+        }
+        return list;
     }
 }

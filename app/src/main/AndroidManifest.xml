@@ -77,6 +77,7 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
 
     <application
         android:name=".MyApplication"
@@ -100,14 +101,13 @@
 
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="229f1bb2ecfdf7f1a9c2a0d6364fd578" />
+            android:value="92ef45c83e78c678cb0338dee75494ac" />
 
         <service android:name="com.amap.api.location.APSService" />
         <service
             android:name=".util.mqtt.MQService"
             android:enabled="true"
             android:exported="true" />
-
         <receiver
             android:name=".reveiver.MQTTMessageReveiver"
             android:enabled="true"

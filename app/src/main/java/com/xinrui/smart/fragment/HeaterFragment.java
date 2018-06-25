@@ -156,6 +156,7 @@ public class HeaterFragment extends LazyFragment {
 
         RelativeLayout.LayoutParams params=new RelativeLayout.LayoutParams(width,width);
         params.leftMargin=100;
+
         semicBar.setLayoutParams(params);
 //        params=new RelativeLayout.LayoutParams(width/2+100,width/2+100);
 //        params.leftMargin=200;
@@ -192,21 +193,23 @@ public class HeaterFragment extends LazyFragment {
                                         int curTemp = deviceChild.getCurTemp();
                                         tv_cur_temp.setText(curTemp+"℃");
                                         deviceChild.setManualMatTemp(mCurrent);
-                                        send(deviceChild);
+//                                        send(deviceChild);
                                         outside=false;
                                     }
                                 }
                             }
                         } else if (curAngle >330 && curAngle <= 360) {
+
                             if ("open".equals(deviceState)) {
                                 if ("manual".equals(workMode)) {
                                     outside=true;
+                                    mCurrent=5;
                                     if (outside){
                                         tv_set_temp.setText(mCurrent + "℃");
                                         int curTemp = deviceChild.getCurTemp();
                                         tv_cur_temp.setText(curTemp+"℃");
                                         deviceChild.setManualMatTemp(mCurrent);
-                                        send(deviceChild);
+//                                        send(deviceChild);
                                         outside=false;
                                     }
                                 }
@@ -270,7 +273,7 @@ public class HeaterFragment extends LazyFragment {
                                     msg.arg1=7;
                                     handler.sendMessage(msg);
                                 }
-                            } else {
+                            } else if ("timer".equals(workMode)){
                                 deviceChild.setTimerTemp(mCurrent);
                                 deviceChildDao.update(deviceChild);
                                 if ("timer".equals(deviceChild.getWorkMode()) && "enable".equals(deviceChild.getTimerShutdown())){
@@ -323,7 +326,6 @@ public class HeaterFragment extends LazyFragment {
                             tv_outmode.setText("");
                             animationDrawable.stop();
                         } else if ("open".equals(deviceState)) {
-
                             if ("enable".equals(deviceChild.getTimerShutdown()) && "timer".equals(deviceChild.getWorkMode())) {
 //                                    tv_timeShutDown.setVisibility(View.VISIBLE);
 //                                    tv_outmode.setVisibility(View.GONE);
@@ -341,7 +343,7 @@ public class HeaterFragment extends LazyFragment {
                                     tv_set_temp.setText(mCurrent + "℃");
                                     int curTemp = deviceChild.getProtectProTemp();
                                     tv_cur_temp.setText(curTemp+"℃");
-                                    send(deviceChild);
+//                                    send(deviceChild);
                                     outside=false;
                                 }
 
@@ -355,7 +357,7 @@ public class HeaterFragment extends LazyFragment {
                                     tv_set_temp.setText(mCurrent + "℃");
                                     int curTemp = deviceChild.getProtectProTemp();
                                     tv_cur_temp.setText(curTemp+"℃");
-                                    send(deviceChild);
+//                                    send(deviceChild);
                                     outside=false;
                                 }
 
@@ -436,7 +438,8 @@ public class HeaterFragment extends LazyFragment {
                 String mac = deviceChild.getMacAddress();
                 if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
                     String houseId=deviceChild.getHouseId()+"";
-                    topicName = "rango/masterController/"+houseId+"/"+mac+"/set";
+//                    topicName = "rango/masterController/"+houseId+"/"+mac+"/set";
+                    topicName = "rango/" + mac + "/set";
                     if (bound) {
                         success = mqService.publish(topicName, 2, s);
                     }
@@ -589,12 +592,7 @@ public class HeaterFragment extends LazyFragment {
                         deviceChildDao.update(deviceChild);
                         if (deviceChild != null) {
                             if (deviceChild.getOnLint()){
-                                if (position==0 || position==1){
-
-                                }else {
-                                    setMode(deviceChild);
-                                }
-
+                                setMode(deviceChild);
                             }else {
                                 Utils.showToast(getActivity(),"该设备已离线");
                             }
@@ -703,6 +701,7 @@ public class HeaterFragment extends LazyFragment {
                         relative5.setVisibility(View.VISIBLE);
                         image_switch.setTag("关");
                         deviceChild.setDeviceState("close");
+                        tv_outmode.setVisibility(View.GONE);
                         deviceChild.setImg(imgs[0]);
                         deviceChildDao.update(deviceChild);
                         setMode(deviceChild);
@@ -711,6 +710,7 @@ public class HeaterFragment extends LazyFragment {
 
 
                     } else {
+                        tv_outmode.setVisibility(View.VISIBLE);
                         position=1;
                         relative4.setVisibility(View.VISIBLE);
                         relative5.setVisibility(View.GONE);
@@ -1059,7 +1059,7 @@ public class HeaterFragment extends LazyFragment {
                 if ("enable".equals(deviceChild.getTimerShutdown()) && "timer".equals(deviceChild.getWorkMode())) {
 //                                    tv_timeShutDown.setVisibility(View.VISIBLE);
 //                                    tv_outmode.setVisibility(View.GONE);
-                    tv_outmode.setText("定时关加热");
+//                    tv_outmode.setText("定时关加热");
                     animationDrawable.stop();
                 }
             }
