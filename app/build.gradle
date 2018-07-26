@@ -9,12 +9,20 @@ repositories {
 }
 
 greendao {
-    schemaVersion 43
+    schemaVersion 45
     daoPackage 'com.xinrui.database.dao'
     targetGenDir 'src/main/java'
 }
 android {
 
+    signingConfigs {
+        release {
+            storeFile file('F:/android/rango.jks')
+            storePassword '123456'
+            keyAlias 'key0'
+            keyPassword '123456'
+        }
+    }
     sourceSets {
         main {
             jniLibs.srcDirs = ['libs']
@@ -26,8 +34,8 @@ android {
         applicationId "com.xinrui.smart"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 2
-        versionName "2.0"
+        versionCode 1
+        versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

@@ -16,7 +16,6 @@ public class SmartFragmentAdapter extends FragmentPagerAdapter {
     public SmartFragmentAdapter(FragmentManager fm, List<Fragment> list) {
         super(fm);
         this.list = list;
-
     }
 
     @Override

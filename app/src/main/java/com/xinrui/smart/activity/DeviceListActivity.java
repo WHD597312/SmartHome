@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -121,66 +122,72 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
         deviceChild=deviceChildDao.findDeviceById(Long.parseLong(childPosition));
 
-        tv_name.setText(content);
-        fragmentManager =getSupportFragmentManager();
+        if (deviceChild!=null){
+            tv_name.setText(content);
+            fragmentManager =getSupportFragmentManager();
 
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        HeaterFragment heaterFragment=new HeaterFragment();
-        Bundle bundle=new Bundle();
-        bundle.putSerializable("deviceChild",deviceChild);
-        heaterFragment.setArguments(bundle);
-        fragmentTransaction.replace(R.id.linearout, heaterFragment);
-        int commit=fragmentTransaction.commit();
-        Log.i("mmmmm",commit+"");
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            HeaterFragment heaterFragment=new HeaterFragment();
+            Bundle bundle=new Bundle();
+            bundle.putSerializable("deviceChild",deviceChild);
+            heaterFragment.setArguments(bundle);
+            fragmentTransaction.replace(R.id.linearout, heaterFragment);
+            int commit=fragmentTransaction.commit();
+            Log.i("mmmmm",commit+"");
 
-
-        list = new ArrayList<>();
-        String[] titles = {"分享设备", "时钟设置", "定时任务", "设备状态", "常见问题", "关于我们"};
-        for (int i = 0; i < titles.length; i++) {
-            list.add(titles[i]);
-        }
-
-        adapter=new DeviceListAdapter(this,list);
-        gradView.setAdapter(adapter);
-
-        gradView.setOnItemClickListener(this);
-        adapter.setSelectedPosition(mPoistion);
-
-
-        running=true;
-
-        IntentFilter intentFilter = new IntentFilter("DeviceListActivity");
-        receiver = new MessageReceiver();
-        registerReceiver(receiver, intentFilter);
-        boolean online=deviceChild.getOnLint();
-        Log.i("online","-->"+online);
-        String machineFall=deviceChild.getMachineFall();
-        Log.i("machineFall","-->"+machineFall);
-        if (online){
-            if ("fall".equals(machineFall)){
-                linearout.setVisibility(View.GONE);
-                tv_offline.setVisibility(View.VISIBLE);
-                tv_offline.setText("设备已倾倒");
-                gradView.setVisibility(View.GONE);
-            }else {
-                linearout.setVisibility(View.VISIBLE);
-                tv_offline.setVisibility(View.GONE);
-                gradView.setVisibility(View.VISIBLE);
-            }
-        }else{
-            if ("fall".equals(machineFall)){
-                linearout.setVisibility(View.GONE);
-                tv_offline.setVisibility(View.VISIBLE);
-                tv_offline.setText("设备已倾倒");
-                gradView.setVisibility(View.GONE);
-            }else {
-                linearout.setVisibility(View.GONE);
-                tv_offline.setVisibility(View.VISIBLE);
-                tv_offline.setText("设备已离线");
-                gradView.setVisibility(View.GONE);
+            list = new ArrayList<>();
+            String[] titles = {"分享设备", "时钟设置", "定时任务", "设备状态", "常见问题", "关于我们"};
+            for (int i = 0; i < titles.length; i++) {
+                list.add(titles[i]);
             }
 
+            adapter=new DeviceListAdapter(this,list);
+            gradView.setAdapter(adapter);
+
+            gradView.setOnItemClickListener(this);
+            adapter.setSelectedPosition(mPoistion);
+
+            running=true;
+
+            IntentFilter intentFilter = new IntentFilter("DeviceListActivity");
+            receiver = new MessageReceiver();
+            registerReceiver(receiver, intentFilter);
+            boolean online=deviceChild.getOnLint();
+            Log.i("online","-->"+online);
+            String machineFall=deviceChild.getMachineFall();
+            Log.i("machineFall","-->"+machineFall);
+            if (online){
+                if ("fall".equals(machineFall)){
+                    linearout.setVisibility(View.GONE);
+                    tv_offline.setVisibility(View.VISIBLE);
+                    tv_offline.setText("设备已倾倒");
+                    gradView.setVisibility(View.GONE);
+                }else {
+                    linearout.setVisibility(View.VISIBLE);
+                    tv_offline.setVisibility(View.GONE);
+                    gradView.setVisibility(View.VISIBLE);
+                }
+            }else{
+                if ("fall".equals(machineFall)){
+                    linearout.setVisibility(View.GONE);
+                    tv_offline.setVisibility(View.VISIBLE);
+                    tv_offline.setText("设备已倾倒");
+                    gradView.setVisibility(View.GONE);
+                }else {
+                    linearout.setVisibility(View.GONE);
+                    tv_offline.setVisibility(View.VISIBLE);
+                    tv_offline.setText("设备已离线");
+                    gradView.setVisibility(View.GONE);
+                }
+            }
+        }else {
+            Toast.makeText(this,"设备已重置",Toast.LENGTH_SHORT).show();
+            Intent intent2=new Intent(this,MainActivity.class);
+            intent2.putExtra("deviceList","deviceList");
+            startActivity(intent2);
         }
+
+
 //        if ("fall".equals(machineFall)){
 //            linearout.setVisibility(View.GONE);
 //            tv_offline.setVisibility(View.VISIBLE);
@@ -218,6 +225,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             intent.putExtra("deviceList","deviceList");
             startActivity(intent);
             return true;
+
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -306,11 +314,14 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 Intent intent2=new Intent(DeviceListActivity.this,MainActivity.class);
                 intent2.putExtra("deviceList","deviceList");
                 startActivity(intent2);
-
             } else if (!Utils.isEmpty(macAddress2) && macAddress2.equals(deviceChild.getMacAddress())){
-                Intent intent2=new Intent(DeviceListActivity.this,MainActivity.class);
-                intent2.putExtra("deviceList","deviceList");
-                startActivity(intent2);
+                String deviceName=intent.getStringExtra("deviceName");
+                if (!TextUtils.isEmpty(deviceName)) {
+                    tv_name.setText(deviceName);
+                }
+//                Intent intent2=new Intent(DeviceListActivity.this,MainActivity.class);
+//                intent2.putExtra("deviceList","deviceList");
+//                startActivity(intent2);
             }else {
                 if(Utils.isEmpty(noNet)){
                     if (deviceChild!=null && deviceChild2!=null &&deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())){

@@ -64,6 +64,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="@dimen/dp_14"
             />
+
     </RelativeLayout>
     <View
         android:layout_width="match_parent"

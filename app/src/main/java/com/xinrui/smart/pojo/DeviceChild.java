@@ -55,7 +55,7 @@ public class DeviceChild  implements Serializable{
     private long shareHouseId;
     private int groupPosition;
     private int childPosition;
-
+    private String machAttr;
 
 
     public DeviceChild() {
@@ -402,7 +402,15 @@ public class DeviceChild  implements Serializable{
         this.groupPosition = groupPosition;
     }
 
-    @Generated(hash = 1293817504)
+    public String getMachAttr() {
+        return this.machAttr;
+    }
+
+    public void setMachAttr(String machAttr) {
+        this.machAttr = machAttr;
+    }
+
+    @Generated(hash = 1819579492)
     public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
             Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
             int version, int ratedPower, int MatTemp, String workMode, String LockScreen,
@@ -411,7 +419,8 @@ public class DeviceChild  implements Serializable{
             int voltageValue, int currentValue, String machineFall, int protectSetTemp,
             int protectProTemp, String wifiVersion, String MCUVerion, int manualMatTemp,
             int timerTemp, boolean onLint, int temp, int hum, String reSet,
-            String timerShutdown, long shareHouseId, int groupPosition, int childPosition) {
+            String timerShutdown, long shareHouseId, int groupPosition, int childPosition,
+            String machAttr) {
         this.id = id;
         this.deviceName = deviceName;
         this.macAddress = macAddress;
@@ -452,6 +461,7 @@ public class DeviceChild  implements Serializable{
         this.shareHouseId = shareHouseId;
         this.groupPosition = groupPosition;
         this.childPosition = childPosition;
+        this.machAttr = machAttr;
     }
 
 }

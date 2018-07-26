@@ -135,14 +135,10 @@ public class MyApplication extends Application {
 
 
     public void addActivity(Activity activity){
-        if (!activities.contains(activity)){
-            activities.add(activity);
-        }
+        activities.add(activity);
     }
     public void addFragment(Fragment fragment){
-        if (!fragments.contains(fragment)){
-            fragments.add(fragment);
-        }
+        fragments.add(fragment);
     }
 
     public List<Fragment> getFragments() {
@@ -158,10 +154,9 @@ public class MyApplication extends Application {
     }
 
     public void removeActivity(Activity activity){
-        if (activities.contains(activity)){
-            activities.remove(activity);
-            activity.finish();
-        }
+        activities.remove(activity);
+        activity.finish();
+
     }
 
     public List<Activity> getActivities() {

@@ -35,6 +35,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -105,7 +106,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends CheckPermissionsActivity {
 
     @BindView(R.id.tv_user)
     TextView tv_user;
@@ -169,8 +170,8 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (application == null) {
             application = (MyApplication) getApplication();
-            service = new Intent(MainActivity.this, MQService.class);
-            startService(service);
+//            Intent service=new Intent(this,MQService.class);
+//            startService(service);
         }
         application.addActivity(this);
         drawer.setDrawerListener(toggle);
@@ -225,7 +226,6 @@ public class MainActivity extends AppCompatActivity {
         deviceGroups = deviceGroupDao.findAllDevices();
         fragmentManager = getSupportFragmentManager();
 
-
         Intent intent = getIntent();
         String Activity_return = "";
         Bundle bundle = intent.getExtras();
@@ -258,10 +258,10 @@ public class MainActivity extends AppCompatActivity {
         }else if (!Utils.isEmpty(deviceList) && Utils.isEmpty(Activity_return) && Utils.isEmpty(live)) {
             fragmentPreferences.edit().putString("fragment", "1").commit();
             deviceId = intent.getStringExtra("deviceId");
-            if (!Utils.isEmpty(deviceId)){
-                Intent service = new Intent(MainActivity.this, MQService.class);
-                isConnected = bindService(service, connection, Context.BIND_AUTO_CREATE);
-            }
+//            if (!Utils.isEmpty(deviceId)){
+////                Intent service = new Intent(MainActivity.this, MQService.class);
+////                isConnected = bindService(service, connection, Context.BIND_AUTO_CREATE);
+//            }
 //            preferences.edit().putString("deviceList","deviceList").commit();
 
         } else if (!Utils.isEmpty(mainControl) && Utils.isEmpty(Activity_return) && Utils.isEmpty(live)) {
@@ -330,13 +330,15 @@ public class MainActivity extends AppCompatActivity {
                     bundle.putString("load","");
                 }
                 deviceFragment.setArguments(bundle);
-                fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
                 preferences.edit().putString("main", "1").commit();
 
                 if (!Utils.isEmpty(deviceId)) {
-                    Intent service = new Intent(MainActivity.this, MQService.class);
-                    isConnected = bindService(service, connection, Context.BIND_AUTO_CREATE);
+//                    bundle.putString("load","load");
+                    bundle.putString("deviceId",deviceId);
+                }else {
+                    bundle.putString("deviceId","");
                 }
+                fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
             }
             device_view.setVisibility(View.VISIBLE);
             smart_view.setVisibility(View.GONE);
@@ -415,53 +417,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MQService.LocalBinder binder = (MQService.LocalBinder) service;
-            mqService = binder.getService();
-            bound = true;
-            if (bound) {
-                try {
-                    if (!Utils.isEmpty(deviceId)) {
-                        long id = Long.parseLong(deviceId);
-                        DeviceChild deviceChild2 = deviceChildDao.findDeviceById(id);
-                        if (deviceChild2 != null) {
-                            String mac = deviceChild2.getMacAddress();
-                            String topicName2 = "rango/" + mac + "/transfer";
-                            String topicOffline = "rango/" + mac + "/lwt";
-                            boolean succ = mqService.subscribe(topicName2, 1);
-                            succ = mqService.subscribe(topicOffline, 1);
-                            mqService.addOffineDevice(mac);
-                            if (succ) {
-                                JSONObject jsonObject = new JSONObject();
-                                jsonObject.put("loadDate", "on");
-                                String s = jsonObject.toString();
-                                String topicName = "rango/" + mac + "/set";
-
-                                boolean success = mqService.publish(topicName, 2, s);
-                                if (success)
-                                if (!success) {
-                                    success = mqService.publish(topicName, 2, s);
-                                }else {
-                                    Thread.sleep(300);
-                                }
-
-                                Log.i("sss", "-->" + success);
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            bound = false;
-        }
-    };
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -608,17 +563,14 @@ public class MainActivity extends AppCompatActivity {
 
 
                 application.removeAllFragment();
-
-
                 running = false;
 //                deviceChildDao.closeDaoSession();
 //                deviceGroupDao.closeDaoSession();
 //                timeDao.closeDaoSession();
 //                timeTaskDao.closeDaoSession();
 
-
 //                Intent service = new Intent(this, MQService.class);
-                stopService(service);
+
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
 
@@ -646,12 +598,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.tv_smart:
-//                toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-////                        drawer.closeDrawer(Gr);
-//                    }
-//                });
                 if (NoFastClickUtils.isFastClick()) {
                     isRunning=false;
                     fragmentTransaction = fragmentManager.beginTransaction();
@@ -682,14 +628,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        preferences.edit().remove("login").commit();
-        if (preferences.contains("deviceList")){
-            preferences.edit().remove("deviceList").commit();
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (preferences.contains("login"))
+            preferences.edit().remove("login").commit();
+            if (preferences.contains("deviceList")){
+                preferences.edit().remove("deviceList").commit();
+            }
+            application.removeAllActivity();
+            return true;
         }
-        application.removeAllActivity();
+        return super.onKeyDown(keyCode, event);
     }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -724,15 +675,6 @@ public class MainActivity extends AppCompatActivity {
 //        deviceChildDao.closeDaoSession();
 //        deviceGroupDao.closeDaoSession();
 
-        try {
-            if (isConnected) {
-                if (connection != null) {
-                    unbindService(connection);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         progressDialog.dismiss();
         deviceChildren.clear();
         deviceGroups.clear();
@@ -759,7 +701,6 @@ public class MainActivity extends AppCompatActivity {
         protected Integer doInBackground(String... strings) {
             int code = 0;
             try {
-
                 String userId = preferences.getString("userId", "");
                 String allDeviceUrl = "http://47.98.131.11:8082/warmer/v1.0/device/findAll?userId=" + URLEncoder.encode(userId, "utf-8");
                 String result = HttpUtils.getOkHpptRequest(allDeviceUrl);
@@ -770,8 +711,8 @@ public class MainActivity extends AppCompatActivity {
                     if (code == 2000) {
 //                        List<DeviceGroup> groupList=deviceGroupDao.findAllDevices();
 //                        List<DeviceChild> childList=deviceChildDao.findAllDevice();
-//                        deviceChildDao.deleteAll();
-//                        deviceGroupDao.deleteAll();
+                        deviceChildDao.deleteAll();
+                        deviceGroupDao.deleteAll();
                         JSONArray houses = content.getJSONArray("houses");
                         for (int i = 0; i < houses.length(); i++) {
                             JSONObject house = houses.getJSONObject(i);
@@ -806,7 +747,6 @@ public class MainActivity extends AppCompatActivity {
                                         String deviceName = device.getString("deviceName");
                                         int type = device.getInt("type");
                                         int groupId = device.getInt("houseId");
-
 
                                         int masterControllerUserId = device.getInt("masterControllerUserId");
                                         int isUnlock = device.getInt("isUnlock");
@@ -933,16 +873,24 @@ public class MainActivity extends AppCompatActivity {
                 case 2000:
                     List<DeviceGroup> deviceGroups = deviceGroupDao.findAllDevices();
                     deviceChildren = deviceChildDao.findAllDevice();
-                    fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();//开启碎片事务
 
                     if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
                         fragmentTransaction.replace(R.id.layout_body, new NoDeviceFragment()).commit();
+                        device_view.setVisibility(View.VISIBLE);
+                        smart_view.setVisibility(View.GONE);
+                        live_view.setVisibility(View.GONE);
+                        smart.edit().clear().commit();
                     } else {
                         deviceFragment=new DeviceFragment();
                         Bundle bundle=new Bundle();
                         bundle.putString("load","load");
                         deviceFragment.setArguments(bundle);
                         fragmentTransaction.replace(R.id.layout_body,deviceFragment).commit();
+                        device_view.setVisibility(View.VISIBLE);
+                        smart_view.setVisibility(View.GONE);
+                        live_view.setVisibility(View.GONE);
+                        smart.edit().clear().commit();
                         if (!Utils.isEmpty(fall)){
                             Log.i("fall","-->fall");
                             isRunning=true;

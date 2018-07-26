@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,6 +100,7 @@ public class NoDeviceFragment extends Fragment{
         if (deviceGroup!=null){
             updateDeviceGroup=deviceGroup;
             String location=deviceGroup.getLocation();
+            Log.i("deviceGroup","-->"+location);
             String houseHome=deviceGroup.getHouseName();
             if (!Utils.isEmpty(location)){
                 tv_city.setText(deviceGroup.getLocation());
@@ -257,6 +259,7 @@ public class NoDeviceFragment extends Fragment{
         super.onStop();
         deviceGroupDao.closeDaoSession();
         running=false;
+        stopLocation();
     }
 
     @Override
@@ -356,17 +359,24 @@ public class NoDeviceFragment extends Fragment{
 
                 //解析定位结果，
                 String result = sb.toString();
-
+                Log.i("reSult","-->"+result);
+                if ("定位失败".equals(result)){
+                    stopLocation();
+                }
 
                 String s=location.getProvince();
+
                 if (first && !Utils.isEmpty(s)){
                     tv_city.setText(location.getCity());
                     city=location.getCity();
+                    Log.i("city","-->"+city);
                     first=false;
                 }
                 if (deviceGroup!=null){
-                    String location2=deviceGroup.getLocation();
+                    String location2=city;
                     if (!Utils.isEmpty(location2)){
+                        deviceGroup.setLocation(location2);
+                        deviceGroupDao.update(deviceGroup);
                         tv_city.setText(location2);
                     }
                 }

@@ -24,6 +24,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -60,7 +61,6 @@ import com.xinrui.smart.activity.AddDeviceActivity;
 import com.xinrui.smart.activity.DeviceListActivity;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.adapter.CityAdapter;
-import com.xinrui.smart.adapter.DeviceAdapter;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
 
@@ -106,7 +106,7 @@ public class DeviceFragment extends Fragment {
     private Unbinder unbinder;
     public static boolean running2 = false;
     public DeviceChild mDeviceChild;
-    private boolean isLoading=false;
+    private boolean isLoading = false;
     /**
      * 可操作的设备
      */
@@ -156,8 +156,10 @@ public class DeviceFragment extends Fragment {
     private ProgressDialog progressDialog;
     private List<DeviceChild> offlineDevices = new ArrayList<>();
     public static boolean loading = false;
-    private LinkedList<String> offlineList=new LinkedList<String>();
+    private LinkedList<String> offlineList = new LinkedList<String>();
 
+
+    private String deviceId;
 
     //    List
     @Nullable
@@ -172,13 +174,13 @@ public class DeviceFragment extends Fragment {
 
         unbinder = ButterKnife.bind(this, view);
         Display display = getActivity().getWindowManager().getDefaultDisplay();
-        int height=display.getHeight();
+        int height = display.getHeight();
 
-        int listHight=height-400;
-        LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,listHight);
-        params.setMargins(10,0,10,0);
+        int listHight = height - 400;
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, listHight);
+        params.setMargins(10, 0, 10, 0);
         rv_list.setLayoutParams(params);
-        Log.i("height","-->"+height);
+        Log.i("height", "-->" + height);
         rv_list.setLayoutManager(new LinearLayoutManager(getActivity()));
         rv_list.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
         List<DeviceGroup> groups = deviceGroupDao.findAllDevices();
@@ -203,8 +205,9 @@ public class DeviceFragment extends Fragment {
 //            allListData.add(new String());
         }
 
-        Bundle bundle=getArguments();
-        load=bundle.getString("load");
+        Bundle bundle = getArguments();
+        load = bundle.getString("load");
+        deviceId = bundle.getString("deviceId");
         adapter = new DeviceAdapter(getActivity(), deviceGroups, childern);
         rv_list.setAdapter(adapter);
         Intent service = new Intent(getActivity(), MQService.class);
@@ -378,7 +381,7 @@ public class DeviceFragment extends Fragment {
         if (unbinder != null) {
             unbinder.unbind();
         }
-        running=false;
+        running = false;
     }
 
 
@@ -429,7 +432,7 @@ public class DeviceFragment extends Fragment {
          */
         @Override
         public void onFinish() {
-            Log.e("Tag", "倒计时完成");
+            Log.e("Tagssssssss", "倒计时完成");
             //设置倒计时结束之后的按钮样式
 //            btn_get_code.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.holo_blue_light));
 //            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
@@ -437,40 +440,40 @@ public class DeviceFragment extends Fragment {
 //            if (progressDialog != null) {
 //                progressDialog.dismiss();
 //            }
-            if (mqService!=null){
-                Map<String,DeviceChild> childMap=mqService.getOfflineDevices();
-
-                for (int i = 0; i <deviceGroups.size() ; i++) {
-                    List<DeviceChild> deviceChildren=childern.get(i);
+            if (mqService != null) {
+                Map<String, DeviceChild> childMap = mqService.getOfflineDevices();
+                for (int i = 0; i < deviceGroups.size(); i++) {
+                    List<DeviceChild> deviceChildren = childern.get(i);
                     for (int j = 0; j < deviceChildren.size(); j++) {
-                        DeviceChild deviceChild=deviceChildren.get(j);
-                        for(Map.Entry<String, DeviceChild> childEntry : childMap.entrySet()){
-                            String macAddress=childEntry.getKey();
-                            Log.i("macAdd","-->"+macAddress);
-                            DeviceChild deviceChild2=childEntry.getValue();
-                            if (macAddress.equals(deviceChild.getMacAddress())){
-                                childern.get(i).set(j,deviceChild2);
+                        DeviceChild deviceChild = deviceChildren.get(j);
+                        for (Map.Entry<String, DeviceChild> childEntry : childMap.entrySet()) {
+                            String macAddress = childEntry.getKey();
+                            Log.i("macAdd", "-->" + macAddress);
+                            DeviceChild deviceChild2 = childEntry.getValue();
+                            if (macAddress.equals(deviceChild.getMacAddress())) {
+                                childern.get(i).set(j, deviceChild2);
                                 break;
                             }
                         }
-                        if (j==deviceChildren.size()-1){
+                        if (j == deviceChildren.size() - 1) {
                             adapter.notifyDataSetChanged();
                         }
                     }
                 }
             }
-
         }
     }
+
     SharedPreferences preferences;
 
-    class LoadMqttAsync3 extends AsyncTask<List<DeviceChild>,Void,String>{
+    class LoadMqttAsync3 extends AsyncTask<List<DeviceChild>, Void, String> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if (NetWorkUtil.isConn(getActivity())){
-                List<DeviceChild> deviceChildren=deviceChildDao.findAllDevice();
-                if (progressDialog!=null && deviceChildren.size()>0){
+            if (NetWorkUtil.isConn(getActivity())) {
+                List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
+
+                if (progressDialog != null && deviceChildren.size() > 0) {
                     progressDialog.setMessage("正在加载数据...");
                     progressDialog.setCancelable(false);
                     progressDialog.show();
@@ -480,24 +483,24 @@ public class DeviceFragment extends Fragment {
 
         @Override
         protected String doInBackground(List<DeviceChild>... lists) {
-            List<DeviceChild> deviceChildren=lists[0];
-            String result=null;
+            List<DeviceChild> deviceChildren = lists[0];
+            String result = null;
             try {
-                boolean running=DeviceFragment.running;
-                Log.i("running","-->"+running);
-                if (NetWorkUtil.isConn(getActivity())){
+                boolean running = DeviceFragment.running;
+                Log.i("running", "-->" + running);
+                if (NetWorkUtil.isConn(getActivity()) ) {
                     for (int i = 0; i < deviceChildren.size(); i++) {
                         DeviceChild deviceChild = deviceChildren.get(i);
-                        if (i==deviceChildren.size()-1){
-                            if (progressDialog!=null){
+                        if (i == deviceChildren.size() - 1) {
+                            if (progressDialog != null) {
                                 progressDialog.dismiss();
                             }
                         }
                         if (mqService != null) {
                             try {
-                                String mac=deviceChild.getMacAddress();
+                                String mac = deviceChild.getMacAddress();
                                 String topic = "rango/" + mac + "/set";
-                                Log.i("macAddress2","-->"+mac);
+                                Log.i("macAddress2", "-->" + mac);
                                 JSONObject jsonObject = new JSONObject();
                                 jsonObject.put("loadDate", "1");
                                 String s = jsonObject.toString();
@@ -505,23 +508,24 @@ public class DeviceFragment extends Fragment {
                                 success = mqService.publish(topic, 1, s);
                                 if (!success) {
                                     success = mqService.publish(topic, 1, s);
+                                    Log.i("macAddress","-->"+mac);
                                 }
-                                if (success){
-                                    Log.i("macAddress3","-->"+mac);
+                                if (success) {
+                                    Log.i("macAddress3", "-->" + mac);
 //                                    Thread.sleep(200);
                                     Thread.currentThread().sleep(300);
-                                    if (!Utils.isEmpty(load) && i==deviceChildren.size()-1){
-                                        result="result";
+                                    if (!Utils.isEmpty(load) && i == deviceChildren.size() - 1) {
+                                        result = "result";
                                     }
                                 }
-                            }catch (Exception e){
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
                     }
                 }
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return result;
@@ -530,14 +534,14 @@ public class DeviceFragment extends Fragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            if (!Utils.isEmpty(s)){
+            if (!Utils.isEmpty(s)) {
                 CountTimer countTimer = new CountTimer(1000, 1000);
                 countTimer.start();
             }
         }
     }
 
-    String load=null;
+    String load = null;
 
     @Override
     public void onStart() {
@@ -572,7 +576,6 @@ public class DeviceFragment extends Fragment {
     }
 
     boolean isBind = false;
-
 
 
     @Override
@@ -626,7 +629,7 @@ public class DeviceFragment extends Fragment {
                         popWindow.dismiss();
                         break;
                     case R.id.btn_delete_house:
-                        if (deviceGroups.size()>2){
+                        if (deviceGroups.size() > 2) {
                             DeviceGroup deleteHouse = deviceGroups.get(updateGroupPosition);
                             if (deleteHouse != null) {
                                 try {
@@ -637,8 +640,8 @@ public class DeviceFragment extends Fragment {
                                     e.printStackTrace();
                                 }
                             }
-                        }else if (deviceGroups.size()<=2){
-                            Utils.showToast(getActivity(),"你确定要无家可归!");
+                        } else if (deviceGroups.size() <= 2) {
+                            Utils.showToast(getActivity(), "你确定要无家可归!");
                         }
                         popWindow.dismiss();
                         break;
@@ -646,7 +649,6 @@ public class DeviceFragment extends Fragment {
                         popWindow.dismiss();
                         break;
                 }
-
             }
         };
 
@@ -712,6 +714,9 @@ public class DeviceFragment extends Fragment {
         super.onDestroyOptionsMenu();
     }
 
+    /***
+     * 创建房间
+     */
     private void buildCreateHomeDialog() {
         final DeviceHomeDialog dialog = new DeviceHomeDialog(getActivity());
         dialog.setOnNegativeClickListener(new DeviceHomeDialog.OnNegativeClickListener() {
@@ -743,6 +748,9 @@ public class DeviceFragment extends Fragment {
 
     private String houseName;
 
+    /***
+     * 修改房间名称
+     */
     private void buildUpdateHomeDialog() {
         final DeviceUpdateHomeDialog dialog = new DeviceUpdateHomeDialog(getActivity());
         dialog.setOnNegativeClickListener(new DeviceUpdateHomeDialog.OnNegativeClickListener() {
@@ -755,7 +763,6 @@ public class DeviceFragment extends Fragment {
             @Override
             public void onPositiveClick() {
                 houseName = dialog.getName();
-
                 if (Utils.isEmpty(houseName)) {
                     Utils.showToast(getActivity(), "住所名称不能为空");
                 } else {
@@ -950,8 +957,8 @@ public class DeviceFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        Log.i("DeviceFragment","-->"+"onStop");
-        running=false;
+        Log.i("DeviceFragment", "-->" + "onStop");
+        running = false;
     }
 
     public ArrayList<JsonBean> parseData(String result) {//Gson 解析
@@ -969,6 +976,7 @@ public class DeviceFragment extends Fragment {
         }
         return detail;
     }
+
     class UpdateHomeLocationAsync extends AsyncTask<DeviceGroup, Void, Integer> {
 
         @Override
@@ -1183,9 +1191,8 @@ public class DeviceFragment extends Fragment {
         deviceGroups.clear();
         childern.clear();
         allListData.clear();
-        running=false;
+        running = false;
     }
-
 
     /**
      * 销毁定位
@@ -1216,9 +1223,6 @@ public class DeviceFragment extends Fragment {
     private static long lastClickTime = 0;
 
 
-
-
-
     class LoadMqttAsync extends AsyncTask<List<DeviceChild>, Void, Integer> {
 
         @Override
@@ -1228,37 +1232,34 @@ public class DeviceFragment extends Fragment {
 
         @Override
         protected Integer doInBackground(List<DeviceChild>... lists) {
-            int code=0;
+            int code = 0;
             try {
-
                 List<DeviceChild> deviceChildren = lists[0];
                 for (int i = 0; i < deviceChildren.size(); i++) {
                     DeviceChild childEntry = deviceChildren.get(i);
                     send(childEntry);
 
                     Thread.sleep(100);
-                    if (i==deviceChildren.size()-1){
-                        code=2000;
+                    if (i == deviceChildren.size() - 1) {
+                        code = 2000;
                     }
-
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return code;
         }
-
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
-            if (code==2000){
+            if (code == 2000) {
                 adapter.notifyDataSetChanged();
             }
         }
     }
 
     private TimeDaoImpl timeDao;
+
     public class DeviceAdapter extends GroupedRecyclerViewAdapter {
 
         private Context context;
@@ -1296,7 +1297,7 @@ public class DeviceFragment extends Fragment {
             public void onTick(long millisUntilFinished) {
                 Log.e("Tag", "倒计时=" + (millisUntilFinished / 1000));
 
-                if (progressDialog != null ) {
+                if (progressDialog != null) {
                     progressDialog.setMessage("正在发送数据...");
                     progressDialog.setCancelable(false);
                     progressDialog.show();
@@ -1312,7 +1313,7 @@ public class DeviceFragment extends Fragment {
              */
             @Override
             public void onFinish() {
-                Log.e("Tag", "倒计时完成");
+                Log.e("Tagsssssss", "倒计时完成");
                 //设置倒计时结束之后的按钮样式
 //            btn_get_code.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.holo_blue_light));
 //            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
@@ -1341,6 +1342,7 @@ public class DeviceFragment extends Fragment {
         public int getGroupCount() {
             return groups == null ? 0 : groups.size();
         }
+
         /**
          * 返回某一组子条目的数目
          *
@@ -1694,18 +1696,18 @@ public class DeviceFragment extends Fragment {
                                     JSONObject jsonObject = new JSONObject();
                                     jsonObject.put("loadDate", "7");
                                     String s = jsonObject.toString();
-                                    String mac=deviceChild.getMacAddress();
+                                    String mac = deviceChild.getMacAddress();
                                     String topic = "rango/" + mac + "/set";
-                                    int count=timeDao.findAll(deviceChild.getId()).size();
-                                    if (mqService!=null && count!=168){
+                                    int count = timeDao.findAll(deviceChild.getId()).size();
+                                    if (mqService != null && count != 168) {
                                         boolean success = false;
-                                        Log.i("ggggggggg","-->"+"ggggggggggggggggg");
+                                        Log.i("ggggggggg", "-->" + "ggggggggggggggggg");
                                         success = mqService.publish(topic, 1, s);
                                         if (!success) {
                                             success = mqService.publish(topic, 1, s);
                                         }
                                     }
-                                }catch (Exception e){
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 context.startActivity(intent);
@@ -1814,7 +1816,6 @@ public class DeviceFragment extends Fragment {
                 public void onPositiveClick() {
                     String child = dialog.getName();
                     if (!Utils.isEmpty(child)) {
-
                         DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
                         deviceChild.setDeviceName(child);
                         DeviceAdapter.this.groupPosition = groupPosition;
@@ -1834,6 +1835,7 @@ public class DeviceFragment extends Fragment {
             });
             dialog.show();
         }
+
         class UpdateDeviceNameAsync extends AsyncTask<DeviceChild, Void, Integer> {
 
             @Override
@@ -1908,14 +1910,17 @@ public class DeviceFragment extends Fragment {
 //                            timeDao.delete(timer);
 //                        }
 
-
                         deviceChildDao.delete(deviceChild);
-                        String macAddress=deviceChild.getMacAddress();
-                        String topicName="rango/" + macAddress + "/transfer";
-                        boolean success=mqService.publish(topicName,1,"reSet");
-                        Log.i("delete","-->"+success);
+                        String macAddress = deviceChild.getMacAddress();
+                        String topicName = "rango/" + macAddress + "/transfer";
+                        boolean success = mqService.publish(topicName, 1, "reSet");
+                        String topicOffline = "rango/" + macAddress + "/lwt";
+                        String topicShare = "rango/" + macAddress + "/refresh";
+                        mqService.unsubscribe(topicName);
+                        mqService.unsubscribe(topicOffline);
+                        mqService.unsubscribe(topicShare);
+                        Log.i("delete", "-->" + success);
                         childern.get(groupPosition).remove(childPosition);
-
                         if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
                             deviceChild.setCtrlMode("normal");
                             send(deviceChild);
@@ -1925,7 +1930,7 @@ public class DeviceFragment extends Fragment {
                                     deviceChild2.setControlled(0);
                                     deviceChild2.setCtrlMode("normal");
                                     deviceChildDao.update(deviceChild2);
-                                    Log.i("controlled22222222","-->"+deviceChild.getType()+","+deviceChild.getControlled());
+                                    Log.i("controlled22222222", "-->" + deviceChild.getType() + "," + deviceChild.getControlled());
                                     send(deviceChild2);
                                 }
                             }
@@ -1988,9 +1993,8 @@ public class DeviceFragment extends Fragment {
                 Log.i("mac", "-->" + mac);
                 if (bound) {
                     success = mqService.publish(topicName, 1, s);
-                    Log.i("suss","-->"+success);
+                    Log.i("suss", "-->" + success);
                 }
-
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -2005,16 +2009,51 @@ public class DeviceFragment extends Fragment {
             MQService.LocalBinder binder = (MQService.LocalBinder) service;
             mqService = binder.getService();
             bound = true;
-            if (!Utils.isEmpty(load)){
+            Log.i("load", "-->" + load);
+            if (!Utils.isEmpty(load)) {
                 List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
+
                 new LoadMqttAsync3().execute(deviceChildren);
+
+            }
+            if (!Utils.isEmpty(deviceId)) {
+                try {
+                    if (!Utils.isEmpty(deviceId)) {
+                        long id = Long.parseLong(deviceId);
+                        DeviceChild deviceChild2 = deviceChildDao.findDeviceById(id);
+                        if (deviceChild2 != null) {
+                            String mac = deviceChild2.getMacAddress();
+                            String topicName2 = "rango/" + mac + "/transfer";
+                            String topicOffline = "rango/" + mac + "/lwt";
+                            boolean succ = mqService.subscribe(topicName2, 1);
+                            succ = mqService.subscribe(topicOffline, 1);
+                            if (succ) {
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("loadDate", "1");
+                                String s = jsonObject.toString();
+                                String topicName = "rango/" + mac + "/set";
+
+                                boolean success = mqService.publish(topicName, 1, s);
+                                if (success)
+                                    if (!success) {
+                                        success = mqService.publish(topicName, 1, s);
+                                    }
+                                Log.i("sss", "-->" + success);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
+
         @Override
         public void onServiceDisconnected(ComponentName name) {
             bound = false;
         }
     };
+
 
     public class MessageReceiver extends BroadcastReceiver {
         @Override
@@ -2029,23 +2068,23 @@ public class DeviceFragment extends Fragment {
                 String macAddress = intent.getStringExtra("macAddress");
                 String deviceState = intent.getStringExtra("deviceState");
                 String noNet = intent.getStringExtra("noNet");
-                Log.i("noNet","-->:"+noNet);
+                Log.i("noNet", "-->:" + noNet);
                 String Net = intent.getStringExtra("Net");
-                String refresh=intent.getStringExtra("refresh");
-                String macAddress2=intent.getStringExtra("macAddress2");
-                DeviceChild deviceChild20= (DeviceChild) intent.getSerializableExtra("deviceChild2");
-                if (!Utils.isEmpty(refresh) && !Utils.isEmpty(macAddress2) && deviceChild20!=null){
-                    int groupPostion2=intent.getIntExtra("groupPostion",0);
+                String refresh = intent.getStringExtra("refresh");
+                String macAddress2 = intent.getStringExtra("macAddress2");
+                DeviceChild deviceChild20 = (DeviceChild) intent.getSerializableExtra("deviceChild2");
+                if (!Utils.isEmpty(refresh) && !Utils.isEmpty(macAddress2) && deviceChild20 != null) {
+                    int groupPostion2 = intent.getIntExtra("groupPostion", 0);
                     List<DeviceChild> childList = childern.get(groupPostion2);
                     for (int i = 0; i < childList.size(); i++) {
                         DeviceChild deviceChild2 = childList.get(i);
                         if (macAddress2.equals(deviceChild2.getMacAddress())) {
                             childern.get(groupPostion).set(i, deviceChild20);
-                            adapter.changeChild(groupPostion2,i);
+                            adapter.changeChild(groupPostion2, i);
                             break;
                         }
                     }
-                }else {
+                } else {
                     if (!Utils.isEmpty(Net)) {
                         for (int i = 0; i < deviceGroups.size(); i++) {
                             List<DeviceChild> deviceChildren = childern.get(i);
@@ -2059,7 +2098,6 @@ public class DeviceFragment extends Fragment {
                                 childern.get(i).set(j, deviceChild);
                             }
                         }
-//                    changeChildren(groupPostion);
                         adapter.notifyDataSetChanged();
                     } else if (!Utils.isEmpty(noNet)) {
                         for (int i = 0; i < deviceGroups.size(); i++) {
@@ -2079,75 +2117,69 @@ public class DeviceFragment extends Fragment {
                         DeviceChild deviceChild = (DeviceChild) intent.getSerializableExtra("deviceChild");
                         if (deviceChild == null) {
                             try {
-                                List<DeviceChild> deviceChildren = childern.get(groupPostion);
-                                if (!Utils.isEmpty(macAddress)) {
-                                    for (int i = 0; i < deviceChildren.size(); i++) {
-                                        DeviceChild deviceChild2 = deviceChildren.get(i);
-                                        if (deviceChild2 != null && macAddress.equals(deviceChild2.getMacAddress())) {
-                                            if (mDeviceChild != null && mDeviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
-                                                mDeviceChild = null;
+                                if (groupPostion < deviceGroups.size()) {
+                                    List<DeviceChild> deviceChildren = childern.get(groupPostion);
+                                    if (!Utils.isEmpty(macAddress)) {
+                                        for (int i = 0; i < deviceChildren.size(); i++) {
+                                            DeviceChild deviceChild2 = deviceChildren.get(i);
+                                            if (deviceChild2 != null && macAddress.equals(deviceChild2.getMacAddress())) {
+                                                if (mDeviceChild != null && mDeviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
+                                                    mDeviceChild = null;
+                                                }
+                                                childern.get(groupPostion).remove(deviceChild2);
+                                                break;
                                             }
-                                            childern.get(groupPostion).remove(deviceChild2);
-                                            break;
                                         }
                                     }
-                                }
-
-                                Utils.showToast(context, "该设备已重置");
-                                List<DeviceChild> children = deviceChildDao.findAllDevice();
-                                if (children != null && children.isEmpty() && deviceGroups.size() == 2) {
-                                    context.startActivity(new Intent(context, MainActivity.class));
-                                } else {
-                                    adapter.notifyDataSetChanged();
+                                    Utils.showToast(context, "该设备已重置");
+                                    List<DeviceChild> children = deviceChildDao.findAllDevice();
+                                    if (children != null && children.isEmpty() && deviceGroups.size() == 2) {
+                                        context.startActivity(new Intent(context, MainActivity.class));
+                                    } else {
+                                        adapter.notifyDataSetChanged();
+                                    }
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        } else if (deviceChild != null) {
-                            child = deviceChild;
-
-//                            List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(deviceChild.getHouseId());
-                            List<DeviceChild> childList = childern.get(groupPostion);
-                            for (int i = 0; i < childList.size(); i++) {
-                                DeviceChild deviceChild2 = childList.get(i);
-                                if (deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
-//                                    if (offlineList.contains(deviceChild2.getMacAddress())){
-//                                        Log.i("offlineList","-->"+offlineList.size());
-//                                        offlineList.remove(deviceChild2.getMacAddress());
-//                                    }
-                                    childern.get(groupPostion).set(i, deviceChild);
-                                    adapter.notifyDataSetChanged();
-                                    break;
+                        } if (deviceChild != null) {
+                            if (groupPostion < deviceGroups.size()) {
+                                List<DeviceChild> childList = childern.get(groupPostion);
+                                for (int i = 0; i < childList.size(); i++) {
+                                    DeviceChild deviceChild2 = childList.get(i);
+                                    if (deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
+                                        childern.get(groupPostion).set(i, deviceChild);
+                                        adapter.notifyDataSetChanged();
+                                        break;
+                                    }
                                 }
-//                                if (offlineList.size()>=1){
-//                                    Log.i("aaa","--------------------");
-//                                    new LoadMqttAsync2().execute(offlineList);
-//                                }
                             }
                         }
                     }
                 }
 
             } catch (Exception e) {
+                Log.i("Exception", "-->" + "jghuiop");
                 e.printStackTrace();
             }
         }
     }
-    class LoadMqttAsync2 extends AsyncTask<List<String>,Void,Void>{
+
+    class LoadMqttAsync2 extends AsyncTask<List<String>, Void, Void> {
 
 
         @Override
         protected Void doInBackground(List<String>... lists) {
-            List<String> deviceChildren=lists[0];
+            List<String> deviceChildren = lists[0];
             try {
-                if (NetWorkUtil.isConn(getActivity())){
+                if (NetWorkUtil.isConn(getActivity())) {
                     for (int i = 0; i < deviceChildren.size(); i++) {
-                        String mac=deviceChildren.get(i);
+                        String mac = deviceChildren.get(i);
                         if (mqService != null) {
                             try {
 
                                 String topic = "rango/" + mac + "/set";
-                                Log.i("macAddress2","-->"+mac);
+                                Log.i("macAddress2", "-->" + mac);
                                 JSONObject jsonObject = new JSONObject();
                                 jsonObject.put("loadDate", "1");
                                 String s = jsonObject.toString();
@@ -2156,19 +2188,19 @@ public class DeviceFragment extends Fragment {
                                 if (!success) {
                                     success = mqService.publish(topic, 1, s);
                                 }
-                                if (success){
-                                    Log.i("macAddress3","-->"+mac);
+                                if (success) {
+                                    Log.i("macAddress3", "-->" + mac);
                                     Thread.sleep(200);
 //                                Thread.currentThread().sleep(300);
                                 }
-                            }catch (Exception e){
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
                     }
                 }
 
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;

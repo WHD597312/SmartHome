@@ -247,7 +247,6 @@ public class MainControlFragment extends Fragment{
                     if (code==2000){
                         mainControls.clear();
                         JSONArray content=jsonObject.getJSONArray("content");
-
                         for (int i=0;i<content.length();i++){
                             JSONObject device=content.getJSONObject(i);
                             if (device!=null){
@@ -260,9 +259,15 @@ public class MainControlFragment extends Fragment{
                                 int controlled=device.getInt("controlled");
 
                                 DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
+                                String machAttr=deviceChild.getMachAttr();
+                                if ("C".equals(machAttr)){
+
+                                }else {
+                                    mainControls.add(deviceChild);
+                                }
                                 deviceChild.setControlled(controlled);
                                 deviceChildDao.update(deviceChild);
-                                mainControls.add(deviceChild);
+
                                 if (controlled==2){
                                     deviceChild2=deviceChild;
                                 }
@@ -273,6 +278,7 @@ public class MainControlFragment extends Fragment{
                         isSelected = new HashMap<Integer, Boolean>();
                         for (int i = 0; i < mainControls.size(); i++) {
                             DeviceChild deviceChild=mainControls.get(i);
+
                             if (deviceChild.getControlled()==2){
                                 isSelected.put(i, true);
                             }else {
@@ -404,7 +410,8 @@ public class MainControlFragment extends Fragment{
                             deviceChildDao.update(deviceChild);
                             send(deviceChild);
                         }else {
-                            for (DeviceChild deviceChild:mainControls){
+                            List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(Long.parseLong(houseId));
+                            for (DeviceChild deviceChild:deviceChildren){
                                 deviceChild.setCtrlMode("normal");
                                 deviceChildDao.update(deviceChild);
                                 send(deviceChild);

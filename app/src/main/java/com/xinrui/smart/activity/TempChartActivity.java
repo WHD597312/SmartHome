@@ -76,9 +76,9 @@ public class TempChartActivity extends AppCompatActivity {
         deviceChildDao=new DeviceChildDaoImpl(getApplicationContext());
         deviceChild=deviceChildDao.findDeviceById(Integer.parseInt(deviceId));
 
-        int powerValue=deviceChild.getPowerValue();
-        int voltageValue=deviceChild.getVoltageValue()/10;
-        int currentValue=deviceChild.getCurrentValue()/1000;
+        float powerValue=deviceChild.getPowerValue()/10;
+        float voltageValue=deviceChild.getVoltageValue()/10;
+        float currentValue=deviceChild.getCurrentValue()/1000;//小数点后保留一位
         int ratedPower=deviceChild.getRatedPower();
 //        tv_power.setText("功率:"+powerValue+"w");
 //        tv_voltage.setText("电压:"+voltageValue+"v");
@@ -125,7 +125,6 @@ public class TempChartActivity extends AppCompatActivity {
         if (receiver!=null){
             unregisterReceiver(receiver);
         }
-
         running=false;
     }
 

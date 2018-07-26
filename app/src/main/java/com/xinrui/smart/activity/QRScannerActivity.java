@@ -51,7 +51,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class QRScannerActivity extends AppCompatActivity implements SurfaceHolder.Callback{
+public class QRScannerActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
     ViewfinderView viewfinderView;
 
@@ -73,6 +73,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
     ImageView back;
     Unbinder unbinder;
     MyApplication application;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,14 +81,14 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.activity_qrscanner);
-        if (application==null){
-            application= (MyApplication) getApplication();
+        if (application == null) {
+            application = (MyApplication) getApplication();
             application.addActivity(this);
         }
 
         viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 
-        unbinder=ButterKnife.bind(this);
+        unbinder = ButterKnife.bind(this);
         init();
 
         if (Build.VERSION.SDK_INT >= 23) {
@@ -108,6 +109,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
     DeviceChildDaoImpl deviceChildDao;
     DeviceGroupDaoImpl deviceGroupDao;
     SharedPreferences preferences;
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -140,13 +142,14 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
     }
 
     @OnClick({R.id.back})
-    public void onClick(View view){
-        switch (view.getId()){
+    public void onClick(View view) {
+        switch (view.getId()) {
             case R.id.back:
                 finish();
                 break;
         }
     }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -161,7 +164,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
     protected void onDestroy() {
         inactivityTimer.shutdown();
         super.onDestroy();
-        if (unbinder!=null){
+        if (unbinder != null) {
             unbinder.unbind();
         }
         application.removeActivity(this);
@@ -182,7 +185,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
             if (!Utils.isEmpty(content)) {
                 content = new String(Base64.decode(content, Base64.DEFAULT));
                 if (!Utils.isEmpty(content)) {
-                    shareContent=content;
+                    shareContent = content;
                     String[] ss = content.split("&");
                     String s0 = ss[0];
                     String deviceId = s0.substring(s0.indexOf("'") + 1);
@@ -196,14 +199,13 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                     params.put("userId", userId);
                     new QrCodeAsync().execute(params);
 
-
-
                 }
             }
 //                tv_result.setText(content);
 
         }
     }
+
     //http://host:port/app/version/device/getDeviceById?deviceId='deviceId'
     String macAddress;
     int deviceId;
@@ -212,6 +214,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
 
 
     private String qrCodeConnectionUrl = "http://47.98.131.11:8082/warmer/v1.0/device/createShareDevice";
+
     class QrCodeAsync extends AsyncTask<Map<String, Object>, Void, Integer> {
         @Override
         protected Integer doInBackground(Map<String, Object>... maps) {
@@ -223,8 +226,8 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
                     if (code == 2000) {
-                        if (!Utils.isEmpty(shareContent)){
-                            shareContent=shareContent.replace("'", "");
+                        if (!Utils.isEmpty(shareContent)) {
+                            shareContent = shareContent.replace("'", "");
                             int deviceId;
                             int userId;
                             String macAddress;
@@ -232,15 +235,15 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                             int controlled;
                             int shareHouseId;
                             String deviceName;
-                            String ss[]=shareContent.split("&");
-                            deviceId=Integer.parseInt(ss[0].substring(8));
-                            QRScannerActivity.this.deviceId=deviceId;
-                            userId=Integer.parseInt(ss[1].substring(6));
-                            macAddress=ss[2].substring(10);
-                            type=Integer.parseInt(ss[3].substring(4));
-                            controlled=Integer.parseInt(ss[4].substring(10));
-                            shareHouseId=Integer.parseInt(ss[5].substring(7));
-                            deviceName=ss[6].substring(10);
+                            String ss[] = shareContent.split("&");
+                            deviceId = Integer.parseInt(ss[0].substring(8));
+                            QRScannerActivity.this.deviceId = deviceId;
+                            userId = Integer.parseInt(ss[1].substring(6));
+                            macAddress = ss[2].substring(10);
+                            type = Integer.parseInt(ss[3].substring(4));
+                            controlled = Integer.parseInt(ss[4].substring(10));
+                            shareHouseId = Integer.parseInt(ss[5].substring(7));
+                            deviceName = ss[6].substring(10);
 
                             long houseId = Long.MAX_VALUE;
                             DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, houseId, userId, type, 0);
@@ -252,35 +255,16 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                             deviceChild.setShareHouseId(shareHouseId);
 
 
-                            List<DeviceChild> deviceChildren = deviceChildDao.findGroupIdAllDevice(houseId);
-                            DeviceChild deviceChild3 = null;
+                            List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
 
                             for (DeviceChild deviceChild2 : deviceChildren) {
                                 if (macAddress.equals(deviceChild2.getMacAddress())) {
-                                    deviceChild3 = deviceChild2;
+                                    deviceChildDao.delete(deviceChild2);
                                     break;
                                 }
                             }
-                            if (deviceChild3 == null) {
-                                deviceChildDao.insert(deviceChild);
-                            } else {
-                                deviceChild3 = deviceChildDao.findDeviceById(deviceChild3.getId());
-                                deviceChild3.setType(type);
-                                deviceChild3.setDeviceName(deviceName);
-                                deviceChild3.setHouseId(houseId);
-                                deviceChild3.setMasterControllerUserId(userId);
-                                deviceChild3.setIsUnlock(0);
-                                deviceChild3.setVersion(0);
-                                deviceChild3.setMacAddress(macAddress);
-                                deviceChild3.setControlled(controlled);
-                                deviceChild3.setOnLint(true);
-                                deviceChild3.setShareHouseId(shareHouseId);
-                                deviceChildDao.update(deviceChild3);
-                            }
+                            deviceChildDao.insert(deviceChild);
                         }
-
-//                        String deviceId = (String) params.get("deviceId");
-
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -320,7 +304,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
         }
         if (handler == null) {
 //            handler = new CaptureActivityHandler(QRScannerActivity.this, decodeFormats, characterSet);
-            handler=new CaptureActivityHandler(this,decodeFormats,characterSet);
+            handler = new CaptureActivityHandler(this, decodeFormats, characterSet);
         }
     }
 

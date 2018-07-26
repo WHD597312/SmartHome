@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,7 +77,11 @@ public class SmartFragmentManager extends Fragment {
         deviceChildDao = new DeviceChildDaoImpl(MyApplication.getContext());
         fragmentList = new ArrayList<Fragment>();
         for (int i = 0; i < deviceGroups.size() - 1; i++) {
-            fragmentList.add(new SmartFragment());
+            DeviceGroup deviceGroup=deviceGroups.get(i);
+            String houseId=deviceGroup.getId()+"";
+            SmartFragment smartFragment=new SmartFragment();
+            smartFragment.setHouseId(houseId);
+            fragmentList.add(smartFragment);
         }
 
         preferences = getActivity().getSharedPreferences("smart", Context.MODE_PRIVATE);
@@ -87,8 +92,7 @@ public class SmartFragmentManager extends Fragment {
 
         MyOnPageChangeListener listener = new MyOnPageChangeListener(getActivity(), mPager, layout, fragmentList.size());
 
-        mPager.setOnPageChangeListener(listener);
-
+        mPager.addOnPageChangeListener(listener);
 
         if (preferences.contains("postion")) {
             int postion = preferences.getInt("postion", 0);
@@ -107,15 +111,19 @@ public class SmartFragmentManager extends Fragment {
         return view;
     }
 
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (unbinder != null) {
             unbinder.unbind();
         }
-    }
 
+//        if (isBound){
+//            if (connection != null) {
+//                getActivity().unbindService(connection);
+//            }
+//        }
+    }
 
     @Override
     public void onStart() {
@@ -128,33 +136,29 @@ public class SmartFragmentManager extends Fragment {
     public void onResume() {
         super.onResume();
         running = true;
-        Intent intent = new Intent(getActivity(), MQService.class);
-        isBound=getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+//        Intent intent = new Intent(getActivity(), MQService.class);
+//        isBound=getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
-        IntentFilter intentFilter = new IntentFilter("SmartFragmentManager");
-        receiver = new MessageReceiver();
-        getActivity().registerReceiver(receiver, intentFilter);
+//        IntentFilter intentFilter = new IntentFilter("SmartFragmentManager");
+//        receiver = new MessageReceiver();
+//        getActivity().registerReceiver(receiver, intentFilter);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         running = false;
-        deviceGroupDao.closeDaoSession();
-        deviceChildDao.closeDaoSession();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (isBound){
-            if (connection != null) {
-                getActivity().unbindService(connection);
-            }
-        }
-        if (receiver != null) {
-            getActivity().unregisterReceiver(receiver);
-        }
+
+//        if (receiver != null) {
+//            getActivity().unregisterReceiver(receiver);
+//        }
+        deviceGroupDao.closeDaoSession();
+        deviceChildDao.closeDaoSession();
 
     }
 
@@ -233,104 +237,68 @@ public class SmartFragmentManager extends Fragment {
          * arg0是页面跳转完后得到的页面的Position（位置编号）。
          */
         public void onPageSelected(int poistion) {
-            preferences.edit().putInt("postion", poistion).commit();
             Message msg = handler.obtainMessage();
             msg.what = poistion;
             handler.sendMessage(msg);
         }
     }
 
-    DeviceChild deviceChild;
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             int postion = msg.what;
-            DeviceGroup deviceGroup = deviceGroups.get(postion);
-            if (deviceGroup != null) {
                 try {
-                    String header = deviceGroup.getHeader();
-                    SmartFragment smartFragment = (SmartFragment) fragmentList.get(postion);
-                    if (smartFragment != null) {
-                        smartFragment.houseId = deviceGroup.getId() + "";
-                        smartFragment.tv_home.setText(header);
-
-                        DeviceChild estDeviceChild = null;
-                        List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(deviceGroup.getId(), 2);//外置传感器
-                        if (deviceChildren.isEmpty()) {
-                            smartFragment.relative.setVisibility(View.GONE);
-                        } else {
-                            for (DeviceChild child : deviceChildren) {
-                                if (child.getControlled() == 1) {
-                                    estDeviceChild = child;
-                                    break;
-                                }
-                            }
-                            deviceChild = estDeviceChild;
-                            if (deviceChild != null) {
-                                smartFragment.relative.setVisibility(View.VISIBLE);
-                                int extTemp = deviceChild.getTemp();
-                                int extHum = deviceChild.getHum();
-                                smartFragment.temp.setText(extTemp + "℃");
-                                smartFragment.tv_cur_temp.setText(extTemp + "℃");
-                                smartFragment.hum.setText(extHum + "%");
-                                smartFragment.tv_hum.setText(extHum + "%");
-                            } else {
-                                smartFragment.relative.setVisibility(View.GONE);
-                            }
-                        }
-                    }
+                    SharedPreferences.Editor editor=preferences.edit();
+                    editor.putInt("position",postion);
+                    editor.commit();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
         }
     };
 
-    MessageReceiver receiver;
+//    MessageReceiver receiver;
+//
+//    class MessageReceiver extends BroadcastReceiver {
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
+//            try {
+//                deviceChild = deviceChild2;
+//                deviceChildDao.update(deviceChild);
+//                if (deviceChild != null) {
+//                    int postion = preferences.getInt("postion", 0);
+//                    SmartFragment smartFragment = (SmartFragment) fragmentList.get(postion);
+//                    if (smartFragment != null) {
+//                        int extTemp = deviceChild.getTemp();
+//                        int extHum = deviceChild.getHum();
+//                        smartFragment.temp.setText(extTemp + "℃");
+//                        smartFragment.tv_cur_temp.setText(extTemp + "℃");
+//                        smartFragment.hum.setText(extHum + "%");
+//                        smartFragment.tv_hum.setText(extHum + "%");
+//                    }
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
+//    }
 
-    class MessageReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
-
-            try {
-                deviceChild = deviceChild2;
-                deviceChildDao.update(deviceChild);
-                if (deviceChild != null) {
-                    int postion = preferences.getInt("postion", 0);
-                    SmartFragment smartFragment = (SmartFragment) fragmentList.get(postion);
-                    if (smartFragment != null) {
-                        int extTemp = deviceChild.getTemp();
-                        int extHum = deviceChild.getHum();
-                        smartFragment.temp.setText(extTemp + "℃");
-                        smartFragment.tv_cur_temp.setText(extTemp + "℃");
-                        smartFragment.hum.setText(extHum + "%");
-                        smartFragment.tv_hum.setText(extHum + "%");
-                    }
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
-
-    MQService mqService;
-    private boolean bound = false;
-    ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            MQService.LocalBinder binder = (MQService.LocalBinder) service;
-            mqService = binder.getService();
-            bound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            bound = false;
-        }
-    };
+//    MQService mqService;
+//    private boolean bound = false;
+//    ServiceConnection connection = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+//            mqService = binder.getService();
+//            bound = true;
+//        }
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            bound = false;
+//        }
+//    };
 }

@@ -124,7 +124,6 @@ public class ShareDeviceActivity extends AppCompatActivity {
             mqService = binder.getService();
             bound = true;
         }
-
         @Override
         public void onServiceDisconnected(ComponentName name) {
             bound = false;

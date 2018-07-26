@@ -69,8 +69,6 @@ public class HttpUtils {
                 jsonObject.put(param.getKey(),param.getValue());
             }
 
-
-
             RequestBody requestBody = RequestBody.create(MediaType.parse(CONTENT_TYPE),jsonObject.toJSONString());
 
             Request request = new Request.Builder()

@@ -284,22 +284,22 @@ public class HeaterFragment extends LazyFragment {
                                         if (mCurrent>=40){
                                             tv_outmode.setText("速热模式");
                                             animationDrawable.start();
-                                        }else if (mCurrent>=20 && mCurrent<40){
+                                        }else if (mCurrent>20 && mCurrent<40){
                                             tv_outmode.setText("节能模式");
                                             animationDrawable.start();
-                                        }else if (mCurrent<20){
+                                        }else{
                                             tv_outmode.setText("保温模式");
                                             animationDrawable.stop();
                                         }
                                     }else {
                                         int curTemp=deviceChild.getCurTemp();
-                                        if (mCurrent >= (curTemp + 3)) {
+                                        if ((mCurrent-3) >curTemp) {
                                             tv_outmode.setText("速热模式");
                                             animationDrawable.start();
-                                        } else if (curTemp >= (mCurrent + 3)) {
+                                        } else if ((mCurrent+2)< curTemp) {
                                             tv_outmode.setText("保温模式");
                                             animationDrawable.stop();
-                                        } else {
+                                        } else if ((mCurrent-3) > curTemp){
                                             tv_outmode.setText("节能模式");
                                             animationDrawable.start();
                                         }
@@ -642,15 +642,16 @@ public class HeaterFragment extends LazyFragment {
 
 
         running = true;
-        image_switch.setTag("关");
-        image_hand_task.setTag("定时");
-        model_protect.setTag("不保护");
-        image_lock.setTag("解锁");
-        image_srceen.setTag("屏保关");
+//        image_switch.setTag("关");
+//        image_hand_task.setTag("定时");
+//        model_protect.setTag("不保护");
+//        image_lock.setTag("解锁");
+//        image_srceen.setTag("屏保关");
         semicBar.setDeviceId(deviceChild.getId() + "");
 
         if (deviceChild != null) {
             setMode(deviceChild);
+//            send(deviceChild);
         }
     }
 
@@ -659,7 +660,10 @@ public class HeaterFragment extends LazyFragment {
     public void onStop() {
         super.onStop();
         running = false;
-        deviceChildDao.closeDaoSession();
+        if(deviceChildDao!=null){
+            deviceChildDao.closeDaoSession();
+        }
+
     }
 
 
@@ -701,19 +705,19 @@ public class HeaterFragment extends LazyFragment {
                         relative5.setVisibility(View.VISIBLE);
                         image_switch.setTag("关");
                         deviceChild.setDeviceState("close");
-                        tv_outmode.setVisibility(View.GONE);
+//                        tv_outmode.setVisibility(View.GONE);
                         deviceChild.setImg(imgs[0]);
                         deviceChildDao.update(deviceChild);
                         setMode(deviceChild);
                         send(deviceChild);
-                        tv_timeShutDown.setVisibility(View.GONE);
+//                        tv_timeShutDown.setVisibility(View.GONE);
 
 
                     } else {
-                        tv_outmode.setVisibility(View.VISIBLE);
+//                        tv_outmode.setVisibility(View.VISIBLE);
                         position=1;
-                        relative4.setVisibility(View.VISIBLE);
-                        relative5.setVisibility(View.GONE);
+//                        relative4.setVisibility(View.VISIBLE);
+//                        relative5.setVisibility(View.GONE);
                         image_switch.setTag("开");
                         deviceChild.setDeviceState("open");
                         deviceChild.setImg(imgs[1]);

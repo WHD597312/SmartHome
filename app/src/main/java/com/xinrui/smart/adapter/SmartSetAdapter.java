@@ -70,7 +70,6 @@ public class SmartSetAdapter extends BaseAdapter {
                 viewHolder2.tv_smart.setText(str[2]);
                 viewHolder2.image_smart.setImageResource(imgs[2]);
                 break;
-
         }
         return convertView;
     }

@@ -64,6 +64,7 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         public final static Property ShareHouseId = new Property(37, long.class, "shareHouseId", false, "SHARE_HOUSE_ID");
         public final static Property GroupPosition = new Property(38, int.class, "groupPosition", false, "GROUP_POSITION");
         public final static Property ChildPosition = new Property(39, int.class, "childPosition", false, "CHILD_POSITION");
+        public final static Property MachAttr = new Property(40, String.class, "machAttr", false, "MACH_ATTR");
     }
 
 
@@ -118,7 +119,8 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
                 "\"TIMER_SHUTDOWN\" TEXT," + // 36: timerShutdown
                 "\"SHARE_HOUSE_ID\" INTEGER NOT NULL ," + // 37: shareHouseId
                 "\"GROUP_POSITION\" INTEGER NOT NULL ," + // 38: groupPosition
-                "\"CHILD_POSITION\" INTEGER NOT NULL );"); // 39: childPosition
+                "\"CHILD_POSITION\" INTEGER NOT NULL ," + // 39: childPosition
+                "\"MACH_ATTR\" TEXT);"); // 40: machAttr
     }
 
     /** Drops the underlying database table. */
@@ -238,6 +240,11 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         stmt.bindLong(38, entity.getShareHouseId());
         stmt.bindLong(39, entity.getGroupPosition());
         stmt.bindLong(40, entity.getChildPosition());
+ 
+        String machAttr = entity.getMachAttr();
+        if (machAttr != null) {
+            stmt.bindString(41, machAttr);
+        }
     }
 
     @Override
@@ -351,6 +358,11 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         stmt.bindLong(38, entity.getShareHouseId());
         stmt.bindLong(39, entity.getGroupPosition());
         stmt.bindLong(40, entity.getChildPosition());
+ 
+        String machAttr = entity.getMachAttr();
+        if (machAttr != null) {
+            stmt.bindString(41, machAttr);
+        }
     }
 
     @Override
@@ -400,7 +412,8 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
             cursor.isNull(offset + 36) ? null : cursor.getString(offset + 36), // timerShutdown
             cursor.getLong(offset + 37), // shareHouseId
             cursor.getInt(offset + 38), // groupPosition
-            cursor.getInt(offset + 39) // childPosition
+            cursor.getInt(offset + 39), // childPosition
+            cursor.isNull(offset + 40) ? null : cursor.getString(offset + 40) // machAttr
         );
         return entity;
     }
@@ -447,6 +460,7 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         entity.setShareHouseId(cursor.getLong(offset + 37));
         entity.setGroupPosition(cursor.getInt(offset + 38));
         entity.setChildPosition(cursor.getInt(offset + 39));
+        entity.setMachAttr(cursor.isNull(offset + 40) ? null : cursor.getString(offset + 40));
      }
     
     @Override

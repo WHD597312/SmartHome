@@ -265,7 +265,6 @@ public class RegistActivity extends AppCompatActivity {
 //                btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
 //                btn_get_code.setTextSize(16);
             }
-
         }
 
         /**
@@ -283,7 +282,6 @@ public class RegistActivity extends AppCompatActivity {
                 btn_get_code.setText("重新发送");
                 btn_get_code.setClickable(true);
             }
-
         }
     }
 
