@@ -32,6 +32,7 @@ import okhttp3.Response;
 
 public class HttpUtils {
 
+    public static String ipAddress="http://47.98.131.11:8082/warmer/v1.0";
     public static String getInputStream(InputStream is) {
         String result = null;
         byte[] buffer = new byte[1024 * 10];

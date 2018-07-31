@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <RelativeLayout
+        android:layout_width="@dimen/dp_115"
+        android:layout_height="@dimen/dp_40"
+        android:background="@mipmap/home_pop_bj"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/dp_12"
+        >
+        <RelativeLayout
+            android:id="@+id/rl_room_rename"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_30"
+            android:layout_marginTop="@dimen/dp_13"
+            >
+            <ImageView
+                android:id="@+id/iv_rename_r1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/pop_rename"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/dp_10"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_toRightOf="@+id/iv_rename_r1"
+                android:layout_alignTop="@+id/iv_rename_r1"
+                android:layout_centerVertical="true"
+                android:id="@+id/tv_rname_r1"
+                android:text="更改房间名"
+                />
+        </RelativeLayout>
+    </RelativeLayout>
+</RelativeLayout>

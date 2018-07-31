@@ -90,9 +90,14 @@ public class SmartFragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_smart, container, false);
         unbinder = ButterKnife.bind(this, view);
+        deviceGroupDao = new DeviceGroupDaoImpl(MyApplication.getContext());
+        deviceChildDao = new DeviceChildDaoImpl(MyApplication.getContext());
         IntentFilter intentFilter = new IntentFilter("SmartFragmentManager");
         receiver = new MessageReceiver();
         getActivity().registerReceiver(receiver, intentFilter);
+
+        adapter = new SmartSetAdapter(getActivity());
+        smart_set.setAdapter(adapter);
         return view;
     }
 
@@ -101,11 +106,7 @@ public class SmartFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        adapter = new SmartSetAdapter(getActivity());
-        deviceGroupDao = new DeviceGroupDaoImpl(MyApplication.getContext());
-        deviceChildDao = new DeviceChildDaoImpl(MyApplication.getContext());
 
-        smart_set.setAdapter(adapter);
         if (houseId != null) {/**判断是不是有外置传感器*/
             DeviceGroup deviceGroup = deviceGroupDao.findById(Long.parseLong(houseId));
             List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(Long.parseLong(houseId), 2);

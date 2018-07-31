@@ -39,6 +39,11 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
+import com.amap.api.location.AMapLocationQualityReport;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.gifdecoder.GifDecoder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -55,6 +60,7 @@ import com.xinrui.esptouch.IEsptouchResult;
 import com.xinrui.esptouch.IEsptouchTask;
 import com.xinrui.esptouch.task.__IEsptouchTask;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.location.CheckPermissionsActivity;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
@@ -92,8 +98,9 @@ import butterknife.OnClick;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
-public class AddDeviceActivity extends AppCompatActivity {
-
+public class AddDeviceActivity extends CheckPermissionsActivity {
+    private AMapLocationClient locationClient = null;
+    private AMapLocationClientOption locationOption = null;
     MyApplication application;
     @BindView(R.id.btn_wifi)
     Button btn_wifi;
@@ -131,6 +138,7 @@ public class AddDeviceActivity extends AppCompatActivity {
     int visibility;
     int wifi_drawable;
     int wifi_color;
+    @BindView(R.id.layout_help) RelativeLayout layout_help;
 
     int scan_drawable;
 
@@ -153,6 +161,9 @@ public class AddDeviceActivity extends AppCompatActivity {
     WindowManager.LayoutParams lp;
     DeviceChild deviceChild = null;
     private String deviceName;
+    private String province;/**省*/
+    private String city;/**市*/
+    private String distrct;/**区*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,13 +220,148 @@ public class AddDeviceActivity extends AppCompatActivity {
 
         Intent service = new Intent(this, MQService.class);
         startService(service);
+
+        initLocation();
+        startLocation();//开始定位
     }
 
     private String sharedDeviceId;
+    private PopupWindow popupWindow;
+    public void popupmenuWindow() {
+        if (popupWindow != null && popupWindow.isShowing()) {
+            return;
+        }
+
+        View view = View.inflate(this, R.layout.popup_help, null);
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        RelativeLayout rl_heater = (RelativeLayout) view.findViewById(R.id.rl_heater);
+        RelativeLayout rl_sensor = (RelativeLayout) view.findViewById(R.id.rl_sensor);
+
+
+
+
+        popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        //点击空白处时，隐藏掉pop窗口
+        popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
+        //添加弹出、弹入的动画
+        popupWindow.setAnimationStyle(R.style.Popupwindow);
+
+//        ColorDrawable dw = new ColorDrawable(0x30000000);
+//        popupWindow.setBackgroundDrawable(dw);
+        popupWindow.showAsDropDown(layout_help, 0, -20);
+//        popupWindow.showAtLocation(tv_home_manager, Gravity.RIGHT, 0, 0);
+        //添加按键事件监听
+
+        View.OnClickListener listener = new View.OnClickListener() {
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.rl_heater:
+                        popupmenuWindow2();
+                        popupWindow.dismiss();
+                        break;
+                    case R.id.rl_sensor:
+                        break;
+                }
+            }
+        };
+
+        rl_heater.setOnClickListener(listener);
+        rl_sensor.setOnClickListener(listener);
+    }
+    PopupWindow popupWindow2;
+    GifImageView image_heater_help;
+    public void popupmenuWindow2() {
+        if (popupWindow2 != null && popupWindow2.isShowing()) {
+            return;
+        }
+
+        View view = View.inflate(this, R.layout.popup_help2, null);
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        image_heater_help = (GifImageView) view.findViewById(R.id.image_heater_help);
+        try {
+            gifDrawable = new GifDrawable(getResources(), R.mipmap.help1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        image_heater_help.setVisibility(View.VISIBLE);
+        if (gifDrawable != null) {
+            gifDrawable.start();
+            image_heater_help.setImageDrawable(gifDrawable);
+            CountTimer2 countTimer2=new CountTimer2(10000,1000);
+            countTimer2.start();
+        }
+
+
+
+        popupWindow2 = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        //点击空白处时，隐藏掉pop窗口
+        popupWindow2.setFocusable(true);
+        popupWindow2.setOutsideTouchable(true);
+        //添加弹出、弹入的动画
+        popupWindow2.setAnimationStyle(R.style.Popupwindow);
+        backgroundAlpha(0.4f);
+
+//        ColorDrawable dw = new ColorDrawable(0x30000000);
+//        popupWindow.setBackgroundDrawable(dw);
+        popupWindow2.showAsDropDown(btn_match, 0, -20);
+//        popupWindow.showAtLocation(tv_home_manager, Gravity.RIGHT, 0, 0);
+        //添加按键事件监听
+    }
+
+
+    //设置蒙版
+    private void backgroundAlpha(float f) {
+        WindowManager.LayoutParams lp =getWindow().getAttributes();
+        lp.alpha = f;
+        getWindow().setAttributes(lp);
+    }
+
+    class CountTimer2 extends CountDownTimer {
+        public CountTimer2(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+
+        /**
+         * 倒计时过程中调用
+         *
+         * @param millisUntilFinished
+         */
+        @Override
+        public void onTick(long millisUntilFinished) {
+            Log.e("Tag", "倒计时=" + (millisUntilFinished / 1000));
+
+//            btn_get_code.setBackgroundColor(Color.parseColor("#c7c7c7"));
+//            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
+//            btn_get_code.setTextSize(16);
+        }
+
+        /**
+         * 倒计时完成后调用
+         */
+        @Override
+        public void onFinish() {
+            Log.e("Tag", "倒计时完成");
+            try {
+                gifDrawable = new GifDrawable(getResources(), R.mipmap.help2);
+//                gifDrawable.is
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            image_heater_help.setVisibility(View.VISIBLE);
+            if (gifDrawable != null) {
+                gifDrawable.start();
+                image_heater_help.setImageDrawable(gifDrawable);
+            }
+        }
+    }
+
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
 
 
-    @OnClick({R.id.img_back, R.id.btn_wifi, R.id.btn_scan, R.id.btn_scan2, R.id.btn_match})
+    @OnClick({R.id.img_back, R.id.btn_wifi, R.id.btn_scan, R.id.btn_scan2, R.id.btn_match,R.id.layout_help})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.img_back:
@@ -234,6 +380,9 @@ public class AddDeviceActivity extends AppCompatActivity {
                 Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
                 intent.putExtra("deviceList", "deviceList");
                 startActivity(intent);
+                break;
+            case R.id.layout_help:
+                popupmenuWindow();
                 break;
             case R.id.btn_wifi:
                 wifi_drawable = wifi_drawables[1];
@@ -550,7 +699,7 @@ public class AddDeviceActivity extends AppCompatActivity {
     }
 
     private ProgressDialog mProgressDialog;
-    private PopupWindow popupWindow;
+
 
     class CountTimer extends CountDownTimer {
         public CountTimer(long millisInFuture, long countDownInterval) {
@@ -864,5 +1013,183 @@ public class AddDeviceActivity extends AppCompatActivity {
         }
 
         running = false;
+    }
+
+    /**
+     * 初始化定位
+     *
+     * @since 2.8.0
+     * @author hongming.wang
+     *
+     */
+    private void initLocation(){
+        //初始化client
+        locationClient = new AMapLocationClient(getApplicationContext());
+        locationOption = getDefaultOption();
+        //设置定位参数
+        locationClient.setLocationOption(locationOption);
+        // 设置定位监听
+        locationClient.setLocationListener(locationListener);
+    }
+    /**
+     * 默认的定位参数
+     * @since 2.8.0
+     * @author hongming.wang
+     *
+     */
+    private AMapLocationClientOption getDefaultOption(){
+        AMapLocationClientOption mOption = new AMapLocationClientOption();
+        mOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);//可选，设置定位模式，可选的模式有高精度、仅设备、仅网络。默认为高精度模式
+        mOption.setGpsFirst(false);//可选，设置是否gps优先，只在高精度模式下有效。默认关闭
+        mOption.setHttpTimeOut(30000);//可选，设置网络请求超时时间。默认为30秒。在仅设备模式下无效
+        mOption.setInterval(2000);//可选，设置定位间隔。默认为2秒
+        mOption.setNeedAddress(true);//可选，设置是否返回逆地理地址信息。默认是true
+        mOption.setOnceLocation(false);//可选，设置是否单次定位。默认是false
+        mOption.setOnceLocationLatest(false);//可选，设置是否等待wifi刷新，默认为false.如果设置为true,会自动变为单次定位，持续定位时不要使用
+        AMapLocationClientOption.setLocationProtocol(AMapLocationClientOption.AMapLocationProtocol.HTTP);//可选， 设置网络请求的协议。可选HTTP或者HTTPS。默认为HTTP
+        mOption.setSensorEnable(false);//可选，设置是否使用传感器。默认是false
+        mOption.setWifiScan(true); //可选，设置是否开启wifi扫描。默认为true，如果设置为false会同时停止主动刷新，停止以后完全依赖于系统刷新，定位位置可能存在误差
+        mOption.setLocationCacheEnable(true); //可选，设置是否使用缓存定位，默认为true
+        return mOption;
+    }
+
+    /**
+     * 定位监听
+     */
+    AMapLocationListener locationListener = new AMapLocationListener() {
+        @Override
+        public void onLocationChanged(AMapLocation location) {
+            if (null != location) {
+
+                StringBuffer sb = new StringBuffer();
+                //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
+                if(location.getErrorCode() == 0){
+                    sb.append("定位成功" + "\n");
+                    sb.append("定位类型: " + location.getLocationType() + "\n");
+                    sb.append("经    度    : " + location.getLongitude() + "\n");
+                    sb.append("纬    度    : " + location.getLatitude() + "\n");
+                    sb.append("精    度    : " + location.getAccuracy() + "米" + "\n");
+                    sb.append("提供者    : " + location.getProvider() + "\n");
+
+                    sb.append("速    度    : " + location.getSpeed() + "米/秒" + "\n");
+                    sb.append("角    度    : " + location.getBearing() + "\n");
+                    // 获取当前提供定位服务的卫星个数
+                    sb.append("星    数    : " + location.getSatellites() + "\n");
+                    sb.append("国    家    : " + location.getCountry() + "\n");
+                    sb.append("省            : " + location.getProvince() + "\n");
+                    sb.append("市            : " + location.getCity() + "\n");
+                    sb.append("城市编码 : " + location.getCityCode() + "\n");
+
+                    sb.append("区            : " + location.getDistrict() + "\n");
+                    sb.append("区域 码   : " + location.getAdCode() + "\n");
+                    sb.append("地    址    : " + location.getAddress() + "\n");
+                    sb.append("兴趣点    : " + location.getPoiName() + "\n");
+                    //定位完成的时间
+                    sb.append("定位时间: " + com.xinrui.location.Utils.formatUTC(location.getTime(), "yyyy-MM-dd HH:mm:ss") + "\n");
+                } else {
+                    //定位失败
+                    sb.append("定位失败" + "\n");
+                    sb.append("错误码:" + location.getErrorCode() + "\n");
+                    sb.append("错误信息:" + location.getErrorInfo() + "\n");
+                    sb.append("错误描述:" + location.getLocationDetail() + "\n");
+                }
+                sb.append("***定位质量报告***").append("\n");
+                sb.append("* WIFI开关：").append(location.getLocationQualityReport().isWifiAble() ? "开启":"关闭").append("\n");
+                sb.append("* GPS状态：").append(getGPSStatusString(location.getLocationQualityReport().getGPSStatus())).append("\n");
+                sb.append("* GPS星数：").append(location.getLocationQualityReport().getGPSSatellites()).append("\n");
+                sb.append("****************").append("\n");
+                //定位之后的回调时间
+                sb.append("回调时间: " + com.xinrui.location.Utils.formatUTC(System.currentTimeMillis(), "yyyy-MM-dd HH:mm:ss") + "\n");
+
+                //解析定位结果，
+                String result = sb.toString();
+                Log.i("reSult","-->"+result);
+
+                if ("定位失败".equals(result)){
+
+                }
+
+                province=location.getProvince();
+                city=location.getCity();
+                distrct=location.getDistrict();
+                if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city) && !TextUtils.isEmpty(distrct)){
+                    stopLocation();
+                    destroyLocation();
+                }
+            }
+        }
+    };
+
+    /**
+     * 获取GPS状态的字符串
+     * @param statusCode GPS状态码
+     * @return
+     */
+    private String getGPSStatusString(int statusCode){
+        String str = "";
+        switch (statusCode){
+            case AMapLocationQualityReport.GPS_STATUS_OK:
+                str = "GPS状态正常";
+                break;
+            case AMapLocationQualityReport.GPS_STATUS_NOGPSPROVIDER:
+                str = "手机中没有GPS Provider，无法进行GPS定位";
+                break;
+            case AMapLocationQualityReport.GPS_STATUS_OFF:
+                str = "GPS关闭，建议开启GPS，提高定位质量";
+                break;
+            case AMapLocationQualityReport.GPS_STATUS_MODE_SAVING:
+                str = "选择的定位模式中不包含GPS定位，建议选择包含GPS定位的模式，提高定位质量";
+                break;
+            case AMapLocationQualityReport.GPS_STATUS_NOGPSPERMISSION:
+                str = "没有GPS定位权限，建议开启gps定位权限";
+                break;
+        }
+        return str;
+    }
+    /**
+     * 开始定位
+     *
+     * @since 2.8.0
+     * @author hongming.wang
+     *
+     */
+    private void startLocation(){
+        //根据控件的选择，重新设置定位参数
+//        resetOption();
+        // 设置定位参数
+        locationClient.setLocationOption(locationOption);
+        // 启动定位
+        locationClient.startLocation();
+    }
+
+    /**
+     * 停止定位
+     *
+     * @since 2.8.0
+     * @author hongming.wang
+     *
+     */
+    private void stopLocation(){
+        // 停止定位
+        locationClient.stopLocation();
+    }
+
+    /**
+     * 销毁定位
+     *
+     * @since 2.8.0
+     * @author hongming.wang
+     *
+     */
+    private void destroyLocation(){
+        if (null != locationClient) {
+            /**
+             * 如果AMapLocationClient是在当前Activity实例化的，
+             * 在Activity的onDestroy中一定要执行AMapLocationClient的onDestroy
+             */
+            locationClient.onDestroy();
+            locationClient = null;
+            locationOption = null;
+        }
     }
 }

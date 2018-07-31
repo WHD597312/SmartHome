@@ -53,6 +53,7 @@ import butterknife.Unbinder;
 public class SmartFragmentManager extends Fragment {
     @BindView(R.id.viewpager)
     ViewPager mPager;
+    @BindView(R.id.linearout) LinearLayout linearout;
     List<Fragment> fragmentList;
 
     DeviceGroupDaoImpl deviceGroupDao;
@@ -64,7 +65,6 @@ public class SmartFragmentManager extends Fragment {
     public static boolean running = false;
     SharedPreferences preferences;
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -75,7 +75,7 @@ public class SmartFragmentManager extends Fragment {
         deviceGroupDao = new DeviceGroupDaoImpl(MyApplication.getContext());
         deviceGroups = deviceGroupDao.findAllDevices();
         deviceChildDao = new DeviceChildDaoImpl(MyApplication.getContext());
-        fragmentList = new ArrayList<Fragment>();
+        fragmentList = new ArrayList<>();
         for (int i = 0; i < deviceGroups.size() - 1; i++) {
             DeviceGroup deviceGroup=deviceGroups.get(i);
             String houseId=deviceGroup.getId()+"";
@@ -83,31 +83,8 @@ public class SmartFragmentManager extends Fragment {
             smartFragment.setHouseId(houseId);
             fragmentList.add(smartFragment);
         }
-
         preferences = getActivity().getSharedPreferences("smart", Context.MODE_PRIVATE);
 
-        FragmentPagerAdapter fragmentPagerAdapter = new SmartFragmentAdapter(getChildFragmentManager(), fragmentList);
-        LinearLayout layout = (LinearLayout) view.findViewById(R.id.linearout);
-        mPager.setAdapter(fragmentPagerAdapter);
-
-        MyOnPageChangeListener listener = new MyOnPageChangeListener(getActivity(), mPager, layout, fragmentList.size());
-
-        mPager.addOnPageChangeListener(listener);
-
-        if (preferences.contains("postion")) {
-            int postion = preferences.getInt("postion", 0);
-            listener.onPageSelected(postion);
-            Message msg = handler.obtainMessage();
-            msg.what = postion;
-            handler.sendMessage(msg);
-            mPager.setCurrentItem(postion);
-        } else {
-            mPager.setCurrentItem(0);
-            listener.onPageSelected(0);
-            Message msg = handler.obtainMessage();
-            msg.what = 0;
-            handler.sendMessage(msg);
-        }
         return view;
     }
 
@@ -128,6 +105,26 @@ public class SmartFragmentManager extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        FragmentPagerAdapter fragmentPagerAdapter = new SmartFragmentAdapter(getChildFragmentManager(), fragmentList);
+        mPager.setAdapter(fragmentPagerAdapter);
+        MyOnPageChangeListener listener = new MyOnPageChangeListener(getActivity(), mPager, linearout, fragmentList.size());
+
+        mPager.addOnPageChangeListener(listener);
+
+        if (preferences.contains("postion")) {
+            int postion = preferences.getInt("postion", 0);
+            listener.onPageSelected(postion);
+            Message msg = handler.obtainMessage();
+            msg.what = postion;
+            handler.sendMessage(msg);
+            mPager.setCurrentItem(postion);
+        } else {
+            mPager.setCurrentItem(0);
+            listener.onPageSelected(0);
+            Message msg = handler.obtainMessage();
+            msg.what = 0;
+            handler.sendMessage(msg);
+        }
     }
 
 

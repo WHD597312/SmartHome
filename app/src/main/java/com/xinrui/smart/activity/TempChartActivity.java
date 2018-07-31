@@ -50,6 +50,7 @@ public class TempChartActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_temp_chart);
         unbinder=ButterKnife.bind(this);
         if (application==null){

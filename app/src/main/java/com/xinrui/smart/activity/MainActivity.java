@@ -657,7 +657,10 @@ public class MainActivity extends CheckPermissionsActivity {
         if (preferences.contains("deviceList")){
             preferences.edit().remove("deviceList").commit();
         }
-
+        smart.edit().clear().commit();
+        if (myReceiver != null) {
+            unregisterReceiver(myReceiver);
+        }
     }
 
     @Override
@@ -666,10 +669,6 @@ public class MainActivity extends CheckPermissionsActivity {
 
         if (unbinder != null) {
             unbinder.unbind();
-        }
-        if (myReceiver != null) {
-            unregisterReceiver(myReceiver);
-
         }
         running = false;
 //        deviceChildDao.closeDaoSession();

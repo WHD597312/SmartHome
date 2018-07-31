@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="@dimen/dp_60"
+    android:background="#443f3c"
+    >
+
+    <ImageView
+        android:id="@+id/image_linked"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="@dimen/dp_40"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:src="@mipmap/heater"
+        android:padding="5dp"
+        android:scaleType="centerInside"
+        />
+
+    <TextView
+        android:id="@+id/tv_linked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/image_linked"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_centerVertical="true"
+        android:layout_alignTop="@+id/image_linked"
+        android:layout_alignBottom="@+id/image_linked"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:text="取暖器" />
+
+    <CheckBox
+        android:id="@+id/check"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/dp_22"
+        android:scaleType="centerInside"
+        android:background="@drawable/selector_round"
+        android:button="@null"
+        />
+</RelativeLayout>
