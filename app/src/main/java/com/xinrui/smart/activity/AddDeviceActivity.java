@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,8 +118,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
     String group;
     String groupPosition;
     public static long houseId;
-    @BindView(R.id.add_image)
-    pl.droidsonroids.gif.GifImageView add_image;
+
     private DeviceGroupDaoImpl deviceGroupDao;
     private DeviceChildDaoImpl deviceChildDao;
 
@@ -138,7 +138,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
     int visibility;
     int wifi_drawable;
     int wifi_color;
-    @BindView(R.id.layout_help) RelativeLayout layout_help;
+    @BindView(R.id.layout_help)
+    RelativeLayout layout_help;
 
     int scan_drawable;
 
@@ -161,20 +162,27 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
     WindowManager.LayoutParams lp;
     DeviceChild deviceChild = null;
     private String deviceName;
-    private String province;/**省*/
-    private String city;/**市*/
-    private String distrct;/**区*/
+    private String province;
+    /**
+     * 省
+     */
+    private String city;
+    /**
+     * 市
+     */
+    private String distrct;
+
+    /**
+     * 区
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_device);
         ButterKnife.bind(this);
-        add_image = (GifImageView) findViewById(R.id.add_image);
-
 
         getAlpha = linear.getBackground().mutate().getAlpha();
-        getAlpha2 = add_image.getBackground().mutate().getAlpha();
 
         mWifiAdmin = new EspWifiAdminSimple(this);
         SharedPreferences my = getSharedPreferences("my", MODE_PRIVATE);
@@ -189,7 +197,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         if (application == null) {
             application = (MyApplication) getApplication();
         }
-        if (application!=null){
+        if (application != null) {
             application.addActivity(this);
         }
         Intent intent = getIntent();
@@ -227,6 +235,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 
     private String sharedDeviceId;
     private PopupWindow popupWindow;
+
     public void popupmenuWindow() {
         if (popupWindow != null && popupWindow.isShowing()) {
             return;
@@ -239,15 +248,14 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         RelativeLayout rl_sensor = (RelativeLayout) view.findViewById(R.id.rl_sensor);
 
 
-
-
         popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         //点击空白处时，隐藏掉pop窗口
         popupWindow.setFocusable(true);
         popupWindow.setOutsideTouchable(true);
         //添加弹出、弹入的动画
         popupWindow.setAnimationStyle(R.style.Popupwindow);
-
+        popupWindow.setFocusable(false);
+        popupWindow.setOutsideTouchable(false);
 //        ColorDrawable dw = new ColorDrawable(0x30000000);
 //        popupWindow.setBackgroundDrawable(dw);
         popupWindow.showAsDropDown(layout_help, 0, -20);
@@ -262,6 +270,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         popupWindow.dismiss();
                         break;
                     case R.id.rl_sensor:
+                        popupmenuWindow4();
+                        popupWindow.dismiss();
                         break;
                 }
             }
@@ -270,13 +280,16 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         rl_heater.setOnClickListener(listener);
         rl_sensor.setOnClickListener(listener);
     }
+
     PopupWindow popupWindow2;
     GifImageView image_heater_help;
+    CountTimer2 countTimer2 = null;
+    CountTimer3 countTimer3 = null;
+
     public void popupmenuWindow2() {
         if (popupWindow2 != null && popupWindow2.isShowing()) {
             return;
         }
-
         View view = View.inflate(this, R.layout.popup_help2, null);
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
@@ -290,11 +303,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         if (gifDrawable != null) {
             gifDrawable.start();
             image_heater_help.setImageDrawable(gifDrawable);
-            CountTimer2 countTimer2=new CountTimer2(10000,1000);
+
+            CountTimer2 countTimer2 = new CountTimer2(10000, 1000);
             countTimer2.start();
         }
-
-
 
         popupWindow2 = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         //点击空白处时，隐藏掉pop窗口
@@ -302,8 +314,9 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         popupWindow2.setOutsideTouchable(true);
         //添加弹出、弹入的动画
         popupWindow2.setAnimationStyle(R.style.Popupwindow);
-        backgroundAlpha(0.4f);
-
+        backgroundAlpha(0.6f);
+        popupWindow2.setFocusable(false);
+        popupWindow2.setOutsideTouchable(false);
 //        ColorDrawable dw = new ColorDrawable(0x30000000);
 //        popupWindow.setBackgroundDrawable(dw);
         popupWindow2.showAsDropDown(btn_match, 0, -20);
@@ -314,7 +327,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 
     //设置蒙版
     private void backgroundAlpha(float f) {
-        WindowManager.LayoutParams lp =getWindow().getAttributes();
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.alpha = f;
         getWindow().setAttributes(lp);
     }
@@ -344,37 +357,110 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         @Override
         public void onFinish() {
             Log.e("Tag", "倒计时完成");
-            try {
-                gifDrawable = new GifDrawable(getResources(), R.mipmap.help2);
-//                gifDrawable.is
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (window3==0){
+                try {
+                    gifDrawable = new GifDrawable(getResources(), R.mipmap.help2);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                image_heater_help.setVisibility(View.VISIBLE);
+                if (gifDrawable != null) {
+                    gifDrawable.start();
+                    image_heater_help.setImageDrawable(gifDrawable);
+                    if (countTimer3==null){
+                        countTimer3 = new CountTimer3(6000, 1000);
+                        countTimer3.start();
+                    }else if (countTimer3!=null){
+                        countTimer3.start();
+                    }
+                }
             }
-            image_heater_help.setVisibility(View.VISIBLE);
-            if (gifDrawable != null) {
-                gifDrawable.start();
-                image_heater_help.setImageDrawable(gifDrawable);
+        }
+    }
+
+    class CountTimer3 extends CountDownTimer {
+        public CountTimer3(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+
+        /**
+         * 倒计时过程中调用
+         *
+         * @param millisUntilFinished
+         */
+        @Override
+        public void onTick(long millisUntilFinished) {
+            Log.e("Tag", "倒计时=" + (millisUntilFinished / 1000));
+
+//            btn_get_code.setBackgroundColor(Color.parseColor("#c7c7c7"));
+//            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
+//            btn_get_code.setTextSize(16);
+        }
+
+        /**
+         * 倒计时完成后调用
+         */
+        @Override
+        public void onFinish() {
+            Log.e("Tag", "倒计时完成");
+            if (window3==0){
+                try {
+                    gifDrawable = new GifDrawable(getResources(), R.mipmap.help1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                image_heater_help.setVisibility(View.VISIBLE);
+                if (gifDrawable != null) {
+                    gifDrawable.start();
+                    image_heater_help.setImageDrawable(gifDrawable);
+                    if (countTimer2 == null) {
+                        countTimer2 = new CountTimer2(10000, 1000);
+                        countTimer2.start();
+                    }else if (countTimer2!=null){
+                        countTimer2.start();
+                    }
+
+                }
             }
+
         }
     }
 
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
 
 
-    @OnClick({R.id.img_back, R.id.btn_wifi, R.id.btn_scan, R.id.btn_scan2, R.id.btn_match,R.id.layout_help})
+    @OnClick({R.id.img_back, R.id.btn_wifi, R.id.btn_scan, R.id.btn_scan2, R.id.btn_match, R.id.layout_help})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.img_back:
                 Log.i("dialog", "sssssss");
-                if (gifDrawable != null && gifDrawable.isPlaying()) {
-                    gifDrawable.stop();
-                    add_image.setVisibility(View.GONE);
-                    et_ssid.setEnabled(true);
-                    et_pswd.setEnabled(true);
-                    btn_match.setEnabled(true);
-                    if (mEsptouchTask != null) {
-                        mEsptouchTask.interrupt();
+                window3=0;
+                et_ssid.setEnabled(true);
+                et_pswd.setEnabled(true);
+                btn_match.setEnabled(true);
+                if (mEsptouchTask != null) {
+                    mEsptouchTask.interrupt();
+                }
+                if (countTimer2 != null) {
+                    countTimer2.cancel();
+                }
+                if (countTimer3 != null) {
+                    countTimer3.cancel();
+                }
+                if (popupWindow != null && popupWindow.isShowing()) {
+                    if (gifDrawable != null && gifDrawable.isRunning()) {
+                        gifDrawable.stop();
                     }
+                    popupWindow.dismiss();
+                    backgroundAlpha(1f);
+                    break;
+                }
+                if (popupWindow2!=null && popupWindow2.isShowing()){
+                    if (gifDrawable != null && gifDrawable.isRunning()) {
+                        gifDrawable.stop();
+                    }
+                    popupWindow2.dismiss();
+                    backgroundAlpha(1f);
                     break;
                 }
                 Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
@@ -382,6 +468,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 startActivity(intent);
                 break;
             case R.id.layout_help:
+
+                et_ssid.setEnabled(false);
+                et_pswd.setEnabled(false);
+                btn_match.setEnabled(false);
                 popupmenuWindow();
                 break;
             case R.id.btn_wifi:
@@ -451,24 +541,102 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 }
                 if (!Utils.isEmpty(ssid)) {
 //                    popupWindow();
-                    add_image.setVisibility(View.VISIBLE);
+                    window3=0;
                     et_ssid.setEnabled(false);
                     et_pswd.setEnabled(false);
                     btn_match.setEnabled(false);
-                    try {
-                        gifDrawable = new GifDrawable(getResources(), R.mipmap.touxiang3);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    if (gifDrawable != null) {
-                        gifDrawable.start();
-                        add_image.setImageDrawable(gifDrawable);
-                    }
-                    add_image.getBackground().mutate().setAlpha(0);
+//                    try {
+//                        gifDrawable = new GifDrawable(getResources(), R.mipmap.touxiang3);
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                    if (gifDrawable != null) {
+//                        gifDrawable.start();
+//                        add_image.setImageDrawable(gifDrawable);
+//                    }
+//                    add_image.getBackground().mutate().setAlpha(0);
+                    popupmenuWindow3();
                     new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
                 }
                 break;
         }
+    }
+    private int window3=0;
+    public void popupmenuWindow3() {
+        if (popupWindow2 != null && popupWindow2.isShowing()) {
+            return;
+        }
+        View view = View.inflate(this, R.layout.popup_help2, null);
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        image_heater_help = (GifImageView) view.findViewById(R.id.image_heater_help);
+        try {
+            gifDrawable = new GifDrawable(getResources(), R.mipmap.touxiang3);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        image_heater_help.setVisibility(View.VISIBLE);
+        if (gifDrawable != null) {
+            gifDrawable.start();
+            image_heater_help.setImageDrawable(gifDrawable);
+        }
+        if (countTimer2!=null){
+            countTimer2.cancel();
+        }
+        if (countTimer3!=null){
+            countTimer3.cancel();
+        }
+
+        popupWindow2 = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        //点击空白处时，隐藏掉pop窗口
+        popupWindow2.setFocusable(true);
+        popupWindow2.setOutsideTouchable(true);
+        //添加弹出、弹入的动画
+        popupWindow2.setAnimationStyle(R.style.Popupwindow);
+        backgroundAlpha(0.6f);
+        popupWindow2.setFocusable(false);
+        popupWindow2.setOutsideTouchable(false);
+//        ColorDrawable dw = new ColorDrawable(0x30000000);
+//        popupWindow.setBackgroundDrawable(dw);
+        popupWindow2.showAsDropDown(btn_match, 0, -20);
+//        popupWindow.showAtLocation(tv_home_manager, Gravity.RIGHT, 0, 0);
+        //添加按键事件监听
+    }
+    public void popupmenuWindow4() {
+        if (popupWindow2 != null && popupWindow2.isShowing()) {
+            return;
+        }
+        View view = View.inflate(this, R.layout.popup_help2, null);
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        image_heater_help = (GifImageView) view.findViewById(R.id.image_heater_help);
+        window3=1;
+        try {
+            gifDrawable = new GifDrawable(getResources(), R.mipmap.help3);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        image_heater_help.setVisibility(View.VISIBLE);
+        if (gifDrawable != null) {
+            gifDrawable.start();
+            image_heater_help.setImageDrawable(gifDrawable);
+        }
+
+        popupWindow2 = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        //点击空白处时，隐藏掉pop窗口
+        popupWindow2.setFocusable(true);
+        popupWindow2.setOutsideTouchable(true);
+        //添加弹出、弹入的动画
+        popupWindow2.setAnimationStyle(R.style.Popupwindow);
+        backgroundAlpha(0.6f);
+        popupWindow2.setFocusable(false);
+        popupWindow2.setOutsideTouchable(false);
+//        ColorDrawable dw = new ColorDrawable(0x30000000);
+//        popupWindow.setBackgroundDrawable(dw);
+        popupWindow2.showAsDropDown(btn_match, 0, -20);
+//        popupWindow.showAtLocation(tv_home_manager, Gravity.RIGHT, 0, 0);
+        //添加按键事件监听
     }
 
     String macAddress;
@@ -535,7 +703,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     if (receiver != null) {
                         unregisterReceiver(receiver);
                     }
-                    success="success";
+                    success = "success";
                     Log.i("WifiConectionAsync", "-->" + "onPostExecute");
 //                    if (popupWindow!=null && popupWindow.isShowing()){
 //                        popupWindow.dismiss();
@@ -573,6 +741,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         registerReceiver(receiver, intentFilter);
         Log.i("AddDevice", "-->" + "onStart");
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -663,7 +832,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             if (bound == true && !TextUtils.isEmpty(mac)) {
                 String wifiName = et_ssid.getText().toString();
                 macAddress = wifiName + mac;
-                deviceName=mac;
+                deviceName = mac;
                 if (!TextUtils.isEmpty(macAddress)) {
                     new AddDeviceAsync().execute(macAddress);
                 }
@@ -725,26 +894,29 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         @Override
         public void onFinish() {
             Log.e("Tag", "倒计时完成");
-            if (gifDrawable != null && gifDrawable.isPlaying()) {
-                gifDrawable.stop();
-                if (add_image != null) {
-                    add_image.setVisibility(View.GONE);
-                }
-                if (et_ssid != null) {
-                    et_ssid.setEnabled(true);
-                }
-                if (et_pswd != null) {
-                    et_pswd.setEnabled(true);
-                }
-                if (btn_match != null) {
-                    btn_match.setEnabled(true);
-                    Utils.showToast(AddDeviceActivity.this, "配置失败");
-                }
+            if (popupWindow2!=null && popupWindow2.isShowing()){
+                if (gifDrawable != null && gifDrawable.isPlaying()) {
+                    gifDrawable.stop();
 
-                if (mEsptouchTask != null) {
-                    mEsptouchTask.interrupt();
+                    if (et_ssid != null) {
+                        et_ssid.setEnabled(true);
+                    }
+                    if (et_pswd != null) {
+                        et_pswd.setEnabled(true);
+                    }
+                    if (btn_match != null) {
+                        btn_match.setEnabled(true);
+                        Utils.showToast(AddDeviceActivity.this, "配置失败");
+                    }
+
+                    if (mEsptouchTask != null) {
+                        mEsptouchTask.interrupt();
+                    }
                 }
+                popupWindow2.dismiss();
+                backgroundAlpha(1f);
             }
+
             //设置倒计时结束之后的按钮样式
 //            btn_get_code.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.holo_blue_light));
 //            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
@@ -832,12 +1004,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     if (running) {
                         if (gifDrawable != null && gifDrawable.isPlaying()) {
                             gifDrawable.stop();
-                            if (add_image != null) {
-                                add_image.setVisibility(View.GONE);
-                                et_ssid.setEnabled(true);
-                                et_pswd.setEnabled(true);
-                                btn_match.setEnabled(true);
-                            }
+                            et_ssid.setEnabled(true);
+                            et_pswd.setEnabled(true);
+                            btn_match.setEnabled(true);
+
                         }
                         Utils.showToast(AddDeviceActivity.this, "配置失败");
                     }
@@ -848,21 +1018,43 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        if (gifDrawable != null && gifDrawable.isPlaying()) {
-            gifDrawable.stop();
-            add_image.setVisibility(View.GONE);
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             et_ssid.setEnabled(true);
             et_pswd.setEnabled(true);
             btn_match.setEnabled(true);
             if (mEsptouchTask != null) {
                 mEsptouchTask.interrupt();
             }
-            return;
+            window3=0;
+            if (countTimer2 != null) {
+                countTimer2.cancel();
+            }
+            if (countTimer3 != null) {
+                countTimer3.cancel();
+            }
+            if (popupWindow2 != null && popupWindow2.isShowing()) {
+                if (gifDrawable != null && gifDrawable.isRunning()) {
+                    gifDrawable.stop();
+                }
+                popupWindow2.dismiss();
+                backgroundAlpha(1f);
+                return false;
+            }
+            if (popupWindow != null && popupWindow.isShowing()) {
+                if (gifDrawable != null && gifDrawable.isRunning()) {
+                    gifDrawable.stop();
+                }
+                popupWindow.dismiss();
+                backgroundAlpha(1f);
+                return false;
+            }
+            Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
+            intent.putExtra("deviceList", "deviceList");
+            startActivity(intent);
+            return true;
         }
-        Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
-        intent.putExtra("deviceList", "deviceList");
-        startActivity(intent);
+        return super.onKeyDown(keyCode, event);
     }
 
     int duration = 0;
@@ -983,7 +1175,6 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             if (code == 200) {
                 if (gifDrawable != null && gifDrawable.isPlaying()) {
                     gifDrawable.stop();
-                    add_image.setVisibility(View.GONE);
                     et_ssid.setEnabled(true);
                     et_pswd.setEnabled(true);
                     btn_match.setEnabled(true);
@@ -999,7 +1190,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-            if (TextUtils.isEmpty(success)){
+            if (TextUtils.isEmpty(success)) {
                 if (isBound) {
                     unbindService(connection);
                 }
@@ -1008,7 +1199,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     unregisterReceiver(receiver);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -1018,11 +1209,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
     /**
      * 初始化定位
      *
-     * @since 2.8.0
      * @author hongming.wang
-     *
+     * @since 2.8.0
      */
-    private void initLocation(){
+    private void initLocation() {
         //初始化client
         locationClient = new AMapLocationClient(getApplicationContext());
         locationOption = getDefaultOption();
@@ -1031,13 +1221,14 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         // 设置定位监听
         locationClient.setLocationListener(locationListener);
     }
+
     /**
      * 默认的定位参数
-     * @since 2.8.0
-     * @author hongming.wang
      *
+     * @author hongming.wang
+     * @since 2.8.0
      */
-    private AMapLocationClientOption getDefaultOption(){
+    private AMapLocationClientOption getDefaultOption() {
         AMapLocationClientOption mOption = new AMapLocationClientOption();
         mOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);//可选，设置定位模式，可选的模式有高精度、仅设备、仅网络。默认为高精度模式
         mOption.setGpsFirst(false);//可选，设置是否gps优先，只在高精度模式下有效。默认关闭
@@ -1063,7 +1254,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 
                 StringBuffer sb = new StringBuffer();
                 //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
-                if(location.getErrorCode() == 0){
+                if (location.getErrorCode() == 0) {
                     sb.append("定位成功" + "\n");
                     sb.append("定位类型: " + location.getLocationType() + "\n");
                     sb.append("经    度    : " + location.getLongitude() + "\n");
@@ -1094,7 +1285,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     sb.append("错误描述:" + location.getLocationDetail() + "\n");
                 }
                 sb.append("***定位质量报告***").append("\n");
-                sb.append("* WIFI开关：").append(location.getLocationQualityReport().isWifiAble() ? "开启":"关闭").append("\n");
+                sb.append("* WIFI开关：").append(location.getLocationQualityReport().isWifiAble() ? "开启" : "关闭").append("\n");
                 sb.append("* GPS状态：").append(getGPSStatusString(location.getLocationQualityReport().getGPSStatus())).append("\n");
                 sb.append("* GPS星数：").append(location.getLocationQualityReport().getGPSSatellites()).append("\n");
                 sb.append("****************").append("\n");
@@ -1103,16 +1294,16 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 
                 //解析定位结果，
                 String result = sb.toString();
-                Log.i("reSult","-->"+result);
+                Log.i("reSult", "-->" + result);
 
-                if ("定位失败".equals(result)){
+                if ("定位失败".equals(result)) {
 
                 }
 
-                province=location.getProvince();
-                city=location.getCity();
-                distrct=location.getDistrict();
-                if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city) && !TextUtils.isEmpty(distrct)){
+                province = location.getProvince();
+                city = location.getCity();
+                distrct = location.getDistrict();
+                if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city) && !TextUtils.isEmpty(distrct)) {
                     stopLocation();
                     destroyLocation();
                 }
@@ -1122,12 +1313,13 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 
     /**
      * 获取GPS状态的字符串
+     *
      * @param statusCode GPS状态码
      * @return
      */
-    private String getGPSStatusString(int statusCode){
+    private String getGPSStatusString(int statusCode) {
         String str = "";
-        switch (statusCode){
+        switch (statusCode) {
             case AMapLocationQualityReport.GPS_STATUS_OK:
                 str = "GPS状态正常";
                 break;
@@ -1146,14 +1338,14 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         }
         return str;
     }
+
     /**
      * 开始定位
      *
-     * @since 2.8.0
      * @author hongming.wang
-     *
+     * @since 2.8.0
      */
-    private void startLocation(){
+    private void startLocation() {
         //根据控件的选择，重新设置定位参数
 //        resetOption();
         // 设置定位参数
@@ -1165,11 +1357,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
     /**
      * 停止定位
      *
-     * @since 2.8.0
      * @author hongming.wang
-     *
+     * @since 2.8.0
      */
-    private void stopLocation(){
+    private void stopLocation() {
         // 停止定位
         locationClient.stopLocation();
     }
@@ -1177,11 +1368,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
     /**
      * 销毁定位
      *
-     * @since 2.8.0
      * @author hongming.wang
-     *
+     * @since 2.8.0
      */
-    private void destroyLocation(){
+    private void destroyLocation() {
         if (null != locationClient) {
             /**
              * 如果AMapLocationClient是在当前Activity实例化的，

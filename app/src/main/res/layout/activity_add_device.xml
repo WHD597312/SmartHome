@@ -150,12 +150,6 @@
                     android:scaleType="centerInside"
                     android:src="@mipmap/image_help" />
             </RelativeLayout>
-            <pl.droidsonroids.gif.GifImageView
-                android:id="@+id/add_image"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_160"
-                android:background="@color/white"
-                android:visibility="gone" />
         </LinearLayout>
 
         <LinearLayout

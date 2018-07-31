@@ -1684,54 +1684,60 @@ public class DeviceFragment extends Fragment {
             tv_device_child.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (entry.getOnLint()) {
-                        if (entry.getType() == 1) {
-                            if (entry.getControlled() == 2 || entry.getControlled() == 0) {
-                                DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
-                                long id = deviceChild.getId();
-                                Intent intent = new Intent(context, DeviceListActivity.class);
-                                intent.putExtra("content", deviceChild.getDeviceName());
-                                intent.putExtra("childPosition", id + "");
-                                try {
-                                    JSONObject jsonObject = new JSONObject();
-                                    jsonObject.put("loadDate", "7");
-                                    String s = jsonObject.toString();
-                                    String mac = deviceChild.getMacAddress();
-                                    String topic = "rango/" + mac + "/set";
-                                    int count = timeDao.findAll(deviceChild.getId()).size();
-                                    if (mqService != null && count != 168) {
-                                        boolean success = false;
-                                        Log.i("ggggggggg", "-->" + "ggggggggggggggggg");
-                                        success = mqService.publish(topic, 1, s);
-                                        if (!success) {
-                                            success = mqService.publish(topic, 1, s);
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                context.startActivity(intent);
-                            } else if (entry.getControlled() == 1) {
-                                Utils.showToast(context, "受控机不能操作");
-                            }
-                        } else if (entry.getType() == 2) {
-                            Utils.showToast(context, "外置传感器不能操作");
-                        }
-                    } else {
-                        try {
-                            String mac = entry.getMacAddress();
-                            String topic = "rango/" + mac + "/set";
-                            Log.i("macAddress2", "-->" + mac);
-                            JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("loadDate", "1");
-                            String s = jsonObject.toString();
-                            boolean success = false;
-                            success = mqService.publish(topic, 1, s);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        Utils.showToast(context, "该设备离线");
-                    }
+                    DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
+                    long id = deviceChild.getId();
+                    Intent intent = new Intent(context, DeviceListActivity.class);
+                    intent.putExtra("content", deviceChild.getDeviceName());
+                    intent.putExtra("childPosition", id + "");
+                    context.startActivity(intent);
+//                    if (entry.getOnLint()) {
+//                        if (entry.getType() == 1) {
+//                            if (entry.getControlled() == 2 || entry.getControlled() == 0) {
+//                                DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
+//                                long id = deviceChild.getId();
+//                                Intent intent = new Intent(context, DeviceListActivity.class);
+//                                intent.putExtra("content", deviceChild.getDeviceName());
+//                                intent.putExtra("childPosition", id + "");
+//                                try {
+//                                    JSONObject jsonObject = new JSONObject();
+//                                    jsonObject.put("loadDate", "7");
+//                                    String s = jsonObject.toString();
+//                                    String mac = deviceChild.getMacAddress();
+//                                    String topic = "rango/" + mac + "/set";
+//                                    int count = timeDao.findAll(deviceChild.getId()).size();
+//                                    if (mqService != null && count != 168) {
+//                                        boolean success = false;
+//                                        Log.i("ggggggggg", "-->" + "ggggggggggggggggg");
+//                                        success = mqService.publish(topic, 1, s);
+//                                        if (!success) {
+//                                            success = mqService.publish(topic, 1, s);
+//                                        }
+//                                    }
+//                                } catch (Exception e) {
+//                                    e.printStackTrace();
+//                                }
+//                                context.startActivity(intent);
+//                            } else if (entry.getControlled() == 1) {
+//                                Utils.showToast(context, "受控机不能操作");
+//                            }
+//                        } else if (entry.getType() == 2) {
+//                            Utils.showToast(context, "外置传感器不能操作");
+//                        }
+//                    } else {
+//                        try {
+//                            String mac = entry.getMacAddress();
+//                            String topic = "rango/" + mac + "/set";
+//                            Log.i("macAddress2", "-->" + mac);
+//                            JSONObject jsonObject = new JSONObject();
+//                            jsonObject.put("loadDate", "1");
+//                            String s = jsonObject.toString();
+//                            boolean success = false;
+//                            success = mqService.publish(topic, 1, s);
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                        Utils.showToast(context, "该设备离线");
+//                    }
                 }
             });
             String mac = entry.getMacAddress();

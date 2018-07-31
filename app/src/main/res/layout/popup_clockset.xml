@@ -1,79 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/linearout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/color_white"
         android:layout_alignParentBottom="true"
-        >
+        android:background="@color/color_white"
+        android:orientation="vertical">
+
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="bottom"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            >
+            android:background="#1A1414"
+            android:gravity="bottom"
+            android:orientation="vertical">
 
-            <Button
-                android:id="@+id/btn_cancle"
-                android:layout_width="@dimen/dp_50"
-                android:layout_height="@dimen/dp_30"
-                android:gravity="center"
-                android:background="@drawable/button_normal"
-                android:layout_marginTop="@dimen/dp_5"
-                android:layout_marginLeft="@dimen/dp_10"
-                android:textColor="@color/black"
-                android:text="@string/cancle" />
+            <ImageView
+                android:id="@+id/light_left"
+                android:layout_width="@dimen/dp_35"
+                android:layout_height="@dimen/dp_35"
+                android:layout_centerVertical="true"
+                android:src="@mipmap/light_left" />
 
-            <TextView
-                android:id="@+id/tv_clock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/btn_cancle"
-                android:layout_alignTop="@+id/btn_cancle"
-                android:layout_centerHorizontal="true"
-                android:gravity="center"
-                android:textColor="@color/black"
-                android:text="@string/clock_set" />
+            <com.xinrui.secen.scene_view_custom.MySeekBar
+                android:id="@+id/beautySeekBar1"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_43"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/dp_5"
+                android:layout_marginRight="@dimen/dp_30"
+                android:layout_toRightOf="@+id/light_left"
+                android:max="37"
+                android:progress="0"
+                android:progressDrawable="@drawable/bg_seekbar_progress_drawable"
+                android:thumb="@null"
+                app:textBackground="@mipmap/ld_yuan"
+                app:textColor2="@color/white"
+                app:textOrientation="top"
+                app:textSize2="1sp" />
 
-            <Button
-                android:id="@+id/btn_ensure"
-                android:layout_width="@dimen/dp_50"
-                android:layout_height="@dimen/dp_30"
-                android:layout_alignBottom="@+id/btn_cancle"
+            <ImageView
+                android:id="@+id/light_right"
+                android:layout_width="@dimen/dp_35"
+                android:layout_height="@dimen/dp_35"
                 android:layout_alignParentRight="true"
-                android:layout_alignTop="@+id/btn_cancle"
-                android:gravity="center"
-                android:background="@drawable/button_normal"
-                android:layout_marginRight="@dimen/dp_10"
-                android:textColor="@color/color_black"
-                android:text="@string/ensure" />
-
-            <DatePicker
-                android:id="@+id/datePicker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/btn_cancle"
-                android:layout_alignStart="@+id/btn_cancle"
-                android:layout_below="@+id/btn_cancle"
-                android:theme="@android:style/Theme.Holo.Light"
-                android:calendarViewShown="false"
-                />
-
-            <TimePicker
-                android:id="@+id/timePicker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignEnd="@+id/btn_ensure"
-                android:layout_alignRight="@+id/btn_ensure"
-                android:layout_below="@+id/btn_cancle"
-                android:layout_toRightOf="@+id/datePicker"
-                android:theme="@android:style/Theme.Holo.Light"
-                android:timePickerMode="spinner" />
+                android:layout_centerVertical="true"
+                android:src="@mipmap/ligth_right" />
         </RelativeLayout>
+
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
