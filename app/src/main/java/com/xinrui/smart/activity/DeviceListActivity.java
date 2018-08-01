@@ -184,6 +184,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 //                    gradView.setVisibility(View.GONE);
 //                }
             }
+            
         }else {
             Toast.makeText(this,"设备已重置",Toast.LENGTH_SHORT).show();
             Intent intent2=new Intent(this,MainActivity.class);
