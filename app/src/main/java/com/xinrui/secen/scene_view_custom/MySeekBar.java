@@ -65,6 +65,7 @@ public class MySeekBar extends AppCompatSeekBar {
     //文字方向
     private static final int ORIENTATION_TOP = 1;
     private static final int ORIENTATION_BOTTOM = 2;
+    private static final int ORIENTATION_CENTER = 3;
 
     private int bgResId;
 
@@ -97,11 +98,11 @@ public class MySeekBar extends AppCompatSeekBar {
                     int bgResId = ta.getResourceId(index, R.mipmap.ld_yuan);
                     mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), bgResId);
                     mBgWidth = mBackgroundBitmap.getWidth();
-                    mBgHeight = mBackgroundBitmap.getHeight()-46;
+                    mBgHeight = mBackgroundBitmap.getHeight();
                     break;
 
                 case R.styleable.MySeekBar_textOrientation:
-                    mTextOrientation = ta.getInt(index, ORIENTATION_TOP);
+                    mTextOrientation = ta.getInt(index, ORIENTATION_CENTER);
                     break;
             }
         }
@@ -117,16 +118,14 @@ public class MySeekBar extends AppCompatSeekBar {
         if(mTextOrientation == ORIENTATION_TOP) {
             //设置SeekBar顶部数值文字预留空间，左右为数值背景图片的一半，顶部为数值背景图片高度加五的间隔
             setPadding((int) Math.ceil(mBgWidth) / 2, (int) Math.ceil(mBgHeight) + 5, (int) Math.ceil(mBgWidth) / 2, 0);
-        } else {
+        } else if (mTextOrientation == ORIENTATION_CENTER){
             //设置SeekBar顶部数值文字预留空间，左右为数值背景图片的一半，底部为数值背景图片高度加五的间隔
-            setPadding((int) Math.ceil(mBgWidth) / 2, 0, (int) Math.ceil(mBgWidth) / 2, (int) Math.ceil(mBgHeight) + 5);
+            setPadding((int) Math.ceil(mBgWidth) / 2, (int) Math.ceil(mBgHeight)/2 -5, (int) Math.ceil(mBgWidth) / 2, (int) Math.ceil(mBgHeight)/2);
         }
     }
-
     @Override
     protected synchronized void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
         getTextLocation();
         Rect bgRect = getProgressDrawable().getBounds();
         //计算数值背景X坐标

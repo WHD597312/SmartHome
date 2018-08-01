@@ -84,6 +84,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -143,7 +144,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 
     int scan_drawable;
 
-
+    String houseAddress;
     private String userId;
     private String wifiConnectionUrl = "http://47.98.131.11:8082/warmer/v1.0/device/registerDevice";
     private String qrCodeConnectionUrl = "http://47.98.131.11:8082/warmer/v1.0/device/createShareDevice";
@@ -203,6 +204,9 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         Intent intent = getIntent();
 
         houseId = Long.parseLong(intent.getStringExtra("houseId"));
+        deviceGroupDao=new DeviceGroupDaoImpl(getApplicationContext());
+        DeviceGroup deviceGroup=deviceGroupDao.findById(houseId);
+        houseAddress=deviceGroup.getLocation();
         String wifi = intent.getStringExtra("wifi");
 
         if (!Utils.isEmpty(wifi)) {
@@ -425,14 +429,13 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 
         }
     }
-
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
-
-
+    private int match=0;
     @OnClick({R.id.img_back, R.id.btn_wifi, R.id.btn_scan, R.id.btn_scan2, R.id.btn_match, R.id.layout_help})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.img_back:
+                match=0;
                 Log.i("dialog", "sssssss");
                 window3=0;
                 et_ssid.setEnabled(true);
@@ -468,13 +471,14 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 startActivity(intent);
                 break;
             case R.id.layout_help:
-
+                match=0;
                 et_ssid.setEnabled(false);
                 et_pswd.setEnabled(false);
                 btn_match.setEnabled(false);
                 popupmenuWindow();
                 break;
             case R.id.btn_wifi:
+                match=0;
                 wifi_drawable = wifi_drawables[1];
                 wifi_drawables[1] = wifi_drawables[0];
                 wifi_drawables[0] = wifi_drawable;
@@ -500,6 +504,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 linearout_add_scan_device.setVisibility(visibilities[0]);
                 break;
             case R.id.btn_scan:
+                match=0;
                 wifi_drawable = wifi_drawables[1];
                 wifi_drawables[1] = wifi_drawables[0];
                 wifi_drawables[0] = wifi_drawable;
@@ -524,6 +529,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 linearout_add_scan_device.setVisibility(visibilities[0]);
                 break;
             case R.id.btn_scan2:
+                match=0;
                 startActivity(new Intent(this, QRScannerActivity.class));
                 break;
             case R.id.btn_match:
@@ -541,6 +547,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 }
                 if (!Utils.isEmpty(ssid)) {
 //                    popupWindow();
+                    match=1;
                     window3=0;
                     et_ssid.setEnabled(false);
                     et_pswd.setEnabled(false);
@@ -556,12 +563,16 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 //                    }
 //                    add_image.getBackground().mutate().setAlpha(0);
                     popupmenuWindow3();
-                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
+//                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
+                    Intent service = new Intent(AddDeviceActivity.this, MQService.class);
+                    isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
+                    mac="5asdfghi89hb";
                 }
                 break;
         }
     }
     private int window3=0;
+
     public void popupmenuWindow3() {
         if (popupWindow2 != null && popupWindow2.isShowing()) {
             return;
@@ -668,7 +679,36 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         int version = content.getInt("version");
                         macAddress = content.getString("macAddress");
                         int controlled = content.getInt("controlled");
+                        String onlineTopicName="p99/sensor1/"+macAddress+"/transfer";
+                        String offlineTopicName="p99/sensor1/"+macAddress+"/lwt";
+                        if (!TextUtils.isEmpty(onlineTopicName)){
+                            boolean success = mqService.subscribe(onlineTopicName, 1);
+                            boolean success2=mqService.subscribe(offlineTopicName,1);
+                            if (!success) {
+                                mqService.subscribe(onlineTopicName, 1);
+                            }
+                            if (!success2){
+                                mqService.subscribe(offlineTopicName, 1);
+                            }
+                            if (type==2){
+                                String topicName="p99/sensor1/"+macAddress+"/set";
+                                if (TextUtils.isEmpty(city)){
+                                    city=houseAddress;
+                                    if (city.contains("市")){
+                                        city=city.substring(0,city.length()-1);
+                                    }
+                                    String info="url:http://apicloud.mob.com/v1/weather/query?key=257a640199764&city="+ URLEncoder.encode(city,"utf-8");
+                                    mqService.publish(topicName,1,info);
+                                }else {
+                                    if (city.contains("市")){
+                                        city=city.substring(0,city.length()-1);
+                                    }
+                                    String info="url:http://apicloud.mob.com/v1/weather/query?key=257a640199764&city="+ URLEncoder.encode(city,"utf-8")+"&province="+URLEncoder.encode(province,"utf-8");
+                                    mqService.publish(topicName,1,info);
+                                }
 
+                            }
+                        }
                         deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) houseId, masterControllerUserId, type, isUnlock);
                         deviceChild.setImg(imgs[0]);
                         deviceChild.setMacAddress(macAddress);
@@ -708,8 +748,15 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 //                    if (popupWindow!=null && popupWindow.isShowing()){
 //                        popupWindow.dismiss();
 //                    }
-                    if (gifDrawable != null) {
-                        gifDrawable.stop();
+                    if (match==1){
+                        if (popupWindow2!=null && popupWindow2.isShowing()){
+                            if (gifDrawable != null && gifDrawable.isPlaying()) {
+                                gifDrawable.stop();
+                            }
+                            match=0;
+                            popupWindow2.dismiss();
+                            backgroundAlpha(1f);
+                        }
                     }
                     Utils.showToast(AddDeviceActivity.this, "创建成功");
                     Intent intent2 = new Intent(AddDeviceActivity.this, MainActivity.class);
@@ -894,29 +941,31 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         @Override
         public void onFinish() {
             Log.e("Tag", "倒计时完成");
-            if (popupWindow2!=null && popupWindow2.isShowing()){
-                if (gifDrawable != null && gifDrawable.isPlaying()) {
-                    gifDrawable.stop();
+            if (match==1){
+                if (popupWindow2!=null && popupWindow2.isShowing()){
+                    if (gifDrawable != null && gifDrawable.isPlaying()) {
+                        gifDrawable.stop();
 
-                    if (et_ssid != null) {
-                        et_ssid.setEnabled(true);
-                    }
-                    if (et_pswd != null) {
-                        et_pswd.setEnabled(true);
-                    }
-                    if (btn_match != null) {
-                        btn_match.setEnabled(true);
-                        Utils.showToast(AddDeviceActivity.this, "配置失败");
-                    }
+                        if (et_ssid != null) {
+                            et_ssid.setEnabled(true);
+                        }
+                        if (et_pswd != null) {
+                            et_pswd.setEnabled(true);
+                        }
+                        if (btn_match != null) {
+                            btn_match.setEnabled(true);
+                            Utils.showToast(AddDeviceActivity.this, "配置失败");
+                        }
 
-                    if (mEsptouchTask != null) {
-                        mEsptouchTask.interrupt();
+                        if (mEsptouchTask != null) {
+                            mEsptouchTask.interrupt();
+                        }
                     }
+                    match=0;
+                    popupWindow2.dismiss();
+                    backgroundAlpha(1f);
                 }
-                popupWindow2.dismiss();
-                backgroundAlpha(1f);
             }
-
             //设置倒计时结束之后的按钮样式
 //            btn_get_code.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), android.R.color.holo_blue_light));
 //            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.white));
@@ -1001,16 +1050,16 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                                 + " more result(s) without showing\n");
                     }
                 } else {
-                    if (running) {
-                        if (gifDrawable != null && gifDrawable.isPlaying()) {
-                            gifDrawable.stop();
-                            et_ssid.setEnabled(true);
-                            et_pswd.setEnabled(true);
-                            btn_match.setEnabled(true);
-
-                        }
-                        Utils.showToast(AddDeviceActivity.this, "配置失败");
-                    }
+//                    if (running) {
+//                        if (gifDrawable != null && gifDrawable.isPlaying()) {
+//                            gifDrawable.stop();
+//                            et_ssid.setEnabled(true);
+//                            et_pswd.setEnabled(true);
+//                            btn_match.setEnabled(true);
+//
+//                        }
+//                        Utils.showToast(AddDeviceActivity.this, "配置失败");
+//                    }
 //                    mProgressDialog.setMessage("配置失败");
                 }
             }
@@ -1145,6 +1194,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         params.put("macAddress", macAddress);
                         new WifiConectionAsync().execute(params);
                     } else if (type == 3) {
+                        AddDeviceActivity.running = false;
                         type = 2;
                         Map<String, Object> params = new HashMap<>();
                         params.put("deviceName", deviceName);

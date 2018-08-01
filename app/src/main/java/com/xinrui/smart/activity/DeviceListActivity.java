@@ -63,6 +63,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     ImageView img_back;//返回键
     @BindView(R.id.tv_name)
     TextView tv_name;
+    @BindView(R.id.relative) RelativeLayout relative;
     @BindView(R.id.gradView)
     GridView gradView;
     private int[] colors = {R.color.color_black, R.color.holo_orange_dark};
@@ -91,10 +92,22 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     }
 
 
-    @OnClick({R.id.img_back, R.id.image_home})
+    @OnClick({R.id.img_back, R.id.image_home,R.id.layout})
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.layout:
+                if (popupWindow!=null && popupWindow.isShowing()){
+                    popupWindow.dismiss();
+                    backgroundAlpha(1.0f);
+                }
+                gradView.setVisibility(View.VISIBLE);
+                break;
             case R.id.img_back:
+                if (popupWindow!=null && popupWindow.isShowing()){
+                    popupWindow.dismiss();
+                    backgroundAlpha(1.0f);
+                    break;
+                }
                 Intent intent=new Intent(this,MainActivity.class);
                 intent.putExtra("deviceList","deviceList");
                 startActivity(intent);
@@ -140,7 +153,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             Log.i("mmmmm",commit+"");
 
             list = new ArrayList<>();
-            String[] titles = {"分享设备", "亮度调节", "定时任务", "设备状态", "常见问题", "关于我们"};
+            String[] titles = {"分享设备", "亮度调节", "定时任务", "设备状态", "常见问题", "恢复设置"};
             for (int i = 0; i < titles.length; i++) {
                 list.add(titles[i]);
             }
@@ -161,30 +174,30 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             String machineFall=deviceChild.getMachineFall();
             Log.i("machineFall","-->"+machineFall);
             if (online){
-//                if ("fall".equals(machineFall)){
-//                    linearout.setVisibility(View.GONE);
-//                    tv_offline.setVisibility(View.VISIBLE);
-//                    tv_offline.setText("设备已倾倒");
-//                    gradView.setVisibility(View.GONE);
-//                }else {
-//                    linearout.setVisibility(View.VISIBLE);
-//                    tv_offline.setVisibility(View.GONE);
-//                    gradView.setVisibility(View.VISIBLE);
-//                }
+                if ("fall".equals(machineFall)){
+                    linearout.setVisibility(View.GONE);
+                    tv_offline.setVisibility(View.VISIBLE);
+                    tv_offline.setText("设备已倾倒");
+                    gradView.setVisibility(View.GONE);
+                }else {
+                    linearout.setVisibility(View.VISIBLE);
+                    tv_offline.setVisibility(View.GONE);
+                    gradView.setVisibility(View.VISIBLE);
+                }
             }else{
-//                if ("fall".equals(machineFall)){
-//                    linearout.setVisibility(View.GONE);
-//                    tv_offline.setVisibility(View.VISIBLE);
-//                    tv_offline.setText("设备已倾倒");
-//                    gradView.setVisibility(View.GONE);
-//                }else {
-//                    linearout.setVisibility(View.GONE);
-//                    tv_offline.setVisibility(View.VISIBLE);
-//                    tv_offline.setText("设备已离线");
-//                    gradView.setVisibility(View.GONE);
-//                }
+                if ("fall".equals(machineFall)){
+                    linearout.setVisibility(View.GONE);
+                    tv_offline.setVisibility(View.VISIBLE);
+                    tv_offline.setText("设备已倾倒");
+                    gradView.setVisibility(View.GONE);
+                }else {
+                    linearout.setVisibility(View.GONE);
+                    tv_offline.setVisibility(View.VISIBLE);
+                    tv_offline.setText("设备已离线");
+                    gradView.setVisibility(View.GONE);
+                }
             }
-            
+
         }else {
             Toast.makeText(this,"设备已重置",Toast.LENGTH_SHORT).show();
             Intent intent2=new Intent(this,MainActivity.class);
@@ -193,38 +206,24 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         }
 
 
-//        if ("fall".equals(machineFall)){
-//            linearout.setVisibility(View.GONE);
-//            tv_offline.setVisibility(View.VISIBLE);
-//            tv_offline.setText("设备已倾倒");
-//            gradView.setVisibility(View.GONE);
-//        }else {
-//            linearout.setVisibility(View.VISIBLE);
-//            tv_offline.setVisibility(View.GONE);
-//            gradView.setVisibility(View.VISIBLE);
-//        }
-//        if (online){
-//            linearout.setVisibility(View.VISIBLE);
-//            tv_offline.setVisibility(View.GONE);
-//            gradView.setVisibility(View.VISIBLE);
-//        }else {
-//            linearout.setVisibility(View.GONE);
-//            tv_offline.setVisibility(View.VISIBLE);
-//            gradView.setVisibility(View.GONE);
-//        }
-//        linearout2.setVisibility(View.GONE);
+
     }
 
     MessageReceiver receiver;
     @Override
     protected void onResume() {
         super.onResume();
-
         running=true;
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (popupWindow!=null && popupWindow.isShowing()){
+                popupWindow.dismiss();
+                backgroundAlpha(1.0f);
+                gradView.setVisibility(View.VISIBLE);
+                return false;
+            }
             application.removeActivity(this);
             Intent intent=new Intent(this,MainActivity.class);
             intent.putExtra("deviceList","deviceList");
@@ -257,6 +256,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (popupWindow!=null && popupWindow.isShowing()){
+            popupWindow.dismiss();
+            backgroundAlpha(1.0f);
+            return;
+        }
         mPoistion=position;
         adapter.setSelectedPosition(mPoistion);
         adapter.notifyDataSetInvalidated();
@@ -383,6 +387,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         popupWindow.setFocusable(true);
         popupWindow.setOutsideTouchable(true);
         //添加弹出、弹入的动画
+        gradView.setVisibility(View.GONE);
         popupWindow.setAnimationStyle(R.style.Popupwindow);
         backgroundAlpha(0.6f);
         popupWindow.setFocusable(false);

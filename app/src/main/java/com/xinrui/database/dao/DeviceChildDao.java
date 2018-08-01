@@ -65,6 +65,14 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         public final static Property GroupPosition = new Property(38, int.class, "groupPosition", false, "GROUP_POSITION");
         public final static Property ChildPosition = new Property(39, int.class, "childPosition", false, "CHILD_POSITION");
         public final static Property MachAttr = new Property(40, String.class, "machAttr", false, "MACH_ATTR");
+        public final static Property SensorSimpleTemp = new Property(41, int.class, "sensorSimpleTemp", false, "SENSOR_SIMPLE_TEMP");
+        public final static Property SensorSimpleHum = new Property(42, int.class, "sensorSimpleHum", false, "SENSOR_SIMPLE_HUM");
+        public final static Property SorsorPm = new Property(43, int.class, "sorsorPm", false, "SORSOR_PM");
+        public final static Property SensorOx = new Property(44, int.class, "sensorOx", false, "SENSOR_OX");
+        public final static Property SensorHcho = new Property(45, int.class, "sensorHcho", false, "SENSOR_HCHO");
+        public final static Property SensorState = new Property(46, int.class, "sensorState", false, "SENSOR_STATE");
+        public final static Property BusModel = new Property(47, int.class, "busModel", false, "BUS_MODEL");
+        public final static Property Linked = new Property(48, int.class, "linked", false, "LINKED");
     }
 
 
@@ -120,7 +128,15 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
                 "\"SHARE_HOUSE_ID\" INTEGER NOT NULL ," + // 37: shareHouseId
                 "\"GROUP_POSITION\" INTEGER NOT NULL ," + // 38: groupPosition
                 "\"CHILD_POSITION\" INTEGER NOT NULL ," + // 39: childPosition
-                "\"MACH_ATTR\" TEXT);"); // 40: machAttr
+                "\"MACH_ATTR\" TEXT," + // 40: machAttr
+                "\"SENSOR_SIMPLE_TEMP\" INTEGER NOT NULL ," + // 41: sensorSimpleTemp
+                "\"SENSOR_SIMPLE_HUM\" INTEGER NOT NULL ," + // 42: sensorSimpleHum
+                "\"SORSOR_PM\" INTEGER NOT NULL ," + // 43: sorsorPm
+                "\"SENSOR_OX\" INTEGER NOT NULL ," + // 44: sensorOx
+                "\"SENSOR_HCHO\" INTEGER NOT NULL ," + // 45: sensorHcho
+                "\"SENSOR_STATE\" INTEGER NOT NULL ," + // 46: sensorState
+                "\"BUS_MODEL\" INTEGER NOT NULL ," + // 47: busModel
+                "\"LINKED\" INTEGER NOT NULL );"); // 48: linked
     }
 
     /** Drops the underlying database table. */
@@ -245,6 +261,14 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         if (machAttr != null) {
             stmt.bindString(41, machAttr);
         }
+        stmt.bindLong(42, entity.getSensorSimpleTemp());
+        stmt.bindLong(43, entity.getSensorSimpleHum());
+        stmt.bindLong(44, entity.getSorsorPm());
+        stmt.bindLong(45, entity.getSensorOx());
+        stmt.bindLong(46, entity.getSensorHcho());
+        stmt.bindLong(47, entity.getSensorState());
+        stmt.bindLong(48, entity.getBusModel());
+        stmt.bindLong(49, entity.getLinked());
     }
 
     @Override
@@ -363,6 +387,14 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         if (machAttr != null) {
             stmt.bindString(41, machAttr);
         }
+        stmt.bindLong(42, entity.getSensorSimpleTemp());
+        stmt.bindLong(43, entity.getSensorSimpleHum());
+        stmt.bindLong(44, entity.getSorsorPm());
+        stmt.bindLong(45, entity.getSensorOx());
+        stmt.bindLong(46, entity.getSensorHcho());
+        stmt.bindLong(47, entity.getSensorState());
+        stmt.bindLong(48, entity.getBusModel());
+        stmt.bindLong(49, entity.getLinked());
     }
 
     @Override
@@ -413,7 +445,15 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
             cursor.getLong(offset + 37), // shareHouseId
             cursor.getInt(offset + 38), // groupPosition
             cursor.getInt(offset + 39), // childPosition
-            cursor.isNull(offset + 40) ? null : cursor.getString(offset + 40) // machAttr
+            cursor.isNull(offset + 40) ? null : cursor.getString(offset + 40), // machAttr
+            cursor.getInt(offset + 41), // sensorSimpleTemp
+            cursor.getInt(offset + 42), // sensorSimpleHum
+            cursor.getInt(offset + 43), // sorsorPm
+            cursor.getInt(offset + 44), // sensorOx
+            cursor.getInt(offset + 45), // sensorHcho
+            cursor.getInt(offset + 46), // sensorState
+            cursor.getInt(offset + 47), // busModel
+            cursor.getInt(offset + 48) // linked
         );
         return entity;
     }
@@ -461,6 +501,14 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         entity.setGroupPosition(cursor.getInt(offset + 38));
         entity.setChildPosition(cursor.getInt(offset + 39));
         entity.setMachAttr(cursor.isNull(offset + 40) ? null : cursor.getString(offset + 40));
+        entity.setSensorSimpleTemp(cursor.getInt(offset + 41));
+        entity.setSensorSimpleHum(cursor.getInt(offset + 42));
+        entity.setSorsorPm(cursor.getInt(offset + 43));
+        entity.setSensorOx(cursor.getInt(offset + 44));
+        entity.setSensorHcho(cursor.getInt(offset + 45));
+        entity.setSensorState(cursor.getInt(offset + 46));
+        entity.setBusModel(cursor.getInt(offset + 47));
+        entity.setLinked(cursor.getInt(offset + 48));
      }
     
     @Override

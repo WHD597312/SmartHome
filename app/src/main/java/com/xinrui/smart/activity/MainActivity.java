@@ -485,7 +485,9 @@ public class MainActivity extends CheckPermissionsActivity {
             }
         });
     }
-
+    int clicked=0;
+    int clicked2=0;
+    int clicked3=3;
     @OnClick({R.id.tv_exit, R.id.tv_device, R.id.tv_smart, R.id.tv_live, R.id.image_user, R.id.tv_user})
     public void onClick(View view) {
 
@@ -576,6 +578,9 @@ public class MainActivity extends CheckPermissionsActivity {
 
                 break;
             case R.id.tv_device:
+                if (clicked==1){
+                    break;
+                }
                 if (NoFastClickUtils.isFastClick()) {
                     isRunning=false;
                     deviceGroups = deviceGroupDao.findAllDevices();
@@ -593,11 +598,17 @@ public class MainActivity extends CheckPermissionsActivity {
                     smart_view.setVisibility(View.GONE);
                     live_view.setVisibility(View.GONE);
                     smart.edit().clear().commit();
+                    clicked=1;
+                    clicked2=0;
+                    clicked3=0;
                 } else {
                     break;
                 }
                 break;
             case R.id.tv_smart:
+                if (clicked2==1){
+                    break;
+                }
                 if (NoFastClickUtils.isFastClick()) {
                     isRunning=false;
                     fragmentTransaction = fragmentManager.beginTransaction();
@@ -606,11 +617,17 @@ public class MainActivity extends CheckPermissionsActivity {
                     smart_view.setVisibility(View.VISIBLE);
                     live_view.setVisibility(View.GONE);
                     smart.edit().clear().commit();
+                    clicked=0;
+                    clicked2=1;
+                    clicked3=0;
                 } else {
                     break;
                 }
                 break;
             case R.id.tv_live:
+                if (clicked3==1){
+                    break;
+                }
                 if (NoFastClickUtils.isFastClick()) {
                     LiveFragment liveFragment = new LiveFragment();
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -620,6 +637,9 @@ public class MainActivity extends CheckPermissionsActivity {
                     smart_view.setVisibility(View.GONE);
                     live_view.setVisibility(View.VISIBLE);
                     smart.edit().clear();
+                    clicked=0;
+                    clicked2=0;
+                    clicked3=1;
                 } else {
                     break;
                 }

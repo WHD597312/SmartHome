@@ -58,6 +58,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -411,7 +412,7 @@ public class MQService extends Service {
                         }
                         child = null;/**将该设备重置为null*/
                     } else if (topicName.equals("rango/" + macAddress + "/transfer") && Utils.isEmpty(reSet)) {
-                        if (!Utils.isEmpty(message) && message.length() > 1 && isGoodJson(message)) {
+                        if (!Utils.isEmpty(message) &&  message.startsWith("{") && message.endsWith("}")) {
                             device = new JSONObject(message);
                             if (device.has("wifiVersion")) {
                                 wifiVersion = device.getString("wifiVersion");/**版本*/
@@ -682,7 +683,57 @@ public class MQService extends Service {
                                 }
                             }
                         }
-                    } else if (topicName.equals("rango/" + macAddress + "/lwt")) {
+                    }else if (("p99/sensor1/"+macAddress+"/transfer").equals(topicName)){
+                        if (!TextUtils.isEmpty(message) && message.startsWith("{") && message.endsWith("}")){
+                            JSONArray messageJsonArray = null;
+                            device = new JSONObject(message);
+                            if (device != null && device.has("TempHumPM2_5")) {
+                                messageJsonArray = device.getJSONArray("TempHumPM2_5");
+                            }
+                            if (messageJsonArray != null) {
+                                int sensorSimpleTemp;/**传感器采样温度*/
+                                int sensorSimpleHum;/**传感器采样湿度*/
+                                int sorsorPm;/**PM2.5粉尘传感器数据*/
+                                int sensorOx;/**氧浓度传感器数据*/
+                                int sensorHcho;/**甲醛数据*/
+
+                                int busModel = messageJsonArray.getInt(3);
+                                int mMcuVersion = messageJsonArray.getInt(4);
+                                String mcuVersion = "v" + mMcuVersion / 16 + "." + mMcuVersion % 16;
+                                int mWifiVersion = messageJsonArray.getInt(5);
+                                wifiVersion = "v" + mWifiVersion / 16 + "." + mWifiVersion % 16;
+                                int sensorState = messageJsonArray.getInt(7);
+                                sensorSimpleTemp = messageJsonArray.getInt(8) - 128;
+                                sensorSimpleHum = messageJsonArray.getInt(9) - 128;
+                                sorsorPm = messageJsonArray.getInt(10) - 128;
+                                sensorOx = messageJsonArray.getInt(11) - 128;
+                                sensorHcho = messageJsonArray.getInt(12) - 128;
+
+                                if (child != null) {
+                                    child.setSensorState(sensorState);
+                                    child.setBusModel(busModel);
+//                                    child.setMcuVersion(mcuVersion);
+//                                    deviceChild.setWifiVersion(wifiVersion);
+                                    child.setSensorSimpleTemp(sensorSimpleTemp);
+                                    child.setSensorSimpleHum(sensorSimpleHum);
+                                    child.setSorsorPm(sorsorPm);
+                                    child.setSensorOx(sensorOx);
+                                    child.setSensorHcho(sensorHcho);
+                                    child.setOnLint(true);
+                                    deviceChildDao.update(child);
+                                }
+                            }
+                        }
+                    }else if (("p99/sensor1/"+macAddress+"/lwt").equals(topicName)){
+                        if (child != null) {
+//                            send(child);
+//                            if ("open".equals(child.getDeviceState())) {
+//                                child.setImg(imgs[2]);
+//                            }
+                            child.setOnLint(false);
+                            deviceChildDao.update(child);
+                        }
+                    }else if (topicName.equals("rango/" + macAddress + "/lwt")) {
                         if (child != null) {
 //                            send(child);
                             if ("open".equals(child.getDeviceState())) {
@@ -961,10 +1012,10 @@ public class MQService extends Service {
                 String topicName = "rango/" + macAddress + "/transfer";
                 String topicShare = "rango/" + macAddress + "/refresh";
                 if (type==2){
-                    String topicExsensorSet="p99/exsensors/"+macAddress+"/set";
-                    String topicExsensorTransfer="p99/exsensors/"+macAddress+"/transfer";
-                    topicNames.add(topicExsensorSet);
-                    topicNames.add(topicExsensorTransfer);
+                    String onlineTopicName = "p99/sensor1/" + macAddress + "/transfer";
+                    String offlineTopicName = "p99/sensor1/" + macAddress + "/lwt";
+                    topicNames.add(onlineTopicName);
+                    topicNames.add(offlineTopicName);
                 }
                 topicNames.add(topicOffline);
                 topicNames.add(topicName);

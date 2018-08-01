@@ -447,7 +447,7 @@
             android:gravity="center"
             android:layout_marginLeft="@dimen/dp_5"
             />
-        <com.xinrui.smart.view_custom.SmartTerminalHumBar
+        <com.xinrui.smart.view_custom.SmartTerminalBar
             android:layout_below="@+id/tv_set_temp"
             android:id="@+id/smartTerminalBar"
             android:layout_width="@dimen/dp_150"
@@ -501,17 +501,6 @@
         android:layout_height="@dimen/dp_40"
         android:src="@mipmap/image_linkage"
         android:scaleType="centerInside"
-        android:layout_marginRight="@dimen/dp_20"
-        android:layout_below="@+id/layout_body_middle_right"
-        android:layout_marginTop="@dimen/dp_5"
-        />
-    <ImageView
-        android:id="@+id/image_switch"
-        android:layout_width="@dimen/dp_40"
-        android:layout_height="@dimen/dp_40"
-        android:scaleType="centerInside"
-        android:src="@mipmap/image_unswitch"
-        android:layout_toLeftOf="@+id/image_linkage"
         android:layout_marginRight="@dimen/dp_20"
         android:layout_below="@+id/layout_body_middle_right"
         android:layout_marginTop="@dimen/dp_5"

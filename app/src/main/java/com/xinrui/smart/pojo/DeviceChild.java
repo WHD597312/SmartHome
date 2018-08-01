@@ -56,6 +56,14 @@ public class DeviceChild  implements Serializable{
     private int groupPosition;
     private int childPosition;
     private String machAttr;
+    int sensorSimpleTemp;/**传感器采样温度*/
+    int sensorSimpleHum;/**传感器采样湿度*/
+    int sorsorPm;/**PM2.5粉尘传感器数据*/
+    int sensorOx;/**氧浓度传感器数据*/
+    int sensorHcho;/**甲醛数据*/
+    int sensorState;/**传感器状态*/
+    int busModel;/**商业模式*/
+    int linked;
 
 
     public DeviceChild() {
@@ -410,7 +418,71 @@ public class DeviceChild  implements Serializable{
         this.machAttr = machAttr;
     }
 
-    @Generated(hash = 1819579492)
+    public int getSensorHcho() {
+        return this.sensorHcho;
+    }
+
+    public void setSensorHcho(int sensorHcho) {
+        this.sensorHcho = sensorHcho;
+    }
+
+    public int getSensorOx() {
+        return this.sensorOx;
+    }
+
+    public void setSensorOx(int sensorOx) {
+        this.sensorOx = sensorOx;
+    }
+
+    public int getSorsorPm() {
+        return this.sorsorPm;
+    }
+
+    public void setSorsorPm(int sorsorPm) {
+        this.sorsorPm = sorsorPm;
+    }
+
+    public int getSensorSimpleHum() {
+        return this.sensorSimpleHum;
+    }
+
+    public void setSensorSimpleHum(int sensorSimpleHum) {
+        this.sensorSimpleHum = sensorSimpleHum;
+    }
+
+    public int getSensorSimpleTemp() {
+        return this.sensorSimpleTemp;
+    }
+
+    public void setSensorSimpleTemp(int sensorSimpleTemp) {
+        this.sensorSimpleTemp = sensorSimpleTemp;
+    }
+
+    public int getSensorState() {
+        return this.sensorState;
+    }
+
+    public void setSensorState(int sensorState) {
+        this.sensorState = sensorState;
+    }
+
+    public int getBusModel() {
+        return this.busModel;
+    }
+
+    public void setBusModel(int busModel) {
+        this.busModel = busModel;
+    }
+
+    public int getLinked() {
+        return this.linked;
+    }
+
+    public void setLinked(int linked) {
+        this.linked = linked;
+    }
+
+    @Generated(hash = 1695132731)
     public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
             Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
             int version, int ratedPower, int MatTemp, String workMode, String LockScreen,
@@ -420,7 +492,8 @@ public class DeviceChild  implements Serializable{
             int protectProTemp, String wifiVersion, String MCUVerion, int manualMatTemp,
             int timerTemp, boolean onLint, int temp, int hum, String reSet,
             String timerShutdown, long shareHouseId, int groupPosition, int childPosition,
-            String machAttr) {
+            String machAttr, int sensorSimpleTemp, int sensorSimpleHum, int sorsorPm,
+            int sensorOx, int sensorHcho, int sensorState, int busModel, int linked) {
         this.id = id;
         this.deviceName = deviceName;
         this.macAddress = macAddress;
@@ -462,6 +535,14 @@ public class DeviceChild  implements Serializable{
         this.groupPosition = groupPosition;
         this.childPosition = childPosition;
         this.machAttr = machAttr;
+        this.sensorSimpleTemp = sensorSimpleTemp;
+        this.sensorSimpleHum = sensorSimpleHum;
+        this.sorsorPm = sorsorPm;
+        this.sensorOx = sensorOx;
+        this.sensorHcho = sensorHcho;
+        this.sensorState = sensorState;
+        this.busModel = busModel;
+        this.linked = linked;
     }
 
 }
