@@ -1,13 +1,18 @@
 package com.xinrui.smart.activity;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -36,6 +41,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
+import com.xinrui.database.dao.daoimpl.TimeDaoImpl;
 import com.xinrui.secen.scene_view_custom.MySeekBar;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
@@ -44,11 +50,19 @@ import com.xinrui.smart.activity.device.ShareDeviceActivity;
 import com.xinrui.smart.adapter.DeviceListAdapter;
 import com.xinrui.smart.fragment.HeaterFragment;
 import com.xinrui.smart.pojo.DeviceChild;
+import com.xinrui.smart.pojo.Timer;
+import com.xinrui.smart.util.ChineseNumber;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -80,6 +94,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     private String childPosition;
     private DeviceChildDaoImpl deviceChildDao;
     public static boolean running=false;
+    private ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +104,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             application= (MyApplication) getApplication();
         }
         application.addActivity(this);
+        deviceChildDao=new DeviceChildDaoImpl(getApplicationContext());
+        timeDao=new TimeDaoImpl(getApplicationContext());
+        progressDialog = new ProgressDialog(this);
     }
 
 
@@ -128,17 +146,19 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     int day=0;
     SharedPreferences preferences;
     DeviceChild deviceChild;
-
+    long deviceId;
+    private TimeDaoImpl timeDao;
+    private boolean isBound;
     @Override
     protected void onStart() {
         super.onStart();
-        deviceChildDao=new DeviceChildDaoImpl(getApplicationContext());
+
         Intent intent = getIntent();
         String content = intent.getStringExtra("content");
         childPosition=intent.getStringExtra("childPosition");
 
         deviceChild=deviceChildDao.findDeviceById(Long.parseLong(childPosition));
-
+        deviceId=deviceChild.getId();
         if (deviceChild!=null){
             tv_name.setText(content);
             fragmentManager =getSupportFragmentManager();
@@ -157,7 +177,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             for (int i = 0; i < titles.length; i++) {
                 list.add(titles[i]);
             }
-
             adapter=new DeviceListAdapter(this,list);
             gradView.setAdapter(adapter);
 
@@ -169,6 +188,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             IntentFilter intentFilter = new IntentFilter("DeviceListActivity");
             receiver = new MessageReceiver();
             registerReceiver(receiver, intentFilter);
+
+            Intent service = new Intent(this, MQService.class);
+            isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
             boolean online=deviceChild.getOnLint();
             Log.i("online","-->"+online);
             String machineFall=deviceChild.getMachineFall();
@@ -197,16 +219,12 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     gradView.setVisibility(View.GONE);
                 }
             }
-
         }else {
             Toast.makeText(this,"设备已重置",Toast.LENGTH_SHORT).show();
             Intent intent2=new Intent(this,MainActivity.class);
             intent2.putExtra("deviceList","deviceList");
             startActivity(intent2);
         }
-
-
-
     }
 
     MessageReceiver receiver;
@@ -239,6 +257,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         deviceChildDao.closeDaoSession();
         if (receiver!=null){
             unregisterReceiver(receiver);
+        }
+        if (isBound) {
+            if (connection != null) {
+                unbindService(connection);
+            }
         }
         running=false;
     }
@@ -293,14 +316,141 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 startActivity(intent4);
                 break;
             case 5:
-                Intent intent5=new Intent(this, AboutUsActivity.class);
-                startActivity(intent5);
+                new PasteWeekAsync().execute();
                 break;
             default:
                 Toast.makeText(this,"1",Toast.LENGTH_SHORT).show();
                 break;
         }
     }
+    class PasteWeekAsync extends AsyncTask<Map<String, TextView>,Void,String> {
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            if (progressDialog!=null){
+                progressDialog.dismiss();
+            }
+           if ("恢复成功".equals(s)){
+               Utils.showToast(DeviceListActivity.this,"恢复成功");
+           }else {
+               Utils.showToast(DeviceListActivity.this,"恢复失败");
+           }
+        }
+
+        @Override
+        protected String doInBackground(Map<String, TextView>... maps) {
+            int count = 0;
+            String result="";
+
+                try {
+                    for (int timerTaskWeek = 1; timerTaskWeek <= 7; timerTaskWeek++) {
+                        count++;
+                        JSONObject jsonObject = new JSONObject();
+                        List<Timer> timers = timeDao.findAll(deviceId, timerTaskWeek);
+                        Collections.sort(timers, new Comparator<Timer>() {
+                            @Override
+                            public int compare(Timer o1, Timer o2) {
+                                if (o1.getHour() > o2.getHour())
+                                    return 1;
+                                else if (o1.getHour() < o2.getHour())
+                                    return -1;
+                                return 0;
+                            }
+                        });
+                        if (timers.size() == 24) {
+                            jsonObject.put("timerTaskWeek", timerTaskWeek);
+
+                            for (int i = 0; i < 24; i++) {
+                                Timer timer = timers.get(i);
+                                jsonObject.put("h" + i, "off");
+                                jsonObject.put("t" + i, 0);
+                            }
+                            String jsonData = jsonObject.toString();
+                            Log.i("jsonData", jsonData);
+
+                            if (bound) {
+                                boolean success = false;
+                                String mac = deviceChild.getMacAddress();
+                                String topicName;
+                                topicName = "rango/" + mac + "/set";
+                                success = mqService.publish(topicName, 1, jsonData);
+                            }
+
+                        }
+                        if (count==7){
+                            String mac=deviceChild.getMacAddress();
+                            String topic = "rango/" + mac + "/set";
+
+                            Log.i("connection","-->"+count);
+                            if (mqService!=null && count!=168){
+                                try {
+                                    Log.i("ggggggggg","-->"+"ggggggggggggggggg");
+                                    JSONObject jsonObject2 = new JSONObject();
+                                    jsonObject2.put("loadDate", "1");
+                                    String s = jsonObject2.toString();
+                                    boolean success = false;
+                                    success = mqService.publish(topic, 1, s);
+                                    if (!success) {
+                                        success = mqService.publish(topic, 1, s);
+                                    }
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+                            result="恢复成功";
+                        }
+                        Thread.sleep(300);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            return result;
+        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.setMessage("请稍后...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+    }
+
+    MQService mqService;
+    private boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+            String mac=deviceChild.getMacAddress();
+            String topic = "rango/" + mac + "/set";
+            int count=timeDao.findAll(deviceId).size();
+            Log.i("connection","-->"+count);
+            if (mqService!=null && count!=168){
+                try {
+                    Log.i("ggggggggg","-->"+"ggggggggggggggggg");
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("loadDate", "7");
+                    String s = jsonObject.toString();
+                    boolean success = false;
+                    success = mqService.publish(topic, 1, s);
+                    if (!success) {
+                        success = mqService.publish(topic, 1, s);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
     class MessageReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {

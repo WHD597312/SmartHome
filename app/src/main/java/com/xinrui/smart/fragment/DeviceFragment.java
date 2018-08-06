@@ -1645,7 +1645,7 @@ public class DeviceFragment extends Fragment {
                     if ("fall".equals(entry.getMachineFall())) {
                         tv_state.setText("设备已倾倒");
                     } else {
-                        tv_state.setText("温度：" + entry.getTemp() + "℃");
+                        tv_state.setText("温度：" + entry.getSensorSimpleTemp() + "℃");
                     }
                 }
                 if ("open".equals(entry.getDeviceState())) {

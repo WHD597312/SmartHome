@@ -36,6 +36,7 @@ import com.xinrui.smart.activity.AddDeviceActivity;
 import com.xinrui.smart.activity.DeviceListActivity;
 import com.xinrui.smart.activity.LoginActivity;
 import com.xinrui.smart.activity.MainActivity;
+import com.xinrui.smart.activity.SmartTerminalActivity;
 import com.xinrui.smart.activity.TempChartActivity;
 import com.xinrui.smart.activity.TimeTaskActivity;
 import com.xinrui.smart.activity.device.ShareDeviceActivity;
@@ -260,12 +261,13 @@ public class MQService extends Service {
             String message = strings[1];
             String macAddress="";
             int deviceType=-1;/**设备类型*/
-            if (topicName.startsWith("p99/")){
-                macAddress=topicName.substring(4,topicName.lastIndexOf("/"));
+            if (topicName.startsWith("p99/sensor1")){
+                macAddress=topicName.substring(12,topicName.lastIndexOf("/"));
             }else if (topicName.startsWith("rango/")){
                 macAddress = topicName.substring(6, topicName.lastIndexOf("/"));
+            }else if (topicName.startsWith("p99")){
+                macAddress=topicName.substring(4,topicName.lastIndexOf("/"));
             }
-
 
             String topicShare = "rango/" + macAddress + "/refresh";
             String refresh = null;
@@ -366,13 +368,6 @@ public class MQService extends Service {
                             String mac = deviceChild.getMacAddress();
                             if (!Utils.isEmpty(mac) && macAddress.equals(mac)) {
                                 child = deviceChild;
-                                if (offlineList.contains(macAddress)) {
-                                    Log.i("offlineList", "-->" + offlineList.size());
-                                    removeOfflineDevice(macAddress);
-                                }
-                                if (topicName.equals("rango/" + macAddress + "/transfer")) {
-                                    child.setOnLint(true);
-                                }
                                 if (!Utils.isEmpty(refresh)) {
                                     String url = "http://47.98.131.11:8082/warmer/v1.0/device/getDeviceById?deviceId=" + child.getId();
                                     new LoadDevice().execute(url);
@@ -411,7 +406,7 @@ public class MQService extends Service {
                             }
                         }
                         child = null;/**将该设备重置为null*/
-                    } else if (topicName.equals("rango/" + macAddress + "/transfer") && Utils.isEmpty(reSet)) {
+                    } else if (topicName.equals("rango/" + macAddress + "/transfer") && Utils.isEmpty(reSet) && Utils.isEmpty(refresh)) {
                         if (!Utils.isEmpty(message) &&  message.startsWith("{") && message.endsWith("}")) {
                             device = new JSONObject(message);
                             if (device.has("wifiVersion")) {
@@ -491,121 +486,6 @@ public class MQService extends Service {
                             if (device.has("machAttr")){
                                 machAttr=device.getString("machAttr");
                             }
-                        } else {
-                            return null;
-                        }
-
-                        if (child != null) {
-                            if (!Utils.isEmpty(wifiVersion))
-                                child.setWifiVersion(wifiVersion);
-
-                            if (!Utils.isEmpty(MCUVerion))
-                                child.setMCUVerion(MCUVerion);
-
-                            if (!Utils.isEmpty(workMode)) {
-                                child.setWorkMode(workMode);
-                                if (MatTemp != 0) {
-                                    child.setMatTemp(MatTemp);
-                                    if ("manual".equals(workMode)) {
-                                        child.setManualMatTemp(MatTemp);
-                                    } else if ("timer".equals(workMode)) {
-                                        child.setTimerTemp(TimerTemp);
-                                    }
-                                }
-                            }
-                            if (!Utils.isEmpty(LockScreen))
-                                child.setLockScreen(LockScreen);
-                            if (!Utils.isEmpty(BackGroundLED))
-                                child.setBackGroundLED(BackGroundLED);
-                            if (!Utils.isEmpty(deviceState)) {
-                                if ("open".equals(deviceState))
-                                    child.setImg(imgs[1]);
-                                else {
-                                    child.setImg(imgs[0]);
-                                }
-                                child.setDeviceState(deviceState);
-                            }
-
-                            if (!Utils.isEmpty(timerShutDown)) {
-                                child.setTimerShutdown(timerShutDown);
-                            }
-                            if (!Utils.isEmpty(tempState))
-                                child.setTempState(tempState);
-                            if (!Utils.isEmpty(outputMode))
-                                child.setOutputMod(outputMode);
-                            if (curTemp != 0)
-                                child.setCurTemp(curTemp);
-                            if (ratedPower != 0)
-                                child.setRatedPower(ratedPower);
-                            if (!Utils.isEmpty(protectEnable))
-                                child.setProtectEnable(protectEnable);
-                            if (!Utils.isEmpty(ctrlMode)) {
-                                child.setCtrlMode(ctrlMode);
-                                int type = child.getType();
-                                if ("fall".equals(machineFall)) {
-                                    Log.i("fall","-->"+machineFall+","+macAddress);
-                                } else {
-                                    if (type == 1) {
-                                        Log.i("DeviceFragment", "-->" + child.getDeviceName() + "," + child.getControlled());
-                                        if ("master".equals(ctrlMode)) {
-                                            child.setControlled(2);
-                                        } else if ("slave".equals(ctrlMode)) {
-                                            child.setControlled(1);
-                                        } else if ("normal".equals(ctrlMode)) {
-                                            child.setControlled(0);
-                                        }
-                                    }
-                                }
-                            }
-                            if (powerValue != 0)
-                                child.setPowerValue(powerValue);
-                            if (voltageValue != 0)
-                                child.setVoltageValue(voltageValue);
-                            if (currentValue != 0)
-                                child.setCurrentValue(currentValue);
-                            if (!Utils.isEmpty(machineFall)) {
-                                child.setMachineFall(machineFall);
-//                                child.setOnLint(true);
-                                if ("fall".equals(machineFall)) {
-                                    child.setMachineFall("fall");
-                                    NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
-                                    Intent notifyIntent = new Intent(getApplicationContext(), LoginActivity.class);
-                                    notifyIntent.putExtra("fall", "fall");
-                                    notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                                            | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-                                    PendingIntent notifyPendingIntent =
-                                            PendingIntent.getActivity(getApplicationContext(), 0, notifyIntent,
-                                                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-                                    builder.setContentText(child.getDeviceName() + "已倾倒")
-                                            .setSmallIcon(R.mipmap.ic_launcher)
-                                            .setDefaults(Notification.DEFAULT_VIBRATE)
-                                            .setAutoCancel(true);
-                                    builder.setContentIntent(notifyPendingIntent);
-                                    NotificationManager mNotificationManager =
-                                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                                    mNotificationManager.notify(0, builder.build());
-                                } else {
-                                    child.setMachineFall("nor");
-                                }
-                            }
-                            if (protectSetTemp != 0)
-                                child.setProtectSetTemp(protectSetTemp);
-                            if (protectProTemp != 0)
-                                child.setProtectProTemp(protectProTemp);
-                            if (!TextUtils.isEmpty(machAttr)){
-                                child.setMachAttr(machAttr);
-                            }
-
-                            if (child != null) {
-                                child.setOnLint(true);
-                                child.setTemp(extTemp);
-                                child.setHum(extHum);
-                                deviceChildDao.update(child);
-                                offlineDevices.put(macAddress, child);
-                            }
-
                             if (device != null && device.has("timerTaskWeek")) {
                                 timerTaskWeek = device.getInt("timerTaskWeek");
                                 long deviceId = child.getId();
@@ -682,6 +562,117 @@ public class MQService extends Service {
                                     timeTaskDao.insert(controller);
                                 }
                             }
+                            if (child != null) {
+                                if (!Utils.isEmpty(wifiVersion))
+                                    child.setWifiVersion(wifiVersion);
+
+                                if (!Utils.isEmpty(MCUVerion))
+                                    child.setMCUVerion(MCUVerion);
+
+                                if (!Utils.isEmpty(workMode)) {
+                                    child.setWorkMode(workMode);
+                                    if (MatTemp != 0) {
+                                        child.setMatTemp(MatTemp);
+                                        if ("manual".equals(workMode)) {
+                                            child.setManualMatTemp(MatTemp);
+                                        } else if ("timer".equals(workMode)) {
+                                            child.setTimerTemp(TimerTemp);
+                                        }
+                                    }
+                                }
+                                if (!Utils.isEmpty(LockScreen))
+                                    child.setLockScreen(LockScreen);
+                                if (!Utils.isEmpty(BackGroundLED))
+                                    child.setBackGroundLED(BackGroundLED);
+                                if (!Utils.isEmpty(deviceState)) {
+                                    if ("open".equals(deviceState))
+                                        child.setImg(imgs[1]);
+                                    else {
+                                        child.setImg(imgs[0]);
+                                    }
+                                    child.setDeviceState(deviceState);
+                                }
+
+                                if (!Utils.isEmpty(timerShutDown)) {
+                                    child.setTimerShutdown(timerShutDown);
+                                }
+                                if (!Utils.isEmpty(tempState))
+                                    child.setTempState(tempState);
+                                if (!Utils.isEmpty(outputMode))
+                                    child.setOutputMod(outputMode);
+                                if (curTemp != 0)
+                                    child.setCurTemp(curTemp);
+                                if (ratedPower != 0)
+                                    child.setRatedPower(ratedPower);
+                                if (!Utils.isEmpty(protectEnable))
+                                    child.setProtectEnable(protectEnable);
+                                if (!Utils.isEmpty(ctrlMode)) {
+                                    child.setCtrlMode(ctrlMode);
+                                    int type = child.getType();
+                                    if ("fall".equals(machineFall)) {
+                                        Log.i("fall","-->"+machineFall+","+macAddress);
+                                    } else {
+                                        if (type == 1) {
+                                            Log.i("DeviceFragment", "-->" + child.getDeviceName() + "," + child.getControlled());
+                                            if ("master".equals(ctrlMode)) {
+                                                child.setControlled(2);
+                                            } else if ("slave".equals(ctrlMode)) {
+                                                child.setControlled(1);
+                                            } else if ("normal".equals(ctrlMode)) {
+                                                child.setControlled(0);
+                                            }
+                                        }
+                                    }
+                                }
+                                if (powerValue != 0)
+                                    child.setPowerValue(powerValue);
+                                if (voltageValue != 0)
+                                    child.setVoltageValue(voltageValue);
+                                if (currentValue != 0)
+                                    child.setCurrentValue(currentValue);
+                                if (!Utils.isEmpty(machineFall)) {
+                                    child.setMachineFall(machineFall);
+//                                child.setOnLint(true);
+                                    if ("fall".equals(machineFall)) {
+                                        child.setMachineFall("fall");
+                                        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
+                                        Intent notifyIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                                        notifyIntent.putExtra("fall", "fall");
+                                        notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                                                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                                        PendingIntent notifyPendingIntent =
+                                                PendingIntent.getActivity(getApplicationContext(), 0, notifyIntent,
+                                                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+                                        builder.setContentText(child.getDeviceName() + "已倾倒")
+                                                .setSmallIcon(R.mipmap.ic_launcher)
+                                                .setDefaults(Notification.DEFAULT_VIBRATE)
+                                                .setAutoCancel(true);
+                                        builder.setContentIntent(notifyPendingIntent);
+                                        NotificationManager mNotificationManager =
+                                                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                                        mNotificationManager.notify(0, builder.build());
+                                    } else {
+                                        child.setMachineFall("nor");
+                                    }
+                                }
+                                if (protectSetTemp != 0)
+                                    child.setProtectSetTemp(protectSetTemp);
+                                if (protectProTemp != 0)
+                                    child.setProtectProTemp(protectProTemp);
+                                if (!TextUtils.isEmpty(machAttr)){
+                                    child.setMachAttr(machAttr);
+                                }
+
+                                if (child != null) {
+                                    child.setOnLint(true);
+                                    child.setTemp(extTemp);
+                                    child.setHum(extHum);
+                                    deviceChildDao.update(child);
+                                    offlineDevices.put(macAddress, child);
+                                }
+                            }
                         }
                     }else if (("p99/sensor1/"+macAddress+"/transfer").equals(topicName)){
                         if (!TextUtils.isEmpty(message) && message.startsWith("{") && message.endsWith("}")){
@@ -708,6 +699,8 @@ public class MQService extends Service {
                                 sorsorPm = messageJsonArray.getInt(10) - 128;
                                 sensorOx = messageJsonArray.getInt(11) - 128;
                                 sensorHcho = messageJsonArray.getInt(12) - 128;
+                                extTemp=sensorSimpleTemp;
+                                extHum=sensorSimpleHum;
 
                                 if (child != null) {
                                     child.setSensorState(sensorState);
@@ -720,6 +713,8 @@ public class MQService extends Service {
                                     child.setSensorOx(sensorOx);
                                     child.setSensorHcho(sensorHcho);
                                     child.setOnLint(true);
+                                    child.setTemp(sensorSimpleTemp);
+                                    child.setHum(sensorSimpleHum);
                                     deviceChildDao.update(child);
                                 }
                             }
@@ -841,7 +836,20 @@ public class MQService extends Service {
                             mqttIntent.putExtra("deviceChild", child);
                             sendBroadcast(mqttIntent);
                         }
-                    } else if (Btn1_fragment.running == 2) {
+                    }else if (SmartTerminalActivity.running){
+                        if (!Utils.isEmpty(reSet)) {
+                            Intent mqttIntent = new Intent("TimeTaskActivity");
+                            mqttIntent.putExtra("macAddress", macAddress);
+                            sendBroadcast(mqttIntent);
+                        } else {
+                            if (child != null) {
+                                Intent mqttIntent = new Intent("SmartTerminalActivity");
+                                mqttIntent.putExtra("macAddress", macAddress);
+                                mqttIntent.putExtra("deviceChild", child);
+                                sendBroadcast(mqttIntent);
+                            }
+                        }
+                    }else if (Btn1_fragment.running == 2) {
                         Intent mqttIntent = new Intent("Btn1_fragment");
                         mqttIntent.putExtra("extTemp", extTemp);
                         mqttIntent.putExtra("extHum", extHum);
@@ -869,7 +877,7 @@ public class MQService extends Service {
                         mqttIntent.putExtra("deviceChild", child);
                         mqttIntent.putExtra("message", "测试");
                         sendBroadcast(mqttIntent);
-                    } else if (SmartFragmentManager.running) {
+                    } else if (SmartTerminalActivity.running) {
                         Intent mqttIntent = new Intent("SmartFragmentManager");
                         if (child==null){
                             mqttIntent.putExtra("deviceChild", child);
@@ -1016,11 +1024,13 @@ public class MQService extends Service {
                     String offlineTopicName = "p99/sensor1/" + macAddress + "/lwt";
                     topicNames.add(onlineTopicName);
                     topicNames.add(offlineTopicName);
+                }else {
+                    topicNames.add(topicOffline);
+                    topicNames.add(topicName);
+                    topicNames.add(topicShare);
+                    addOffineDevice(macAddress);
                 }
-                topicNames.add(topicOffline);
-                topicNames.add(topicName);
-                topicNames.add(topicShare);
-                addOffineDevice(macAddress);
+
             }
         }
         return topicNames;

@@ -64,7 +64,7 @@ public class SmartFragmentManager extends Fragment {
     Unbinder unbinder;
     public static boolean running = false;
     SharedPreferences preferences;
-
+    MyOnPageChangeListener listener;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -84,7 +84,11 @@ public class SmartFragmentManager extends Fragment {
             fragmentList.add(smartFragment);
         }
         preferences = getActivity().getSharedPreferences("smart", Context.MODE_PRIVATE);
+        FragmentPagerAdapter fragmentPagerAdapter = new SmartFragmentAdapter(getChildFragmentManager(), fragmentList);
+        mPager.setAdapter(fragmentPagerAdapter);
+        listener = new MyOnPageChangeListener(getActivity(), mPager, linearout, fragmentList.size());
 
+        mPager.addOnPageChangeListener(listener);
         return view;
     }
 
@@ -105,11 +109,7 @@ public class SmartFragmentManager extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        FragmentPagerAdapter fragmentPagerAdapter = new SmartFragmentAdapter(getChildFragmentManager(), fragmentList);
-        mPager.setAdapter(fragmentPagerAdapter);
-        MyOnPageChangeListener listener = new MyOnPageChangeListener(getActivity(), mPager, linearout, fragmentList.size());
 
-        mPager.addOnPageChangeListener(listener);
 
         if (preferences.contains("postion")) {
             int postion = preferences.getInt("postion", 0);

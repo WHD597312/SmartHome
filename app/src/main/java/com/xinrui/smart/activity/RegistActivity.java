@@ -81,8 +81,6 @@ public class RegistActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         preferences = getSharedPreferences("my", MODE_PRIVATE);
-
-
         deviceGroupDao = new DeviceGroupDaoImpl(this);
         deviceChildDao = new DeviceChildDaoImpl(this);
 

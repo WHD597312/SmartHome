@@ -390,17 +390,22 @@
             android:layout_alignLeft="@+id/image_hum_set"
             android:layout_marginTop="@dimen/dp_130"
             android:layout_marginBottom="@dimen/dp_5"
+            android:visibility="gone"
             />
 
         <TextView
             android:id="@+id/tv_smart_hum"
-            android:layout_width="@dimen/dp_80"
-            android:layout_height="@dimen/dp_35"
-            android:layout_alignTop="@+id/smart_hum_decrease"
-            android:layout_toRightOf="@+id/smart_hum_decrease"
-            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="20%"
-            android:textColor="@color/white" />
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/white"
+            android:layout_marginTop="@dimen/dp_170"
+            android:layout_alignParentRight="true"
+            android:layout_alignLeft="@+id/smartTerminalHumBar"
+            android:layout_alignRight="@+id/smartTerminalHumBar"
+            android:gravity="center"
+            />
         <ImageView
             android:id="@+id/smart_hum_add"
             android:layout_width="@dimen/dp_35"
@@ -409,6 +414,7 @@
             android:scaleType="centerCrop"
             android:layout_toRightOf="@+id/tv_smart_hum"
             android:layout_alignTop="@+id/tv_smart_hum"
+            android:visibility="gone"
             />
 
     </RelativeLayout>
@@ -447,11 +453,13 @@
             android:gravity="center"
             android:layout_marginLeft="@dimen/dp_5"
             />
+
         <com.xinrui.smart.view_custom.SmartTerminalBar
-            android:layout_below="@+id/tv_set_temp"
             android:id="@+id/smartTerminalBar"
-            android:layout_width="@dimen/dp_150"
+            android:layout_width="150dp"
             android:layout_height="@dimen/dp_150"
+            android:layout_below="@+id/tv_set_temp"
+            android:layout_marginLeft="@dimen/dp_15"
             app:mCurAngle="0"
             app:semicircle_module="1"
             app:wheel_cur_process="-12"
@@ -459,9 +467,7 @@
             app:wheel_pointer_radius="20dp"
             app:wheel_reached_width="@dimen/dp_15"
             app:wheel_unreached_color="#1A1414"
-            app:wheel_unreached_width="25dp"
-            android:layout_marginLeft="@dimen/dp_15"
-            />
+            app:wheel_unreached_width="25dp" />
         <ImageView
             android:id="@+id/smart_temp_decrease"
             android:layout_width="@dimen/dp_35"
@@ -472,17 +478,10 @@
             android:layout_alignLeft="@+id/image_set_temp"
             android:layout_marginTop="@dimen/dp_130"
             android:layout_marginBottom="@dimen/dp_5"
+            android:visibility="gone"
             />
 
-        <TextView
-            android:id="@+id/tv_smart_temp"
-            android:layout_width="80dp"
-            android:layout_height="35dp"
-            android:layout_alignTop="@+id/smart_temp_decrease"
-            android:layout_toRightOf="@+id/smart_temp_decrease"
-            android:gravity="center"
-            android:text="5℃"
-            android:textColor="@color/white" />
+
 
         <ImageView
             android:id="@+id/smart_temp_add"
@@ -492,7 +491,18 @@
             android:scaleType="centerCrop"
             android:src="@mipmap/smart_add"
             android:layout_toRightOf="@id/tv_smart_temp"
+            android:visibility="gone"
             />
+
+        <TextView
+            android:id="@+id/tv_smart_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/dp_170"
+            android:gravity="center"
+            android:text="5℃"
+            android:textColor="@color/white" />
     </RelativeLayout>
     <ImageView
         android:id="@+id/image_linkage"

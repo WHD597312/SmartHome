@@ -324,11 +324,7 @@ public class MainActivity extends CheckPermissionsActivity {
             } else {
                 deviceFragment=new DeviceFragment();
                 Bundle bundle=new Bundle();
-                if (!Utils.isEmpty(login)){
-                    bundle.putString("load","load");
-                }else {
-                    bundle.putString("load","");
-                }
+                bundle.putString("load","");
                 deviceFragment.setArguments(bundle);
                 preferences.edit().putString("main", "1").commit();
 
@@ -517,7 +513,6 @@ public class MainActivity extends CheckPermissionsActivity {
                 startActivity(device2);
                 break;
             case R.id.tv_exit:
-
 //                TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(getApplicationContext());
 //                List<TimeTask> timeTasks = timeTaskDao.findAll();
 //                for (TimeTask timeTask : timeTasks) {
@@ -660,6 +655,32 @@ public class MainActivity extends CheckPermissionsActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode==6000){
+            deviceGroups = deviceGroupDao.findAllDevices();
+            deviceChildren = deviceChildDao.findAllDevice();
+            fragmentTransaction = fragmentManager.beginTransaction();
+            noDeviceFragment=new NoDeviceFragment();
+            if (deviceGroups.size() == 2 && deviceChildren.size() == 0) {
+                fragmentTransaction.replace(R.id.layout_body, noDeviceFragment).commit();
+            } else {
+                deviceFragment=new DeviceFragment();
+                Bundle bundle=new Bundle();
+                bundle.putString("load","");
+                deviceFragment.setArguments(bundle);
+                fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
+            }
+            device_view.setVisibility(View.VISIBLE);
+            smart_view.setVisibility(View.GONE);
+            live_view.setVisibility(View.GONE);
+            smart.edit().clear().commit();
+            clicked=1;
+            clicked2=0;
+            clicked3=0;
+        }
+    }
 
     @Override
     protected void onPause() {
@@ -668,7 +689,6 @@ public class MainActivity extends CheckPermissionsActivity {
             preferences.edit().remove("deviceList").commit();
         }
     }
-
 
     @Override
     protected void onStop() {
@@ -730,8 +750,9 @@ public class MainActivity extends CheckPermissionsActivity {
                     if (code == 2000) {
 //                        List<DeviceGroup> groupList=deviceGroupDao.findAllDevices();
 //                        List<DeviceChild> childList=deviceChildDao.findAllDevice();
-                        deviceChildDao.deleteAll();
+
                         deviceGroupDao.deleteAll();
+                        deviceChildDao.deleteAll();
                         JSONArray houses = content.getJSONArray("houses");
                         for (int i = 0; i < houses.length(); i++) {
                             JSONObject house = houses.getJSONObject(i);

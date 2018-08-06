@@ -563,10 +563,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 //                    }
 //                    add_image.getBackground().mutate().setAlpha(0);
                     popupmenuWindow3();
-//                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
-                    Intent service = new Intent(AddDeviceActivity.this, MQService.class);
-                    isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
-                    mac="5asdfghi89hb";
+                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
+//                    Intent service = new Intent(AddDeviceActivity.this, MQService.class);
+//                    isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
+//                    mac="5asdfghi89hb";
                 }
                 break;
         }

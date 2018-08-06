@@ -77,14 +77,24 @@ public class TempChartActivity extends AppCompatActivity {
         deviceChildDao=new DeviceChildDaoImpl(getApplicationContext());
         deviceChild=deviceChildDao.findDeviceById(Integer.parseInt(deviceId));
 
-        float powerValue=deviceChild.getPowerValue()/10;
-        float voltageValue=deviceChild.getVoltageValue()/10;
-        float currentValue=deviceChild.getCurrentValue()/1000;//小数点后保留一位
+        int  powerValue=deviceChild.getPowerValue()/10;
+        int  voltageValue=deviceChild.getVoltageValue();
+        int currentValue=deviceChild.getCurrentValue();
+        float currentValue2=Float.parseFloat(currentValue+"");
+        float currentValue3=currentValue2/1000;
+        String s3=currentValue3+"";
+        String s4=s3.substring(s3.indexOf(".")+1);
+        String s5=s3.substring(0,s3.indexOf("."));
+        if (s4.length()>2){
+            s4=s4.substring(1,3);
+        }else if (s4.length()<2){
+            s4=s4+"0";
+        }
         int ratedPower=deviceChild.getRatedPower();
 //        tv_power.setText("功率:"+powerValue+"w");
 //        tv_voltage.setText("电压:"+voltageValue+"v");
 //        tv_current.setText("电流:"+currentValue+"A");
-        String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+currentValue+"A";
+        String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+s5+"."+s4+"A";
         tv_voltage.setText(s);
         String s2="额定功率:"+ratedPower+"W";
         tv_roatPower.setText(s2);
@@ -207,7 +217,6 @@ public class TempChartActivity extends AppCompatActivity {
 
                 LineChartManager lineChartManager1 = new LineChartManager(line_chart);
 
-
                 //设置x轴的数据
                 ArrayList<Integer> xValues = new ArrayList<>();
                 for (int i = 0; i <24; i++) {
@@ -263,11 +272,21 @@ public class TempChartActivity extends AppCompatActivity {
                         deviceChildDao.update(deviceChild);
                         if (deviceChild != null) {
                             if (deviceChild.getOnLint()){
-                                int powerValue=deviceChild.getPowerValue();
-                                int voltageValue=deviceChild.getVoltageValue()/10;
-                                int currentValue=deviceChild.getCurrentValue()/1000;
+                                int  powerValue=deviceChild.getPowerValue()/10;
+                                int  voltageValue=deviceChild.getVoltageValue();
+                                int currentValue=deviceChild.getCurrentValue();
+                                float currentValue2=Float.parseFloat(currentValue+"");
+                                float currentValue3=currentValue2/1000;
+                                String s3=currentValue3+"";
+                                String s4=s3.substring(s3.indexOf(".")+1);
+                                String s5=s3.substring(0,s3.indexOf("."));
+                                if (s4.length()>2){
+                                    s4=s4.substring(1,3);
+                                }else if (s4.length()<2){
+                                    s4=s4+"0";
+                                }
                                 int ratedPower=deviceChild.getRatedPower();
-                                String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+currentValue+"A";
+                                String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+s5+"."+s4+"A";
                                 tv_voltage.setText(s);
                                 String s2="额定功率:"+ratedPower+"W";
                                 tv_roatPower.setText(s2);

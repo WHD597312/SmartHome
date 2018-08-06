@@ -143,8 +143,6 @@ public class ShareDeviceActivity extends AppCompatActivity {
         registerReceiver(receiver, intentFilter);
         running=true;
         new ShareQrCodeAsync().execute();
-
-
     }
 
     @OnClick({R.id.img_back,R.id.btn_update_version})
