@@ -64,6 +64,7 @@ public class DeviceChild  implements Serializable{
     int sensorState;/**传感器状态*/
     int busModel;/**商业模式*/
     int linked;
+    int grade;/**亮度等级*/
 
 
     public DeviceChild() {
@@ -478,7 +479,15 @@ public class DeviceChild  implements Serializable{
         this.linked = linked;
     }
 
-    @Generated(hash = 1695132731)
+    public int getGrade() {
+        return this.grade;
+    }
+
+    public void setGrade(int grade) {
+        this.grade = grade;
+    }
+
+    @Generated(hash = 1250571870)
     public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
             Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
             int version, int ratedPower, int MatTemp, String workMode, String LockScreen,
@@ -489,7 +498,7 @@ public class DeviceChild  implements Serializable{
             int timerTemp, boolean onLint, int temp, int hum, String reSet,
             String timerShutdown, long shareHouseId, int groupPosition, int childPosition,
             String machAttr, int sensorSimpleTemp, int sensorSimpleHum, int sorsorPm,
-            int sensorOx, int sensorHcho, int sensorState, int busModel, int linked) {
+            int sensorOx, int sensorHcho, int sensorState, int busModel, int linked, int grade) {
         this.id = id;
         this.deviceName = deviceName;
         this.macAddress = macAddress;
@@ -539,6 +548,7 @@ public class DeviceChild  implements Serializable{
         this.sensorState = sensorState;
         this.busModel = busModel;
         this.linked = linked;
+        this.grade = grade;
     }
 
 }

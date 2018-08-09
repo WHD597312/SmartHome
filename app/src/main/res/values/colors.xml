@@ -19,6 +19,8 @@
     <color name="holo_green">#00e266</color>
     <color name="color_blue">#00b8ee</color>
     <color name="color_black">#101010</color>
+    <color name="color_yellow_yuan">#fa8d07</color>
+    <color name="transparent">#00000000</color>
     <color name="color_gray2">#bbbbbb</color>
     <color name="color_blue2">#0076ff</color>
     <color name="red_normal">#FF0000</color>

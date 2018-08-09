@@ -186,16 +186,13 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             case R.id.semicBar:
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
-                    backgroundAlpha(1.0f);
-                    gradView.setVisibility(View.VISIBLE);
-                    break;
+                    enableClick();
                 }
                 break;
             case R.id.image_switch:
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
-                    backgroundAlpha(1.0f);
-                    gradView.setVisibility(View.VISIBLE);
+                    enableClick();
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
@@ -236,8 +233,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             case R.id.image_mode:
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
-                    backgroundAlpha(1.0f);
-                    gradView.setVisibility(View.VISIBLE);
+                   enableClick();
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
@@ -304,8 +300,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             case R.id.image_mode2:
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
-                    backgroundAlpha(1.0f);
-                    gradView.setVisibility(View.VISIBLE);
+                   enableClick();
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
@@ -362,21 +357,18 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             case R.id.image_mode3:
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
-                    backgroundAlpha(1.0f);
-                    gradView.setVisibility(View.VISIBLE);
+                    enableClick();
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
                     position = -1;
                     if ("open".equals(deviceChild.getDeviceState())) {
-                        String lock = (String) image_lock.getTag();
-                        if ("上锁".equals(lock)) {
-                            image_lock.setTag("解锁");
+                        String lock = deviceChild.getLockScreen();
+                        if ("open".equals(lock)) {
                             deviceChild.setLockScreen("close");
                             setMode(deviceChild);
                             send(deviceChild);
-                        } else if ("解锁".equals(lock)) {
-                            image_lock.setTag("上锁");
+                        } else if ("close".equals(lock)) {
                             deviceChild.setLockScreen("open");
                             setMode(deviceChild);
                             send(deviceChild);
@@ -385,27 +377,22 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 } else {
                     Utils.showToast(this, "主人，请对我温柔点!");
                 }
-
                 break;
             case R.id.image_mode4:
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
-                    backgroundAlpha(1.0f);
-                    gradView.setVisibility(View.VISIBLE);
+                    enableClick();
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
                     position = -1;
                     if ("open".equals(deviceChild.getDeviceState())) {
-                        String srceen = (String) image_srceen.getTag();
-                        if ("屏保关".equals(srceen)) {
-                            image_srceen.setTag("屏保开");
-                            deviceChild.setBackGroundLED("open");
+                        if ("open".equals(deviceChild.getBackGroundLED())) {
+                            deviceChild.setBackGroundLED("close");
                             setMode(deviceChild);
                             send(deviceChild);
-                        } else {
-                            image_srceen.setTag("屏保关");
-                            deviceChild.setBackGroundLED("close");
+                        } else if ("close".equals(deviceChild.getBackGroundLED())) {
+                            deviceChild.setBackGroundLED("open");
                             setMode(deviceChild);
                             send(deviceChild);
                         }
@@ -413,27 +400,16 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 } else {
                     Utils.showToast(this, "主人，请对我温柔点!");
                 }
-
-                break;
-            case R.id.layout:
-                if (popupWindow != null && popupWindow.isShowing()) {
-                    popupWindow.dismiss();
-                    backgroundAlpha(1.0f);
-                }
-                gradView.setVisibility(View.VISIBLE);
                 break;
             case R.id.linearout:
                 if (popupWindow != null && popupWindow.isShowing()) {
-                    popupWindow.dismiss();
-                    backgroundAlpha(1.0f);
+                    enableClick();
                 }
-                gradView.setVisibility(View.VISIBLE);
                 break;
             case R.id.img_back:
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
-                    backgroundAlpha(1.0f);
-                    gradView.setVisibility(View.VISIBLE);
+                    enableClick();
                     break;
                 }
                 Intent intent = new Intent();
@@ -553,14 +529,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 public void onChanged(SemicircleBar seekbar, double curValue) {
 
                     try {
-                        if (popupWindow != null && popupWindow.isShowing()) {
-                            popupWindow.dismiss();
-                            backgroundAlpha(1.0f);
-                            gradView.setVisibility(View.VISIBLE);
-                            return;
-                        }
                         String handTask = (String) image_hand_task.getTag();
-
                         String open = (String) image_switch.getTag();
                         img_circle.setImageResource(R.drawable.lottery_animlist);
                         AnimationDrawable animationDrawable = (AnimationDrawable) img_circle.getDrawable();
@@ -964,6 +933,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 maser.put("outputMode", deviceChild.getOutputMod());
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
+                maser.put("grade",grade);
 
                 String s = maser.toString();
                 boolean success = false;
@@ -1023,7 +993,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             if ("manual".equals(workMode)) {
                 image_hand_task.setImageResource(R.mipmap.module_handle);
                 image_hand_task.setTag("手动");
-
 //
             } else if ("timer".equals(workMode)) {
                 image_hand_task.setImageResource(R.mipmap.module_task);
@@ -1037,7 +1006,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 semicBar.setCanTouch(false);
                 animationDrawable.stop();
             }
-
             model_protect.setTag("保护");
             model_protect.setBackgroundResource(R.mipmap.img_child_pro);
 
@@ -1067,6 +1035,17 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             image_switch.setTag("开");
             image_switch.setImageResource(R.mipmap.img_switch);
             relative4.setVisibility(View.VISIBLE);
+            if ("open".equals(BackGroundLED)) {
+                image_srceen.setImageResource(R.mipmap.img_screen_open);
+            } else if ("close".equals(BackGroundLED)) {
+                image_srceen.setImageResource(R.mipmap.img_screen);
+            }
+
+            if ("open".equals(LockScreen)) {
+                image_lock.setImageResource(R.mipmap.open_lockscreen);
+            } else if ("close".equals(LockScreen)) {
+                image_lock.setImageResource(R.mipmap.close_lockscreen);
+            }
             relative5.setVisibility(View.GONE);
         } else if ("close".equals(deviceState)) {
             animationDrawable.stop();
@@ -1117,22 +1096,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             }
         }
 
-        if ("open".equals(BackGroundLED)) {
-            image_srceen.setTag("屏保开");
-            image_srceen.setBackgroundResource(R.mipmap.img_screen_open);
-        } else if ("close".equals(BackGroundLED)) {
-            image_srceen.setTag("屏保关");
-            image_srceen.setImageResource(R.mipmap.img_screen);
-            image_srceen.setBackgroundResource(0);
-        }
 
-        if ("open".equals(LockScreen)) {
-            image_lock.setTag("上锁");
-            image_lock.setImageResource(R.mipmap.open_lockscreen);
-        } else if ("close".equals(LockScreen)) {
-            image_lock.setTag("解锁");
-            image_lock.setImageResource(R.mipmap.close_lockscreen);
-        }
         if ("err".equals(tempState)) {
             tv_cur_temp.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
         }
@@ -1176,11 +1140,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (popupWindow != null && popupWindow.isShowing()) {
                 popupWindow.dismiss();
-                backgroundAlpha(1.0f);
-                gradView.setVisibility(View.VISIBLE);
+                enableClick();
                 return false;
             }
             application.removeActivity(this);
@@ -1207,7 +1171,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         }
         running = false;
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -1394,7 +1357,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
 
         @Override
@@ -1443,26 +1405,23 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                 linearout.setVisibility(View.VISIBLE);
                                 tv_offline.setVisibility(View.GONE);
                                 gradView.setVisibility(View.VISIBLE);
-                                setMode(deviceChild);
                                 deviceChild = deviceChild2;
-                                deviceChildDao.update(deviceChild);
+                                setMode(deviceChild);
                             }
                         } else if ("offline".equals(online)) {
-
                             linearout.setVisibility(View.GONE);
                             tv_offline.setVisibility(View.VISIBLE);
-
                             tv_offline.setText("设备已离线");
                             gradView.setVisibility(View.GONE);
                             try {
-                                String mac=deviceChild.getMacAddress();
+                                String mac = deviceChild.getMacAddress();
                                 String topic = "rango/" + mac + "/set";
                                 JSONObject jsonObject2 = new JSONObject();
                                 jsonObject2.put("loadDate", "1");
                                 String s2 = jsonObject2.toString();
                                 boolean success2 = false;
                                 success2 = mqService.publish(topic, 1, s2);
-                                Log.i("success","-->"+success2);
+                                Log.i("success", "-->" + success2);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -1483,7 +1442,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 }
             }
         }
-
     }
 
     private PopupWindow popupWindow;
@@ -1498,22 +1456,42 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         View view = View.inflate(this, R.layout.popup_clockset, null);
         mySeekBar = (MySeekBar) view.findViewById(R.id.beautySeekBar1);
         mySeekBar.setOnSeekBarChangeListener(this);
-
+        mySeekBar.setProgress((int) 12.5*3);
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
         popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         //点击空白处时，隐藏掉pop窗口
-        popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
-        //添加弹出、弹入的动画
-        gradView.setVisibility(View.GONE);
-        popupWindow.setAnimationStyle(R.style.Popupwindow);
-        backgroundAlpha(0.4f);
         popupWindow.setFocusable(false);
         popupWindow.setOutsideTouchable(false);
+
+        disableClick();
+        //添加弹出、弹入的动画
+//        gradView.setVisibility(View.GONE);
+        popupWindow.setAnimationStyle(R.style.Popupwindow);
+        backgroundAlpha(0.4f);
 //        ColorDrawable dw = new ColorDrawable(0x30000000);
 //        popupWindow.setBackgroundDrawable(dw);
         popupWindow.showAsDropDown(linearout, 0, 20);
+    }
+
+
+    private void disableClick() {
+        semicBar.setCanTouch(false);
+        image_hand_task.setClickable(false);
+        model_protect.setClickable(false);
+        image_lock.setClickable(false);
+        image_srceen.setClickable(false);
+    }
+    private void enableClick(){
+        if (popupWindow!=null && popupWindow.isShowing()){
+            popupWindow.dismiss();
+        }
+        semicBar.setCanTouch(true);
+        image_hand_task.setClickable(true);
+        model_protect.setClickable(true);
+        image_lock.setClickable(true);
+        image_srceen.setClickable(true);
+        backgroundAlpha(1.0f);
     }
 
     int grade = 0;
@@ -1540,6 +1518,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         } else if (progress2 >= 0.875 && progress2 < 1) {
             grade = 8;
         }
+        deviceChild.setGrade(grade);
         Log.i("progress", "-->" + progress2);
     }
 
@@ -1552,6 +1531,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     public void onStopTrackingTouch(SeekBar seekBar) {
         Log.i("progress", "-->:onStopTrackingTouch");
         Log.i("grade", "-->" + grade);
+        send(deviceChild);
     }
 
     //设置蒙版

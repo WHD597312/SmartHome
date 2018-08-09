@@ -352,6 +352,7 @@ public class MQService extends Service {
                     int extHum = 0;
                     int TimerTemp = 0;
                     String machAttr = "";
+                    int grade=-1;
 
 
                     DeviceChild child = null;
@@ -471,6 +472,9 @@ public class MQService extends Service {
                             }
                             if (device.has("timerShutDown")) {
                                 timerShutDown = device.getString("timerShutDown");
+                            }
+                            if (device.has("grade")){
+                                grade=device.getInt("grade");
                             }
 
                             if (device.has("extTemp")) {
@@ -629,6 +633,8 @@ public class MQService extends Service {
                                     child.setVoltageValue(voltageValue);
                                 if (currentValue != 0)
                                     child.setCurrentValue(currentValue);
+                                if (grade!=-1)
+                                    child.setGrade(grade);
                                 if (!Utils.isEmpty(machineFall)) {
                                     child.setMachineFall(machineFall);
 //                                child.setOnLint(true);
