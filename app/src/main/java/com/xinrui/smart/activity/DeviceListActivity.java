@@ -180,7 +180,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
     private int position = -1;
 
-    @OnClick({R.id.img_back, R.id.image_home, R.id.layout, R.id.linearout, R.id.image_switch, R.id.image_mode2, R.id.image_mode, R.id.image_mode3, R.id.image_mode4,R.id.semicBar})
+    @OnClick({R.id.img_back, R.id.image_home, R.id.layout, R.id.linearout, R.id.image_switch, R.id.image_mode2, R.id.image_mode, R.id.image_mode3, R.id.image_mode4, R.id.semicBar})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.semicBar:
@@ -476,8 +476,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     /**
      * 打开恢复设置对话框
      */
-    private void buildRestoreDialog(){
-        final RestoreSetDialog dialog=new RestoreSetDialog(this);
+    private void buildRestoreDialog() {
+        final RestoreSetDialog dialog = new RestoreSetDialog(this);
         dialog.setOnNegativeClickListener(new RestoreSetDialog.OnNegativeClickListener() {
             @Override
             public void onNegativeClick() {
@@ -1419,7 +1419,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 intent2.putExtra("houseId", houseId);
                 DeviceListActivity.this.setResult(6000, intent2);
                 DeviceListActivity.this.finish();
-            } else if (!Utils.isEmpty(macAddress) && deviceChild2==null&& macAddress.equals(deviceChild.getMacAddress())) {
+            } else if (!Utils.isEmpty(macAddress) && deviceChild2 == null && macAddress.equals(deviceChild.getMacAddress())) {
                 Utils.showToast(DeviceListActivity.this, "该设备已被重置");
                 Intent intent2 = new Intent();
                 intent2.putExtra("houseId", houseId);
@@ -1447,8 +1447,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                 deviceChild = deviceChild2;
                                 deviceChildDao.update(deviceChild);
                             }
-                        }
-                        else if ("offline".equals(online)) {
+                        } else if ("offline".equals(online)) {
 
                             linearout.setVisibility(View.GONE);
                             tv_offline.setVisibility(View.VISIBLE);
@@ -1456,18 +1455,20 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                             tv_offline.setText("设备已离线");
                             gradView.setVisibility(View.GONE);
                             try {
-                                String topic = "rango/" + macAddress + "/set";
+                                String mac=deviceChild.getMacAddress();
+                                String topic = "rango/" + mac + "/set";
                                 JSONObject jsonObject2 = new JSONObject();
                                 jsonObject2.put("loadDate", "1");
                                 String s2 = jsonObject2.toString();
                                 boolean success2 = false;
                                 success2 = mqService.publish(topic, 1, s2);
-                            }catch (Exception e){
+                                Log.i("success","-->"+success2);
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
                     }
-                }else {
+                } else {
                     if ("fall".equals(machineFall)) {
                         linearout.setVisibility(View.GONE);
                         tv_offline.setVisibility(View.VISIBLE);
