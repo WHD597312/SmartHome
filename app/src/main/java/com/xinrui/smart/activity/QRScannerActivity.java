@@ -1,8 +1,10 @@
 package com.xinrui.smart.activity;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
@@ -11,6 +13,7 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,6 +40,7 @@ import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.camera.CameraManager;
 import com.xinrui.smart.util.decoding.CaptureActivityHandler;
 import com.xinrui.smart.util.decoding.InactivityTimer;
+import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.util.view.ViewfinderView;
 
 import org.json.JSONObject;
@@ -74,6 +78,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
     Unbinder unbinder;
     MyApplication application;
 
+    private boolean isBound=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,6 +154,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                 break;
         }
     }
+    private String success;
 
     @Override
     protected void onPause() {
@@ -166,6 +172,15 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
         super.onDestroy();
         if (unbinder != null) {
             unbinder.unbind();
+        }
+        try {
+            if (TextUtils.isEmpty(success)) {
+                if (isBound) {
+                    unbindService(connection);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         application.removeActivity(this);
     }
@@ -197,12 +212,11 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                     Map<String, Object> params = new HashMap<>();
                     params.put("deviceId", deviceId);
                     params.put("userId", userId);
+                    Intent service = new Intent(QRScannerActivity.this, MQService.class);
+                    isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
                     new QrCodeAsync().execute(params);
-
                 }
             }
-//                tv_result.setText(content);
-
         }
     }
 
@@ -246,14 +260,12 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                             deviceName = ss[6].substring(10);
 
                             long houseId = Long.MAX_VALUE;
-                            DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, houseId, userId, type, 0);
-                            deviceChild.setImg(imgs[0]);
-                            deviceChild.setMacAddress(macAddress);
-                            deviceChild.setVersion(0);
+//                            DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, houseId, userId, type, 0);
+                            DeviceChild deviceChild = new DeviceChild((long)deviceId, houseId, deviceName, macAddress, type);
+//                            deviceChild.setImg(imgs[0]);
                             deviceChild.setControlled(controlled);
                             deviceChild.setOnLint(true);
                             deviceChild.setShareHouseId(shareHouseId);
-
 
                             List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
 
@@ -263,7 +275,25 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                                     break;
                                 }
                             }
+                            String topicName2 = "rango/" + macAddress + "/transfer";
+                            String topicOffline = "rango/" + macAddress + "/lwt";
+                            boolean succ = mqService.subscribe(topicName2, 1);
+                            succ = mqService.subscribe(topicOffline, 1);
                             deviceChildDao.insert(deviceChild);
+                            if (type==1){
+                                if (succ) {
+                                    JSONObject jsonObject2 = new JSONObject();
+                                    jsonObject2.put("loadDate", "1");
+                                    String s = jsonObject2.toString();
+                                    String topicName = "rango/" + macAddress + "/set";
+                                    boolean success = mqService.publish(topicName, 1, s);
+                                    if (success)
+                                        if (!success) {
+                                            success = mqService.publish(topicName, 1, s);
+                                        }
+                                    Log.i("sss", "-->" + success);
+                                }
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -278,6 +308,10 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
             super.onPostExecute(code);
             switch (code) {
                 case 2000:
+                    if (isBound) {
+                        unbindService(connection);
+                    }
+                    success = "success";
                     Utils.showToast(QRScannerActivity.this, "创建成功");
                     Intent intent2 = new Intent(QRScannerActivity.this, MainActivity.class);
                     intent2.putExtra("deviceList", "deviceList");
@@ -293,6 +327,23 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
             }
         }
     }
+    MQService mqService;
+    private boolean bound = false;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
+
 
     private void initCamera(SurfaceHolder surfaceHolder) {
         try {

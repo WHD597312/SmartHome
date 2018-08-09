@@ -463,6 +463,22 @@ public class HeaterFragment extends LazyFragment {
             MQService.LocalBinder binder = (MQService.LocalBinder) service;
             mqService = binder.getService();
             bound = true;
+            try {
+                if (deviceChild!=null){
+                    String mac = deviceChild.getMacAddress();
+                    String topic = "rango/" + mac + "/set";
+                    Log.i("macAddress2", "-->" + mac);
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("loadDate", "1");
+                    String s = jsonObject.toString();
+                    boolean success = false;
+                    success = mqService.publish(topic, 1, s);
+                    Log.i("success","-->"+success);
+                }
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -651,7 +667,6 @@ public class HeaterFragment extends LazyFragment {
 
         if (deviceChild != null) {
             setMode(deviceChild);
-//            send(deviceChild);
         }
     }
 
@@ -663,9 +678,7 @@ public class HeaterFragment extends LazyFragment {
         if(deviceChildDao!=null){
             deviceChildDao.closeDaoSession();
         }
-
     }
-
 
 
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
@@ -753,7 +766,6 @@ public class HeaterFragment extends LazyFragment {
                                     deviceChild.setOutputMod("savePwr");//节能模式
                                 }
                             } else if ("定时".equals(handTask)) {
-
                                 image_hand_task.setTag("手动");
                                 deviceChild.setWorkMode("manual");
                                 int manualMatTemp = deviceChild.getManualMatTemp();
@@ -794,14 +806,17 @@ public class HeaterFragment extends LazyFragment {
                     Utils.showToast(getActivity(), "主人，请对我温柔点!");
                 }
 
-
-
                 break;
             case R.id.image_mode2:
                 if (NoFastClickUtils.isFastClick()){
 //                    buildOpenChildProjectDialog();
                     position=-1;
                     String outputMode = deviceChild.getOutputMod();
+                    String protectEnable = deviceChild.getProtectEnable();
+                    if ("disable".equals(protectEnable)){
+                        Utils.showToast(getActivity(), "保护模式未开启!");
+                        break;
+                    }
                     if ("childProtect".equals(outputMode)) {
                         model_protect.setTag("不保护");
                         model_protect.setBackgroundResource(0);
@@ -922,7 +937,6 @@ public class HeaterFragment extends LazyFragment {
         img_circle.setImageResource(R.drawable.lottery_animlist);
         AnimationDrawable animationDrawable = (AnimationDrawable) img_circle.getDrawable();
 
-
         if ("childProtect".equals(outputMode) && "enable".equals(protectEnable)) {
             if ("manual".equals(workMode)) {
                 image_hand_task.setImageResource(R.mipmap.module_handle);
@@ -961,7 +975,7 @@ public class HeaterFragment extends LazyFragment {
             semicBar.setCanTouch(false);
             model_protect.setTag("不保护");
             model_protect.setBackgroundResource(0);
-            model_protect.setEnabled(false);
+//            model_protect.setEnabled(false);
         }
 
         /**开机，关机状态*/

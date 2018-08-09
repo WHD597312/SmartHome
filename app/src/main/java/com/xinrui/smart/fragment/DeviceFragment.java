@@ -153,13 +153,10 @@ public class DeviceFragment extends Fragment {
     ItemTouchHelper touchHelper;
     public static boolean drag = false;
     private boolean isBound = false;
-
     private ProgressDialog progressDialog;
     private List<DeviceChild> offlineDevices = new ArrayList<>();
     public static boolean loading = false;
     private LinkedList<String> offlineList = new LinkedList<String>();
-
-
     private String deviceId;
 
     //    List
@@ -1501,7 +1498,6 @@ public class DeviceFragment extends Fragment {
                         } else {
                             Utils.showToast(context, "请检查你的网络");
                         }
-
                     }
                 });
                 tv_close.setOnClickListener(new View.OnClickListener() {
@@ -1597,7 +1593,8 @@ public class DeviceFragment extends Fragment {
                     } else {
                         intent.putExtra("wifi", "wifi");
                     }
-                    context.startActivity(intent);
+                    startActivityForResult(intent,6000);
+//                    context.startActivity(intent);
                 }
             });
         }
@@ -1620,9 +1617,7 @@ public class DeviceFragment extends Fragment {
         public void onBindChildViewHolder(final BaseViewHolder holder, final int groupPosition, final int childPosition) {
 
             final DeviceChild entry = childern.get(groupPosition).get(childPosition);
-
             holder.setText(R.id.tv_device_child, entry.getDeviceName());
-            holder.setImageResource(R.id.image_switch, entry.getImg());
             tv_device_child = (TextView) holder.itemView.findViewById(R.id.tv_device_child);
             TextView tv_state = (TextView) holder.itemView.findViewById(R.id.tv_state);
             if (entry.getOnLint()) {
@@ -1632,6 +1627,7 @@ public class DeviceFragment extends Fragment {
                         if ("fall".equals(entry.getMachineFall())) {
                             tv_state.setText("设备已倾倒");
                         } else {
+                            holder.setImageResource(R.id.image_switch, imgs[1]);
                             tv_state.setText(entry.getRatedPower() + "w");
                         }
                     } else if (entry.getControlled() == 1) {
@@ -1652,7 +1648,7 @@ public class DeviceFragment extends Fragment {
                     if ("fall".equals(entry.getMachineFall())) {
                         holder.setImageResource(R.id.image_switch, imgs[2]);
                     } else {
-                        holder.setImageResource(R.id.image_switch, imgs[1]);
+                        holder.setImageResource(R.id.image_switch,imgs[1]);
                     }
                 } else if ("close".equals(entry.getDeviceState())) {
                     holder.setImageResource(R.id.image_switch, imgs[0]);
@@ -1665,7 +1661,6 @@ public class DeviceFragment extends Fragment {
                     holder.setImageResource(R.id.image_switch, imgs[0]);
                 }
             }
-
             if (entry.getType() == 1) {
                 if (entry.getControlled() == 2) {
                     holder.setImageResource(R.id.image_device_child, R.mipmap.master);
@@ -1685,12 +1680,6 @@ public class DeviceFragment extends Fragment {
             tv_device_child.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
-//                    long id = deviceChild.getId();
-//                    Intent intent = new Intent(context, DeviceListActivity.class);
-//                    intent.putExtra("content", deviceChild.getDeviceName());
-//                    intent.putExtra("childPosition", id + "");
-//                    context.startActivity(intent);
                     int type=entry.getType();
                     if (type==2){
                         Intent intent = new Intent(getActivity(), SmartTerminalActivity.class);
@@ -1724,7 +1713,8 @@ public class DeviceFragment extends Fragment {
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
-                                    context.startActivity(intent);
+//                                    context.startActivity(intent);
+                                    startActivityForResult(intent, 6000);
                                 } else if (entry.getControlled() == 1) {
                                     Utils.showToast(context, "受控机不能操作");
                                 }
@@ -2028,9 +2018,7 @@ public class DeviceFragment extends Fragment {
             Log.i("load", "-->" + load);
             if (!Utils.isEmpty(load)) {
                 List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
-
                 new LoadMqttAsync3().execute(deviceChildren);
-
             }
             if (!Utils.isEmpty(deviceId)) {
                 try {
@@ -2096,40 +2084,27 @@ public class DeviceFragment extends Fragment {
                         DeviceChild deviceChild2 = childList.get(i);
                         if (macAddress2.equals(deviceChild2.getMacAddress())) {
                             childern.get(groupPostion).set(i, deviceChild20);
-                            adapter.changeChild(groupPostion2, i);
                             break;
                         }
                     }
+                    adapter.notifyDataSetChanged();
                 } else {
-                    if (!Utils.isEmpty(Net)) {
+                    if (!Utils.isEmpty(noNet)) {
                         for (int i = 0; i < deviceGroups.size(); i++) {
                             List<DeviceChild> deviceChildren = childern.get(i);
                             for (int j = 0; j < deviceChildren.size(); j++) {
                                 DeviceChild deviceChild = deviceChildren.get(j);
                                 deviceChild.setOnLint(false);
-                                send(deviceChild);
                                 if ("open".equals(deviceChild.getDeviceState())) {
                                     deviceChild.setImg(imgs[2]);
+                                } else if ("close".equals(deviceChild.getDeviceState())) {
+                                    deviceChild.setImg(imgs[0]);
                                 }
                                 childern.get(i).set(j, deviceChild);
                             }
                         }
                         adapter.notifyDataSetChanged();
-                    } else if (!Utils.isEmpty(noNet)) {
-                        for (int i = 0; i < deviceGroups.size(); i++) {
-                            List<DeviceChild> deviceChildren = childern.get(i);
-                            for (int j = 0; j < deviceChildren.size(); j++) {
-                                DeviceChild deviceChild = deviceChildren.get(j);
-                                deviceChild.setOnLint(false);
-                                if ("open".equals(deviceChild.getDeviceState())) {
-                                    deviceChild.setImg(imgs[2]);
-                                }
-                                childern.get(i).set(j, deviceChild);
-                            }
-                        }
-                        adapter.changeChildren(groupPostion);
-//                    notifyDataSetChanged();
-                    } else if (Utils.isEmpty(Net) && Utils.isEmpty(noNet)) {
+                    } else if (Utils.isEmpty(noNet)) {
                         DeviceChild deviceChild = (DeviceChild) intent.getSerializableExtra("deviceChild");
                         if (deviceChild == null) {
                             try {
@@ -2146,13 +2121,14 @@ public class DeviceFragment extends Fragment {
                                                 break;
                                             }
                                         }
-                                    }
-                                    Utils.showToast(context, "该设备已重置");
-                                    List<DeviceChild> children = deviceChildDao.findAllDevice();
-                                    if (children != null && children.isEmpty() && deviceGroups.size() == 2) {
-                                        context.startActivity(new Intent(context, MainActivity.class));
-                                    } else {
-                                        adapter.notifyDataSetChanged();
+
+                                        Utils.showToast(context, "该设备已重置");
+                                        List<DeviceChild> children = deviceChildDao.findAllDevice();
+                                        if (children != null && children.isEmpty() && deviceGroups.size() == 2) {
+                                            context.startActivity(new Intent(context, MainActivity.class));
+                                        } else {
+                                            adapter.notifyDataSetChanged();
+                                        }
                                     }
                                 }
                             } catch (Exception e) {

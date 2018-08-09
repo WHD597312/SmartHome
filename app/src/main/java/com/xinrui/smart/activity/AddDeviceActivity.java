@@ -466,9 +466,13 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     backgroundAlpha(1f);
                     break;
                 }
-                Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
-                intent.putExtra("deviceList", "deviceList");
-                startActivity(intent);
+//                Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
+//                intent.putExtra("deviceList", "deviceList");
+//                startActivity(intent);
+                Intent intent = new Intent();
+                intent.putExtra("houseId", houseId);
+                setResult(6000, intent);
+                finish();
                 break;
             case R.id.layout_help:
                 match=0;
@@ -552,16 +556,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     et_ssid.setEnabled(false);
                     et_pswd.setEnabled(false);
                     btn_match.setEnabled(false);
-//                    try {
-//                        gifDrawable = new GifDrawable(getResources(), R.mipmap.touxiang3);
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                    if (gifDrawable != null) {
-//                        gifDrawable.start();
-//                        add_image.setImageDrawable(gifDrawable);
-//                    }
-//                    add_image.getBackground().mutate().setAlpha(0);
+
                     popupmenuWindow3();
                     new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
 //                    Intent service = new Intent(AddDeviceActivity.this, MQService.class);
@@ -673,7 +668,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         deviceId = content.getInt("id");
                         String deviceName = content.getString("deviceName");
                         int type = content.getInt("type");
-                        int houseId = content.getInt("houseId");
+                        long houseId = content.getInt("houseId");
                         int masterControllerUserId = content.getInt("masterControllerUserId");
                         int isUnlock = content.getInt("isUnlock");
                         int version = content.getInt("version");
@@ -681,9 +676,14 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         int controlled = content.getInt("controlled");
                         String onlineTopicName="p99/sensor1/"+macAddress+"/transfer";
                         String offlineTopicName="p99/sensor1/"+macAddress+"/lwt";
+                        String topicName2 = "rango/" + macAddress + "/transfer";
+                        String topicOffline = "rango/" + macAddress + "/lwt";
+                        boolean succ=false;
                         if (!TextUtils.isEmpty(onlineTopicName)){
-                            boolean success = mqService.subscribe(onlineTopicName, 1);
                             boolean success2=mqService.subscribe(offlineTopicName,1);
+                            boolean success = mqService.subscribe(onlineTopicName, 1);
+                            succ = mqService.subscribe(topicName2, 1);
+                            succ = mqService.subscribe(topicOffline, 1);
                             if (!success) {
                                 mqService.subscribe(onlineTopicName, 1);
                             }
@@ -706,13 +706,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                                     String info="url:http://apicloud.mob.com/v1/weather/query?key=257a640199764&city="+ URLEncoder.encode(city,"utf-8")+"&province="+URLEncoder.encode(province,"utf-8");
                                     mqService.publish(topicName,1,info);
                                 }
-
                             }
                         }
-                        deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) houseId, masterControllerUserId, type, isUnlock);
+                        deviceChild = new DeviceChild((long)deviceId, houseId, deviceName, macAddress, type);
                         deviceChild.setImg(imgs[0]);
-                        deviceChild.setMacAddress(macAddress);
-                        deviceChild.setVersion(version);
                         deviceChild.setControlled(controlled);
                         deviceChild.setOnLint(true);
 
@@ -724,6 +721,20 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                             }
                         }
                         deviceChildDao.insert(deviceChild);
+                        if (type==1){
+                            if (succ) {
+                                JSONObject jsonObject2 = new JSONObject();
+                                jsonObject2.put("loadDate", "1");
+                                String s = jsonObject2.toString();
+                                String topicName = "rango/" + macAddress + "/set";
+                                boolean success = mqService.publish(topicName, 1, s);
+                                if (success)
+                                    if (!success) {
+                                        success = mqService.publish(topicName, 1, s);
+                                    }
+                                Log.i("sss", "-->" + success);
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -745,9 +756,6 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     }
                     success = "success";
                     Log.i("WifiConectionAsync", "-->" + "onPostExecute");
-//                    if (popupWindow!=null && popupWindow.isShowing()){
-//                        popupWindow.dismiss();
-//                    }
                     if (match==1){
                         if (popupWindow2!=null && popupWindow2.isShowing()){
                             if (gifDrawable != null && gifDrawable.isPlaying()) {
@@ -759,15 +767,17 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         }
                     }
                     Utils.showToast(AddDeviceActivity.this, "创建成功");
-                    Intent intent2 = new Intent(AddDeviceActivity.this, MainActivity.class);
-                    intent2.putExtra("deviceList", "deviceList");
-                    intent2.putExtra("deviceId", deviceId + "");
-                    startActivity(intent2);
+                    Intent intent = new Intent();
+                    intent.putExtra("deviceId", deviceId + "");
+                    intent.putExtra("houseId", houseId);
+                    setResult(6000, intent);
+                    finish();
+//                    Intent intent2 = new Intent(AddDeviceActivity.this, MainActivity.class);
+//                    intent2.putExtra("deviceList", "deviceList");
+//
+//                    startActivity(intent2);
                     break;
                 case -3005:
-                    if (deviceChild != null) {
-                        deviceChildDao.delete(deviceChild);
-                    }
                     Utils.showToast(AddDeviceActivity.this, "创建失败");
                     break;
             }
@@ -1050,17 +1060,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                                 + " more result(s) without showing\n");
                     }
                 } else {
-//                    if (running) {
-//                        if (gifDrawable != null && gifDrawable.isPlaying()) {
-//                            gifDrawable.stop();
-//                            et_ssid.setEnabled(true);
-//                            et_pswd.setEnabled(true);
-//                            btn_match.setEnabled(true);
-//
-//                        }
-//                        Utils.showToast(AddDeviceActivity.this, "配置失败");
-//                    }
-//                    mProgressDialog.setMessage("配置失败");
+
                 }
             }
         }
@@ -1098,9 +1098,13 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 backgroundAlpha(1f);
                 return false;
             }
-            Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
-            intent.putExtra("deviceList", "deviceList");
-            startActivity(intent);
+//            Intent intent = new Intent(AddDeviceActivity.this, MainActivity.class);
+//            intent.putExtra("deviceList", "deviceList");
+//            startActivity(intent);
+            Intent intent = new Intent();
+            intent.putExtra("houseId", houseId);
+            setResult(6000, intent);
+            finish();
             return true;
         }
         return super.onKeyDown(keyCode, event);

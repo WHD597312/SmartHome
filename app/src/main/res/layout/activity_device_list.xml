@@ -11,80 +11,319 @@
     >
 
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50"
+        android:gravity="center_vertical"
+        android:id="@+id/relative"
+        android:background="#494948"
+        >
+        <ImageView
+            android:id="@+id/img_back"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:src="@mipmap/nav_backmdpi"
+            android:scaleType="centerInside"
+            android:layout_marginLeft="@dimen/dp_6"
+            android:layout_centerVertical="true"
+            />
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
+            android:textColor="@color/color_white"
+            android:text="办公室"
+            android:textSize="@dimen/x20"
+            />
+        <ImageView
+            android:id="@+id/image_home"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:src="@mipmap/nav_home"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/dp_6"
+            android:visibility="gone"
+            />
+    </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/linearout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@+id/relative"
+        >
         <RelativeLayout
+            android:id="@+id/relative2"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_50"
-            android:gravity="center_vertical"
-            android:id="@+id/relative"
-            android:background="#494948"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             >
             <ImageView
-                android:id="@+id/img_back"
+                android:id="@+id/image_temp"
                 android:layout_width="@dimen/dp_40"
                 android:layout_height="@dimen/dp_40"
-                android:src="@mipmap/nav_backmdpi"
-                android:scaleType="centerInside"
-                android:layout_marginLeft="@dimen/dp_6"
                 android:layout_centerVertical="true"
-                 />
+                android:layout_marginLeft="@dimen/dp_30"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/module_task" />
+
             <TextView
-                android:id="@+id/tv_name"
+                android:id="@+id/tv_cur"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true"
-                android:layout_centerInParent="true"
-                android:textColor="@color/color_white"
-                android:text="办公室"
-                android:textSize="@dimen/x20"
-                />
-            <ImageView
-                android:id="@+id/image_home"
-                android:layout_width="@dimen/dp_40"
-                android:layout_height="@dimen/dp_40"
-                android:src="@mipmap/nav_home"
+                android:layout_marginLeft="@dimen/dp_5"
+                android:layout_toRightOf="@+id/image_temp"
+                android:gravity="center"
+                android:text="@string/current"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_16" />
+
+            <TextView
+                android:id="@+id/tv_cur_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="@dimen/dp_6"
-                android:visibility="gone"
-                />
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_toRightOf="@+id/tv_cur"
+                android:gravity="center"
+                android:paddingBottom="@dimen/dp_5"
+                android:text="19℃"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_20" />
+
+            <TextView
+                android:id="@+id/tv_set"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_toRightOf="@+id/tv_cur_temp"
+                android:gravity="center"
+                android:text="@string/set"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_16" />
+
+            <TextView
+                android:id="@+id/tv_set_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_toRightOf="@+id/tv_set"
+                android:gravity="center"
+                android:text="19℃"
+                android:textColor="@color/color_orange"
+                android:textSize="@dimen/sp_20" />
+
         </RelativeLayout>
-        <LinearLayout
-            android:id="@+id/linearout"
+
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_below="@+id/relative"
-            android:background="#312728"
             >
+
+            <com.xinrui.smart.view_custom.SemicircleBar
+                android:id="@+id/semicBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_centerInParent="true"
+                app:mCurAngle="30"
+                app:semicircle_module="1"
+                app:wheel_cur_process="1"
+                app:wheel_max_process="360"
+                app:wheel_pointer_radius="20dp"
+                app:wheel_reached_width="0dp"
+                app:wheel_unreached_color="#1A1414"
+                app:wheel_unreached_width="20dp" />
+
+            <ImageView
+                android:id="@+id/image_switch"
+                android:layout_width="@dimen/dp_70"
+                android:layout_height="@dimen/dp_80"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:scaleType="centerInside"
+                android:src="@mipmap/img_close" />
+
+            <ImageView
+                android:id="@+id/img_circle"
+                android:layout_width="@dimen/dp_180"
+                android:layout_height="@dimen/dp_180"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/lottery_animlist" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_outmode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="输出模式"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_18" />
         </LinearLayout>
         <TextView
-            android:id="@+id/tv_offline"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="设备已离线"
-            android:textSize="@dimen/sp_20"
-            android:textColor="@color/white"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            android:layout_below="@+id/linearout"
-            />
-
-
-        <GridView
-            android:id="@+id/gradView"
+            android:id="@+id/tv_timeShutDown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:numColumns="3"
-            android:layout_marginLeft="@dimen/dp_20"
-            android:layout_marginRight="@dimen/dp_20"
-            android:verticalSpacing="@dimen/dp_2"
-            android:horizontalSpacing="@dimen/dp_2"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="@dimen/dp_10"
-            android:background="#1A1414"
-            />
+            android:layout_marginTop="@dimen/dp_5"
+            android:gravity="center"
+            android:text="定时关加热"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_16"
+            android:visibility="gone" />
+
+        <RelativeLayout
+            android:id="@+id/relative5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/close"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="关机状态!"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_18" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/relative4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/linearout"
+            android:layout_gravity="center"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tv_mode0"
+                android:layout_width="@dimen/dp_60"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="手动模式"
+                android:textColor="@color/white"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/image_mode"
+                android:layout_width="@dimen/dp_60"
+                android:layout_height="@dimen/dp_60"
+                android:layout_below="@+id/tv_mode0"
+                android:layout_centerVertical="true"
+                android:scaleType="centerInside"
+                android:src="@mipmap/module_task"
+
+                />
+
+            <ImageView
+                android:id="@+id/image_mode2"
+                android:layout_width="@dimen/dp_60"
+                android:layout_height="@dimen/dp_60"
+                android:layout_below="@+id/tv_mode0"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_toRightOf="@+id/image_mode"
+                android:scaleType="centerInside"
+                android:src="@mipmap/img_protect_close" />
+
+            <TextView
+                android:id="@+id/tv_mode2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/image_mode2"
+                android:layout_alignLeft="@+id/image_mode2"
+                android:layout_alignRight="@+id/image_mode2"
+                android:gravity="center"
+                android:text="保护模式"
+                android:textColor="@color/white"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/image_mode3"
+                android:layout_width="@dimen/dp_60"
+                android:layout_height="@dimen/dp_60"
+                android:layout_below="@+id/tv_mode0"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_toRightOf="@+id/image_mode2"
+                android:scaleType="centerInside"
+                android:src="@mipmap/img_lock" />
+
+            <TextView
+                android:id="@+id/tv_mode3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/image_mode3"
+                android:layout_alignLeft="@+id/image_mode3"
+                android:layout_alignRight="@+id/image_mode3"
+                android:gravity="center"
+                android:text="锁定模式"
+                android:textColor="@color/white"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/image_mode4"
+                android:layout_width="@dimen/dp_60"
+                android:layout_height="@dimen/dp_60"
+                android:layout_below="@+id/tv_mode0"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_toRightOf="@+id/image_mode3"
+                android:scaleType="centerInside"
+                android:src="@mipmap/img_screen" />
+
+            <TextView
+                android:id="@+id/tv_mode4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/image_mode4"
+                android:layout_alignLeft="@+id/image_mode4"
+                android:layout_alignRight="@+id/image_mode4"
+                android:gravity="center"
+                android:text="屏幕模式"
+                android:textColor="@color/white"
+                android:visibility="gone" />
+
+        </RelativeLayout>
+    </LinearLayout>
+    <TextView
+        android:id="@+id/tv_offline"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="设备已离线"
+        android:textSize="@dimen/sp_20"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_below="@+id/linearout"
+        />
+    <GridView
+        android:id="@+id/gradView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:numColumns="3"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginRight="@dimen/dp_20"
+        android:verticalSpacing="@dimen/dp_2"
+        android:horizontalSpacing="@dimen/dp_2"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:background="#1A1414"
+        />
 </RelativeLayout>
 
 

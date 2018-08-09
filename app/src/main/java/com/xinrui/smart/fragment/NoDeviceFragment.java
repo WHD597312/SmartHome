@@ -245,7 +245,7 @@ public class NoDeviceFragment extends Fragment{
                     long houseId=deviceGroup.getId();
                     Intent intent=new Intent(getActivity(), AddDeviceActivity.class);
                     intent.putExtra("houseId",houseId+"");
-                    startActivity(intent);
+                    startActivityForResult(intent,6000);
                     break;
                 case -3002:
                     break;

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_shape"
+    android:id="@+id/rl_homed_rename">
+    <TextView
+        android:id="@+id/tv_homed_rename"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="恢复设置"
+        android:textColor="@color/color_gray4"
+        android:layout_centerHorizontal="true"
+        android:textSize="@dimen/sp_16"
+        android:layout_marginTop="@dimen/dp_20"
+        />
+    <TextView
+        android:id="@+id/tv_message"
+        android:layout_below="@+id/tv_homed_rename"
+        android:layout_marginTop="@dimen/dp_21"
+        android:layout_width="match_parent"
+        android:background="@null"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="你确定要恢复出厂设置吗?"
+        android:gravity="center"
+        android:textSize="@dimen/sp_16"
+        android:textColor="@color/color_black"
+        />
+
+    <LinearLayout
+        android:layout_below="@+id/tv_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/dp_36"
+        android:layout_marginLeft="@dimen/dp_12"
+        android:layout_marginRight="@dimen/dp_12"
+        android:layout_marginBottom="@dimen/dp_25"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/tv_dialog_qx"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_35"
+            android:background="@drawable/bg_shape_anniugray"
+            android:text="取消"
+            android:layout_marginRight="@dimen/dp_12"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_weight="1"
+            />
+
+        <Button
+            android:id="@+id/tv_dialog_qd"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_35"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:background="@drawable/shape_detail_back"
+            android:layout_marginLeft="@dimen/dp_12"
+            android:textColor="@color/white"
+            android:text="确定"
+            android:layout_weight="1"
+            />
+
+
+
+    </LinearLayout>
+</RelativeLayout>

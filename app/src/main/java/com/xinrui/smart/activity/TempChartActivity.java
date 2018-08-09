@@ -78,7 +78,7 @@ public class TempChartActivity extends AppCompatActivity {
         deviceChild=deviceChildDao.findDeviceById(Integer.parseInt(deviceId));
 
         int  powerValue=deviceChild.getPowerValue()/10;
-        int  voltageValue=deviceChild.getVoltageValue();
+        int  voltageValue=deviceChild.getVoltageValue()/10;
         int currentValue=deviceChild.getCurrentValue();
         float currentValue2=Float.parseFloat(currentValue+"");
         float currentValue3=currentValue2/1000;
@@ -273,7 +273,7 @@ public class TempChartActivity extends AppCompatActivity {
                         if (deviceChild != null) {
                             if (deviceChild.getOnLint()){
                                 int  powerValue=deviceChild.getPowerValue()/10;
-                                int  voltageValue=deviceChild.getVoltageValue();
+                                int  voltageValue=deviceChild.getVoltageValue()/10;
                                 int currentValue=deviceChild.getCurrentValue();
                                 float currentValue2=Float.parseFloat(currentValue+"");
                                 float currentValue3=currentValue2/1000;

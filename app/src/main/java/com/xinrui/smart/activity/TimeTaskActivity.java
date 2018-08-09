@@ -991,10 +991,17 @@ public class TimeTaskActivity extends AppCompatActivity {
             int timerTaskWeek = intent.getIntExtra("timerTaskWeek", 0);
             List<TimeTask> timeTasks = (List<TimeTask>) intent.getSerializableExtra("list");
             String macAddress = intent.getStringExtra("macAddress");
+            String macAddress3=intent.getStringExtra("macAddress3");
             String noNet = intent.getStringExtra("noNet");
             if (!Utils.isEmpty(noNet)) {
                 Utils.showToast(TimeTaskActivity.this, "网络已断开，请设置网络");
             } else {
+                if (!Utils.isEmpty(macAddress3)  && macAddress3.equals(deviceChild.getMacAddress())){
+                    Utils.showToast(TimeTaskActivity.this,"该设备类型已为受控机");
+                    Intent intent2=new Intent(TimeTaskActivity.this,MainActivity.class);
+                    intent2.putExtra("deviceList","deviceList");
+                    startActivity(intent2);
+                }
                 if (!Utils.isEmpty(macAddress)) {
                     if (deviceChild.getMacAddress().equals(macAddress)) {
                         Utils.showToast(TimeTaskActivity.this, "该设备已被重置");

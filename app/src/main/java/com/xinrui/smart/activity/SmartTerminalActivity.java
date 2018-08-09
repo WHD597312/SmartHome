@@ -136,6 +136,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
     private DeviceChildDaoImpl deviceChildDao;
     private String linkedUrl = HttpUtils.ipAddress + "/family/device/sensors/getDevicesInRoom";
     private String updateDeviceNameUrl = HttpUtils.ipAddress + "/family/device/changeDeviceName";
+    @BindView(R.id.tv_smart_hum) TextView tv_smart_hum;/**设定湿度*/
     MessageReceiver receiver;
     public static boolean running = false;
     private List<DeviceChild> linkList = new ArrayList<>();
@@ -232,6 +233,36 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
         } else if (sorsorPm > 75) {
             tv_air_value.setText("差");
         }
+        int extTemp = deviceChild.getTemp();
+        int extHum = deviceChild.getHum();
+        tv_smart_temp.setText(extTemp+"℃");
+        tv_smart_hum.setText(extHum+"%");
+
+        if (extTemp<=0){
+            tempCurProgress=-11;
+        }else if (extTemp>0 && extTemp<5){
+            tempCurProgress=-6;
+        }else if (extTemp>=5 && extTemp<42){
+            tempCurProgress=extTemp-15;
+        }else if (extTemp>=42){
+            tempCurProgress=33;
+        }
+
+        Message tempDecrease = handler.obtainMessage();
+        tempDecrease.arg1 = 0;
+        handler.sendMessage(tempDecrease);
+        if (extHum<=0){
+            humCurProgress=-11;
+        }else if (extHum>0 && extHum<5){
+            humCurProgress=-6;
+        }else if (extHum>=5 && extHum<42){
+            humCurProgress=extHum-15;
+        }else if (extHum>=42){
+            humCurProgress=33;
+        }
+        Message humMessage = handler.obtainMessage();
+        humMessage.arg1 = 2;
+        handler.sendMessage(humMessage);
     }
 
     /**
@@ -644,6 +675,12 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                     if (mac.equals(deviceChild2.getMacAddress())) {
                         int controlled = deviceChild2.getControlled();
                         if (controlled == 1) {
+                            for (int i = 0; i <linkList.size() ; i++) {
+                                if (linkList.contains(deviceChild2)){
+                                    linkList.set(i,deviceChild2);
+                                    break;
+                                }
+                            }
                             linkDeviceChildMap.remove(deviceChild2);
                             break;
                         }
@@ -934,5 +971,4 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
         }
         return false;
     }
-
 }

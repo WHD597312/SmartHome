@@ -71,13 +71,21 @@ public class LoginActivity extends AppCompatActivity {
 
         if (application == null) {
             application = (MyApplication) getApplication();
-
         }
 
         application.addActivity(this);
 
         progressDialog = new ProgressDialog(this);
 
+        if (preferences.contains("phone") && preferences.contains("password")){
+//            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            runnning=false;
+            startActivity(new Intent(this,MainActivity.class));
+        } else if (preferences.contains("phone") && !preferences.contains("password")){
+            String phone = preferences.getString("phone", "");
+            et_name.setText(phone);
+            et_pswd.setText("");
+        }
 
     }
 
@@ -87,22 +95,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        if (preferences.contains("phone") && preferences.contains("password")){
-//            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            runnning=false;
-            startActivity(new Intent(this,MainActivity.class));
-        }
-        if (preferences.contains("phone")){
-            String phone = preferences.getString("phone", "");
-            et_name.setText(phone);
-            et_pswd.setText("");
-        }
-        if (preferences.contains("phone") && preferences.contains("password")) {
-            String phone = preferences.getString("phone", "");
-            String password = preferences.getString("password", "");
-            et_name.setText(phone);
-            et_pswd.setText(password);
-        }
+
+
     }
 
     @Override
@@ -379,7 +373,8 @@ public class LoginActivity extends AppCompatActivity {
 //                                            child.setChildPosition(j);
                                             deviceChildDao.update(child);
                                         } else {
-                                            DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
+                                            DeviceChild deviceChild = new DeviceChild((long)deviceId, (long)groupId, deviceName, macAddress, type);
+//                                            DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
                                             deviceChild.setVersion(version);
                                             deviceChild.setMacAddress(macAddress);
                                             deviceChild.setControlled(controlled);
@@ -422,9 +417,8 @@ public class LoginActivity extends AppCompatActivity {
                                 int version = device.getInt("version");
                                 String macAddress = device.getString("macAddress");
                                 int controlled = device.getInt("controlled");
-                                DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, groupId, masterControllerUserId, type, isUnlock);
-                                deviceChild.setVersion(version);
-                                deviceChild.setMacAddress(macAddress);
+//                                DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, groupId, masterControllerUserId, type, isUnlock);
+                                DeviceChild deviceChild = new DeviceChild((long)deviceId, (long)groupId, deviceName, macAddress, type);
                                 deviceChild.setControlled(controlled);
                                 deviceChild.setShareHouseId(houseId);
 //                                deviceChild.setGroupPosition(deviceGroups.size());

@@ -108,6 +108,7 @@ public class LineChartManager {
         LineData data = new LineData(dataSets);
         //设置X轴的刻度数
         xAxis.setLabelCount(xAxisValues.size(), true);
+        data.setDrawValues(false);
         lineChart.setData(data);
     }
 

@@ -78,16 +78,12 @@ public class DeviceChild  implements Serializable{
         this.img = img;
     }
 
-    public DeviceChild(Long id, String deviceName, int img, int direction, Long houseId,
-                       int masterControllerUserId, int type, int isUnlock) {
+    public DeviceChild(Long id,Long houseId, String deviceName,String macAddress,int type) {
         this.id = id;
         this.deviceName = deviceName;
-        this.img = img;
-        this.direction = direction;
         this.houseId = houseId;
-        this.masterControllerUserId = masterControllerUserId;
+        this.macAddress=macAddress;
         this.type = type;
-        this.isUnlock = isUnlock;
     }
 
     public String getMCUVerion() {

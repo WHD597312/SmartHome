@@ -93,7 +93,9 @@
             android:background="@color/white"
             android:text="版本升级"
             android:textSize="@dimen/sp_16"
-            android:textColor="@color/color_orange" />
+            android:textColor="@color/color_orange"
+            android:layout_marginLeft="@dimen/dp_10"
+            />
 
         <ImageView
             android:id="@+id/img_qrCode"

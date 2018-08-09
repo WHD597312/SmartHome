@@ -58,7 +58,7 @@ public class MainControlFragment extends Fragment{
     private List<DeviceChild> mainControls;//主控机数量
     private MainControlAdapter adapter;//主控制设置适配器
     public int runing=0;
-    private Map<Integer, Boolean> isSelected;
+    private Map<Integer, Boolean> isSelected=new HashMap<>();
 
     private List<DeviceChild> beSelectedData = new ArrayList();
 

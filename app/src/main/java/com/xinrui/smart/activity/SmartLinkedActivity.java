@@ -69,6 +69,12 @@ public class SmartLinkedActivity extends AppCompatActivity {
         deviceChild = deviceChildDao.findDeviceById(sensorId);
         houseId=deviceChild.getHouseId();
         list= (List<DeviceChild>) intent.getSerializableExtra("deviceList");
+        for (int i = 0; i <list.size() ; i++) {
+            DeviceChild deviceChild=list.get(i);
+            if (deviceChild.getControlled()==1){
+                list.remove(i);
+            }
+        }
         for (DeviceChild deviceChild:list){
             long  deviceId=deviceChild.getId();
             linkedMap.put(deviceId,deviceChild);

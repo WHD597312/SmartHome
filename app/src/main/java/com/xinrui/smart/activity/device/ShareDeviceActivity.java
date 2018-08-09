@@ -79,7 +79,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
             if(Utils.isEmpty(mcuVeriosn)){
                 mcuVeriosn="v1.0";
             }
-            tv_version.setText(deviceChild.getWifiVersion()+","+mcuVeriosn);
+            tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
             long deviceId=deviceChild.getId();
             String deviceName=deviceChild.getDeviceName();
             int type=deviceChild.getType();
@@ -288,12 +288,12 @@ public class ShareDeviceActivity extends AppCompatActivity {
             if (!Utils.isEmpty(noNet)){
                 Utils.showToast(ShareDeviceActivity.this,"网络已断开，请设置网络");
             }else {
-                if (!Utils.isEmpty(macAddress) && deviceChild.getMacAddress().equals(macAddress)){
+                if (!Utils.isEmpty(macAddress) && deviceChild2==null && deviceChild.getMacAddress().equals(macAddress)){
                     Utils.showToast(ShareDeviceActivity.this,"该设备已被重置");
                     Intent intent2=new Intent(ShareDeviceActivity.this,MainActivity.class);
                     intent2.putExtra("deviceList","deviceList");
                     startActivity(intent2);
-                }else if (Utils.isEmpty(macAddress) && deviceChild2!=null && deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())){
+                }else if (!Utils.isEmpty(macAddress) && deviceChild2!=null && macAddress.equals(deviceChild.getMacAddress())){
                     deviceChild=deviceChild2;
                     deviceChildDao.update(deviceChild);
                     tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
