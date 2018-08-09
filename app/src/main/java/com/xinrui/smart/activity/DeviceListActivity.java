@@ -1448,11 +1448,24 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                 deviceChildDao.update(deviceChild);
                             }
                         }
-                    } else if ("offline".equals(online)) {
-                        linearout.setVisibility(View.GONE);
-                        tv_offline.setVisibility(View.VISIBLE);
-                        tv_offline.setText("设备已离线");
-                        gradView.setVisibility(View.GONE);
+                        else if ("offline".equals(online)) {
+
+                            linearout.setVisibility(View.GONE);
+                            tv_offline.setVisibility(View.VISIBLE);
+
+                            tv_offline.setText("设备已离线");
+                            gradView.setVisibility(View.GONE);
+                            try {
+                                String topic = "rango/" + macAddress + "/set";
+                                JSONObject jsonObject2 = new JSONObject();
+                                jsonObject2.put("loadDate", "1");
+                                String s2 = jsonObject2.toString();
+                                boolean success2 = false;
+                                success2 = mqService.publish(topic, 1, s2);
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        }
                     }
                 }else {
                     if ("fall".equals(machineFall)) {
@@ -1494,7 +1507,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         //添加弹出、弹入的动画
         gradView.setVisibility(View.GONE);
         popupWindow.setAnimationStyle(R.style.Popupwindow);
-        backgroundAlpha(0.6f);
+        backgroundAlpha(0.4f);
         popupWindow.setFocusable(false);
         popupWindow.setOutsideTouchable(false);
 //        ColorDrawable dw = new ColorDrawable(0x30000000);

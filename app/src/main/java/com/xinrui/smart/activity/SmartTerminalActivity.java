@@ -587,7 +587,6 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                             linkDeviceChildMap.put(macAddress, deviceChild);
                             SmartTerminalInfo terminalInfo = list.get(i);
                             infoList.add(terminalInfo);
-                            break;
                         }
                     }
                     if (smartTerminalCircle != null) {

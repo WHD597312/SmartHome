@@ -117,10 +117,10 @@ public class MySeekBar extends AppCompatSeekBar {
         //设置文字显示方向
         if(mTextOrientation == ORIENTATION_TOP) {
             //设置SeekBar顶部数值文字预留空间，左右为数值背景图片的一半，顶部为数值背景图片高度加五的间隔
-            setPadding((int) Math.ceil(mBgWidth) / 2, (int) Math.ceil(mBgHeight) + 5, (int) Math.ceil(mBgWidth) / 2, 0);
+            setPadding((int) Math.ceil(mBgWidth) / 4, (int) Math.ceil(mBgHeight) + 5, (int) Math.ceil(mBgWidth) / 2, 0);
         } else if (mTextOrientation == ORIENTATION_CENTER){
             //设置SeekBar顶部数值文字预留空间，左右为数值背景图片的一半，底部为数值背景图片高度加五的间隔
-            setPadding((int) Math.ceil(mBgWidth) / 2, (int) Math.ceil(mBgHeight)/2 -5, (int) Math.ceil(mBgWidth) / 2, (int) Math.ceil(mBgHeight)/2);
+            setPadding((int) Math.ceil(mBgWidth) / 4+10, (int) Math.ceil(mBgHeight)/2 -5, (int) Math.ceil(mBgWidth) / 2+25, (int) Math.ceil(mBgHeight)/2);
         }
     }
     @Override

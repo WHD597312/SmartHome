@@ -16,22 +16,23 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_45"
             android:layout_alignParentBottom="true"
-            android:gravity="bottom"
+            android:gravity="center"
             android:orientation="vertical"
             >
 
             <ImageView
                 android:id="@+id/light_left"
-                android:layout_width="@dimen/dp_35"
-                android:layout_height="@dimen/dp_35"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
                 android:src="@mipmap/light_left"
+                android:layout_marginLeft="@dimen/dp_30"
                 />
 
             <com.xinrui.secen.scene_view_custom.MySeekBar
                 android:id="@+id/beautySeekBar1"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_45"
-                android:layout_marginRight="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:layout_marginRight="@dimen/dp_56"
                 android:layout_toRightOf="@+id/light_left"
                 android:max="100"
                 android:progress="0"
@@ -42,14 +43,14 @@
                 app:textOrientation="center"
                 app:textSize2="1sp"
                 />
-
             <ImageView
                 android:id="@+id/light_right"
-                android:layout_width="@dimen/dp_35"
-                android:layout_height="@dimen/dp_35"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
                 android:layout_alignParentRight="true"
-                android:src="@mipmap/ligth_right" />
+                android:src="@mipmap/ligth_right"
+                android:layout_marginRight="@dimen/dp_30"
+                />
         </RelativeLayout>
-
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
