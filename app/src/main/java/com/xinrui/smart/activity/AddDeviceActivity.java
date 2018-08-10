@@ -204,9 +204,9 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         Intent intent = getIntent();
 
         houseId = Long.parseLong(intent.getStringExtra("houseId"));
-        deviceGroupDao=new DeviceGroupDaoImpl(getApplicationContext());
-        DeviceGroup deviceGroup=deviceGroupDao.findById(houseId);
-        houseAddress=deviceGroup.getLocation();
+        deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
+        DeviceGroup deviceGroup = deviceGroupDao.findById(houseId);
+        houseAddress = deviceGroup.getLocation();
         String wifi = intent.getStringExtra("wifi");
 
         if (!Utils.isEmpty(wifi)) {
@@ -361,7 +361,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         @Override
         public void onFinish() {
             Log.e("Tag", "倒计时完成");
-            if (window3==0){
+            if (window3 == 0) {
                 try {
                     gifDrawable = new GifDrawable(getResources(), R.mipmap.help2);
                 } catch (Exception e) {
@@ -371,10 +371,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 if (gifDrawable != null) {
                     gifDrawable.start();
                     image_heater_help.setImageDrawable(gifDrawable);
-                    if (countTimer3==null){
+                    if (countTimer3 == null) {
                         countTimer3 = new CountTimer3(6000, 1000);
                         countTimer3.start();
-                    }else if (countTimer3!=null){
+                    } else if (countTimer3 != null) {
                         countTimer3.start();
                     }
                 }
@@ -407,7 +407,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         @Override
         public void onFinish() {
             Log.e("Tag", "倒计时完成");
-            if (window3==0){
+            if (window3 == 0) {
                 try {
                     gifDrawable = new GifDrawable(getResources(), R.mipmap.help1);
                 } catch (Exception e) {
@@ -420,7 +420,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     if (countTimer2 == null) {
                         countTimer2 = new CountTimer2(10000, 1000);
                         countTimer2.start();
-                    }else if (countTimer2!=null){
+                    } else if (countTimer2 != null) {
                         countTimer2.start();
                     }
 
@@ -429,15 +429,17 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 
         }
     }
+
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
-    private int match=0;
+    private int match = 0;
+
     @OnClick({R.id.img_back, R.id.btn_wifi, R.id.btn_scan, R.id.btn_scan2, R.id.btn_match, R.id.layout_help})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.img_back:
-                match=0;
+                match = 0;
                 Log.i("dialog", "sssssss");
-                window3=0;
+                window3 = 0;
                 et_ssid.setEnabled(true);
                 et_pswd.setEnabled(true);
                 btn_match.setEnabled(true);
@@ -458,7 +460,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     backgroundAlpha(1f);
                     break;
                 }
-                if (popupWindow2!=null && popupWindow2.isShowing()){
+                if (popupWindow2 != null && popupWindow2.isShowing()) {
                     if (gifDrawable != null && gifDrawable.isRunning()) {
                         gifDrawable.stop();
                     }
@@ -475,14 +477,14 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 finish();
                 break;
             case R.id.layout_help:
-                match=0;
+                match = 0;
                 et_ssid.setEnabled(false);
                 et_pswd.setEnabled(false);
                 btn_match.setEnabled(false);
                 popupmenuWindow();
                 break;
             case R.id.btn_wifi:
-                match=0;
+                match = 0;
                 wifi_drawable = wifi_drawables[1];
                 wifi_drawables[1] = wifi_drawables[0];
                 wifi_drawables[0] = wifi_drawable;
@@ -508,7 +510,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 linearout_add_scan_device.setVisibility(visibilities[0]);
                 break;
             case R.id.btn_scan:
-                match=0;
+                match = 0;
                 wifi_drawable = wifi_drawables[1];
                 wifi_drawables[1] = wifi_drawables[0];
                 wifi_drawables[0] = wifi_drawable;
@@ -533,7 +535,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 linearout_add_scan_device.setVisibility(visibilities[0]);
                 break;
             case R.id.btn_scan2:
-                match=0;
+                match = 0;
                 startActivity(new Intent(this, QRScannerActivity.class));
                 break;
             case R.id.btn_match:
@@ -551,8 +553,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 }
                 if (!Utils.isEmpty(ssid)) {
 //                    popupWindow();
-                    match=1;
-                    window3=0;
+                    match = 1;
+                    window3 = 0;
                     et_ssid.setEnabled(false);
                     et_pswd.setEnabled(false);
                     btn_match.setEnabled(false);
@@ -566,7 +568,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 break;
         }
     }
-    private int window3=0;
+
+    private int window3 = 0;
 
     public void popupmenuWindow3() {
         if (popupWindow2 != null && popupWindow2.isShowing()) {
@@ -587,10 +590,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             gifDrawable.start();
             image_heater_help.setImageDrawable(gifDrawable);
         }
-        if (countTimer2!=null){
+        if (countTimer2 != null) {
             countTimer2.cancel();
         }
-        if (countTimer3!=null){
+        if (countTimer3 != null) {
             countTimer3.cancel();
         }
 
@@ -609,6 +612,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 //        popupWindow.showAtLocation(tv_home_manager, Gravity.RIGHT, 0, 0);
         //添加按键事件监听
     }
+
     public void popupmenuWindow4() {
         if (popupWindow2 != null && popupWindow2.isShowing()) {
             return;
@@ -617,7 +621,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
         image_heater_help = (GifImageView) view.findViewById(R.id.image_heater_help);
-        window3=1;
+        window3 = 1;
         try {
             gifDrawable = new GifDrawable(getResources(), R.mipmap.help3);
         } catch (Exception e) {
@@ -674,41 +678,41 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         int version = content.getInt("version");
                         macAddress = content.getString("macAddress");
                         int controlled = content.getInt("controlled");
-                        String onlineTopicName="p99/sensor1/"+macAddress+"/transfer";
-                        String offlineTopicName="p99/sensor1/"+macAddress+"/lwt";
+                        String onlineTopicName = "p99/sensor1/" + macAddress + "/transfer";
+                        String offlineTopicName = "p99/sensor1/" + macAddress + "/lwt";
                         String topicName2 = "rango/" + macAddress + "/transfer";
                         String topicOffline = "rango/" + macAddress + "/lwt";
-                        boolean succ=false;
-                        if (!TextUtils.isEmpty(onlineTopicName)){
-                            boolean success2=mqService.subscribe(offlineTopicName,1);
+                        boolean succ = false;
+                        if (!TextUtils.isEmpty(onlineTopicName)) {
+                            boolean success2 = mqService.subscribe(offlineTopicName, 1);
                             boolean success = mqService.subscribe(onlineTopicName, 1);
                             succ = mqService.subscribe(topicName2, 1);
                             succ = mqService.subscribe(topicOffline, 1);
                             if (!success) {
                                 mqService.subscribe(onlineTopicName, 1);
                             }
-                            if (!success2){
+                            if (!success2) {
                                 mqService.subscribe(offlineTopicName, 1);
                             }
-                            if (type==2){
-                                String topicName="p99/sensor1/"+macAddress+"/set";
-                                if (TextUtils.isEmpty(city)){
-                                    city=houseAddress;
-                                    if (city.contains("市")){
-                                        city=city.substring(0,city.length()-1);
+                            if (type == 2) {
+                                String topicName = "p99/sensor1/" + macAddress + "/set";
+                                if (TextUtils.isEmpty(city)) {
+                                    city = houseAddress;
+                                    if (city.contains("市")) {
+                                        city = city.substring(0, city.length() - 1);
                                     }
-                                    String info="url:http://apicloud.mob.com/v1/weather/query?key=257a640199764&city="+ URLEncoder.encode(city,"utf-8");
-                                    mqService.publish(topicName,1,info);
-                                }else {
-                                    if (city.contains("市")){
-                                        city=city.substring(0,city.length()-1);
+                                    String info = "url:http://apicloud.mob.com/v1/weather/query?key=257a640199764&city=" + URLEncoder.encode(city, "utf-8");
+                                    mqService.publish(topicName, 1, info);
+                                } else {
+                                    if (city.contains("市")) {
+                                        city = city.substring(0, city.length() - 1);
                                     }
-                                    String info="url:http://apicloud.mob.com/v1/weather/query?key=257a640199764&city="+ URLEncoder.encode(city,"utf-8")+"&province="+URLEncoder.encode(province,"utf-8");
-                                    mqService.publish(topicName,1,info);
+                                    String info = "url:http://apicloud.mob.com/v1/weather/query?key=257a640199764&city=" + URLEncoder.encode(city, "utf-8") + "&province=" + URLEncoder.encode(province, "utf-8");
+                                    mqService.publish(topicName, 1, info);
                                 }
                             }
                         }
-                        deviceChild = new DeviceChild((long)deviceId, houseId, deviceName, macAddress, type);
+                        deviceChild = new DeviceChild((long) deviceId, houseId, deviceName, macAddress, type);
                         deviceChild.setImg(imgs[0]);
                         deviceChild.setControlled(controlled);
                         deviceChild.setOnLint(true);
@@ -721,7 +725,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                             }
                         }
                         deviceChildDao.insert(deviceChild);
-                        if (type==1){
+                        if (type == 1) {
                             if (succ) {
                                 JSONObject jsonObject2 = new JSONObject();
                                 jsonObject2.put("loadDate", "1");
@@ -746,6 +750,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
+
             switch (code) {
                 case 2001:
                     if (isBound) {
@@ -756,16 +761,16 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     }
                     success = "success";
                     Log.i("WifiConectionAsync", "-->" + "onPostExecute");
-                    if (match==1){
-                        if (popupWindow2!=null && popupWindow2.isShowing()){
-                            if (gifDrawable != null && gifDrawable.isPlaying()) {
-                                gifDrawable.stop();
-                            }
-                            match=0;
-                            popupWindow2.dismiss();
-                            backgroundAlpha(1f);
+
+                    if (popupWindow2 != null && popupWindow2.isShowing()) {
+                        if (gifDrawable != null && gifDrawable.isPlaying()) {
+                            gifDrawable.stop();
                         }
+                        match = 0;
+                        popupWindow2.dismiss();
+                        backgroundAlpha(1f);
                     }
+
                     Utils.showToast(AddDeviceActivity.this, "创建成功");
                     Intent intent = new Intent();
                     intent.putExtra("deviceId", deviceId + "");
@@ -777,8 +782,30 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 //
 //                    startActivity(intent2);
                     break;
-                case -3005:
-                    Utils.showToast(AddDeviceActivity.this, "创建失败");
+                default:
+                    if (popupWindow2 != null && popupWindow2.isShowing()) {
+                        if (gifDrawable != null && gifDrawable.isPlaying()) {
+                            gifDrawable.stop();
+
+                            if (et_ssid != null) {
+                                et_ssid.setEnabled(true);
+                            }
+                            if (et_pswd != null) {
+                                et_pswd.setEnabled(true);
+                            }
+                            if (btn_match != null) {
+                                btn_match.setEnabled(true);
+                                Utils.showToast(AddDeviceActivity.this, "配置失败");
+                            }
+
+                            if (mEsptouchTask != null) {
+                                mEsptouchTask.interrupt();
+                            }
+                        }
+                        match = 0;
+                        popupWindow2.dismiss();
+                        backgroundAlpha(1f);
+                    }
                     break;
             }
         }
@@ -924,6 +951,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         }
     }
 
+    private int stopMatching = 0;
     private ProgressDialog mProgressDialog;
 
 
@@ -939,6 +967,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
          */
         @Override
         public void onTick(long millisUntilFinished) {
+            stopMatching = 1;
             Log.e("Tag", "倒计时=" + (millisUntilFinished / 1000));
 //            btn_get_code.setBackgroundColor(Color.parseColor("#c7c7c7"));
 //            btn_get_code.setTextColor(ContextCompat.getColor(getApplicationContext(), android.R.color.black));
@@ -951,8 +980,9 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         @Override
         public void onFinish() {
             Log.e("Tag", "倒计时完成");
-            if (match==1){
-                if (popupWindow2!=null && popupWindow2.isShowing()){
+            stopMatching = 0;
+            if (match == 1) {
+                if (popupWindow2 != null && popupWindow2.isShowing()) {
                     if (gifDrawable != null && gifDrawable.isPlaying()) {
                         gifDrawable.stop();
 
@@ -971,7 +1001,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                             mEsptouchTask.interrupt();
                         }
                     }
-                    match=0;
+                    match = 0;
                     popupWindow2.dismiss();
                     backgroundAlpha(1f);
                 }
@@ -1001,8 +1031,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 
         @Override
         protected void onPreExecute() {
-            CountTimer countTimer = new CountTimer(30000, 1000);
-            countTimer.start();
+//            CountTimer countTimer = new CountTimer(30000, 1000);
+//            countTimer.start();
         }
 
         @Override
@@ -1060,7 +1090,29 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                                 + " more result(s) without showing\n");
                     }
                 } else {
+                    if (popupWindow2 != null && popupWindow2.isShowing()) {
+                        if (gifDrawable != null && gifDrawable.isPlaying()) {
+                            gifDrawable.stop();
 
+                            if (et_ssid != null) {
+                                et_ssid.setEnabled(true);
+                            }
+                            if (et_pswd != null) {
+                                et_pswd.setEnabled(true);
+                            }
+                            if (btn_match != null) {
+                                btn_match.setEnabled(true);
+                                Utils.showToast(AddDeviceActivity.this, "配置失败");
+                            }
+
+                            if (mEsptouchTask != null) {
+                                mEsptouchTask.interrupt();
+                            }
+                        }
+                        match = 0;
+                        popupWindow2.dismiss();
+                        backgroundAlpha(1f);
+                    }
                 }
             }
         }
@@ -1075,7 +1127,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             if (mEsptouchTask != null) {
                 mEsptouchTask.interrupt();
             }
-            window3=0;
+            window3 = 0;
             if (countTimer2 != null) {
                 countTimer2.cancel();
             }
