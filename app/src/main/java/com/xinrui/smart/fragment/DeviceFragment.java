@@ -73,6 +73,7 @@ import com.xinrui.smart.util.JsonFileReader;
 import com.xinrui.smart.util.NoFastClickUtils;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
+import com.xinrui.smart.util.mqtt.VibratorUtil;
 import com.xinrui.smart.view_custom.DeviceChildDialog;
 import com.xinrui.smart.view_custom.DeviceHomeDialog;
 import com.xinrui.smart.view_custom.DeviceUpdateHomeDialog;
@@ -1620,28 +1621,35 @@ public class DeviceFragment extends Fragment {
             holder.setText(R.id.tv_device_child, entry.getDeviceName());
             tv_device_child = (TextView) holder.itemView.findViewById(R.id.tv_device_child);
             TextView tv_state = (TextView) holder.itemView.findViewById(R.id.tv_state);
+
             if (entry.getOnLint()) {
                 if (entry.getType() == 1) {
                     if (entry.getControlled() == 2 || entry.getControlled() == 0) {
 //                    tv_state.setText(entry.getRatedPower() + "w");
                         if ("fall".equals(entry.getMachineFall())) {
                             tv_state.setText("设备已倾倒");
+                            VibratorUtil.Vibrate(getActivity(), new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
                         } else {
                             holder.setImageResource(R.id.image_switch, imgs[1]);
                             tv_state.setText(entry.getRatedPower() + "w");
+                            VibratorUtil.StopVibrate(getActivity());
                         }
                     } else if (entry.getControlled() == 1) {
                         if ("fall".equals(entry.getMachineFall())) {
+                            VibratorUtil.Vibrate(getActivity(), new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
                             tv_state.setText("设备已倾倒");
                         } else {
                             tv_state.setText("受控机模式");
+                            VibratorUtil.StopVibrate(getActivity());
                         }
                     }
                 } else if (entry.getType() == 2) {
                     if ("fall".equals(entry.getMachineFall())) {
                         tv_state.setText("设备已倾倒");
+                        VibratorUtil.Vibrate(getActivity(), new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000}, true);   //震动10s
                     } else {
                         tv_state.setText("温度：" + entry.getSensorSimpleTemp() + "℃");
+                        VibratorUtil.StopVibrate(getActivity());
                     }
                 }
                 if ("open".equals(entry.getDeviceState())) {
@@ -1657,10 +1665,11 @@ public class DeviceFragment extends Fragment {
                 tv_state.setText("离线");
                 if ("open".equals(entry.getDeviceState())) {
                     holder.setImageResource(R.id.image_switch, imgs[2]);
-                } else if ("close".equals(entry.getDeviceState())) {
+                } else{
                     holder.setImageResource(R.id.image_switch, imgs[0]);
                 }
             }
+
             if (entry.getType() == 1) {
                 if (entry.getControlled() == 2) {
                     holder.setImageResource(R.id.image_device_child, R.mipmap.master);
@@ -1990,6 +1999,7 @@ public class DeviceFragment extends Fragment {
                 maser.put("outputMode", deviceChild.getOutputMod());
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
+                maser.put("grade",deviceChild.getGrade());
                 String s = maser.toString();
                 boolean success = false;
                 String topicName;
@@ -2000,6 +2010,7 @@ public class DeviceFragment extends Fragment {
                 if (bound) {
                     success = mqService.publish(topicName, 1, s);
                     Log.i("suss", "-->" + success);
+                    Log.i("deviceFragment","-->"+s);
                 }
             }
         } catch (Exception e) {

@@ -283,6 +283,7 @@
                 android:layout_marginLeft="@dimen/dp_20"
                 android:layout_toRightOf="@+id/image_mode3"
                 android:scaleType="centerInside"
+                android:src="@mipmap/img_screen"
                />
 
             <TextView

@@ -59,6 +59,7 @@ import com.xinrui.smart.util.ChineseNumber;
 import com.xinrui.smart.util.NoFastClickUtils;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
+import com.xinrui.smart.util.mqtt.VibratorUtil;
 import com.xinrui.smart.view_custom.DeviceChildProjectDialog;
 import com.xinrui.smart.view_custom.RestoreSetDialog;
 import com.xinrui.smart.view_custom.SemicircleBar;
@@ -180,9 +181,15 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
     private int position = -1;
 
-    @OnClick({R.id.img_back, R.id.image_home, R.id.layout, R.id.linearout, R.id.image_switch, R.id.image_mode2, R.id.image_mode, R.id.image_mode3, R.id.image_mode4, R.id.semicBar})
+    @OnClick({R.id.img_back, R.id.image_home, R.id.layout, R.id.linearout, R.id.relative,R.id.image_switch, R.id.image_mode2, R.id.image_mode, R.id.image_mode3, R.id.image_mode4, R.id.semicBar})
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.relative:
+                if (popupWindow != null && popupWindow.isShowing()) {
+                    popupWindow.dismiss();
+                    enableClick();
+                }
+                break;
             case R.id.semicBar:
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
@@ -467,6 +474,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 new PasteWeekAsync().execute();
             }
         });
+        dialog.setCanceledOnTouchOutside(false);
         dialog.show();
     }
 
@@ -493,9 +501,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         childPosition = intent.getStringExtra("childPosition");
 
         deviceChild = deviceChildDao.findDeviceById(Long.parseLong(childPosition));
-        deviceId = deviceChild.getId();
-        houseId = deviceChild.getHouseId();
         if (deviceChild != null) {
+            deviceId = deviceChild.getId();
+            houseId = deviceChild.getHouseId();
             tv_name.setText(content);
 //            fragmentManager =getSupportFragmentManager();
 //            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -791,22 +799,45 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             Log.i("machineFall", "-->" + machineFall);
             if (online) {
                 if ("fall".equals(machineFall)) {
+                    if(popupWindow!=null && popupWindow.isShowing()){
+                        popupWindow.dismiss();
+                        enableClick();
+                        backgroundAlpha(1.0f);
+                    }
                     linearout.setVisibility(View.GONE);
                     tv_offline.setVisibility(View.VISIBLE);
                     tv_offline.setText("设备已倾倒");
+                    VibratorUtil.Vibrate(DeviceListActivity.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
                     gradView.setVisibility(View.GONE);
                 } else {
+                    if(popupWindow!=null && popupWindow.isShowing()){
+                        popupWindow.dismiss();
+                        enableClick();
+                        backgroundAlpha(1.0f);
+                    }
                     linearout.setVisibility(View.VISIBLE);
                     tv_offline.setVisibility(View.GONE);
                     gradView.setVisibility(View.VISIBLE);
+                    VibratorUtil.StopVibrate(DeviceListActivity.this);
                 }
             } else {
                 if ("fall".equals(machineFall)) {
+                    if(popupWindow!=null && popupWindow.isShowing()){
+                        popupWindow.dismiss();
+                        enableClick();
+                        backgroundAlpha(1.0f);
+                    }
                     linearout.setVisibility(View.GONE);
                     tv_offline.setVisibility(View.VISIBLE);
                     tv_offline.setText("设备已倾倒");
-                    gradView.setVisibility(View.GONE);
+                    VibratorUtil.Vibrate(DeviceListActivity.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
                 } else {
+                    if(popupWindow!=null && popupWindow.isShowing()){
+                        popupWindow.dismiss();
+                        enableClick();
+                        backgroundAlpha(1.0f);
+                    }
+                    VibratorUtil.StopVibrate(DeviceListActivity.this);
                     linearout.setVisibility(View.GONE);
                     tv_offline.setVisibility(View.VISIBLE);
                     tv_offline.setText("设备已离线");
@@ -814,6 +845,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 }
             }
         } else {
+            VibratorUtil.StopVibrate(DeviceListActivity.this);
             Toast.makeText(this, "设备已重置", Toast.LENGTH_SHORT).show();
             Intent intent2 = new Intent();
             intent2.putExtra("houseId", houseId);
@@ -952,6 +984,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                         success = mqService.publish(topicName, 2, s);
                     }
                 }
+                Log.i("send","-->"+s);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1048,6 +1081,10 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             }
             relative5.setVisibility(View.GONE);
         } else if ("close".equals(deviceState)) {
+            if(popupWindow!=null && popupWindow.isShowing()){
+                popupWindow.dismiss();
+                backgroundAlpha(1.0f);
+            }
             animationDrawable.stop();
             image_switch.setTag("关");
 
@@ -1147,6 +1184,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 enableClick();
                 return false;
             }
+            VibratorUtil.StopVibrate(this);
             application.removeActivity(this);
             Intent intent = new Intent();
             intent.putExtra("houseId", houseId);
@@ -1198,7 +1236,17 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 startActivity(intent);
                 break;
             case 1:
-                popupWindow();
+                if (deviceChild!=null){
+                    boolean online=deviceChild.getOnLint();
+                    if (online){
+                        String deviceState=deviceChild.getDeviceState();
+                        if ("open".equals(deviceState)){
+                            popupWindow();
+                        }else {
+                            Utils.showToast(DeviceListActivity.this,"设备已关机");
+                        }
+                    }
+                }
 //                linearout2.setVisibility(View.VISIBLE);
 //                gradView.setVisibility(View.GONE);
                 break;
@@ -1269,8 +1317,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
                         for (int i = 0; i < 24; i++) {
                             Timer timer = timers.get(i);
-                            jsonObject.put("h" + i, "off");
-                            jsonObject.put("t" + i, 0);
+                            jsonObject.put("h" + i, "on");
+                            jsonObject.put("t" + i, 18);
                         }
                         String jsonData = jsonObject.toString();
                         Log.i("jsonData", jsonData);
@@ -1284,9 +1332,13 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                         }
                     }
                     if (count == 7) {
+                        Thread.sleep(300);
                         String mac = deviceChild.getMacAddress();
                         String topic = "rango/" + mac + "/set";
-
+                        deviceChild.setProtectProTemp(50);
+                        deviceChild.setManualMatTemp(18);
+                        deviceChild.setTimerTemp(18);
+                        send(deviceChild);
                         Log.i("connection", "-->" + count);
                         if (mqService != null && count != 168) {
                             try {
@@ -1397,15 +1449,28 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     if (deviceChild != null && deviceChild2 != null && deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
                         if ("online".equals(online)) {
                             if ("fall".equals(machineFall)) {
+                                if(popupWindow!=null && popupWindow.isShowing()){
+                                    popupWindow.dismiss();
+                                    enableClick();
+                                    backgroundAlpha(1.0f);
+                                }
                                 linearout.setVisibility(View.GONE);
                                 tv_offline.setVisibility(View.VISIBLE);
                                 tv_offline.setText("设备已倾倒");
+                                VibratorUtil.Vibrate(DeviceListActivity.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s  //震动10s
                                 gradView.setVisibility(View.GONE);
                             } else {
+                                VibratorUtil.StopVibrate(DeviceListActivity.this);
                                 linearout.setVisibility(View.VISIBLE);
                                 tv_offline.setVisibility(View.GONE);
                                 gradView.setVisibility(View.VISIBLE);
                                 deviceChild = deviceChild2;
+                                if (popupWindow!=null && popupWindow.isShowing()){
+                                    if (deviceChild!=null){
+                                        grade=deviceChild.getGrade();
+                                    }
+                                    mySeekBar.setProgress((int) 12.5*grade);
+                                }
                                 setMode(deviceChild);
                             }
                         } else if ("offline".equals(online)) {
@@ -1429,11 +1494,23 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     }
                 } else {
                     if ("fall".equals(machineFall)) {
+                        if(popupWindow!=null && popupWindow.isShowing()){
+                            popupWindow.dismiss();
+                            enableClick();
+                            backgroundAlpha(1.0f);
+                        }
                         linearout.setVisibility(View.GONE);
                         tv_offline.setVisibility(View.VISIBLE);
                         tv_offline.setText("设备已倾倒");
                         gradView.setVisibility(View.GONE);
+                        VibratorUtil.Vibrate(DeviceListActivity.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);
                     } else {
+                        if(popupWindow!=null && popupWindow.isShowing()){
+                            popupWindow.dismiss();
+                            enableClick();
+                            backgroundAlpha(1.0f);
+                        }
+                        VibratorUtil.StopVibrate(DeviceListActivity.this);
                         linearout.setVisibility(View.GONE);
                         tv_offline.setVisibility(View.VISIBLE);
                         tv_offline.setText("设备已离线");
@@ -1456,15 +1533,18 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         View view = View.inflate(this, R.layout.popup_clockset, null);
         mySeekBar = (MySeekBar) view.findViewById(R.id.beautySeekBar1);
         mySeekBar.setOnSeekBarChangeListener(this);
-        mySeekBar.setProgress((int) 12.5*3);
+        if (deviceChild!=null){
+            grade=deviceChild.getGrade();
+        }
+        mySeekBar.setProgress((int) 12.5*grade);
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
         popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         //点击空白处时，隐藏掉pop窗口
-        popupWindow.setFocusable(false);
-        popupWindow.setOutsideTouchable(false);
+        popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
 
-        disableClick();
+//        disableClick();
         //添加弹出、弹入的动画
 //        gradView.setVisibility(View.GONE);
         popupWindow.setAnimationStyle(R.style.Popupwindow);
@@ -1472,25 +1552,23 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 //        ColorDrawable dw = new ColorDrawable(0x30000000);
 //        popupWindow.setBackgroundDrawable(dw);
         popupWindow.showAsDropDown(linearout, 0, 20);
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                backgroundAlpha(1.0f);
+            }
+        });
     }
 
 
     private void disableClick() {
-        semicBar.setCanTouch(false);
-        image_hand_task.setClickable(false);
-        model_protect.setClickable(false);
-        image_lock.setClickable(false);
-        image_srceen.setClickable(false);
+//        semicBar.setCanTouch(false);
+//        image_hand_task.setClickable(false);
+//        model_protect.setClickable(false);
+//        image_lock.setClickable(false);
+//        image_srceen.setClickable(false);
     }
     private void enableClick(){
-        if (popupWindow!=null && popupWindow.isShowing()){
-            popupWindow.dismiss();
-        }
-        semicBar.setCanTouch(true);
-        image_hand_task.setClickable(true);
-        model_protect.setClickable(true);
-        image_lock.setClickable(true);
-        image_srceen.setClickable(true);
         backgroundAlpha(1.0f);
     }
 
@@ -1530,7 +1608,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         Log.i("progress", "-->:onStopTrackingTouch");
-        Log.i("grade", "-->" + grade);
+        Log.i("gradesssss", "-->" + grade);
         send(deviceChild);
     }
 

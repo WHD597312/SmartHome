@@ -86,6 +86,7 @@ import com.xinrui.smart.util.GlideCircleTransform;
 import com.xinrui.smart.util.NoFastClickUtils;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
+import com.xinrui.smart.util.mqtt.VibratorUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -668,6 +669,7 @@ public class MainActivity extends CheckPermissionsActivity {
             if (preferences.contains("deviceList")) {
                 preferences.edit().remove("deviceList").commit();
             }
+            VibratorUtil.StopVibrate(this);
             application.removeAllActivity();
             return true;
         }

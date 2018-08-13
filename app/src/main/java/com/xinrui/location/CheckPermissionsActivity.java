@@ -36,7 +36,7 @@ public class CheckPermissionsActivity extends AppCompatActivity {
 	/**
 	 * 需要进行检测的权限数组
 	 */
-	protected String[] needPermissions = {
+	protected String[] needPermissions ={
 			Manifest.permission.ACCESS_COARSE_LOCATION,
 			Manifest.permission.ACCESS_FINE_LOCATION,
 			};

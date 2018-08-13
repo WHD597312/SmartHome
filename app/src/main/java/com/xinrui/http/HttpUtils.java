@@ -212,7 +212,7 @@ public class HttpUtils {
             if(response.isSuccessful()){
                 result= response.body().string();
             }else {
-                NetWorkUtil.showNoNetWorkDlg(MyApplication.getContext());
+//                NetWorkUtil.showNoNetWorkDlg(MyApplication.getContext());
             }
         }catch (Exception e){
             e.printStackTrace();

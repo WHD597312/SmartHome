@@ -306,7 +306,7 @@ public class MQService extends Service {
                 sendBroadcast(mqttIntent);
             }
 
-            if ("There is no need to upgrade!".equals(message) || "There is no need to upgrade".equals(message) || "upgradeFinish".equals(message) || "online".equals(message) || "machine_dump!!!".equals(message) || "Have upgrade task!".equals(message)) {
+            if ("upgradeFinish".equals(message) || "mcu no response yet!".equals(message) || "There is no need to upgrade!".equals(message) || "There is no need to upgrade".equals(message) || "upgradeFinish".equals(message) || "online".equals(message) || "machine_dump!!!".equals(message) || "Have upgrade task!".equals(message)) {
                 if (message != null && message.length() == 0) {
                     return null;
                 }
@@ -652,13 +652,16 @@ public class MQService extends Service {
 
                                         builder.setContentText(child.getDeviceName() + "已倾倒")
                                                 .setSmallIcon(R.mipmap.ic_launcher)
-                                                .setDefaults(Notification.DEFAULT_VIBRATE)
+                                                .setDefaults(Notification.DEFAULT_ALL)
                                                 .setAutoCancel(true);
                                         builder.setContentIntent(notifyPendingIntent);
                                         NotificationManager mNotificationManager =
                                                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                                         mNotificationManager.notify(0, builder.build());
+
+//                                        VibratorUtil.Vibrate(MQService.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
                                     } else {
+//                                        VibratorUtil.StopVibrate(MQService.this);
                                         child.setMachineFall("nor");
                                     }
                                 }
@@ -755,11 +758,13 @@ public class MQService extends Service {
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
                         } else {
-                            Intent mqttIntent = new Intent("DeviceFragment");
-                            mqttIntent.putExtra("groupPostion", groupPostion);
-                            mqttIntent.putExtra("childPosition", childPosition);
-                            mqttIntent.putExtra("deviceChild", child);
-                            sendBroadcast(mqttIntent);
+                            if (!Utils.isEmpty(deviceState)){
+                                Intent mqttIntent = new Intent("DeviceFragment");
+                                mqttIntent.putExtra("groupPostion", groupPostion);
+                                mqttIntent.putExtra("childPosition", childPosition);
+                                mqttIntent.putExtra("deviceChild", child);
+                                sendBroadcast(mqttIntent);
+                            }
                         }
                     } else if (DeviceListActivity.running) {
                         if (!Utils.isEmpty(reSet)) {
