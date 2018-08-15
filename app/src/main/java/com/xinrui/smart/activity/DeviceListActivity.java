@@ -421,6 +421,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 }
                 Intent intent = new Intent();
                 intent.putExtra("houseId", houseId);
+                intent.putExtra("back","back");
                 setResult(6000, intent);
                 finish();
                 break;
@@ -1071,6 +1072,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             if ("open".equals(BackGroundLED)) {
                 image_srceen.setImageResource(R.mipmap.img_screen_open);
             } else if ("close".equals(BackGroundLED)) {
+                if (popupWindow!=null && popupWindow.isShowing()){
+                    popupWindow.dismiss();
+                }
                 image_srceen.setImageResource(R.mipmap.img_screen);
             }
 
@@ -1188,6 +1192,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             application.removeActivity(this);
             Intent intent = new Intent();
             intent.putExtra("houseId", houseId);
+            intent.putExtra("back","back");
             setResult(6000, intent);
             finish();
             return true;
@@ -1219,6 +1224,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         application.removeActivity(this);
     }
 
+    int requestTime=0;
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (popupWindow != null && popupWindow.isShowing()) {
@@ -1240,8 +1246,13 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     boolean online=deviceChild.getOnLint();
                     if (online){
                         String deviceState=deviceChild.getDeviceState();
+                        String BackGroundLED = deviceChild.getBackGroundLED();
                         if ("open".equals(deviceState)){
-                            popupWindow();
+                            if ("open".equals(BackGroundLED)){
+                                popupWindow();
+                            }else if ("close".equals(BackGroundLED)){
+                                Utils.showToast(DeviceListActivity.this,"屏幕已关闭");
+                            }
                         }else {
                             Utils.showToast(DeviceListActivity.this,"设备已关机");
                         }
@@ -1251,6 +1262,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 //                gradView.setVisibility(View.GONE);
                 break;
             case 2:
+                int count = timeDao.findAll(deviceChild.getId()).size();
+                if (count!=168){
+                    requestTime=1;
+                    new PasteWeekAsync().execute();
+                }
                 Intent timeTask = new Intent(this, TimeTaskActivity.class);
                 timeTask.putExtra("deviceId", childPosition);
                 startActivity(timeTask);
@@ -1282,13 +1298,15 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            if (requestTime==0){
+                if ("恢复成功".equals(s)) {
+                    Utils.showToast(DeviceListActivity.this, "恢复成功");
+                } else {
+                    Utils.showToast(DeviceListActivity.this, "恢复失败");
+                }
+            }
             if (progressDialog != null) {
                 progressDialog.dismiss();
-            }
-            if ("恢复成功".equals(s)) {
-                Utils.showToast(DeviceListActivity.this, "恢复成功");
-            } else {
-                Utils.showToast(DeviceListActivity.this, "恢复失败");
             }
         }
 
@@ -1301,25 +1319,13 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 for (int timerTaskWeek = 1; timerTaskWeek <= 7; timerTaskWeek++) {
                     count++;
                     JSONObject jsonObject = new JSONObject();
-                    List<Timer> timers = timeDao.findAll(deviceId, timerTaskWeek);
-                    Collections.sort(timers, new Comparator<Timer>() {
-                        @Override
-                        public int compare(Timer o1, Timer o2) {
-                            if (o1.getHour() > o2.getHour())
-                                return 1;
-                            else if (o1.getHour() < o2.getHour())
-                                return -1;
-                            return 0;
-                        }
-                    });
-                    if (timers.size() == 24) {
-                        jsonObject.put("timerTaskWeek", timerTaskWeek);
 
-                        for (int i = 0; i < 24; i++) {
-                            Timer timer = timers.get(i);
-                            jsonObject.put("h" + i, "on");
-                            jsonObject.put("t" + i, 18);
-                        }
+                    jsonObject.put("timerTaskWeek", timerTaskWeek);
+
+                    for (int i = 0; i < 24; i++) {
+                        jsonObject.put("h" + i, "on");
+                        jsonObject.put("t" + i, 18);
+                    }
                         String jsonData = jsonObject.toString();
                         Log.i("jsonData", jsonData);
 
@@ -1329,35 +1335,39 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                             String topicName;
                             topicName = "rango/" + mac + "/set";
                             success = mqService.publish(topicName, 1, jsonData);
-                        }
-                    }
-                    if (count == 7) {
-                        Thread.sleep(300);
-                        String mac = deviceChild.getMacAddress();
-                        String topic = "rango/" + mac + "/set";
-                        deviceChild.setProtectProTemp(50);
-                        deviceChild.setManualMatTemp(18);
-                        deviceChild.setTimerTemp(18);
-                        send(deviceChild);
-                        Log.i("connection", "-->" + count);
-                        if (mqService != null && count != 168) {
-                            try {
-                                Log.i("ggggggggg", "-->" + "ggggggggggggggggg");
-                                JSONObject jsonObject2 = new JSONObject();
-                                jsonObject2.put("loadDate", "1");
-                                String s = jsonObject2.toString();
-                                boolean success = false;
-                                success = mqService.publish(topic, 1, s);
-                                if (!success) {
-                                    success = mqService.publish(topic, 1, s);
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                            if (requestTime==0){
+                                Thread.sleep(500);
+                            }else if (requestTime==1){
+                                Thread.sleep(50);
                             }
                         }
-                        result = "恢复成功";
+                    if (count == 7) {
+                            if (requestTime==0){
+                                Thread.sleep(300);
+                                String mac = deviceChild.getMacAddress();
+                                String topic = "rango/" + mac + "/set";
+                                deviceChild.setProtectProTemp(50);
+                                deviceChild.setManualMatTemp(18);
+                                deviceChild.setTimerTemp(18);
+                                deviceChild.setGrade(8);
+                                send(deviceChild);
+                                Log.i("connection", "-->" + count);
+                                if (mqService != null && count != 168) {
+
+                                    Log.i("ggggggggg", "-->" + "ggggggggggggggggg");
+                                    JSONObject jsonObject2 = new JSONObject();
+                                    jsonObject2.put("loadDate", "1");
+                                    String s = jsonObject2.toString();
+                                    boolean success = false;
+                                    success = mqService.publish(topic, 1, s);
+                                    if (!success) {
+                                        success = mqService.publish(topic, 1, s);
+                                    }
+                                }
+                                result = "恢复成功";
+                            }
+
                     }
-                    Thread.sleep(300);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1368,9 +1378,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.setMessage("请稍后...");
-            progressDialog.setCancelable(false);
-            progressDialog.show();
+            if (requestTime==0){
+                progressDialog.setMessage("请稍后...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
         }
     }
 
@@ -1465,11 +1477,16 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                 tv_offline.setVisibility(View.GONE);
                                 gradView.setVisibility(View.VISIBLE);
                                 deviceChild = deviceChild2;
+                                String backGroundLed=deviceChild.getBackGroundLED();
                                 if (popupWindow!=null && popupWindow.isShowing()){
-                                    if (deviceChild!=null){
-                                        grade=deviceChild.getGrade();
+                                    if ("open".equals(backGroundLed)){
+                                        if (deviceChild!=null){
+                                            grade=deviceChild.getGrade();
+                                        }
+                                        mySeekBar.setProgress((int) 12.5*grade);
+                                    }else {
+                                        popupWindow.dismiss();
                                     }
-                                    mySeekBar.setProgress((int) 12.5*grade);
                                 }
                                 setMode(deviceChild);
                             }

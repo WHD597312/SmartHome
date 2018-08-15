@@ -27,7 +27,7 @@ public class CommonProblemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_common_problem);
         unbinder=ButterKnife.bind(this);
-        tv_problem.setText("以下情况将无法发现设备\n1.使用配置时必须拥有网络的WiFi;\n2.Wi-Fi名称不能使用中文;\n3.配置时Wi-Fi密码不能输错；\n4.设备只能逐一配置");
+        tv_problem.setText("以下情况将无法发现设备;\n1.配置时WIFI网络无信号;\n2..WIFI名称使用中文;\n3.配置时WIFI密码输错;\n4.多个设备一起配置;\n5.设备正在配置时,终止配置");
         if (application==null){
             application= (MyApplication) getApplication();
             application.addActivity(this);

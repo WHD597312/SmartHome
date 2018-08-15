@@ -62,6 +62,7 @@ import com.xinrui.esptouch.IEsptouchTask;
 import com.xinrui.esptouch.task.__IEsptouchTask;
 import com.xinrui.http.HttpUtils;
 import com.xinrui.location.CheckPermissionsActivity;
+import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
@@ -539,32 +540,38 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 startActivity(new Intent(this, QRScannerActivity.class));
                 break;
             case R.id.btn_match:
-                String ssid = et_ssid.getText().toString();
-                String apPassword = et_pswd.getText().toString();
-                String apBssid = mWifiAdmin.getWifiConnectedBssid();
-                String taskResultCountStr = "1";
-                if (__IEsptouchTask.DEBUG) {
+                boolean conn= NetWorkUtil.isConn(AddDeviceActivity.this);
+                if (conn){
+                    String ssid = et_ssid.getText().toString();
+                    String apPassword = et_pswd.getText().toString();
+                    String apBssid = mWifiAdmin.getWifiConnectedBssid();
+                    String taskResultCountStr = "1";
+                    if (__IEsptouchTask.DEBUG) {
 //                    Log.d(TAG, "mBtnConfirm is clicked, mEdtApSsid = " + apSsid
 //                            + ", " + " mEdtApPassword = " + apPassword);
-                }
-                if (Utils.isEmpty(apPassword)) {
-                    Utils.showToast(AddDeviceActivity.this, "请输入wifi密码");
-                    break;
-                }
-                if (!Utils.isEmpty(ssid)) {
+                    }
+                    if (Utils.isEmpty(apPassword)) {
+                        Utils.showToast(AddDeviceActivity.this, "请输入wifi密码");
+                        break;
+                    }
+                    if (!Utils.isEmpty(ssid)) {
 //                    popupWindow();
-                    match = 1;
-                    window3 = 0;
-                    et_ssid.setEnabled(false);
-                    et_pswd.setEnabled(false);
-                    btn_match.setEnabled(false);
+                        match = 1;
+                        window3 = 0;
+                        et_ssid.setEnabled(false);
+                        et_pswd.setEnabled(false);
+                        btn_match.setEnabled(false);
 
-                    popupmenuWindow3();
-                    new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
-//                    Intent service = new Intent(AddDeviceActivity.this, MQService.class);
-//                    isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
-//                    mac="5asdfghi89hb";
+                        popupmenuWindow3();
+                        new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
+//                        Intent service = new Intent(AddDeviceActivity.this, MQService.class);
+//                        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
+//                        mac="5asdfghi89hn";
+                    }
+                }else {
+                    Utils.showToast(AddDeviceActivity.this,"请检查网络");
                 }
+
                 break;
         }
     }
@@ -833,6 +840,13 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         String apSsid = mWifiAdmin.getWifiConnectedSsid();
         if (apSsid != null) {
             et_ssid.setText(apSsid);
+            et_ssid.setFocusable(false);
+            et_ssid.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Utils.showToast(AddDeviceActivity.this,"WiFi名称不可编辑");
+                }
+            });
         } else {
             et_ssid.setText("");
         }

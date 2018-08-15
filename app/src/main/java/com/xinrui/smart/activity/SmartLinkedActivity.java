@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -18,10 +19,13 @@ import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
+import com.xinrui.smart.pojo.SmartTerminalInfo;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -69,23 +73,22 @@ public class SmartLinkedActivity extends AppCompatActivity {
         deviceChild = deviceChildDao.findDeviceById(sensorId);
         houseId=deviceChild.getHouseId();
         list= (List<DeviceChild>) intent.getSerializableExtra("deviceList");
-        for (int i = 0; i <list.size() ; i++) {
-            DeviceChild deviceChild=list.get(i);
-            if (deviceChild.getControlled()==1){
-                list.remove(i);
-            }
-        }
         for (DeviceChild deviceChild:list){
             long  deviceId=deviceChild.getId();
             linkedMap.put(deviceId,deviceChild);
         }
+        boolean conn=NetWorkUtil.isConn(this);
+        if (conn){
+            new GetLinkedAsync().execute();
+        }
+
         adapter=new LinkdAdapter(this,list);
         list_linked.setAdapter(adapter);
     }
     @Override
     public void onBackPressed() {
         Intent intent=new Intent();
-        intent.putExtra("list",new ArrayList<>());
+        intent.putExtra("list",(Serializable) list);
         setResult(100,intent);
         finish();
     }
@@ -95,7 +98,7 @@ public class SmartLinkedActivity extends AppCompatActivity {
         switch (view.getId()){
             case R.id.image_back:
                 Intent intent=new Intent();
-                intent.putExtra("list",new ArrayList<>());
+                intent.putExtra("list",(Serializable) list);
                 setResult(100,intent);
                 finish();
                 break;
@@ -241,6 +244,61 @@ public class SmartLinkedActivity extends AppCompatActivity {
             }else {
                 Toast.makeText(SmartLinkedActivity.this,"设置失败",Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+    class GetLinkedAsync extends AsyncTask<Void, Void, List<DeviceChild>> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected List<DeviceChild> doInBackground(Void... voids) {
+            int code = 0;
+            List<DeviceChild> list2=new ArrayList<>();
+            String url = "http://47.98.131.11:8082/warmer/v1.0/device/getDeviceLinked?sensorsId=" + sensorId + "&houseId=" + houseId;
+            String result = HttpUtils.getOkHpptRequest(url);
+            if (!TextUtils.isEmpty(result)) {
+                Log.i("result", "-->" + result);
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    code = jsonObject.getInt("code");
+                    if (code == 2000) {
+                        linkedMap.clear();
+                        JSONArray content = jsonObject.getJSONArray("content");
+                        for (int i = 0; i < content.length(); i++) {
+                            JSONObject device = content.getJSONObject(i);
+                            long deviceId = device.getLong("deviceId");
+                            int linked = device.getInt("linked");
+                            String macAddress = device.getString("macAddress");
+                            DeviceChild deviceChild = deviceChildDao.findDeviceById(deviceId);
+                            deviceChild.setLinked(linked);
+                            linkedMap.put(deviceId,deviceChild);
+                            if (!list2.contains(deviceChild)){
+                                list2.add(deviceChild);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return list2;
+        }
+
+        @Override
+        protected void onPostExecute(List<DeviceChild> linkedList) {
+            super.onPostExecute(linkedList);
+            try {
+                if (linkedList!=null && !linkedList.isEmpty()){
+                    list.clear();
+                    list.addAll(linkedList);
+                    adapter.notifyDataSetChanged();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
         }
     }
 

@@ -263,9 +263,12 @@ public class MainActivity extends CheckPermissionsActivity {
 
         if (Utils.isEmpty(mainControl) && Utils.isEmpty(deviceList) && Utils.isEmpty(Activity_return) && Utils.isEmpty(live)) {
             login = intent.getStringExtra("login");
+            if (!Utils.isEmpty(fall)){
+                falling=true;
+            }
             fragmentPreferences.edit().putString("fragment", "1").commit();
             Log.i("login", "-->" + login);
-            if (isConn && Utils.isEmpty(login)) {
+            if (isConn && Utils.isEmpty(login) && Utils.isEmpty(fall)) {
                 Log.i("NetWorkUtil", "-->" + "NetWorkUtil");
                 new LoadDeviceAsync().execute();
             }
@@ -321,11 +324,13 @@ public class MainActivity extends CheckPermissionsActivity {
 
     private Uri outputUri;//裁剪完照片保存地址
     String live;
-
+    public static boolean falling=false;
     @Override
     protected void onStart() {
         super.onStart();
+
         String fragmentS = fragmentPreferences.getString("fragment", "");
+
         if ("1".equals(fragmentS)) {
             deviceGroups = deviceGroupDao.findAllDevices();
             deviceChildren = deviceChildDao.findAllDevice();
@@ -335,10 +340,16 @@ public class MainActivity extends CheckPermissionsActivity {
             } else {
                 deviceFragment = new DeviceFragment();
                 Bundle bundle = new Bundle();
-                bundle.putString("load", "");
+
                 deviceFragment.setArguments(bundle);
                 preferences.edit().putString("main", "1").commit();
 
+                if (!Utils.isEmpty(fall)){
+                    MainActivity.falling=true;
+                    bundle.putString("load","load");
+                }else {
+                    bundle.putString("load", "");
+                }
                 if (!Utils.isEmpty(deviceId)) {
 //                    bundle.putString("load","load");
                     bundle.putString("deviceId", deviceId);
@@ -542,7 +553,8 @@ public class MainActivity extends CheckPermissionsActivity {
                 startActivity(device2);
                 break;
             case R.id.tv_exit:
-
+                deviceChildDao.deleteAll();
+                deviceGroupDao.deleteAll();
                 smart.edit().clear().commit();
 //                preferences.edit().clear().commit();/**清空当前用户的所有数据*/
                 if (preferences.contains("password")) {
@@ -557,7 +569,6 @@ public class MainActivity extends CheckPermissionsActivity {
                 if (mqService != null) {
                     mqService.cancelAllsubscibe();
                     mqService.clearAllOfflineDevice();
-
                 }
                 GlideCacheUtil glideCacheUtil = new GlideCacheUtil(MainActivity.this);
                 glideCacheUtil.clearImageAllCache();
@@ -602,7 +613,6 @@ public class MainActivity extends CheckPermissionsActivity {
                     clicked = 1;
                     clicked2 = 0;
                     clicked3 = 0;
-
                     fragmentPreferences.edit().putString("fragment", "1").commit();
                 } else {
                     break;
@@ -658,6 +668,7 @@ public class MainActivity extends CheckPermissionsActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        falling=false;
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (back < 1) {
                 Utils.showToast(this, "请再按一次退出Rango");
@@ -676,6 +687,7 @@ public class MainActivity extends CheckPermissionsActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+    int result=0;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -704,6 +716,19 @@ public class MainActivity extends CheckPermissionsActivity {
             clicked = 1;
             clicked2 = 0;
             clicked3 = 0;
+        }else if (resultCode==7000){
+            result=1;
+            fragmentTransaction = fragmentManager.beginTransaction();
+            smartFragmentManager=new SmartFragmentManager();
+            fragmentTransaction.replace(R.id.layout_body, smartFragmentManager).commit();
+            device_view.setVisibility(View.GONE);
+            smart_view.setVisibility(View.VISIBLE);
+            live_view.setVisibility(View.GONE);
+            smart.edit().clear().commit();
+            clicked = 0;
+            clicked2 = 1;
+            clicked3 = 0;
+            fragmentPreferences.edit().putString("fragment", "2").commit();
         }
     }
 
@@ -723,6 +748,7 @@ public class MainActivity extends CheckPermissionsActivity {
             preferences.edit().remove("deviceList").commit();
         }
         smart.edit().clear().commit();
+        fall="";
 
     }
 
@@ -733,6 +759,7 @@ public class MainActivity extends CheckPermissionsActivity {
         if (unbinder != null) {
             unbinder.unbind();
         }
+        falling=false;
         running = false;
 //        deviceChildDao.closeDaoSession();
 //        deviceGroupDao.closeDaoSession();

@@ -1,6 +1,7 @@
 package com.xinrui.smart.fragment;
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
@@ -60,7 +62,7 @@ public class ETSControlFragment extends Fragment{
     private List<DeviceChild> mainControls;//外置传感器数量
     private ETSControlAdapter adapter;//主控制设置适配器
     public int runing=0;
-    private Map<Integer, Boolean> isSelected;
+    private Map<Integer, Boolean> isSelected=new HashMap<>();
 
     private List<DeviceChild> beSelectedData = new ArrayList();
 
@@ -78,7 +80,7 @@ public class ETSControlFragment extends Fragment{
     private DeviceChildDaoImpl deviceChildDao;
     private DeviceGroupDaoImpl deviceGroupDao;
     private int unbindPosition=-1;
-
+    private ProgressDialog progressDialog;
     @Override
     public void onStart() {
         super.onStart();
@@ -94,7 +96,7 @@ public class ETSControlFragment extends Fragment{
         if (!Utils.isEmpty(houseName)){
             tv_home.setText(houseName);
         }
-
+        progressDialog = new ProgressDialog(getActivity());
         mainControls=new ArrayList<>();
 //        mainControls=deviceChildDao.findDeviceType(id,1);
         List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(id);
@@ -116,7 +118,6 @@ public class ETSControlFragment extends Fragment{
         adapter=new ETSControlAdapter(mainControls,getActivity());
         lv_homes.setAdapter(adapter);
 
-
     }
     private boolean isBound=false;
     @Override
@@ -127,49 +128,69 @@ public class ETSControlFragment extends Fragment{
     }
 
 
+    private DeviceChild bindESTControlled;
     @OnClick({R.id.btn_ensure})
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_ensure:
-                long deviceId;
-                long houseId;
-                if (!beSelectedData.isEmpty()){
-                    DeviceChild mastetDevice=beSelectedData.get(0);
-                    if (mastetDevice!=null){
-                        deviceId=mastetDevice.getId();
-                        houseId=mastetDevice.getHouseId();
-                        Map<String,Object> params=new HashMap<>();
-                        params.put("deviceId",deviceId);
-                        params.put("houseId",houseId);
-                        new ExtSensorAsync().execute(params);
-                    }
-                }else if (beSelectedData.isEmpty()){
-                    DeviceChild mastetDevice=null;
-                    for (Map.Entry<Integer,Boolean> entry : isSelected.entrySet()){
-                        int postion=entry.getKey();
-                        DeviceChild deviceChild=mainControls.get(postion);
-
-                        boolean value=entry.getValue();
-                        if (deviceChild!=null){
-                            if (value==false&&postion==unbindPosition && deviceChild.getType()==2 && deviceChild.getControlled()==0){
-                                mastetDevice=deviceChild;
-                                deviceChild.setControlled(0);
-                                deviceChildDao.update(deviceChild);
-                                mastetDevice.setId(0L);
-                                break;
-                            }
+                boolean conn=NetWorkUtil.isConn(getActivity());
+                if (conn){
+                    long deviceId;
+                    long houseId;
+                    if (!beSelectedData.isEmpty()){
+                        DeviceChild mastetDevice=beSelectedData.get(0);
+                        if (mastetDevice!=null){
+                            deviceId=mastetDevice.getId();
+                            houseId=mastetDevice.getHouseId();
+                            Map<String,Object> params=new HashMap<>();
+                            params.put("deviceId",deviceId);
+                            params.put("houseId",houseId);
+                            new ExtSensorAsync().execute(params);
                         }
-                    }
-                    if (mastetDevice!=null){
-                        deviceId=mastetDevice.getId();
-                        houseId=mastetDevice.getHouseId();
-                        Map<String,Object> params=new HashMap<>();
-                        params.put("deviceId",deviceId);
-                        params.put("houseId",houseId);
-                        new ExtSensorAsync().execute(params);
-                    }
-                }
+                    }else if (beSelectedData.isEmpty()){
+                        DeviceChild mastetDevice=null;
+                        if (bindESTControlled!=null){
+                            mastetDevice=bindESTControlled;
+                            mastetDevice.setControlled(0);
+                            deviceChildDao.update(mastetDevice);
+                            mastetDevice.setId(0L);
 
+                            deviceId=mastetDevice.getId();
+                            houseId=mastetDevice.getHouseId();
+                            Map<String,Object> params=new HashMap<>();
+                            params.put("deviceId",deviceId);
+                            params.put("houseId",houseId);
+                            new ExtSensorAsync().execute(params);
+                        }else {
+                            Utils.showToast(getActivity(),"未选择传感器设备");
+                        }
+//                    for (Map.Entry<Integer,Boolean> entry : isSelected.entrySet()){
+//                        int postion=entry.getKey();
+//                        DeviceChild deviceChild=mainControls.get(postion);
+//
+//                        boolean value=entry.getValue();
+//                        if (deviceChild!=null){
+//                            if (value==false&&postion==unbindPosition && deviceChild.getType()==2 && deviceChild.getControlled()==0){
+//                                mastetDevice=deviceChild;
+//                                deviceChild.setControlled(0);
+//                                deviceChildDao.update(deviceChild);
+//                                mastetDevice.setId(0L);
+//                                break;
+//                            }
+//                        }
+//                    }
+//                    if (mastetDevice!=null){
+//                        deviceId=mastetDevice.getId();
+//                        houseId=mastetDevice.getHouseId();
+//                        Map<String,Object> params=new HashMap<>();
+//                        params.put("deviceId",deviceId);
+//                        params.put("houseId",houseId);
+//                        new ExtSensorAsync().execute(params);
+//                    }
+                    }
+                }else {
+                    Utils.showToast(getActivity(),"请检查网络");
+                }
 
                 break;
         }
@@ -293,10 +314,11 @@ public class ETSControlFragment extends Fragment{
     }
 
 
-    class GetExtSensorAsync extends AsyncTask<Void,Void,Integer> {
+    class GetExtSensorAsync extends AsyncTask<Void,Void,List<DeviceChild>> {
         @Override
-        protected Integer doInBackground(Void... voids) {
+        protected List<DeviceChild> doInBackground(Void... voids) {
             int code=0;
+            List<DeviceChild> list=new ArrayList<>();
             try {
                 String getAllMainControl="http://47.98.131.11:8082/warmer/v1.0/device/getExtSensor?houseId="+ URLEncoder.encode(houseId,"utf-8");
                 String result= HttpUtils.getOkHpptRequest(getAllMainControl);
@@ -306,6 +328,7 @@ public class ETSControlFragment extends Fragment{
                     code=jsonObject.getInt("code");
                     if (code==2000){
                         mainControls.clear();
+                        list.clear();
                         JSONArray content=jsonObject.getJSONArray("content");
 
                         for (int i=0;i<content.length();i++){
@@ -321,24 +344,24 @@ public class ETSControlFragment extends Fragment{
 
                                 DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
                                 deviceChild.setControlled(controlled);
-//                                deviceChildDao.update(deviceChild);
-                                mainControls.add(deviceChild);
+                                deviceChildDao.update(deviceChild);
+                                list.add(deviceChild);
                                 if (controlled==1){
+                                    bindESTControlled=deviceChild;
                                     deviceChild2=deviceChild;
                                 }
                             }
                         }
                         if (isSelected != null)
-                            isSelected = null;
-                        isSelected = new HashMap<Integer, Boolean>();
-                        for (int i = 0; i < mainControls.size(); i++) {
-                            DeviceChild deviceChild=mainControls.get(i);
+                            isSelected.clear();
+//                        isSelected = new HashMap<Integer, Boolean>();
+                        for (int i = 0; i < list.size(); i++) {
+                            DeviceChild deviceChild=list.get(i);
                             if (deviceChild.getControlled()==1){
                                 isSelected.put(i, true);
                             }else {
                                 isSelected.put(i, false);
                             }
-
                         }
                         // 清除已经选择的项
                         if (beSelectedData.size() > 0) {
@@ -347,22 +370,24 @@ public class ETSControlFragment extends Fragment{
                         if (deviceChild2!=null){
                             beSelectedData.add(deviceChild2);
                         }
-
                     }
                 }
             }catch (Exception e){
                 e.printStackTrace();
             }
-            return code;
+            return list;
         }
 
         @Override
-        protected void onPostExecute(Integer code) {
-            super.onPostExecute(code);
-            switch (code){
-                case 2000:
+        protected void onPostExecute(List<DeviceChild> list) {
+            super.onPostExecute(list);
+            try {
+                if (list!=null && !list.isEmpty()){
+                    mainControls.addAll(list);
                     adapter.notifyDataSetChanged();
-                    break;
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
     }
@@ -370,7 +395,18 @@ public class ETSControlFragment extends Fragment{
     class ExtSensorAsync extends AsyncTask<Map<String,Object>,Void,Integer>{
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (progressDialog != null) {
+                progressDialog.setMessage("请稍等...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
+        }
+
+        @Override
         protected Integer doInBackground(Map<String, Object>... maps) {
+
             int code=0;
             Map<String,Object> params=maps[0];
             String result=HttpUtils.postOkHpptRequest(extSensorUrl,params);
@@ -379,9 +415,12 @@ public class ETSControlFragment extends Fragment{
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
                     if (code==2000){
-                        if (!beSelectedData.isEmpty()){
-                            DeviceChild deviceChild=beSelectedData.get(0);
-                            deviceChild.setControlled(1);
+//                        if (!beSelectedData.isEmpty()){
+//                            DeviceChild deviceChild=beSelectedData.get(0);
+//                            deviceChild.setControlled(1);
+//                            deviceChildDao.update(deviceChild);
+//                        }
+                        for (DeviceChild deviceChild:mainControls){
                             deviceChildDao.update(deviceChild);
                         }
                     }
@@ -395,15 +434,25 @@ public class ETSControlFragment extends Fragment{
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
-            switch (code){
-                case 2000:
-                    Intent intent=new Intent(getActivity(),MainActivity.class);
-                    intent.putExtra("mainControl","mainControl");
-                    startActivity(intent);
-                    break;
-                case -3016:
-                    Utils.showToast(getActivity(),"请先设置主控设备");
-                    break;
+            try {
+                if (progressDialog!=null){
+                    progressDialog.dismiss();
+                }
+                switch (code){
+                    case 2000:
+//                    Intent intent=new Intent(getActivity(),MainActivity.class);
+//                    intent.putExtra("mainControl","mainControl");
+//                    startActivity(intent);
+                        Utils.showToast(getActivity(),"设置成功");
+                        break;
+                    case -3016:
+                        Utils.showToast(getActivity(),"设置失败");
+                        break;
+                }
+                getActivity().setResult(7000);
+                getActivity().finish();
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
     }

@@ -487,7 +487,7 @@ public class DeviceFragment extends Fragment {
             try {
                 boolean running = DeviceFragment.running;
                 Log.i("running", "-->" + running);
-                if (NetWorkUtil.isConn(getActivity()) ) {
+                if (NetWorkUtil.isConn(getActivity())) {
                     for (int i = 0; i < deviceChildren.size(); i++) {
                         DeviceChild deviceChild = deviceChildren.get(i);
                         if (i == deviceChildren.size() - 1) {
@@ -507,7 +507,7 @@ public class DeviceFragment extends Fragment {
                                 success = mqService.publish(topic, 1, s);
                                 if (!success) {
                                     success = mqService.publish(topic, 1, s);
-                                    Log.i("macAddress","-->"+mac);
+                                    Log.i("macAddress", "-->" + mac);
                                 }
                                 if (success) {
                                     Log.i("macAddress3", "-->" + mac);
@@ -1180,6 +1180,7 @@ public class DeviceFragment extends Fragment {
                 getActivity().unbindService(connection);
             }
         }
+        VibratorUtil.StopVibrate(getActivity());
 
         if (receiver != null) {
             getActivity().unregisterReceiver(receiver);
@@ -1248,6 +1249,7 @@ public class DeviceFragment extends Fragment {
             }
             return code;
         }
+
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
@@ -1594,7 +1596,7 @@ public class DeviceFragment extends Fragment {
                     } else {
                         intent.putExtra("wifi", "wifi");
                     }
-                    startActivityForResult(intent,6000);
+                    startActivityForResult(intent, 6000);
 //                    context.startActivity(intent);
                 }
             });
@@ -1628,44 +1630,43 @@ public class DeviceFragment extends Fragment {
 //                    tv_state.setText(entry.getRatedPower() + "w");
                         if ("fall".equals(entry.getMachineFall())) {
                             tv_state.setText("设备已倾倒");
-                            VibratorUtil.Vibrate(getActivity(), new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
+                            VibratorUtil.Vibrate(getActivity(), new long[]{1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000}, false);   //震动10s
                         } else {
-                            holder.setImageResource(R.id.image_switch, imgs[1]);
                             tv_state.setText(entry.getRatedPower() + "w");
                             VibratorUtil.StopVibrate(getActivity());
                         }
                     } else if (entry.getControlled() == 1) {
                         if ("fall".equals(entry.getMachineFall())) {
-                            VibratorUtil.Vibrate(getActivity(), new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
+                            VibratorUtil.Vibrate(getActivity(), new long[]{1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000}, false);   //震动10s
                             tv_state.setText("设备已倾倒");
                         } else {
                             tv_state.setText("受控机模式");
                             VibratorUtil.StopVibrate(getActivity());
                         }
                     }
+                    if ("open".equals(entry.getDeviceState())) {
+                        if ("fall".equals(entry.getMachineFall())) {
+                            holder.setImageResource(R.id.image_switch, imgs[2]);
+                        } else {
+                            holder.setImageResource(R.id.image_switch, imgs[1]);
+                        }
+                    } else if ("close".equals(entry.getDeviceState())) {
+                        holder.setImageResource(R.id.image_switch, imgs[0]);
+                    }
                 } else if (entry.getType() == 2) {
                     if ("fall".equals(entry.getMachineFall())) {
                         tv_state.setText("设备已倾倒");
-                        VibratorUtil.Vibrate(getActivity(), new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000}, true);   //震动10s
+                        VibratorUtil.Vibrate(getActivity(), new long[]{1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000}, true);   //震动10s
                     } else {
                         tv_state.setText("温度：" + entry.getSensorSimpleTemp() + "℃");
                         VibratorUtil.StopVibrate(getActivity());
                     }
                 }
-                if ("open".equals(entry.getDeviceState())) {
-                    if ("fall".equals(entry.getMachineFall())) {
-                        holder.setImageResource(R.id.image_switch, imgs[2]);
-                    } else {
-                        holder.setImageResource(R.id.image_switch,imgs[1]);
-                    }
-                } else if ("close".equals(entry.getDeviceState())) {
-                    holder.setImageResource(R.id.image_switch, imgs[0]);
-                }
             } else {
                 tv_state.setText("离线");
                 if ("open".equals(entry.getDeviceState())) {
                     holder.setImageResource(R.id.image_switch, imgs[2]);
-                } else{
+                } else {
                     holder.setImageResource(R.id.image_switch, imgs[0]);
                 }
             }
@@ -1689,13 +1690,13 @@ public class DeviceFragment extends Fragment {
             tv_device_child.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int type=entry.getType();
-                    if (type==2){
+                    int type = entry.getType();
+                    if (type == 2) {
                         Intent intent = new Intent(getActivity(), SmartTerminalActivity.class);
                         long deviceId = entry.getId();
                         intent.putExtra("deviceId", deviceId);
                         startActivityForResult(intent, 6000);
-                    }else {
+                    } else {
                         if (entry.getOnLint()) {
                             if (entry.getType() == 1) {
                                 if (entry.getControlled() == 2 || entry.getControlled() == 0) {
@@ -1820,8 +1821,8 @@ public class DeviceFragment extends Fragment {
                 }
             });
 
-            MyRecyclerViewItem myRecyclerViewItem = (MyRecyclerViewItem) holder.itemView.findViewById(R.id.scroll_item);
-            myRecyclerViewItem.reset();
+//            MyRecyclerViewItem myRecyclerViewItem = (MyRecyclerViewItem) holder.itemView.findViewById(R.id.scroll_item);
+//            myRecyclerViewItem.reset();
         }
 
         private void buildDialog(final int groupPosition, final int childPosition) {
@@ -1999,7 +2000,7 @@ public class DeviceFragment extends Fragment {
                 maser.put("outputMode", deviceChild.getOutputMod());
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
-                maser.put("grade",deviceChild.getGrade());
+                maser.put("grade", deviceChild.getGrade());
                 String s = maser.toString();
                 boolean success = false;
                 String topicName;
@@ -2010,7 +2011,7 @@ public class DeviceFragment extends Fragment {
                 if (bound) {
                     success = mqService.publish(topicName, 1, s);
                     Log.i("suss", "-->" + success);
-                    Log.i("deviceFragment","-->"+s);
+                    Log.i("deviceFragment", "-->" + s);
                 }
             }
         } catch (Exception e) {
@@ -2084,7 +2085,7 @@ public class DeviceFragment extends Fragment {
                 String deviceState = intent.getStringExtra("deviceState");
                 String noNet = intent.getStringExtra("noNet");
                 Log.i("noNet", "-->:" + noNet);
-                String Net = intent.getStringExtra("Net");
+//                String Net = intent.getStringExtra("Net");
                 String refresh = intent.getStringExtra("refresh");
                 String macAddress2 = intent.getStringExtra("macAddress2");
                 DeviceChild deviceChild20 = (DeviceChild) intent.getSerializableExtra("deviceChild2");
@@ -2106,32 +2107,28 @@ public class DeviceFragment extends Fragment {
                             for (int j = 0; j < deviceChildren.size(); j++) {
                                 DeviceChild deviceChild = deviceChildren.get(j);
                                 deviceChild.setOnLint(false);
-                                if ("open".equals(deviceChild.getDeviceState())) {
-                                    deviceChild.setImg(imgs[2]);
-                                } else if ("close".equals(deviceChild.getDeviceState())) {
-                                    deviceChild.setImg(imgs[0]);
-                                }
+//                                if ("open".equals(deviceChild.getDeviceState())) {
+//                                    deviceChild.setImg(imgs[2]);
+//                                } else if ("close".equals(deviceChild.getDeviceState())) {
+//                                    deviceChild.setImg(imgs[0]);
+//                                }
                                 childern.get(i).set(j, deviceChild);
                             }
                         }
                         adapter.notifyDataSetChanged();
                     } else if (Utils.isEmpty(noNet)) {
                         DeviceChild deviceChild = (DeviceChild) intent.getSerializableExtra("deviceChild");
-                        if (deviceChild == null) {
-                            try {
-                                if (groupPostion < deviceGroups.size()) {
-                                    List<DeviceChild> deviceChildren = childern.get(groupPostion);
-                                    if (!Utils.isEmpty(macAddress)) {
-                                        for (int i = 0; i < deviceChildren.size(); i++) {
-                                            DeviceChild deviceChild2 = deviceChildren.get(i);
-                                            if (deviceChild2 != null && macAddress.equals(deviceChild2.getMacAddress())) {
-                                                if (mDeviceChild != null && mDeviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
-                                                    mDeviceChild = null;
-                                                }
-                                                childern.get(groupPostion).remove(deviceChild2);
-                                                break;
-                                            }
+                        if (!Utils.isEmpty(macAddress) && deviceChild == null) {
+                            if (groupPostion < deviceGroups.size()) {
+                                List<DeviceChild> deviceChildren = childern.get(groupPostion);
+                                String remove = "";
+                                for (int i = 0; i < deviceChildren.size(); i++) {
+                                    DeviceChild deviceChild2 = deviceChildren.get(i);
+                                    if (deviceChild2 != null && macAddress.equals(deviceChild2.getMacAddress())) {
+                                        if (mDeviceChild != null && mDeviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
+                                            mDeviceChild = null;
                                         }
+                                        childern.get(groupPostion).remove(deviceChild2);
 
                                         Utils.showToast(context, "该设备已重置");
                                         List<DeviceChild> children = deviceChildDao.findAllDevice();
@@ -2140,12 +2137,13 @@ public class DeviceFragment extends Fragment {
                                         } else {
                                             adapter.notifyDataSetChanged();
                                         }
+                                        break;
                                     }
                                 }
-                            } catch (Exception e) {
-                                e.printStackTrace();
+
                             }
-                        } if (deviceChild != null) {
+                        }
+                        if (deviceChild != null) {
                             if (groupPostion < deviceGroups.size()) {
                                 List<DeviceChild> childList = childern.get(groupPostion);
                                 for (int i = 0; i < childList.size(); i++) {
@@ -2160,7 +2158,6 @@ public class DeviceFragment extends Fragment {
                         }
                     }
                 }
-
             } catch (Exception e) {
                 Log.i("Exception", "-->" + "jghuiop");
                 e.printStackTrace();

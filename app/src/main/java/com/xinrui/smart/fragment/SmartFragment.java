@@ -103,6 +103,7 @@ public class SmartFragment extends Fragment {
 
     private List<DeviceChild> list2 = new ArrayList<>();
 
+    DeviceChild estDeviceChild;
     @Override
     public void onStart() {
         super.onStart();
@@ -110,7 +111,6 @@ public class SmartFragment extends Fragment {
         if (houseId != null) {/**判断是不是有外置传感器*/
             DeviceGroup deviceGroup = deviceGroupDao.findById(Long.parseLong(houseId));
             List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(Long.parseLong(houseId), 2);
-            DeviceChild estDeviceChild = null;
             if (deviceChildren != null && !deviceChildren.isEmpty()) {
                 for (DeviceChild deviceChild : deviceChildren) {
                     if (deviceChild.getControlled() == 1) {
@@ -161,11 +161,10 @@ public class SmartFragment extends Fragment {
                                     if (list2.size() >= 1) {
                                         intent.putExtra("houseId", houseId);
                                         intent.putExtra("content", content);
-                                        startActivity(intent);
+                                        startActivityForResult(intent,7000);
                                     } else if (list2.size() < 1) {
                                         Utils.showToast(getActivity(), "智能设备不足");
                                     }
-
                                 }
                             }
                         } else if ("受控机设置".equals(content)) {
@@ -186,7 +185,7 @@ public class SmartFragment extends Fragment {
                                     } else {
                                         intent.putExtra("houseId", houseId);
                                         intent.putExtra("content", content);
-                                        startActivity(intent);
+                                        startActivityForResult(intent,7000);
                                     }
                                 }
                             }
@@ -232,12 +231,13 @@ public class SmartFragment extends Fragment {
                                 } else {
                                     intent.putExtra("houseId", houseId);
                                     intent.putExtra("content", content);
-                                    startActivity(intent);
+                                    startActivityForResult(intent,7000);
                                 }
                             }
                         }
                     }
-
+                }else {
+                    Utils.showToast(getActivity(),"请检查网络");
                 }
             }
         });
@@ -266,20 +266,13 @@ public class SmartFragment extends Fragment {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(Long.parseLong(houseId), 2);
+//            List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(Long.parseLong(houseId), 2);
             DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
+            String macAddress=intent.getStringExtra("macAddress");
             try {
                 if (deviceChild2 != null) {
-                    DeviceChild estDeviceChild = null;
-                    for (DeviceChild deviceChild:deviceChildren){
-                        if (deviceChild2.getMacAddress().equals(deviceChild.getMacAddress())){
-                            if (deviceChild.getControlled() == 1) {
-                                estDeviceChild = deviceChild;
-                                break;
-                            }
-                        }
-                    }
-                    if (estDeviceChild!=null){
+                    if (estDeviceChild!=null && deviceChild2.getMacAddress().equals(estDeviceChild.getMacAddress())){
+                        estDeviceChild=deviceChild2;
                         int extTemp = estDeviceChild.getTemp();
                         int extHum = estDeviceChild.getHum();
                         temp.setText(extTemp + "℃");
@@ -288,8 +281,10 @@ public class SmartFragment extends Fragment {
                         tv_hum.setText(extHum + "%");
                     }
                 }else {
-                    Toast.makeText(getActivity(),"该设备已重置",Toast.LENGTH_SHORT).show();
-                    relative.setVisibility(View.INVISIBLE);
+                    if (!Utils.isEmpty(macAddress) && estDeviceChild!=null && macAddress.equals(estDeviceChild.getMacAddress())){
+                        Toast.makeText(getActivity(),"该设备已重置",Toast.LENGTH_SHORT).show();
+                        relative.setVisibility(View.INVISIBLE);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();

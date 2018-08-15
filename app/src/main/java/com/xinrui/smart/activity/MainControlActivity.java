@@ -127,14 +127,14 @@ public class MainControlActivity extends AppCompatActivity{
     public void onClick(View view){
         switch (view.getId()){
             case R.id.img_back:
-                List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(Long.parseLong(houseId));
-                for (int i = 0; i < deviceChildren.size(); i++) {
-                    DeviceChild deviceChildr2=deviceChildren.get(i);
-                    Log.i("deviceChildAddress",deviceChildr2.getMacAddress()+","+deviceChildr2.getControlled());
-                }
-                Intent intent2=new Intent(this,MainActivity.class);
-                intent2.putExtra("mainControl","mainControl");
-                startActivity(intent2);
+//                List<DeviceChild> deviceChildren=deviceChildDao.findGroupIdAllDevice(Long.parseLong(houseId));
+//                for (int i = 0; i < deviceChildren.size(); i++) {
+//                    DeviceChild deviceChildr2=deviceChildren.get(i);
+//                    Log.i("deviceChildAddress",deviceChildr2.getMacAddress()+","+deviceChildr2.getControlled());
+//                }
+                setResult(7000);
+                finish();
+//                startActivity(intent2);
                 break;
             case R.id.img_cancel:
                 Intent intent=new Intent(this,MainActivity.class);

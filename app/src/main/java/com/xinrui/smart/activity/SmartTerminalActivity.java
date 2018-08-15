@@ -560,7 +560,10 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                             String macAddress = device.getString("macAddress");
                             DeviceChild deviceChild = deviceChildDao.findDeviceById((long) deviceId);
                             deviceChild.setLinked(linked);
-                            linkList.add(deviceChild);
+                            if (!linkList.contains(deviceChild)){
+                                linkList.add(deviceChild);
+                            }
+
                         }
                     }
                 } catch (Exception e) {
@@ -625,77 +628,84 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            String macAddress = intent.getStringExtra("macAddress");
-            Log.i("macAddress", "-->" + macAddress);
-            DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
-            if (deviceChild2 != null && deviceChild != null && macAddress.equals(deviceChild.getMacAddress())) {
-                Log.i("macAddress", "-->2222");
-                deviceChild = deviceChild2;
-                setMode(deviceChild);
-            } else if (deviceChild2 == null && deviceChild != null) {
-                if (macAddress.equals(deviceChild.getMacAddress())) {
-                    Toast.makeText(SmartTerminalActivity.this, "该设备已重置", Toast.LENGTH_SHORT).show();
-                    Intent intent2 = new Intent();
-                    intent.putExtra("houseId", houseId);
-                    SmartTerminalActivity.this.setResult(6000, intent2);
-                    SmartTerminalActivity.this.finish();
-                } else {
-                    for (Map.Entry<String, DeviceChild> entry : linkDeviceChildMap.entrySet()) {
-                        String mac = entry.getKey();
-                        DeviceChild deviceChild3 = entry.getValue();
+            try {
+                String macAddress = intent.getStringExtra("macAddress");
+                Log.i("macAddress", "-->" + macAddress);
+                DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
+                if (deviceChild2 != null && deviceChild != null && macAddress.equals(deviceChild.getMacAddress())) {
+                    Log.i("macAddress", "-->2222");
+                    deviceChild = deviceChild2;
+                    setMode(deviceChild);
+                } else if (deviceChild2 == null && deviceChild != null) {
+                    if (macAddress.equals(deviceChild.getMacAddress())) {
+                        Toast.makeText(SmartTerminalActivity.this, "该设备已重置", Toast.LENGTH_SHORT).show();
+                        Intent intent2 = new Intent();
+                        intent2.putExtra("houseId", houseId);
+                        SmartTerminalActivity.this.setResult(6000, intent2);
+                        SmartTerminalActivity.this.finish();
+                    } else {
+                        DeviceChild deviceChild4 = null;
                         for (int i = 0; i < linkList.size(); i++) {
-                            DeviceChild deviceChild4 = linkList.get(i);
-                            String macAddress2 = deviceChild4.getMacAddress();
+                            DeviceChild deviceChild5 = linkList.get(i);
+                            String mac = deviceChild5.getMacAddress();
+                            String macAddress2 = deviceChild5.getMacAddress();
                             if (macAddress2.equals(mac)) {
-                                deviceChild4.setLinked(0);
-                                linkList.set(i, deviceChild4);
+                                deviceChild4 = deviceChild5;
                                 break;
                             }
                         }
-                        if (macAddress.equals(mac)) {
-                            String name = deviceChild3.getDeviceName();
+                        if (deviceChild4 != null) {
+                            String name = deviceChild4.getDeviceName();
+                            linkList.remove(deviceChild4);
                             Toast.makeText(SmartTerminalActivity.this, name + "设备已重置", Toast.LENGTH_SHORT).show();
-                            linkDeviceChildMap.remove(deviceChild3);
-                            break;
                         }
-                    }
-                    List<SmartTerminalInfo> infoList = new ArrayList<>();
-                    for (int i = 0; i < linkDeviceChildMap.size(); i++) {
-                        SmartTerminalInfo terminalInfo = list.get(i);
-                        infoList.add(terminalInfo);
-                    }
-                    if (smartTerminalCircle != null) {
-                        smartTerminalCircle.setBitInfos(infoList);
-                    }
-                }
-            } else if (deviceChild2 != null) {
-                for (Map.Entry<String, DeviceChild> entry : linkDeviceChildMap.entrySet()) {
-                    String mac = entry.getKey();
-                    if (mac.equals(deviceChild2.getMacAddress())) {
-                        int controlled = deviceChild2.getControlled();
-                        if (controlled == 1) {
-                            for (int i = 0; i <linkList.size() ; i++) {
-                                if (linkList.contains(deviceChild2)){
-                                    linkList.set(i,deviceChild2);
-                                    break;
-                                }
+                        List<SmartTerminalInfo> infoList = new ArrayList<>();
+                        for (int i = 0; i < linkList.size(); i++) {
+                            DeviceChild deviceChild=linkList.get(i);
+                            int linked=deviceChild.getLinked();
+                            if (linked==1){
+                                SmartTerminalInfo terminalInfo = list.get(i);
+                                infoList.add(terminalInfo);
                             }
-                            linkDeviceChildMap.remove(deviceChild2);
-                            break;
+                        }
+                        if (smartTerminalCircle != null) {
+                            smartTerminalCircle.setBitInfos(infoList);
+                        }
+                    }
+                } else if (deviceChild2 != null) {
+                    String macAddress2=deviceChild2.getMacAddress();
+                    int controlled=deviceChild2.getControlled();
+                    int type=deviceChild2.getType();
+                    DeviceChild deviceChild3=null;
+                    for (int i = 0; i < linkList.size(); i++) {
+                        DeviceChild deviceChild=linkList.get(i);
+                        if (macAddress2.equals(deviceChild.getMacAddress())){
+                            if (type==1 && controlled==1){
+                                deviceChild3=deviceChild;
+                            }
+                        }
+                    }
+                    if (deviceChild3!=null) {
+                        String name=deviceChild3.getDeviceName();
+                        Toast.makeText(SmartTerminalActivity.this, name + "设备已为受控机", Toast.LENGTH_SHORT).show();
+                        linkList.remove(deviceChild3);
+
+                        List<SmartTerminalInfo> infoList = new ArrayList<>();
+                        for (int i = 0; i < linkList.size(); i++) {
+                            DeviceChild deviceChild=linkList.get(i);
+                            int linked=deviceChild.getLinked();
+                            if (linked==1){
+                                SmartTerminalInfo terminalInfo = list.get(i);
+                                infoList.add(terminalInfo);
+                            }
+                        }
+                        if (smartTerminalCircle != null) {
+                            smartTerminalCircle.setBitInfos(infoList);
                         }
                     }
                 }
-                if (linkDeviceChildMap.containsKey(macAddress)) {
-                    List<SmartTerminalInfo> infoList = new ArrayList<>();
-                    for (int i = 0; i < linkDeviceChildMap.size(); i++) {
-                        SmartTerminalInfo terminalInfo = list.get(i);
-                        linkDeviceChildMap.put(macAddress, deviceChild2);
-                        infoList.add(terminalInfo);
-                    }
-                    if (smartTerminalCircle != null) {
-                        smartTerminalCircle.setBitInfos(infoList);
-                    }
-                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
     }

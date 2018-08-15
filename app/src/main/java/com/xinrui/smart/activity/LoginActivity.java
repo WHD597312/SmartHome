@@ -61,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
     public static boolean runnning=false;
     private ProgressDialog progressDialog;
     public static boolean loading=false;
-
+    String fall=null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,15 +77,20 @@ public class LoginActivity extends AppCompatActivity {
 
         progressDialog = new ProgressDialog(this);
 
+        Intent intent=getIntent();
+        fall=intent.getStringExtra("fall");
         if (preferences.contains("phone") && preferences.contains("password")){
 //            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             runnning=false;
-            startActivity(new Intent(this,MainActivity.class));
+            Intent intent2=new Intent(this,MainActivity.class);
+            intent2.putExtra("fall",fall);
+            startActivity(intent2);
         } else if (preferences.contains("phone") && !preferences.contains("password")){
             String phone = preferences.getString("phone", "");
             et_name.setText(phone);
             et_pswd.setText("");
         }
+
 
     }
 

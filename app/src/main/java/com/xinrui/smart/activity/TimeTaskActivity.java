@@ -310,6 +310,7 @@ public class TimeTaskActivity extends AppCompatActivity {
     MessageReceiver receiver;
 
 
+
     @Override
     public void onStart() {
         super.onStart();
@@ -941,10 +942,6 @@ public class TimeTaskActivity extends AppCompatActivity {
         super.onStop();
 
         running = false;
-        if (receiver != null) {
-            unregisterReceiver(receiver);
-        }
-
 
     }
 
@@ -1081,16 +1078,17 @@ public class TimeTaskActivity extends AppCompatActivity {
         if (unbinder != null) {
             unbinder.unbind();
         }
+        if (receiver != null) {
+            unregisterReceiver(receiver);
+        }
         if (isBound) {
             if (connection != null) {
                 unbindService(connection);
             }
         }
         progressDialog.dismiss();
-        deviceChildDao.closeDaoSession();
         timeTaskDao.closeDaoSession();
         timeDao.closeDaoSession();
-        deviceChildDao.closeDaoSession();
         deviceChildDao.closeDaoSession();
     }
 }

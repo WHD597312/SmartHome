@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
@@ -147,14 +148,20 @@ public class ControlledFragment extends Fragment{
     public void onClick(View view){
         switch (view.getId()){
             case R.id.btn_ensure:
-                Map<String,Object> params=new HashMap<>();
-                params.put("houseId",houseId);
-                long arr[]=new long[controlledDeviceChildren.size()];
-                for (int i=0;i<controlledDeviceChildren.size();i++){
-                    arr[i]=controlledDeviceChildren.get(i).getId();
+                boolean conn= NetWorkUtil.isConn(getActivity());
+                if (conn){
+                    Map<String,Object> params=new HashMap<>();
+                    params.put("houseId",houseId);
+                    long arr[]=new long[controlledDeviceChildren.size()];
+                    for (int i=0;i<controlledDeviceChildren.size();i++){
+                        arr[i]=controlledDeviceChildren.get(i).getId();
+                    }
+                    params.put("controlledId",arr);
+                    new ControlledAsync().execute(params);
+                }else {
+                    Utils.showToast(getActivity(),"请检查网络");
                 }
-                params.put("controlledId",arr);
-                new ControlledAsync().execute(params);
+
 
                 break;
         }
@@ -265,10 +272,11 @@ public class ControlledFragment extends Fragment{
         }
     }
 
-    class GetControlledAsync extends AsyncTask<Void,Void,Integer>{
+    class GetControlledAsync extends AsyncTask<Void,Void,List<DeviceChild>>{
         @Override
-        protected Integer doInBackground(Void... voids) {
+        protected List<DeviceChild> doInBackground(Void... voids) {
             int code=0;
+            List<DeviceChild> list=new ArrayList<>();
             try {
                 String getAllMainControl="http://47.98.131.11:8082/warmer/v1.0/device/getControlledDevice?houseId="+ URLEncoder.encode(houseId,"utf-8");
                 String result=HttpUtils.getOkHpptRequest(getAllMainControl);
@@ -278,6 +286,7 @@ public class ControlledFragment extends Fragment{
                     if (code==2000){
                         JSONArray content=jsonObject.getJSONArray("content");
                         controlleds.clear();
+                        list.clear();
                         for (int i=0;i<content.length();i++){
                             JSONObject device=content.getJSONObject(i);
                             if (device!=null){
@@ -291,8 +300,8 @@ public class ControlledFragment extends Fragment{
                                 DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
 
                                 deviceChild.setControlled(controlled);
-//                                deviceChildDao.update(deviceChild);
-                                controlleds.add(deviceChild);
+                                deviceChildDao.update(deviceChild);
+                                list.add(deviceChild);
                                 if (controlled==1){
                                     controlledDeviceChildren.add(deviceChild);
                                     contollledDeviceChildMap.put((long)id,deviceChild);
@@ -305,23 +314,32 @@ public class ControlledFragment extends Fragment{
             }catch (Exception e){
                 e.printStackTrace();
             }
-            return code;
+            return list;
         }
 
         @Override
-        protected void onPostExecute(Integer code) {
-            super.onPostExecute(code);
-            switch (code){
-                case 2000:
+        protected void onPostExecute(List<DeviceChild> list) {
+            super.onPostExecute(list);
+            try {
+                if (list!=null && !list.isEmpty()){
+                    controlleds.addAll(list);
                     adapter.notifyDataSetChanged();
-                    break;
-                case -3013:
-                    Utils.showToast(getActivity(),"请先设置主控设备");
-                    Intent intent=new Intent(getActivity(),MainActivity.class);
-                    intent.putExtra("mainControl","mainControl");
-                    startActivity(intent);
-                    break;
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
+
+//            switch (code){
+//                case 2000:
+//                    adapter.notifyDataSetChanged();
+//                    break;
+//                case -3013:
+//                    Utils.showToast(getActivity(),"请先设置主控设备");
+//                    Intent intent=new Intent(getActivity(),MainActivity.class);
+//                    intent.putExtra("mainControl","mainControl");
+//                    startActivity(intent);
+//                    break;
+//            }
         }
     }
 
@@ -331,7 +349,7 @@ public class ControlledFragment extends Fragment{
         protected void onPreExecute() {
             super.onPreExecute();
             if (progressDialog != null) {
-                progressDialog.setMessage("正在发送数据...");
+                progressDialog.setMessage("请稍等...");
                 progressDialog.setCancelable(false);
                 progressDialog.show();
             }
@@ -349,7 +367,6 @@ public class ControlledFragment extends Fragment{
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
                     if (code==2000){
-
                         if (arr!=null && arr.length>0){
                             for(Map.Entry<Long, DeviceChild> childEntry : contollledDeviceChildMap.entrySet()){
                                 DeviceChild deviceChild=childEntry.getValue();
@@ -383,18 +400,24 @@ public class ControlledFragment extends Fragment{
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
-            progressDialog.dismiss();
-            switch (code){
-                case 2000:
-                    Utils.showToast(getActivity(),"设置受控设备成功");
-                    break;
-                case -3011:
-                    Utils.showToast(getActivity(),"设置受控设备失败");
-                    break;
+            try {
+                if (progressDialog!=null){
+                    progressDialog.dismiss();
+                }
+                switch (code){
+                    case 2000:
+                        Utils.showToast(getActivity(),"设置成功");
+                        break;
+                    case -3011:
+                        Utils.showToast(getActivity(),"设置失败");
+                        break;
+                }
+                getActivity().setResult(7000);
+                getActivity().finish();
+            }catch (Exception e){
+                e.printStackTrace();
             }
-            Intent intent=new Intent(getActivity(),MainActivity.class);
-            intent.putExtra("mainControl","mainControl");
-            startActivity(intent);
+
         }
     }
     MQService mqService;
@@ -433,8 +456,10 @@ public class ControlledFragment extends Fragment{
                 boolean success = false;
                 String mac = deviceChild.getMacAddress();
                 String topicName = "rango/" + mac + "/set";
+                String topicName2 = "rango/" + mac + "/transfer";
                 if (bound) {
                     success = mqService.publish(topicName, 2, s);
+                    mqService.publish(topicName2,2,s);
                     if (success){
                         if ("slave".equals(deviceChild.getCtrlMode())){
                             deviceChild.setControlled(1);

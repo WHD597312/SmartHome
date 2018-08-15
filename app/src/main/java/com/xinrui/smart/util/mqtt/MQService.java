@@ -247,7 +247,7 @@ public class MQService extends Service {
     int groupPostion = 0;
     int childPosition = 0;
     int timerTaskWeek = 0;
-
+    private int falling=-1;
 
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch, R.mipmap.image_switch2};
 
@@ -352,7 +352,7 @@ public class MQService extends Service {
                     int extHum = 0;
                     int TimerTemp = 0;
                     String machAttr = "";
-                    int grade=-1;
+                    int grade = -1;
 
 
                     DeviceChild child = null;
@@ -473,8 +473,8 @@ public class MQService extends Service {
                             if (device.has("timerShutDown")) {
                                 timerShutDown = device.getString("timerShutDown");
                             }
-                            if (device.has("grade")){
-                                grade=device.getInt("grade");
+                            if (device.has("grade")) {
+                                grade = device.getInt("grade");
                             }
 
                             if (device.has("extTemp")) {
@@ -633,16 +633,18 @@ public class MQService extends Service {
                                     child.setVoltageValue(voltageValue);
                                 if (currentValue != 0)
                                     child.setCurrentValue(currentValue);
-                                if (grade!=-1)
+                                if (grade != -1)
                                     child.setGrade(grade);
                                 if (!Utils.isEmpty(machineFall)) {
                                     child.setMachineFall(machineFall);
 //                                child.setOnLint(true);
                                     if ("fall".equals(machineFall)) {
+                                        falling=1;
                                         child.setMachineFall("fall");
                                         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
                                         Intent notifyIntent = new Intent(getApplicationContext(), LoginActivity.class);
                                         notifyIntent.putExtra("fall", "fall");
+
                                         notifyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
@@ -655,6 +657,7 @@ public class MQService extends Service {
                                                 .setDefaults(Notification.DEFAULT_ALL)
                                                 .setAutoCancel(true);
                                         builder.setContentIntent(notifyPendingIntent);
+
                                         NotificationManager mNotificationManager =
                                                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                                         mNotificationManager.notify(0, builder.build());
@@ -662,6 +665,8 @@ public class MQService extends Service {
 //                                        VibratorUtil.Vibrate(MQService.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
                                     } else {
 //                                        VibratorUtil.StopVibrate(MQService.this);
+                                        MainActivity.falling=false;
+                                        falling=0;
                                         child.setMachineFall("nor");
                                     }
                                 }
@@ -674,11 +679,12 @@ public class MQService extends Service {
                                 }
 
                                 if (child != null) {
-                                    child.setOnLint(true);
+                                    if (!Utils.isEmpty(deviceState)){
+                                        child.setOnLint(true);
+                                    }
                                     child.setTemp(extTemp);
                                     child.setHum(extHum);
                                     deviceChildDao.update(child);
-                                    offlineDevices.put(macAddress, child);
                                 }
                             }
                         }
@@ -739,16 +745,35 @@ public class MQService extends Service {
                     } else if (topicName.equals("rango/" + macAddress + "/lwt")) {
                         if (child != null) {
 //                            send(child);
-                            if ("open".equals(child.getDeviceState())) {
-                                child.setImg(imgs[2]);
-                            }
+//                            if ("open".equals(child.getDeviceState())) {
+//                                child.setImg(imgs[2]);
+//                            }
                             child.setOnLint(false);
                             deviceChildDao.update(child);
                         }
                     }
                     Log.i("AddDeviceActivity", "-->" + AddDeviceActivity.running);
-
-                    if (DeviceFragment.running) {
+                    if (DeviceListActivity.running || ShareDeviceActivity.running || TimeTaskActivity.running|| TempChartActivity.running){
+                        MainActivity.falling=false;
+                        DeviceFragment.running=false;
+                        falling=-1;
+                    }
+                    if (SmartTerminalActivity.running){
+                        MainActivity.falling=false;
+                        DeviceFragment.running=false;
+                        falling=-1;
+                    }
+                    if (SmartFragmentManager.running){
+                        MainActivity.falling=false;
+                        DeviceFragment.running=false;
+                        falling=-1;
+                    }
+                    if (Btn1_fragment.running==2 || Btn2_fragment.running==2 || Btn3_fragment.running==2 || Btn4_fragment.running==2){
+                        MainActivity.falling=false;
+                        DeviceFragment.running=false;
+                        falling=-1;
+                    }
+                    if (DeviceFragment.running || falling==0 || falling==1) {
                         if (child == null) {
                             Intent mqttIntent = new Intent("DeviceFragment");
                             Log.i("groupPostion", "-->" + groupPostion);
@@ -758,15 +783,23 @@ public class MQService extends Service {
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
                         } else {
-                            if (!Utils.isEmpty(deviceState)){
-                                Intent mqttIntent = new Intent("DeviceFragment");
-                                mqttIntent.putExtra("groupPostion", groupPostion);
-                                mqttIntent.putExtra("childPosition", childPosition);
-                                mqttIntent.putExtra("deviceChild", child);
-                                sendBroadcast(mqttIntent);
-                            }
+                            Intent mqttIntent = new Intent("DeviceFragment");
+                            mqttIntent.putExtra("groupPostion", groupPostion);
+                            mqttIntent.putExtra("childPosition", childPosition);
+                            mqttIntent.putExtra("deviceChild", child);
+                            sendBroadcast(mqttIntent);
                         }
-                    } else if (DeviceListActivity.running) {
+                    }else if (SmartFragmentManager.running){
+                        if (child!=null){
+                            Intent mqttIntent = new Intent("SmartFragmentManager");
+                            mqttIntent.putExtra("deviceChild", child);
+                            sendBroadcast(mqttIntent);
+                        }else {
+                            Intent mqttIntent = new Intent("SmartFragmentManager");
+                            mqttIntent.putExtra("macAddress", macAddress);
+                            sendBroadcast(mqttIntent);
+                        }
+                    }else if (DeviceListActivity.running) {
                         if (!Utils.isEmpty(reSet)) {
                             Intent mqttIntent = new Intent("DeviceListActivity");
                             mqttIntent.putExtra("macAddress", macAddress);
@@ -837,7 +870,7 @@ public class MQService extends Service {
                         }
                     } else if (SmartTerminalActivity.running) {
                         if (!Utils.isEmpty(reSet)) {
-                            Intent mqttIntent = new Intent("TimeTaskActivity");
+                            Intent mqttIntent = new Intent("SmartTerminalActivity");
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
                         } else {
@@ -876,22 +909,6 @@ public class MQService extends Service {
                         mqttIntent.putExtra("deviceChild", child);
                         mqttIntent.putExtra("message", "测试");
                         sendBroadcast(mqttIntent);
-                    } else if (SmartTerminalActivity.running) {
-                        Intent mqttIntent = new Intent("SmartFragmentManager");
-                        if (child == null) {
-                            mqttIntent.putExtra("deviceChild", child);
-                            sendBroadcast(mqttIntent);
-                        } else {
-                            child = deviceChildDao.findDeviceById(child.getId());
-                            long houseId = child.getHouseId();
-                            long deviceId = child.getId();
-                            mqttIntent.putExtra("houseId", houseId);
-                            mqttIntent.putExtra("deviceId", deviceId);
-                            mqttIntent.putExtra("deviceChild", child);
-                            sendBroadcast(mqttIntent);
-                        }
-
-//                                context.sendBroadcast(mqttIntent);
                     } else if (RoomContentActivity.running) {
                         child = deviceChildDao.findDeviceById(child.getId());
                         Intent mqttIntent = new Intent("RoomContentActivity");
@@ -918,7 +935,8 @@ public class MQService extends Service {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (DeviceListActivity.running) {
-                DeviceFragment.running = false;
+                MainActivity.running = false;
+                DeviceFragment.running=false;
             }
             switch (msg.what) {
                 case 1:
