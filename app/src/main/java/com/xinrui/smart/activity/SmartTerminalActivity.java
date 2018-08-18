@@ -180,7 +180,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
 
     public void getBitWheelInfos() {
         for (int i = 0; i < mStrs.length; i++) {
-            list.add(new SmartTerminalInfo(mStrs[i], BitmapFactory.decodeResource(getResources(), R.mipmap.humidifier)));
+            list.add(new SmartTerminalInfo(mStrs[i], BitmapFactory.decodeResource(getResources(), R.mipmap.heater2)));
         }
     }
 
@@ -487,6 +487,8 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == 100) {
             linkList.clear();
+            list.clear();
+            getBitWheelInfos();
             linkList = (List<DeviceChild>) data.getSerializableExtra("list");
             linkDeviceChildMap.clear();
             List<SmartTerminalInfo> infoList = new ArrayList<>();
@@ -557,13 +559,16 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                             JSONObject device = content.getJSONObject(i);
                             int deviceId = device.getInt("deviceId");
                             int linked = device.getInt("linked");
+                            int controlled=device.getInt("controlled");
                             String macAddress = device.getString("macAddress");
                             DeviceChild deviceChild = deviceChildDao.findDeviceById((long) deviceId);
                             deviceChild.setLinked(linked);
-                            if (!linkList.contains(deviceChild)){
-                                linkList.add(deviceChild);
+                            deviceChild.setControlled(controlled);
+                            if (controlled==2 || controlled==0){
+                                if (!linkList.contains(deviceChild)){
+                                    linkList.add(deviceChild);
+                                }
                             }
-
                         }
                     }
                 } catch (Exception e) {
@@ -657,6 +662,8 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                         if (deviceChild4 != null) {
                             String name = deviceChild4.getDeviceName();
                             linkList.remove(deviceChild4);
+                            list.clear();
+                            getBitWheelInfos();
                             Toast.makeText(SmartTerminalActivity.this, name + "设备已重置", Toast.LENGTH_SHORT).show();
                         }
                         List<SmartTerminalInfo> infoList = new ArrayList<>();
@@ -686,6 +693,8 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                         }
                     }
                     if (deviceChild3!=null) {
+                        list.clear();
+                        getBitWheelInfos();
                         String name=deviceChild3.getDeviceName();
                         Toast.makeText(SmartTerminalActivity.this, name + "设备已为受控机", Toast.LENGTH_SHORT).show();
                         linkList.remove(deviceChild3);

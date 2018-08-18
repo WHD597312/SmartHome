@@ -56,6 +56,7 @@ public class RegistActivity extends AppCompatActivity {
     @BindView(R.id.btn_get_code)
     Button btn_get_code;
     private String url = "http://47.98.131.11:8082/warmer/v1.0/user/register";
+    private String isExistUrl="http://47.98.131.11:8082/warmer/v1.0/user/isExist?phone=";
 
     SharedPreferences preferences;
     private DeviceChildDaoImpl deviceChildDao;
@@ -156,9 +157,10 @@ public class RegistActivity extends AppCompatActivity {
                 } else {
                     boolean flag = Mobile.isMobile(phone);
                     if (flag) {
-                        SMSSDK.getVerificationCode("86", phone);
-                        CountTimer countTimer = new CountTimer(60000, 1000);
-                        countTimer.start();
+                        new IsPhoneExistAsync().execute(phone);
+//                        SMSSDK.getVerificationCode("86", phone);
+//                        CountTimer countTimer = new CountTimer(60000, 1000);
+//                        countTimer.start();
                     } else {
                         Utils.showToast(this, "手机号码不合法");
                     }
@@ -168,7 +170,40 @@ public class RegistActivity extends AppCompatActivity {
         }
     }
 
+    class IsPhoneExistAsync extends AsyncTask<String,Void,Integer>{
+        String phone= "";
+        @Override
+        protected Integer doInBackground(String ...s) {
+            int code=0;
+            phone=s[0];
+            try {
+                isExistUrl=isExistUrl+phone;
+                String result=HttpUtils.getOkHpptRequest(isExistUrl);
+                if (!TextUtils.isEmpty(result)){
+                    JSONObject jsonObject=new JSONObject(result);
+                    code=jsonObject.getInt("code");
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return code;
+        }
 
+        @Override
+        protected void onPostExecute(Integer code) {
+            super.onPostExecute(code);
+            switch (code) {
+                case 2000:
+                    Utils.showToast(RegistActivity.this, "手机号码已注册");
+                    break;
+                case  -1006:
+                    SMSSDK.getVerificationCode("86", phone);
+                    CountTimer countTimer = new CountTimer(60000, 1000);
+                    countTimer.start();
+                    break;
+            }
+        }
+    }
     class RegistAsyncTask extends AsyncTask<Map<String, Object>, Void, Integer> {
 
         @Override

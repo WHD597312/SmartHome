@@ -89,6 +89,12 @@ public class SmartFragmentManager extends Fragment {
         listener = new MyOnPageChangeListener(getActivity(), mPager, linearout, fragmentList.size());
 
         mPager.addOnPageChangeListener(listener);
+        if (preferences.contains("position")) {
+            int postion = preferences.getInt("position", 0);
+            Log.i("smart12222222","-->"+postion);
+            listener.onPageSelected(postion);
+            mPager.setCurrentItem(postion);
+        }
         return view;
     }
 
@@ -109,22 +115,6 @@ public class SmartFragmentManager extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
-
-        if (preferences.contains("postion")) {
-            int postion = preferences.getInt("postion", 0);
-            listener.onPageSelected(postion);
-            Message msg = handler.obtainMessage();
-            msg.what = postion;
-            handler.sendMessage(msg);
-            mPager.setCurrentItem(postion);
-        } else {
-            mPager.setCurrentItem(0);
-            listener.onPageSelected(0);
-            Message msg = handler.obtainMessage();
-            msg.what = 0;
-            handler.sendMessage(msg);
-        }
     }
 
 
@@ -249,6 +239,7 @@ public class SmartFragmentManager extends Fragment {
                     SharedPreferences.Editor editor=preferences.edit();
                     editor.putInt("position",postion);
                     editor.commit();
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

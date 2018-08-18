@@ -59,10 +59,11 @@
                    android:layout_height="wrap_content"
                    android:layout_alignParentLeft="true"
                    android:layout_alignParentStart="true"
-                   android:layout_alignParentTop="true"
                    android:layout_marginLeft="@dimen/dp_30"
                    android:scaleType="centerInside"
-                   android:src="@mipmap/smart_temp" />
+                   android:src="@mipmap/smart_temp"
+                   android:layout_marginTop="@dimen/dp_10"
+                   />
 
                <TextView
                    android:id="@+id/tv_temp"
@@ -72,40 +73,44 @@
                    android:text="25℃"
                    android:textColor="@color/color_white"
                    android:layout_toRightOf="@+id/img_temp"
-                   android:textSize="@dimen/sp_14" />
+                   android:textSize="@dimen/sp_14"
+                   android:visibility="gone"
+                   />
                <ImageView
                    android:id="@+id/img_hum"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
                    android:layout_alignLeft="@+id/image_hum"
-                   android:layout_alignParentTop="true"
                    android:layout_alignStart="@+id/image_hum"
                    android:scaleType="centerInside"
-                   android:src="@mipmap/smart_hum" />
+                   android:src="@mipmap/smart_hum"
+                   android:layout_alignTop="@+id/img_temp"
+                   />
+
                <ImageView
                    android:id="@+id/image_hum"
                    android:layout_width="@dimen/dp_80"
                    android:layout_height="@dimen/dp_80"
                    android:layout_alignParentEnd="true"
-                   android:layout_alignParentRight="true"
-                   android:layout_below="@+id/tv_temp"
-                   android:layout_marginEnd="59dp"
-                   android:layout_marginRight="59dp"
+                   android:layout_alignTop="@+id/image_temp"
+                   android:layout_marginEnd="66dp"
                    android:scaleType="centerInside"
-                   android:src="@mipmap/img_hum_circle" />
+                   android:src="@mipmap/img_hum_circle"
+                   />
 
                <ImageView
+                   android:layout_marginTop="@dimen/dp_30"
                    android:id="@+id/image_temp"
                    android:layout_width="@dimen/dp_80"
                    android:layout_height="@dimen/dp_80"
                    android:layout_alignLeft="@+id/img_temp"
                    android:layout_alignStart="@+id/img_temp"
                    android:layout_below="@+id/img_temp"
-
                    android:scaleType="centerInside"
                    android:src="@mipmap/img_temp_circle" />
 
                <TextView
+                   android:layout_marginTop="@dimen/dp_30"
                    android:id="@+id/tv_cur_temp"
                    android:layout_width="@dimen/dp_80"
                    android:layout_height="@dimen/dp_80"
@@ -113,9 +118,11 @@
                    android:layout_below="@+id/img_temp"
                    android:gravity="center"
                    android:text="25℃"
-                   android:textColor="@color/color_white" />
+                   android:textColor="@color/color_white"
+                   />
 
                <TextView
+                   android:layout_marginTop="@dimen/dp_30"
                    android:id="@+id/tv_hum"
                    android:layout_width="@dimen/dp_80"
                    android:layout_height="@dimen/dp_80"
@@ -126,13 +133,14 @@
                    android:text="50%"
                    android:textColor="@color/white"
                    />
-
                <TextView
                    android:id="@+id/temperature"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
                    android:layout_alignTop="@+id/img_temp"
                    android:layout_toRightOf="@+id/img_temp"
+                   android:layout_alignBottom="@+id/img_temp"
+                   android:gravity="center"
                    android:text="温度"
                    android:textSize="@dimen/sp_14"
                    android:textColor="@color/white"
@@ -142,12 +150,15 @@
                    android:id="@+id/textView3"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:layout_alignParentTop="true"
                    android:layout_toRightOf="@+id/img_hum"
-                   android:gravity="center_vertical"
+                   android:gravity="center"
                    android:text="湿度"
                    android:textColor="@color/white"
-                   android:textSize="@dimen/sp_14" />
+                   android:textSize="@dimen/sp_14"
+                   android:layout_alignTop="@+id/img_hum"
+                   android:layout_alignBottom="@+id/img_hum"
+                   android:layout_marginLeft="@dimen/dp_2"
+                   />
 
                <TextView
                    android:id="@+id/hum"
@@ -158,6 +169,7 @@
                    android:text="50%"
                    android:textColor="@color/color_white"
                    android:textSize="@dimen/sp_14"
+                   android:visibility="gone"
                    />
            </RelativeLayout>
        </LinearLayout>

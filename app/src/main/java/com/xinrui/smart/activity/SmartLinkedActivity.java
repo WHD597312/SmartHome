@@ -87,9 +87,6 @@ public class SmartLinkedActivity extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
-        Intent intent=new Intent();
-        intent.putExtra("list",(Serializable) list);
-        setResult(100,intent);
         finish();
     }
 
@@ -97,9 +94,9 @@ public class SmartLinkedActivity extends AppCompatActivity {
     public void onClick(View view){
         switch (view.getId()){
             case R.id.image_back:
-                Intent intent=new Intent();
-                intent.putExtra("list",(Serializable) list);
-                setResult(100,intent);
+//                Intent intent=new Intent();
+//                intent.putExtra("list",(Serializable) list);
+//                setResult(100,intent);
                 finish();
                 break;
             case R.id.btn_ensure:
@@ -172,10 +169,10 @@ public class SmartLinkedActivity extends AppCompatActivity {
             final DeviceChild deviceChild=list.get(position);
             if (deviceChild!=null){
                 viewHolder.tv_linked.setText(deviceChild.getDeviceName());
-                deviceChild.getControlled();
-                if (deviceChild.getControlled() == 2) {
+                int controlled=deviceChild.getControlled();
+                if (controlled == 2) {
                     viewHolder.image_linked.setImageResource(R.mipmap.master);
-                } else if (deviceChild.getControlled() == 0) {
+                } else if (controlled == 0) {
                     viewHolder.image_linked.setImageResource(R.mipmap.heater2);
                 }
                 int linked=deviceChild.getLinked();
@@ -270,12 +267,16 @@ public class SmartLinkedActivity extends AppCompatActivity {
                             JSONObject device = content.getJSONObject(i);
                             long deviceId = device.getLong("deviceId");
                             int linked = device.getInt("linked");
+                            int controlled=device.getInt("controlled");
                             String macAddress = device.getString("macAddress");
                             DeviceChild deviceChild = deviceChildDao.findDeviceById(deviceId);
                             deviceChild.setLinked(linked);
+                            deviceChild.setControlled(controlled);
                             linkedMap.put(deviceId,deviceChild);
-                            if (!list2.contains(deviceChild)){
-                                list2.add(deviceChild);
+                            if (controlled==2 || controlled==0){
+                                if (!list2.contains(deviceChild)){
+                                    list2.add(deviceChild);
+                                }
                             }
                         }
                     }

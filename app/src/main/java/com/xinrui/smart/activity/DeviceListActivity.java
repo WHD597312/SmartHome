@@ -966,6 +966,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 maser.put("outputMode", deviceChild.getOutputMod());
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
+                maser.put("timerShutDown",deviceChild.getTimerShutdown());
                 maser.put("grade",grade);
 
                 String s = maser.toString();
@@ -1251,7 +1252,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                             if ("open".equals(BackGroundLED)){
                                 popupWindow();
                             }else if ("close".equals(BackGroundLED)){
-                                Utils.showToast(DeviceListActivity.this,"屏幕已关闭");
+                                Utils.showToast(DeviceListActivity.this,"请打开屏保");
                             }
                         }else {
                             Utils.showToast(DeviceListActivity.this,"设备已关机");
@@ -1366,7 +1367,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                 }
                                 result = "恢复成功";
                             }
-
                     }
                 }
             } catch (Exception e) {
@@ -1483,7 +1483,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                         if (deviceChild!=null){
                                             grade=deviceChild.getGrade();
                                         }
-                                        mySeekBar.setProgress((int) 12.5*grade);
+                                        if (grade==1){
+                                            mySeekBar.setProgress(0);
+                                        }else {
+                                            mySeekBar.setProgress((int) 12.5*grade);
+                                        }
                                     }else {
                                         popupWindow.dismiss();
                                     }
@@ -1553,7 +1557,12 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         if (deviceChild!=null){
             grade=deviceChild.getGrade();
         }
-        mySeekBar.setProgress((int) 12.5*grade);
+        if (grade==1){
+            mySeekBar.setProgress(0);
+        }else {
+            mySeekBar.setProgress((int) 12.5*grade);
+        }
+
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
         popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);

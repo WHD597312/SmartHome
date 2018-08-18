@@ -450,7 +450,7 @@ public class ControlledFragment extends Fragment{
                 maser.put("outputMode", deviceChild.getOutputMod());
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
-
+                maser.put("timerShutDown",deviceChild.getTimerShutdown());
 
                 String s = maser.toString();
                 boolean success = false;

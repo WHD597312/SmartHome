@@ -152,7 +152,7 @@ public class SmartFragment extends Fragment {
                                 } else if (deviceChildren.size() >= 2) {
                                     for (DeviceChild deviceChild : deviceChildren) {
                                         String machAttr = deviceChild.getMachAttr();
-                                        if ("C".equals(machAttr)) {
+                                        if ("M".equals(machAttr)) {
 
                                         } else {
                                             list2.add(deviceChild);

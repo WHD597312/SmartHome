@@ -100,4 +100,24 @@ public class MyRecyclerViewItem extends HorizontalScrollView {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, scale);
     }
 
+    public void setRight(){
+        Log.i(getClass().getSimpleName(), "up");
+        int range = 70;
+        if (isLeft) {
+            if (getScrollX() > range) {
+                isLeft = false;
+                smoothScrollTo(buttonWidth, 0);
+            } else {
+                smoothScrollTo(0, 0);
+            }
+        } else {
+            if (getScrollX() < (buttonWidth - range)) {
+                isLeft = true;
+                smoothScrollTo(0, 0);
+            } else {
+                smoothScrollTo(buttonWidth, 0);
+            }
+        }
+    }
+
 }

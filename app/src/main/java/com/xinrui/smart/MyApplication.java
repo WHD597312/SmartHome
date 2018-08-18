@@ -40,7 +40,6 @@ public class MyApplication extends Application {
      private ArrayList<OnProvideAssistDataListener> mAssistCallbacks = null; //协助数据(不知道用来干嘛的)
     public static Context getContext(){
         return mContext;
-
     }
     @Override
     public void onCreate() {

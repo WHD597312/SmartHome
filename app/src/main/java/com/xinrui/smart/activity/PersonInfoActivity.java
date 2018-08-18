@@ -93,6 +93,12 @@ public class PersonInfoActivity extends AppCompatActivity {
             application = (MyApplication) getApplication();
             application.addActivity(this);
         }
+        Intent intent = getIntent();
+
+        device = intent.getStringExtra("device");
+        change = intent.getStringExtra("change");
+        smart=intent.getStringExtra("smart");
+        live=intent.getStringExtra("live");
     }
 
     String device;
@@ -104,12 +110,7 @@ public class PersonInfoActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        Intent intent = getIntent();
 
-        device = intent.getStringExtra("device");
-        change = intent.getStringExtra("change");
-        smart=intent.getStringExtra("smart");
-        live=intent.getStringExtra("live");
         preferences = getSharedPreferences("my", MODE_PRIVATE);
 
 //        File file = new File(getExternalCacheDir(), "crop_image2.jpg");
@@ -175,7 +176,6 @@ public class PersonInfoActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
         if (!Utils.isEmpty(device)) {
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("deviceList","deviceList");

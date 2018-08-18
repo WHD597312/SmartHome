@@ -225,24 +225,32 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
-            progressDialog.dismiss();
-            switch (code) {
-                case -1006:
-                    btn_login.setClickable(true);
-                    Utils.showToast(LoginActivity.this, "手机号码未注册");
-                    break;
-                case -1005:
-                    btn_login.setClickable(true);
-                    Utils.showToast(LoginActivity.this, "密码错误");
-                    et_pswd.setText("");
-                    break;
-                case 2000:
-                    Utils.showToast(LoginActivity.this, "登录成功");
-                    deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
-                    deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
-                    new LoadDeviceAsync().execute();
-                    break;
+
+            try {
+                if (progressDialog!=null){
+                    progressDialog.dismiss();
+                }
+                switch (code) {
+                    case -1006:
+                        btn_login.setClickable(true);
+                        Utils.showToast(LoginActivity.this, "手机号码未注册");
+                        break;
+                    case -1005:
+                        btn_login.setClickable(true);
+                        Utils.showToast(LoginActivity.this, "密码错误");
+                        et_pswd.setText("");
+                        break;
+                    case 2000:
+                        Utils.showToast(LoginActivity.this, "登录成功");
+                        deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
+                        deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
+                        new LoadDeviceAsync().execute();
+                        break;
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
+
         }
     }
 
@@ -289,10 +297,13 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.setMessage("正在初始化数据...");
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-            btn_login.setClickable(false);
+            if (progressDialog!=null){
+                progressDialog.setMessage("正在初始化数据...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+                btn_login.setClickable(false);
+            }
+
         }
 
         @Override
@@ -444,20 +455,25 @@ public class LoginActivity extends AppCompatActivity {
             return code;
         }
 
-
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
-            progressDialog.dismiss();
-            switch (code) {
-                case -3004:
-                    break;
-                case 2000:
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("login","login");
-                    startActivity(intent);
-                    break;
+            try {
+                if (progressDialog!=null){
+                    progressDialog.dismiss();
+                }
+                switch (code) {
+                    case -3004:
+                        break;
+                    case 2000:
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra("login","login");
+                        startActivity(intent);
+                        break;
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
     }

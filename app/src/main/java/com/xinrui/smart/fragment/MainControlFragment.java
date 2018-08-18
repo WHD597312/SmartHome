@@ -264,11 +264,12 @@ public class MainControlFragment extends Fragment{
 
                                 DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
                                 String machAttr=deviceChild.getMachAttr();
-                                if ("C".equals(machAttr)){
+                                if ("M".equals(machAttr)){
 
                                 }else {
                                     list.add(deviceChild);
                                 }
+//                                list.add(deviceChild);
                                 deviceChild.setControlled(controlled);
                                 deviceChildDao.update(deviceChild);
 
@@ -391,8 +392,6 @@ public class MainControlFragment extends Fragment{
                 }else {
                     Utils.showToast(getActivity(),"请检查网络");
                 }
-
-
                 break;
         }
     }
@@ -533,7 +532,7 @@ public class MainControlFragment extends Fragment{
                 maser.put("outputMode", deviceChild.getOutputMod());
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
-
+                maser.put("timerShutDown",deviceChild.getTimerShutdown());
                 String s = maser.toString();
                 boolean success = false;
                 String mac = deviceChild.getMacAddress();
