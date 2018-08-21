@@ -167,7 +167,7 @@ public class ForgetPswdActivity extends AppCompatActivity {
             int code=0;
             phone=s[0];
             try {
-                isExistUrl=isExistUrl+phone;
+                String isExistUrl="http://47.98.131.11:8082/warmer/v1.0/user/isExist?phone="+phone;
                 String result=HttpUtils.getOkHpptRequest(isExistUrl);
                 if (!TextUtils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);

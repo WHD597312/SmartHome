@@ -1086,7 +1086,10 @@ public class TimeTaskActivity extends AppCompatActivity {
                 unbindService(connection);
             }
         }
-        progressDialog.dismiss();
+        if (progressDialog!=null){
+            progressDialog.dismiss();
+        }
+
         timeTaskDao.closeDaoSession();
         timeDao.closeDaoSession();
         deviceChildDao.closeDaoSession();

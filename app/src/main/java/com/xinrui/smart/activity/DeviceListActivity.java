@@ -203,6 +203,12 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
+                    String updateGrade=deviceChild.getUpdateGrade();
+                    if (!TextUtils.isEmpty(updateGrade)){
+                        Utils.showToast(this,"该设备正在升级");
+                        deviceChild.setUpdateGrade("");
+                        deviceChildDao.update(deviceChild);
+                    }
                     String deviceState = deviceChild.getDeviceState();
                     if ("open".equals(deviceState)) {
                         position = 0;
@@ -244,6 +250,12 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
+                    String updateGrade=deviceChild.getUpdateGrade();
+                    if (!TextUtils.isEmpty(updateGrade)){
+                        Utils.showToast(this,"该设备正在升级");
+                        deviceChild.setUpdateGrade("");
+                        deviceChildDao.update(deviceChild);
+                    }
                     position = -1;
                     if ("open".equals(deviceChild.getDeviceState())) {
                         String handTask = (String) image_hand_task.getTag();
@@ -312,6 +324,12 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 }
                 if (NoFastClickUtils.isFastClick()) {
 //                    buildOpenChildProjectDialog();
+                    String updateGrade=deviceChild.getUpdateGrade();
+                    if (!TextUtils.isEmpty(updateGrade)){
+                        Utils.showToast(this,"该设备正在升级");
+                        deviceChild.setUpdateGrade("");
+                        deviceChildDao.update(deviceChild);
+                    }
                     position = -1;
                     String outputMode = deviceChild.getOutputMod();
                     String protectEnable = deviceChild.getProtectEnable();
@@ -368,6 +386,12 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
+                    String updateGrade=deviceChild.getUpdateGrade();
+                    if (!TextUtils.isEmpty(updateGrade)){
+                        Utils.showToast(this,"该设备正在升级");
+                        deviceChild.setUpdateGrade("");
+                        deviceChildDao.update(deviceChild);
+                    }
                     position = -1;
                     if ("open".equals(deviceChild.getDeviceState())) {
                         String lock = deviceChild.getLockScreen();
@@ -392,6 +416,12 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
+                    String updateGrade=deviceChild.getUpdateGrade();
+                    if (!TextUtils.isEmpty(updateGrade)){
+                        Utils.showToast(this,"该设备正在升级");
+                        deviceChild.setUpdateGrade("");
+                        deviceChildDao.update(deviceChild);
+                    }
                     position = -1;
                     if ("open".equals(deviceChild.getDeviceState())) {
                         if ("open".equals(deviceChild.getBackGroundLED())) {
@@ -530,13 +560,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 //        img_circle.setLayoutParams(params);
             semicBar.setModule("1");
             semicBar.setCanTouch(false);
-
             semicBar.setEnd(0);
             setMode(deviceChild);
             semicBar.setOnSeekBarChangeListener(new SemicircleBar.OnSeekBarChangeListener() {
                 @Override
                 public void onChanged(SemicircleBar seekbar, double curValue) {
-
                     try {
                         String handTask = (String) image_hand_task.getTag();
                         String open = (String) image_switch.getTag();

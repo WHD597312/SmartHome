@@ -146,9 +146,9 @@ public class SmartFragment extends Fragment {
                         Intent intent = new Intent(getActivity(), MainControlActivity.class);
                         if ("主控机设置".equals(content)) {
                             if (!Utils.isEmpty(houseId)) {
-                                List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(Long.parseLong(houseId), 1);
+                                List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(Long.parseLong(houseId),1,true);
                                 if (deviceChildren.size() < 2) {
-                                    Utils.showToast(getActivity(), "设备数量不足");
+                                    Utils.showToast(getActivity(), "在线设备数量不足");
                                 } else if (deviceChildren.size() >= 2) {
                                     for (DeviceChild deviceChild : deviceChildren) {
                                         String machAttr = deviceChild.getMachAttr();
@@ -163,7 +163,7 @@ public class SmartFragment extends Fragment {
                                         intent.putExtra("content", content);
                                         startActivityForResult(intent,7000);
                                     } else if (list2.size() < 1) {
-                                        Utils.showToast(getActivity(), "智能设备不足");
+                                        Utils.showToast(getActivity(), "在线设备数量不足");
                                     }
                                 }
                             }

@@ -2,6 +2,7 @@ package com.xinrui.smart.util;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.view.Gravity;
 import android.widget.Toast;
 
 
@@ -18,7 +19,9 @@ import java.util.Calendar;
 
 public class Utils {
     public static void showToast(Context context,String content){
-        Toast.makeText(context,content,Toast.LENGTH_SHORT).show();
+        Toast toast=Toast.makeText(context,content,Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER,0,0);
+        toast.show();
     }
     public static boolean isJson(String content){
 

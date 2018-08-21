@@ -69,8 +69,27 @@ public class DeviceChildDaoImpl {
     }
 
     //        return deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.GroupId.eq(groupId))
+
+    /**
+     *
+     * @param houseId
+     * @param type
+     * @return
+     */
     public List<DeviceChild> findDeviceType(Long houseId,int type){
         WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(houseId),DeviceChildDao.Properties.Type.eq(type));
+        return deviceChildDao.queryBuilder().where(whereCondition).list();
+    }
+
+    /**
+     * 查询某个家里面设备类型为1且是在线的设备
+     * @param houseId
+     * @param type
+     * @param online
+     * @return
+     */
+    public List<DeviceChild> findDeviceType(Long houseId,int type,boolean online){
+        WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(houseId),DeviceChildDao.Properties.Type.eq(type),DeviceChildDao.Properties.OnLint.eq(online));
         return deviceChildDao.queryBuilder().where(whereCondition).list();
     }
     public List<DeviceChild> findGroupIdAllDevice(Long groupId){

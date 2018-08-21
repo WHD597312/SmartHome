@@ -146,12 +146,11 @@ public class RegistActivity extends AppCompatActivity {
                 params.put("phone", phone2);
                 params.put("code", code);
                 params.put("password", password);
-
                 new RegistAsyncTask().execute(params);
-
                 break;
             case R.id.btn_get_code:
-                String phone = et_phone.getText().toString().trim();
+                phone = et_phone.getText().toString().trim();
+
                 if (TextUtils.isEmpty(phone)) {
                     Utils.showToast(this, "手机号码不能为空");
                 } else {
@@ -164,20 +163,19 @@ public class RegistActivity extends AppCompatActivity {
                     } else {
                         Utils.showToast(this, "手机号码不合法");
                     }
-
                 }
                 break;
         }
     }
-
+    String phone= "";
     class IsPhoneExistAsync extends AsyncTask<String,Void,Integer>{
-        String phone= "";
+
         @Override
         protected Integer doInBackground(String ...s) {
             int code=0;
             phone=s[0];
             try {
-                isExistUrl=isExistUrl+phone;
+                String isExistUrl="http://47.98.131.11:8082/warmer/v1.0/user/isExist?phone="+phone;
                 String result=HttpUtils.getOkHpptRequest(isExistUrl);
                 if (!TextUtils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);

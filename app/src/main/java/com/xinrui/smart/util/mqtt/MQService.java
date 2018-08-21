@@ -270,11 +270,14 @@ public class MQService extends Service {
             }
 
             String topicShare = "rango/" + macAddress + "/refresh";
+
             String refresh = null;
             if (topicShare.equals(topicName) && "refresh".equals(message)) {
                 refresh = "refresh";
                 Log.i("refresh", "-->" + "refresh");
             }
+
+
 
             Log.i("sssss", message);
             Log.i("ssss", message);
@@ -306,12 +309,17 @@ public class MQService extends Service {
                 sendBroadcast(mqttIntent);
             }
 
-            if ("upgradeFinish".equals(message) || "mcu no response yet!".equals(message) || "There is no need to upgrade!".equals(message) || "There is no need to upgrade".equals(message) || "upgradeFinish".equals(message) || "online".equals(message) || "machine_dump!!!".equals(message) || "Have upgrade task!".equals(message)) {
+            if ("upgradeFinish".equals(message) || "mcu no response yet!".equals(message) || "There is no need to upgrade!".equals(message) || "upgradeFinish".equals(message) || "online".equals(message) || "machine_dump!!!".equals(message)) {
                 if (message != null && message.length() == 0) {
                     return null;
                 }
                 return null;
             }
+            String updateGrade="";
+            if ("Have upgrade task!".equals(message)){
+                updateGrade="updateGrade";
+            }
+            Log.i("updateGrade","-->"+updateGrade);
             String reSet = null;
 
             if ("reSet".equals(message)) {
@@ -388,6 +396,10 @@ public class MQService extends Service {
                         groupPostion++;
                     }
 
+                    if (child!=null){
+                        child.setUpdateGrade(updateGrade);
+                        deviceChildDao.update(child);
+                    }
                     Log.i("groupPostion2", "-->" + groupPostion);
                     if (!Utils.isEmpty(reSet)) {
                         Log.i("groupPostion2", "-->" + groupPostion);
@@ -679,6 +691,7 @@ public class MQService extends Service {
                                 }
 
                                 if (child != null) {
+
                                     if (!Utils.isEmpty(deviceState)){
                                         child.setOnLint(true);
                                     }
@@ -805,6 +818,7 @@ public class MQService extends Service {
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
                         } else {
+
                             boolean online = false;
                             if (child != null) {
                                 online = child.getOnLint();
@@ -824,6 +838,7 @@ public class MQService extends Service {
                                 mqttIntent.putExtra("online", "offline");
                                 sendBroadcast(mqttIntent);
                             }
+
                         }
                     } else if (TimeTaskActivity.running) {
                         if (!Utils.isEmpty(reSet)) {

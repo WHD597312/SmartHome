@@ -122,7 +122,6 @@ public class SmartLinkedActivity extends AppCompatActivity {
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-
                 break;
         }
     }
@@ -272,8 +271,8 @@ public class SmartLinkedActivity extends AppCompatActivity {
                             DeviceChild deviceChild = deviceChildDao.findDeviceById(deviceId);
                             deviceChild.setLinked(linked);
                             deviceChild.setControlled(controlled);
-                            linkedMap.put(deviceId,deviceChild);
                             if (controlled==2 || controlled==0){
+                                linkedMap.put(deviceId,deviceChild);
                                 if (!list2.contains(deviceChild)){
                                     list2.add(deviceChild);
                                 }

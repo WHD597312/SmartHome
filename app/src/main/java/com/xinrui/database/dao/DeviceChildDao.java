@@ -74,6 +74,7 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         public final static Property BusModel = new Property(47, int.class, "busModel", false, "BUS_MODEL");
         public final static Property Linked = new Property(48, int.class, "linked", false, "LINKED");
         public final static Property Grade = new Property(49, int.class, "grade", false, "GRADE");
+        public final static Property UpdateGrade = new Property(50, String.class, "updateGrade", false, "UPDATE_GRADE");
     }
 
 
@@ -138,7 +139,8 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
                 "\"SENSOR_STATE\" INTEGER NOT NULL ," + // 46: sensorState
                 "\"BUS_MODEL\" INTEGER NOT NULL ," + // 47: busModel
                 "\"LINKED\" INTEGER NOT NULL ," + // 48: linked
-                "\"GRADE\" INTEGER NOT NULL );"); // 49: grade
+                "\"GRADE\" INTEGER NOT NULL ," + // 49: grade
+                "\"UPDATE_GRADE\" TEXT);"); // 50: updateGrade
     }
 
     /** Drops the underlying database table. */
@@ -272,6 +274,11 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         stmt.bindLong(48, entity.getBusModel());
         stmt.bindLong(49, entity.getLinked());
         stmt.bindLong(50, entity.getGrade());
+ 
+        String updateGrade = entity.getUpdateGrade();
+        if (updateGrade != null) {
+            stmt.bindString(51, updateGrade);
+        }
     }
 
     @Override
@@ -399,6 +406,11 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         stmt.bindLong(48, entity.getBusModel());
         stmt.bindLong(49, entity.getLinked());
         stmt.bindLong(50, entity.getGrade());
+ 
+        String updateGrade = entity.getUpdateGrade();
+        if (updateGrade != null) {
+            stmt.bindString(51, updateGrade);
+        }
     }
 
     @Override
@@ -458,7 +470,8 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
             cursor.getInt(offset + 46), // sensorState
             cursor.getInt(offset + 47), // busModel
             cursor.getInt(offset + 48), // linked
-            cursor.getInt(offset + 49) // grade
+            cursor.getInt(offset + 49), // grade
+            cursor.isNull(offset + 50) ? null : cursor.getString(offset + 50) // updateGrade
         );
         return entity;
     }
@@ -515,6 +528,7 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         entity.setBusModel(cursor.getInt(offset + 47));
         entity.setLinked(cursor.getInt(offset + 48));
         entity.setGrade(cursor.getInt(offset + 49));
+        entity.setUpdateGrade(cursor.isNull(offset + 50) ? null : cursor.getString(offset + 50));
      }
     
     @Override

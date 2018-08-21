@@ -65,7 +65,7 @@ public class DeviceChild  implements Serializable{
     int busModel;/**商业模式*/
     int linked;
     int grade;/**亮度等级*/
-
+    private String updateGrade;
 
     public DeviceChild() {
     }
@@ -487,18 +487,26 @@ public class DeviceChild  implements Serializable{
         this.grade = grade;
     }
 
-    @Generated(hash = 1250571870)
+    public String getUpdateGrade() {
+        return this.updateGrade;
+    }
+
+    public void setUpdateGrade(String updateGrade) {
+        this.updateGrade = updateGrade;
+    }
+
+    @Generated(hash = 630330431)
     public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
             Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
             int version, int ratedPower, int MatTemp, String workMode, String LockScreen,
-            String BackGroundLED, String deviceState, String tempState, String outputMod,
-            int curTemp, String protectEnable, String ctrlMode, int powerValue,
-            int voltageValue, int currentValue, String machineFall, int protectSetTemp,
-            int protectProTemp, String wifiVersion, String MCUVerion, int manualMatTemp,
-            int timerTemp, boolean onLint, int temp, int hum, String reSet,
-            String timerShutdown, long shareHouseId, int groupPosition, int childPosition,
-            String machAttr, int sensorSimpleTemp, int sensorSimpleHum, int sorsorPm,
-            int sensorOx, int sensorHcho, int sensorState, int busModel, int linked, int grade) {
+            String BackGroundLED, String deviceState, String tempState, String outputMod, int curTemp,
+            String protectEnable, String ctrlMode, int powerValue, int voltageValue, int currentValue,
+            String machineFall, int protectSetTemp, int protectProTemp, String wifiVersion,
+            String MCUVerion, int manualMatTemp, int timerTemp, boolean onLint, int temp, int hum,
+            String reSet, String timerShutdown, long shareHouseId, int groupPosition,
+            int childPosition, String machAttr, int sensorSimpleTemp, int sensorSimpleHum,
+            int sorsorPm, int sensorOx, int sensorHcho, int sensorState, int busModel, int linked,
+            int grade, String updateGrade) {
         this.id = id;
         this.deviceName = deviceName;
         this.macAddress = macAddress;
@@ -549,6 +557,7 @@ public class DeviceChild  implements Serializable{
         this.busModel = busModel;
         this.linked = linked;
         this.grade = grade;
+        this.updateGrade = updateGrade;
     }
 
 }

@@ -17,6 +17,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
@@ -33,6 +34,7 @@ import com.xinrui.smart.pojo.Timer;
 import com.xinrui.smart.util.Mobile;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
+import com.xinrui.smart.util.mqtt.VibratorUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -90,8 +92,6 @@ public class LoginActivity extends AppCompatActivity {
             et_name.setText(phone);
             et_pswd.setText("");
         }
-
-
     }
 
     SharedPreferences preferences;
@@ -109,6 +109,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onResume();
         runnning=true;
     }
+
 
     @OnClick({R.id.btn_login, R.id.tv_register,R.id.tv_forget_pswd})
     public void onClick(View view) {
@@ -154,6 +155,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (progressDialog!=null && progressDialog.isShowing()){
+                progressDialog.dismiss();
+                btn_login.setClickable(true);
+                return false;
+            }
             application.removeAllActivity();/**退出主页面*/
             return true;
         }
@@ -165,10 +171,12 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.setMessage("正在登录中...");
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-            btn_login.setClickable(false);
+            if (progressDialog!=null){
+                progressDialog.setMessage("正在登录中...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+                btn_login.setClickable(false);
+            }
         }
 
         @Override
@@ -201,7 +209,6 @@ public class LoginActivity extends AppCompatActivity {
                                     }
                                     preferences.edit().remove("image").commit();
                                 }
-
                             }
                         }
                         if (!preferences.contains("password")) {
@@ -225,7 +232,6 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
-
             try {
                 if (progressDialog!=null){
                     progressDialog.dismiss();
@@ -241,11 +247,13 @@ public class LoginActivity extends AppCompatActivity {
                         et_pswd.setText("");
                         break;
                     case 2000:
-                        Utils.showToast(LoginActivity.this, "登录成功");
                         deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
                         deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
                         new LoadDeviceAsync().execute();
                         break;
+                        default:
+                            btn_login.setClickable(true);
+                            break;
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -463,14 +471,19 @@ public class LoginActivity extends AppCompatActivity {
                     progressDialog.dismiss();
                 }
                 switch (code) {
-                    case -3004:
-                        break;
                     case 2000:
+                        Utils.showToast(LoginActivity.this,"登录成功");
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.putExtra("login","login");
                         startActivity(intent);
                         break;
+                        default:
+                            Utils.showToast(LoginActivity.this,"登录失败");
+                            if (btn_login!=null){
+                                btn_login.setClickable(true);
+                            }
+                            break;
                 }
             }catch (Exception e){
                 e.printStackTrace();

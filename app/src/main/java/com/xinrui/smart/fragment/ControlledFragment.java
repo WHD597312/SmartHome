@@ -300,7 +300,7 @@ public class ControlledFragment extends Fragment{
                                 DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
 
                                 deviceChild.setControlled(controlled);
-                                deviceChildDao.update(deviceChild);
+//                                deviceChildDao.update(deviceChild);
                                 list.add(deviceChild);
                                 if (controlled==1){
                                     controlledDeviceChildren.add(deviceChild);

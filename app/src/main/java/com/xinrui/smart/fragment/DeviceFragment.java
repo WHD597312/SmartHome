@@ -1641,6 +1641,8 @@ public class DeviceFragment extends Fragment {
             TextView tv_state = (TextView) holder.itemView.findViewById(R.id.tv_state);
             myRecyclerViewItem= (MyRecyclerViewItem) holder.itemView.findViewById(R.id.scroll_item);
             myRecyclerViewItem.reset();
+
+
             if (entry.getOnLint()) {
                 if (entry.getType() == 1) {
                     if (entry.getControlled() == 2 || entry.getControlled() == 0) {
@@ -1719,6 +1721,10 @@ public class DeviceFragment extends Fragment {
                             if (entry.getType() == 1) {
                                 if (entry.getControlled() == 2 || entry.getControlled() == 0) {
                                     DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
+                                    String updateGrade=deviceChild.getUpdateGrade();
+                                    if (!TextUtils.isEmpty(updateGrade)){
+                                        Utils.showToast(getActivity(),"该设备正在升级");
+                                    }
                                     long id = deviceChild.getId();
                                     Intent intent = new Intent(context, DeviceListActivity.class);
                                     intent.putExtra("content", deviceChild.getDeviceName());
@@ -1762,7 +1768,12 @@ public class DeviceFragment extends Fragment {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            Utils.showToast(context, "该设备离线");
+                            String updateGrade=entry.getUpdateGrade();
+                            if (!TextUtils.isEmpty(updateGrade)){
+                                Utils.showToast(getActivity(),"该设备正在升级");
+                            }else {
+                                Utils.showToast(context, "该设备离线");
+                            }
                         }
                     }
 
@@ -1779,6 +1790,12 @@ public class DeviceFragment extends Fragment {
                             if (entry.getImg() == imgs[0]) {
                                 if (bound) {
                                     try {
+                                        String updateGrade=entry.getUpdateGrade();
+                                        if (!TextUtils.isEmpty(updateGrade)){
+                                            Utils.showToast(getActivity(),"该设备正在升级");
+                                            entry.setUpdateGrade("");
+                                            deviceChildDao.update(entry);
+                                        }
                                         entry.setImg(imgs[1]);
                                         entry.setDeviceState("open");
                                         deviceChildDao.update(entry);
@@ -1794,6 +1811,12 @@ public class DeviceFragment extends Fragment {
                                     }
                                 }
                             } else if (entry.getImg() == imgs[1]) {
+                                String updateGrade=entry.getUpdateGrade();
+                                if (!TextUtils.isEmpty(updateGrade)){
+                                    Utils.showToast(getActivity(),"该设备正在升级");
+                                    entry.setUpdateGrade("");
+                                    deviceChildDao.update(entry);
+                                }
                                 if (bound) {
                                     try {
                                         entry.setImg(imgs[0]);

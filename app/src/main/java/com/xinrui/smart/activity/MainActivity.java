@@ -675,7 +675,8 @@ public class MainActivity extends CheckPermissionsActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         falling=false;
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (back < 1) {
+
+             if (back < 1) {
                 Utils.showToast(this, "请再按一次退出Rango");
                 back++;
                 return false;
