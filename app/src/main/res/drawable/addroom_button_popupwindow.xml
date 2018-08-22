@@ -13,9 +13,9 @@
     <!-- 边框宽度,颜色 -->
     <stroke
         android:width="@dimen/dp_1"
-        android:color="@color/black"></stroke>
+        android:color="@color/white"></stroke>
 
-    <solid android:color="#FFFFFF"></solid>
+    <solid android:color="@color/white"></solid>
 
 
 </shape>

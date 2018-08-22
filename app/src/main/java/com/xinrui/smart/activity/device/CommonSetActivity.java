@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -130,9 +131,20 @@ public class CommonSetActivity extends AppCompatActivity {
         }
     }
 
+    //设置蒙版
+    private void backgroundAlpha(float f) {
+        WindowManager.LayoutParams lp =getWindow().getAttributes();
+        lp.alpha = f;
+        getWindow().setAttributes(lp);
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        if (dialog!=null && dialog.isShowing()){
+            dialog.dismiss();
+            backgroundAlpha(1.0f);
+            return;
+        }
         if (!Utils.isEmpty(device)){
             Intent intent=new Intent(this,MainActivity.class);
             intent.putExtra("deviceList","deviceList");
@@ -161,6 +173,7 @@ public class CommonSetActivity extends AppCompatActivity {
         dialog.setOnNegativeClickListener(new DeviceUpdateAppDialog.OnNegativeClickListener() {
             @Override
             public void onNegativeClick() {
+                backgroundAlpha(1.0f);
                 dialog.dismiss();
             }
         });
@@ -170,6 +183,7 @@ public class CommonSetActivity extends AppCompatActivity {
             public void onPositiveClick() {
                 switch (mPosition){
                     case 0:
+                        backgroundAlpha(1.0f);
                         Utils.showToast(CommonSetActivity.this,"缓存已清");
                         dialog.dismiss();
                         break;
@@ -180,6 +194,7 @@ public class CommonSetActivity extends AppCompatActivity {
                 }
             }
         });
+        backgroundAlpha(0.4f);
         dialog.show();
     }
 

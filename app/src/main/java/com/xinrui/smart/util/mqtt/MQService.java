@@ -1254,6 +1254,9 @@ public class MQService extends Service {
         offlineList.clear();
     }
 
+    /***
+     * 取消所有的订阅
+     */
     public void cancelAllsubscibe() {
         List<String> list = getTopicNames();
         for (int i = 0; i < list.size(); i++) {
@@ -1369,6 +1372,4 @@ public class MQService extends Service {
             new LoadMqttAsync3().execute(deviceChildren);
         }
     }
-
-
 }

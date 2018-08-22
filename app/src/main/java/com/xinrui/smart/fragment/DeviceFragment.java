@@ -172,16 +172,15 @@ public class DeviceFragment extends Fragment {
         deviceChildDao = new DeviceChildDaoImpl(MyApplication.getContext());
 
         view = inflater.inflate(R.layout.fragment_device, container, false);
-
         unbinder = ButterKnife.bind(this, view);
-        Display display = getActivity().getWindowManager().getDefaultDisplay();
-        int height = display.getHeight();
-
-        int listHight = height - 400;
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, listHight);
-        params.setMargins(10, 0, 10, 0);
-        rv_list.setLayoutParams(params);
-        Log.i("height", "-->" + height);
+//        Display display = getActivity().getWindowManager().getDefaultDisplay();
+//        int height = display.getHeight();
+//
+//        int listHight = height - 400;
+//        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, listHight);
+//        params.setMargins(10, 0, 10, 0);
+//        rv_list.setLayoutParams(params);
+//        Log.i("height", "-->" + height);
         rv_list.setLayoutManager(new LinearLayoutManager(getActivity()));
         rv_list.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
         List<DeviceGroup> groups = deviceGroupDao.findAllDevices();

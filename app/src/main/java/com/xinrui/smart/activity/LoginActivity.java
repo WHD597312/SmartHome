@@ -32,6 +32,7 @@ import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.pojo.TimeTask;
 import com.xinrui.smart.pojo.Timer;
 import com.xinrui.smart.util.Mobile;
+import com.xinrui.smart.util.NoFastClickUtils;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.util.mqtt.VibratorUtil;
@@ -115,39 +116,45 @@ public class LoginActivity extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.tv_register:
-                startActivity(new Intent(this, RegistActivity.class));
+                if (NoFastClickUtils.isFastClick()){
+                    startActivity(new Intent(this, RegistActivity.class));
+                }
                 break;
             case R.id.btn_login:
-                String phone = et_name.getText().toString().trim();
-                String password = et_pswd.getText().toString().trim();
-                if (Utils.isEmpty(phone)) {
-                    Utils.showToast(this, "手机号码不能为空");
-                    break;
-                }else if (!Mobile.isMobile(phone)){
-                    Utils.showToast(this,"手机号码不合法");
-                }
-                if (Utils.isEmpty(password)) {
-                    Utils.showToast(this, "请输入密码");
-                    break;
-                }else {
-                    if (password.length()<6){
-                        Utils.showToast(this,"密码最少6位");
+                if (NoFastClickUtils.isFastClick()){
+                    String phone = et_name.getText().toString().trim();
+                    String password = et_pswd.getText().toString().trim();
+                    if (Utils.isEmpty(phone)) {
+                        Utils.showToast(this, "手机号码不能为空");
                         break;
+                    }else if (!Mobile.isMobile(phone)){
+                        Utils.showToast(this,"手机号码不合法");
+                    }
+                    if (Utils.isEmpty(password)) {
+                        Utils.showToast(this, "请输入密码");
+                        break;
+                    }else {
+                        if (password.length()<6){
+                            Utils.showToast(this,"密码最少6位");
+                            break;
+                        }
+                    }
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("phone", phone);
+                    params.put("password", password);
+                    boolean isConn = NetWorkUtil.isConn(MyApplication.getContext());
+
+                    if (isConn){
+                        new LoginAsyncTask().execute(params);
+                    }else {
+                        Utils.showToast(this,"请检查你的网络");
                     }
                 }
-                Map<String, Object> params = new HashMap<>();
-                params.put("phone", phone);
-                params.put("password", password);
-                boolean isConn = NetWorkUtil.isConn(MyApplication.getContext());
-                if (isConn){
-                    new LoginAsyncTask().execute(params);
-                }else {
-                    Utils.showToast(this,"请检查你的网络");
-                }
-
                 break;
             case R.id.tv_forget_pswd:
-                startActivity(new Intent(this, ForgetPswdActivity.class));
+                if (NoFastClickUtils.isFastClick()){
+                    startActivity(new Intent(this, ForgetPswdActivity.class));
+                }
                 break;
         }
     }

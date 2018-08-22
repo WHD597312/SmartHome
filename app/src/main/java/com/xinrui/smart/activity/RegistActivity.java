@@ -27,6 +27,7 @@ import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceGroup;
 import com.xinrui.smart.util.Mobile;
+import com.xinrui.smart.util.NoFastClickUtils;
 import com.xinrui.smart.util.Utils;
 import com.zhy.http.okhttp.OkHttpUtils;
 
@@ -119,49 +120,52 @@ public class RegistActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.btn_finish:
-                String phone2 = et_phone.getText().toString().trim();
-                String code = et_code.getText().toString().trim();
-                String password = et_password.getText().toString().trim();
-                if (TextUtils.isEmpty(phone2)) {
-                    Utils.showToast(this, "手机号码不能为空");
-                    break;
-                } else if (!Mobile.isMobile(phone2)) {
-                    Utils.showToast(this, "手机号码不合法");
-                    break;
-                }
-                if (TextUtils.isEmpty(code)) {
-                    Utils.showToast(this, "请输入验证码");
-                    break;
-                }
-                if (TextUtils.isEmpty(password)) {
-                    Utils.showToast(this, "请输入密码");
-                    break;
-                }
-                if (password.length() < 6) {
-                    Utils.showToast(this, "密码最少6位");
-                    break;
+                if(NoFastClickUtils.isFastClick()){
+                    String phone2 = et_phone.getText().toString().trim();
+                    String code = et_code.getText().toString().trim();
+                    String password = et_password.getText().toString().trim();
+                    if (TextUtils.isEmpty(phone2)) {
+                        Utils.showToast(this, "手机号码不能为空");
+                        break;
+                    } else if (!Mobile.isMobile(phone2)) {
+                        Utils.showToast(this, "手机号码不合法");
+                        break;
+                    }
+                    if (TextUtils.isEmpty(code)) {
+                        Utils.showToast(this, "请输入验证码");
+                        break;
+                    }
+                    if (TextUtils.isEmpty(password)) {
+                        Utils.showToast(this, "请输入密码");
+                        break;
+                    }
+                    if (password.length() < 6) {
+                        Utils.showToast(this, "密码最少6位");
+                        break;
+                    }
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("phone", phone2);
+                    params.put("code", code);
+                    params.put("password", password);
+                    new RegistAsyncTask().execute(params);
                 }
 
-                Map<String, Object> params = new HashMap<>();
-                params.put("phone", phone2);
-                params.put("code", code);
-                params.put("password", password);
-                new RegistAsyncTask().execute(params);
                 break;
             case R.id.btn_get_code:
-                phone = et_phone.getText().toString().trim();
-
-                if (TextUtils.isEmpty(phone)) {
-                    Utils.showToast(this, "手机号码不能为空");
-                } else {
-                    boolean flag = Mobile.isMobile(phone);
-                    if (flag) {
-                        new IsPhoneExistAsync().execute(phone);
+                if (NoFastClickUtils.isFastClick()){
+                    phone = et_phone.getText().toString().trim();
+                    if (TextUtils.isEmpty(phone)) {
+                        Utils.showToast(this, "手机号码不能为空");
+                    } else {
+                        boolean flag = Mobile.isMobile(phone);
+                        if (flag) {
+                            new IsPhoneExistAsync().execute(phone);
 //                        SMSSDK.getVerificationCode("86", phone);
 //                        CountTimer countTimer = new CountTimer(60000, 1000);
 //                        countTimer.start();
-                    } else {
-                        Utils.showToast(this, "手机号码不合法");
+                        } else {
+                            Utils.showToast(this, "手机号码不合法");
+                        }
                     }
                 }
                 break;

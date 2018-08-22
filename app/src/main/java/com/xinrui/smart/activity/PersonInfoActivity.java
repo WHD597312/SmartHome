@@ -176,6 +176,16 @@ public class PersonInfoActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        if (dialog!=null && dialog.isShowing()){
+            backgroundAlpha(1.0f);
+            dialog.dismiss();
+            return;
+        }
+        if (popupWindow!=null && popupWindow.isShowing()){
+            backgroundAlpha(1.0f);
+            popupWindow.dismiss();
+            return;
+        }
         if (!Utils.isEmpty(device)) {
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("deviceList","deviceList");
@@ -202,9 +212,10 @@ public class PersonInfoActivity extends AppCompatActivity {
             public void onNegativeClick() {
                 dialog.dismiss();
                 dialog = null;
+                backgroundAlpha(1.0f);
             }
         });
-
+        backgroundAlpha(0.4f);
         dialog.setCanceledOnTouchOutside(false);
         dialog.setOnPositiveClickListener(new DeviceUpdatePersonDialog.OnPositiveClickListener() {
             @Override
@@ -213,6 +224,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                 if (Utils.isEmpty(name)) {
                     Utils.showToast(PersonInfoActivity.this, "用户名称不能为空");
                 } else {
+                    backgroundAlpha(1.0f);
                     String userId = preferences.getString("userId", "");
                     Map<String, Object> map = new HashMap<>();
                     map.put("id", userId);
@@ -227,6 +239,12 @@ public class PersonInfoActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    //设置蒙版
+    private void backgroundAlpha(float f) {
+        WindowManager.LayoutParams lp =getWindow().getAttributes();
+        lp.alpha = f;
+        getWindow().setAttributes(lp);
+    }
     class UpdatePersonAsync extends AsyncTask<Map<String, Object>, Void, Integer> {
 
         @Override
@@ -272,6 +290,8 @@ public class PersonInfoActivity extends AppCompatActivity {
         if (popupWindow != null && popupWindow.isShowing()) {
             return;
         }
+
+
         View view = View.inflate(this, R.layout.changepicture, null);
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
@@ -282,17 +302,24 @@ public class PersonInfoActivity extends AppCompatActivity {
         //添加弹出、弹入的动画
         popupWindow.setAnimationStyle(R.style.Popupwindow);
 
-        ColorDrawable dw = new ColorDrawable(0x30000000);
-        popupWindow.setBackgroundDrawable(dw);
+//        ColorDrawable dw = new ColorDrawable(0x30000000);
+//        popupWindow.setBackgroundDrawable(dw);
         popupWindow.showAtLocation(tv_image, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
         //添加按键事件监听
         setButtonListeners(view);
+        backgroundAlpha(0.4f);
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                backgroundAlpha(1.0f);
+            }
+        });
     }
 
     private void setButtonListeners(View layout) {
         Button camera = (Button) layout.findViewById(R.id.camera);
         Button gallery = (Button) layout.findViewById(R.id.gallery);
-        Button cancel = (Button) layout.findViewById(R.id.cancel);
+        TextView cancel = (TextView) layout.findViewById(R.id.cancel);
 
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -338,6 +365,7 @@ public class PersonInfoActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (popupWindow != null && popupWindow.isShowing()) {
+                    backgroundAlpha(1.0f);
                     popupWindow.dismiss();
                 }
             }

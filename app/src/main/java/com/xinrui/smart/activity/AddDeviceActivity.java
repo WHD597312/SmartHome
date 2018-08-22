@@ -228,9 +228,6 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             btn_wifi.setVisibility(View.GONE);
             btn_scan.setVisibility(View.GONE);
         }
-        et_pswd.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-
-
         Intent service = new Intent(this, MQService.class);
         startService(service);
 

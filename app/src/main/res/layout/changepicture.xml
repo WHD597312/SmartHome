@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     android:layout_gravity="bottom"
     android:gravity="bottom"
     android:orientation="vertical">
@@ -20,36 +19,34 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:text="拍照"
+            android:textColor="#0073FF"
             />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="@dimen/dp_1"
-            android:background="#000000"/>
+            android:background="@color/color_gray2"/>
         <Button
             android:id="@+id/gallery"
             android:background="@null"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="#0073FF"
             android:text="从手机相册选择"/>
 
     </LinearLayout>
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/cancel"
+        android:layout_gravity="center_horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/dp_45"
+        android:textColor="#0073FF"
+        android:text="取消"
+        android:gravity="center"
+        android:layout_marginLeft="@dimen/dp_25"
+        android:layout_marginRight="@dimen/dp_25"
+        android:background="@drawable/addroom_button_popupwindow"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="@dimen/dp_40"
-        android:orientation="vertical">
-
-        <Button
-            android:background="@drawable/addroom_button_popupwindow"
-            android:id="@+id/cancel"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginLeft="@dimen/dp_25"
-            android:layout_marginRight="@dimen/dp_25"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="取消"
-            />
-    </LinearLayout>
+        />
 </LinearLayout>

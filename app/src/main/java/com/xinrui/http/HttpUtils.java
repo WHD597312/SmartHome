@@ -258,7 +258,7 @@ public class HttpUtils {
                         .header("Cache-Control", "public ,max-age=" + maxAge)
                         .build();
             } else {
-                NetWorkUtil.showNoNetWorkDlg(MyApplication.getContext());
+//                NetWorkUtil.showNoNetWorkDlg(MyApplication.getContext());
                 //这段代码设置无效
 //                int maxStale = 60 * 60 * 24 * 28; // 无网络时，设置超时为4周
 //                return response.newBuilder()

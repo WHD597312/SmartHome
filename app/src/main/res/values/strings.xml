@@ -84,4 +84,5 @@
     <string name="hint">温馨提示!</string>
     <string name="scan_text">放入框内,自动扫描</string>
     <string name="title_activity_about_app">AboutAppActivity</string>
+    <string name="login_only_can_input">qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM1234567890</string>
 </resources>

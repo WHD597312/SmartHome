@@ -1,8 +1,6 @@
 package com.xinrui.smart.util;
 
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+
 
 public class NoFastClickUtils {
     // 两次点击按钮之间的点击间隔不能少于1000毫秒
@@ -16,7 +14,6 @@ public class NoFastClickUtils {
             flag = true;
         }
         lastClickTime = curClickTime;
-        Log.i("sssssssss","-->"+flag);
         return flag;
     }
 }
