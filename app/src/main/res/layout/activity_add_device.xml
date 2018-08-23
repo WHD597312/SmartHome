@@ -107,7 +107,6 @@
                 android:hint="wifi密码"
                 android:inputType="textVisiblePassword"
                 android:paddingLeft="@dimen/dp_5"
-                android:digits="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 />
 
             <View

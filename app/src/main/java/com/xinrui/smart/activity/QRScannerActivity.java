@@ -267,13 +267,17 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                             deviceChild.setOnLint(true);
                             deviceChild.setShareHouseId(shareHouseId);
 
-                            List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
-
-                            for (DeviceChild deviceChild2 : deviceChildren) {
-                                if (macAddress.equals(deviceChild2.getMacAddress())) {
-                                    deviceChildDao.delete(deviceChild2);
-                                    break;
-                                }
+//                            List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
+//
+//                            for (DeviceChild deviceChild2 : deviceChildren) {
+//                                if (macAddress.equals(deviceChild2.getMacAddress())) {
+//                                    deviceChildDao.delete(deviceChild2);
+//                                    break;
+//                                }
+//                            }
+                            List<DeviceChild> deleteDevices=deviceChildDao.findDeviceByMacAddress(macAddress);
+                            if (deleteDevices!=null && !deleteDevices.isEmpty()){
+                                deviceChildDao.deleteDevices(deleteDevices);
                             }
                             String topicName2 = "rango/" + macAddress + "/transfer";
                             String topicOffline = "rango/" + macAddress + "/lwt";

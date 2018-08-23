@@ -45,6 +45,11 @@ public class DeviceChildDaoImpl {
     public void deleteAll(){
         deviceChildDao.deleteAll();
     }
+
+    /**
+     * 删除某个家的所有设备
+     * @param deviceChildren
+     */
     public void deleteGroupDevice(List<DeviceChild> deviceChildren){
         deviceChildDao.deleteInTx(deviceChildren);
     }
@@ -92,6 +97,76 @@ public class DeviceChildDaoImpl {
         WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(houseId),DeviceChildDao.Properties.Type.eq(type),DeviceChildDao.Properties.OnLint.eq(online));
         return deviceChildDao.queryBuilder().where(whereCondition).list();
     }
+
+    /**
+     * 根据macAddress查询某一个设备
+     * @param macAddress
+     * @return
+     */
+    public DeviceChild findDeviceByMacAddress2(String macAddress){
+        return deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.MacAddress.eq(macAddress)).unique();
+    }
+
+    /**
+     * 查询某个家的主控设备
+     * @param houseId
+     * @param type
+     * @param controlled
+     * @return
+     */
+    public DeviceChild findMainControlDevice(long houseId,int type,int controlled){
+        WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(houseId),DeviceChildDao.Properties.Type.eq(type),DeviceChildDao.Properties.Controlled.eq(controlled));
+        return deviceChildDao.queryBuilder().where(whereCondition).unique();
+    }
+
+    /**
+     * 查询某个家的外置传感器
+     * @param houseId
+     * @param type
+     * @param controlled
+     * @return
+     */
+    public DeviceChild findEstControlDevice(long houseId,int type,int controlled){
+        WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(houseId),DeviceChildDao.Properties.Type.eq(type),DeviceChildDao.Properties.Controlled.eq(controlled));
+        return deviceChildDao.queryBuilder().where(whereCondition).unique();
+    }
+
+    /**
+     * 根据macAddress来查询设备
+     * @param macAddress
+     * @return
+     */
+    public List<DeviceChild> findDeviceByMacAddress(String macAddress){
+        return deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.MacAddress.eq(macAddress)).list();
+    }
+
+    /**
+     * 批量删除设备
+     * @param list
+     */
+    public void deleteDevices(List<DeviceChild> list){
+        deviceChildDao.deleteInTx(list);
+    }
+
+    /**
+     * 获取在house下面类型为1，在线的且机械类型不是M的设备
+     * @param houseId
+     * @param type
+     * @param online
+     * @param machAttr
+     * @return
+     */
+    public List<DeviceChild> findDeviceMayControl(long houseId,int type,boolean online,String machAttr){
+        WhereCondition whereCondition=deviceChildDao.queryBuilder().and(DeviceChildDao.Properties.HouseId.eq(houseId),DeviceChildDao.Properties.Type.eq(type),DeviceChildDao.Properties.OnLint.eq(online),DeviceChildDao.Properties.MachAttr.notEq(machAttr));
+        return deviceChildDao.queryBuilder().where(whereCondition).orderAsc(DeviceChildDao.Properties.Id).list();
+    }
+
+
+    /**
+     * 查询某个家里面的所有设备
+     * @param groupId
+     * @return
+     */
     public List<DeviceChild> findGroupIdAllDevice(Long groupId){
         List<DeviceChild> children=deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.HouseId.eq(groupId)).orderAsc(DeviceChildDao.Properties.Id).list();
         return children;

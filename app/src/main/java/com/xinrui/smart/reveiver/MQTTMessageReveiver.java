@@ -118,7 +118,6 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
             }
         }else {
             SharedPreferences preferences=context.getSharedPreferences("net",Context.MODE_PRIVATE);
-
             if (preferences.contains("from") && preferences.contains("to")){
                 SharedPreferences.Editor editor=preferences.edit();
                 editor.putString("from","0");

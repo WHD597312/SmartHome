@@ -524,13 +524,12 @@ public class MainActivity extends CheckPermissionsActivity {
     int clicked2 = 0;
     int clicked3 = 3;
 
-    @OnClick({R.id.tv_exit, R.id.tv_device, R.id.tv_smart, R.id.tv_live, R.id.image_user, R.id.tv_user})
+    @OnClick({R.id.tv_exit, R.id.tv_device, R.id.tv_smart, R.id.tv_live, R.id.layout_user})
     public void onClick(View view) {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-
         switch (view.getId()) {
-            case R.id.image_user:
+            case R.id.layout_user:
                 Intent persion = new Intent(this, PersonInfoActivity.class);
 //                Intent common = new Intent(MainActivity.this, CommonProblemActivity.class);
                 persion.putExtra("main", "main");
@@ -542,19 +541,6 @@ public class MainActivity extends CheckPermissionsActivity {
                     persion.putExtra("live", "live");
                 }
                 startActivity(persion);
-                break;
-            case R.id.tv_user:
-                Intent person2 = new Intent(this, PersonInfoActivity.class);
-//                Intent common = new Intent(MainActivity.this, CommonProblemActivity.class);
-                person2.putExtra("main", "main");
-                if (DeviceFragment.running || NoDeviceFragment.running) {
-                    person2.putExtra("device", "device");
-                } else if (SmartFragmentManager.running) {
-                    person2.putExtra("smart", "smart");
-                } else if (LiveFragment.running) {
-                    person2.putExtra("live", "live");
-                }
-                startActivity(person2);
                 break;
             case R.id.tv_exit:
                 if (NoFastClickUtils.isFastClick()) {

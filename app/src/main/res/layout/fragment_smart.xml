@@ -117,7 +117,7 @@
                    android:layout_alignLeft="@+id/image_temp"
                    android:layout_below="@+id/img_temp"
                    android:gravity="center"
-                   android:text="25℃"
+                   android:text="0℃"
                    android:textColor="@color/color_white"
                    />
 
@@ -130,7 +130,7 @@
                    android:layout_alignStart="@+id/img_hum"
                    android:layout_below="@+id/img_hum"
                    android:gravity="center"
-                   android:text="50%"
+                   android:text="0%"
                    android:textColor="@color/white"
                    />
                <TextView

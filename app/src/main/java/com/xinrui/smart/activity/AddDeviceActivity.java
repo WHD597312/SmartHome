@@ -18,8 +18,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -67,6 +69,7 @@ import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
+import com.xinrui.smart.util.IsChinese;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.AddDeviceDialog;
@@ -217,6 +220,30 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 btn_wifi.setVisibility(View.GONE);
                 btn_scan.setVisibility(View.GONE);
 
+                et_pswd.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+
+                        char chars[]=s.toString().toCharArray();
+                        for (char c:chars){
+                            if (IsChinese.isChinese(c)){
+                                et_pswd.setText("");
+                                Utils.showToast(AddDeviceActivity.this,"不能输入中文");
+                                break;
+                            }
+                        }
+                    }
+                });
 //                Intent service = new Intent(this, MQService.class);
 //                startService(service);
             } else if ("share".equals(wifi)) {
@@ -547,6 +574,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 //                    Log.d(TAG, "mBtnConfirm is clicked, mEdtApSsid = " + apSsid
 //                            + ", " + " mEdtApPassword = " + apPassword);
                     }
+                    if (Utils.isEmpty(ssid)){
+                        Utils.showToast(AddDeviceActivity.this, "请连接英文名称的WiFi");
+                        break;
+                    }
                     if (Utils.isEmpty(apPassword)) {
                         Utils.showToast(AddDeviceActivity.this, "请输入wifi密码");
                         break;
@@ -568,7 +599,6 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 }else {
                     Utils.showToast(AddDeviceActivity.this,"请检查网络");
                 }
-
                 break;
         }
     }
@@ -721,13 +751,17 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         deviceChild.setControlled(controlled);
                         deviceChild.setOnLint(true);
 
-                        List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
-                        for (DeviceChild deviceChild2 : deviceChildren) {
-                            if (macAddress.equals(deviceChild2.getMacAddress())) {
-                                deviceChildDao.delete(deviceChild2);
-                                break;
-                            }
+                        List<DeviceChild> deleteDevices=deviceChildDao.findDeviceByMacAddress(macAddress);
+                        if (deleteDevices!=null && !deleteDevices.isEmpty()){
+                            deviceChildDao.deleteDevices(deleteDevices);
                         }
+//                        List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
+//                        for (DeviceChild deviceChild2 : deviceChildren) {
+//                            if (macAddress.equals(deviceChild2.getMacAddress())) {
+//                                deviceChildDao.delete(deviceChild2);
+//                                break;
+//                            }
+//                        }
                         deviceChildDao.insert(deviceChild);
                         if (type == 1) {
                             if (succ) {
@@ -835,28 +869,53 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         super.onResume();
         // display the connected ap's ssid
         String apSsid = mWifiAdmin.getWifiConnectedSsid();
-        if (apSsid != null) {
+        Log.i("apSsid","-->"+apSsid);
+
+        // check whether the wifi is connected
+//        boolean isApSsidEmpty = TextUtils.isEmpty(apSsid);
+//        btn_match.setEnabled(!isApSsidEmpty);
+
+
+
+        SharedPreferences wifi = getSharedPreferences("wifi", MODE_PRIVATE);
+        if (wifi.contains(apSsid)) {
             et_ssid.setText(apSsid);
             et_ssid.setFocusable(false);
+            String pswd = wifi.getString(apSsid, "");
+            et_pswd.setText(pswd);
+        }else {
+            et_ssid.setText(apSsid);
+            et_ssid.setFocusable(false);
+            et_pswd.setText("");
+        }
+
+        if (!TextUtils.isEmpty(apSsid)) {
+            char[] chars=apSsid.toCharArray();
             et_ssid.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Utils.showToast(AddDeviceActivity.this,"WiFi名称不可编辑");
                 }
             });
+
+            for (char c:chars){
+                if (IsChinese.isChinese(c)){
+                    Utils.showToast(AddDeviceActivity.this,"WiFi名称不能是中文");
+                    et_ssid.setText("");
+                    et_pswd.setText("");
+                    break;
+                }
+            }
         } else {
             et_ssid.setText("");
+            et_ssid.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Utils.showToast(AddDeviceActivity.this,"请连接英文名称的wifi");
+                }
+            });
+            et_pswd.setText("");
         }
-        // check whether the wifi is connected
-        boolean isApSsidEmpty = TextUtils.isEmpty(apSsid);
-        btn_match.setEnabled(!isApSsidEmpty);
-        SharedPreferences wifi = getSharedPreferences("wifi", MODE_PRIVATE);
-        if (wifi.contains(et_ssid.getText().toString())) {
-            String pswd = wifi.getString(et_ssid.getText().toString(), "");
-            et_pswd.setText(pswd);
-            et_pswd.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        }
-        Log.i("AddDevice", "-->" + "onResume");
 
         running = true;
     }

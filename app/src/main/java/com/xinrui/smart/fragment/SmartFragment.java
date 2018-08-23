@@ -110,14 +110,15 @@ public class SmartFragment extends Fragment {
 
         if (houseId != null) {/**判断是不是有外置传感器*/
             DeviceGroup deviceGroup = deviceGroupDao.findById(Long.parseLong(houseId));
-            List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(Long.parseLong(houseId), 2);
-            if (deviceChildren != null && !deviceChildren.isEmpty()) {
-                for (DeviceChild deviceChild : deviceChildren) {
-                    if (deviceChild.getControlled() == 1) {
-                        estDeviceChild = deviceChild;
-                        break;
-                    }
-                }
+            estDeviceChild=deviceChildDao.findEstControlDevice(Long.parseLong(houseId),2,1);
+//            List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(Long.parseLong(houseId), 2);
+//            if (deviceChildren != null && !deviceChildren.isEmpty()) {
+//                for (DeviceChild deviceChild : deviceChildren) {
+//                    if (deviceChild.getControlled() == 1) {
+//                        estDeviceChild = deviceChild;
+//                        break;
+//                    }
+//                }
                 if (estDeviceChild == null) {
                     relative.setVisibility(View.GONE);
                 } else {
@@ -128,13 +129,12 @@ public class SmartFragment extends Fragment {
                     tv_cur_temp.setText(extTemp + "℃");
                     hum.setText(extHum + "%");
                     tv_hum.setText(extHum + "%");
-                }
+//                }
             }
             if (deviceGroup != null) {
                 tv_home.setText(deviceGroup.getHeader());
             }
         }
-
 
         smart_set.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -146,18 +146,20 @@ public class SmartFragment extends Fragment {
                         Intent intent = new Intent(getActivity(), MainControlActivity.class);
                         if ("主控机设置".equals(content)) {
                             if (!Utils.isEmpty(houseId)) {
-                                List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(Long.parseLong(houseId),1,true);
+                                List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(Long.parseLong(houseId), 1,true);
                                 if (deviceChildren.size() < 2) {
                                     Utils.showToast(getActivity(), "在线设备数量不足");
                                 } else if (deviceChildren.size() >= 2) {
-                                    for (DeviceChild deviceChild : deviceChildren) {
-                                        String machAttr = deviceChild.getMachAttr();
-                                        if ("M".equals(machAttr)) {
-
-                                        } else {
-                                            list2.add(deviceChild);
-                                        }
-                                    }
+                                    list2.clear();
+                                    list2=deviceChildDao.findDeviceMayControl(Long.parseLong(houseId),1,true,"M");
+//                                    for (DeviceChild deviceChild : deviceChildren) {
+//                                        String machAttr = deviceChild.getMachAttr();
+//                                        if ("M".equals(machAttr)) {
+//
+//                                        } else {
+//                                            list2.add(deviceChild);
+//                                        }
+//                                    }
                                     if (list2.size() >= 1) {
                                         intent.putExtra("houseId", houseId);
                                         intent.putExtra("content", content);
@@ -173,13 +175,13 @@ public class SmartFragment extends Fragment {
                                 if (deviceChildren.size() < 2) {
                                     Utils.showToast(getActivity(), "设备数量不足");
                                 } else {
-                                    DeviceChild masterDeviceChild = null;
-                                    for (DeviceChild deviceChild : deviceChildren) {
-                                        if (deviceChild.getControlled() == 2) {
-                                            masterDeviceChild = deviceChild;
-                                            break;
-                                        }
-                                    }
+                                    DeviceChild masterDeviceChild = deviceChildDao.findMainControlDevice(Long.parseLong(houseId),1,2);
+//                                    for (DeviceChild deviceChild : deviceChildren) {
+//                                        if (deviceChild.getControlled() == 2) {
+//                                            masterDeviceChild = deviceChild;
+//                                            break;
+//                                        }
+//                                    }
                                     if (masterDeviceChild == null) {
                                         Utils.showToast(getActivity(), "请先设置主控设备");
                                     } else {

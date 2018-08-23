@@ -169,6 +169,10 @@ public class PersonInfoActivity extends AppCompatActivity {
                     Intent intent = new Intent(this, MainActivity.class);
                     intent.putExtra("live","live");
                     startActivity(intent);
+                }else {
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.putExtra("deviceList","deviceList");
+                    startActivity(intent);
                 }
                 break;
         }
@@ -197,6 +201,10 @@ public class PersonInfoActivity extends AppCompatActivity {
         }else if (!Utils.isEmpty(live)){
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("live","live");
+            startActivity(intent);
+        }else {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("deviceList","deviceList");
             startActivity(intent);
         }
 
