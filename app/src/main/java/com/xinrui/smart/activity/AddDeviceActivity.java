@@ -589,12 +589,11 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         et_ssid.setEnabled(false);
                         et_pswd.setEnabled(false);
                         btn_match.setEnabled(false);
-
                         popupmenuWindow3();
                         new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
 //                        Intent service = new Intent(AddDeviceActivity.this, MQService.class);
 //                        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
-//                        mac="5asdfghi89hn";
+//                        mac="5asdfghi89hc";
                     }
                 }else {
                     Utils.showToast(AddDeviceActivity.this,"请检查网络");
@@ -1004,10 +1003,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         protected Void doInBackground(String... macs) {
 
             String macAddress = macs[0];
-
             deviceChild = new DeviceChild();
             deviceChild.setMacAddress(macAddress);
-
             String topicName2 = "p99/" + macAddress + "/transfer";
             if (mqService != null) {
                 boolean success = mqService.subscribe(topicName2, 1);

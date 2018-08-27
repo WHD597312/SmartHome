@@ -24,6 +24,7 @@ import com.xinrui.database.dao.daoimpl.DeviceGroupDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.location.CheckPermissionsActivity;
 import com.xinrui.secen.scene_util.NetWorkUtil;
 import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
@@ -51,7 +52,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends CheckPermissionsActivity {
 
     Unbinder unbinder;
     MyApplication application;

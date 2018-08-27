@@ -326,7 +326,16 @@ public class MQService extends Service {
                 reSet = "reSet";
                 String topicOffline = "rango/" + macAddress + "/lwt";
                 String topicShare2 = "rango/" + macAddress + "/refresh";
+                String topicOffline2="p99/sensor1"+macAddress+"/lwt";
+                String topicShares="p99/sensor1"+macAddress+"/transfer";
+                String topic="rango/"+macAddress+"/transfer";
+                String topic2="p99/"+macAddress+"/transfer";
+                unsubscribe(topic2);
+                unsubscribe(topicShares);
+                unsubscribe(topicShare);
+                unsubscribe(topic);
                 unsubscribe(topicOffline);
+                unsubscribe(topicOffline2);
                 unsubscribe(topicShare2);
                 unsubscribe(topicName);
             }

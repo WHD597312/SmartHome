@@ -696,6 +696,7 @@ public class DeviceFragment extends Fragment {
                             }
                             deviceGroupDao.delete(deviceGroup2);
                         }
+                        childern.remove(updateGroupPosition);
                         deviceGroups.remove(updateGroupPosition);
                     }
                 }
@@ -1857,7 +1858,11 @@ public class DeviceFragment extends Fragment {
 
                     DeviceAdapter.this.groupPosition = groupPosition;
                     DeviceAdapter.this.childPosition = childPosition;
-                    new DeviceAdapter.DeleteDeviceAsync().execute(entry);
+                    if (NetWorkUtil.isConn(context)){
+                        new DeviceAdapter.DeleteDeviceAsync().execute(entry);
+                    }else {
+                        Utils.showToast(context,"请检查网络");
+                    }
                 }
             });
 
@@ -1883,6 +1888,7 @@ public class DeviceFragment extends Fragment {
                     }
                 }
             });
+
             dialog.setOnNegativeClickListener(new DeviceChildDialog.OnNegativeClickListener() {
                 @Override
                 public void onNegativeClick() {
@@ -1944,7 +1950,6 @@ public class DeviceFragment extends Fragment {
                     } else {
                         houseId = deviceChild.getHouseId() + "";
                     }
-
                     SharedPreferences preferences = context.getSharedPreferences("my", Context.MODE_PRIVATE);
                     String userId = preferences.getString("userId", "");
                     String updateDeviceNameUrl = "http://47.98.131.11:8082/warmer/v1.0/device/deleteDevice?deviceId=" +
@@ -1953,51 +1958,79 @@ public class DeviceFragment extends Fragment {
 //                String updateDeviceNameUrl="http://192.168.168.3:8082/warmer/v1.0/device/deleteDevice?deviceId=6&userId=1&houseId=1000";
 //                String updateDeviceNameUrl="http://192.168.168.10:8082/warmer/v1.0/device/deleteDevice?deviceId=1004&userId=1&&houseId=1001";
                     String result = HttpUtils.getOkHpptRequest(updateDeviceNameUrl);
-                    JSONObject jsonObject = new JSONObject(result);
-                    code = jsonObject.getInt("code");
-                    if (code == 2000) {
+                    if (TextUtils.isEmpty(result)){
                         if (mDeviceChild != null && mDeviceChild.getMacAddress().equals(deviceChild.getMacAddress())) {
                             mDeviceChild = null;
                         }
-//                        TimeTaskDaoImpl timeTaskDao = new TimeTaskDaoImpl(context);
-//                        TimeDaoImpl timeDao = new TimeDaoImpl(context);
-//                        List<TimeTask> timeTasks = timeTaskDao.findTimeTasks(deviceChild.getId());
-//                        for (TimeTask timeTask : timeTasks) {
-//                            timeTaskDao.delete(timeTask);
-//                        }
-//                        List<Timer> timers = timeDao.findAll(deviceChild.getId());
-//                        for (Timer timer : timers) {
-//                            timeDao.delete(timer);
-//                        }
-
                         deviceChildDao.delete(deviceChild);
                         String macAddress = deviceChild.getMacAddress();
                         String topicName = "rango/" + macAddress + "/transfer";
-                        boolean success = mqService.publish(topicName, 1, "reSet");
+//                        boolean success = mqService.publish(topicName, 1, "reSet");
                         String topicOffline = "rango/" + macAddress + "/lwt";
                         String topicShare = "rango/" + macAddress + "/refresh";
                         mqService.unsubscribe(topicName);
                         mqService.unsubscribe(topicOffline);
                         mqService.unsubscribe(topicShare);
-                        Log.i("delete", "-->" + success);
-                        childern.get(groupPosition).remove(childPosition);
-                        if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-                            deviceChild.setCtrlMode("normal");
-                            send(deviceChild);
-                            List<DeviceChild> deviceChildren2 = deviceChildDao.findGroupIdAllDevice(deviceChild.getHouseId());
-                            for (DeviceChild deviceChild2 : deviceChildren2) {
-                                if (deviceChild2.getType() == 1 && deviceChild2.getControlled() == 1) {
-                                    deviceChild2.setControlled(0);
-                                    deviceChild2.setCtrlMode("normal");
-                                    deviceChildDao.update(deviceChild2);
-                                    Log.i("controlled22222222", "-->" + deviceChild.getType() + "," + deviceChild.getControlled());
-                                    send(deviceChild2);
+//                        Log.i("delete", "-->" + success);
+
+                        childern.get(groupPosition).remove(deviceChild);
+                        Log.i("houseId","-->"+deviceChild.getHouseId());
+                        if (Long.MAX_VALUE != deviceChild.getHouseId()){
+                            if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
+                                deviceChild.setCtrlMode("normal");
+                                send(deviceChild);
+                                List<DeviceChild> deviceChildren2 = deviceChildDao.findGroupIdAllDevice(deviceChild.getHouseId());
+                                for (DeviceChild deviceChild2 : deviceChildren2) {
+                                    if (deviceChild2.getType() == 1 && deviceChild2.getControlled() == 1) {
+                                        deviceChild2.setControlled(0);
+                                        deviceChild2.setCtrlMode("normal");
+                                        deviceChildDao.update(deviceChild2);
+                                        Log.i("controlled22222222", "-->" + deviceChild.getType() + "," + deviceChild.getControlled());
+                                        send(deviceChild2);
+                                    }
+                                }
+                            }
+                        }
+                        code=2000;
+                    }else {
+                        JSONObject jsonObject = new JSONObject(result);
+                        code = jsonObject.getInt("code");
+                        if (code == 2000) {
+                            if (mDeviceChild != null && mDeviceChild.getMacAddress().equals(deviceChild.getMacAddress())) {
+                                mDeviceChild = null;
+                            }
+                            deviceChildDao.delete(deviceChild);
+                            String macAddress = deviceChild.getMacAddress();
+                            String topicName = "rango/" + macAddress + "/transfer";
+//                            boolean success = mqService.publish(topicName, 1, "reSet");
+                            String topicOffline = "rango/" + macAddress + "/lwt";
+                            String topicShare = "rango/" + macAddress + "/refresh";
+                            mqService.unsubscribe(topicName);
+                            mqService.unsubscribe(topicOffline);
+                            mqService.unsubscribe(topicShare);
+//                            Log.i("delete", "-->" + success);
+                            int size=childern.size();
+                            Log.i("size","-->"+size);
+                            childern.get(groupPosition).remove(deviceChild);
+                            Log.i("houseId","-->"+deviceChild.getHouseId());
+                            if (Long.MAX_VALUE != deviceChild.getHouseId()) {
+                                if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
+                                    deviceChild.setCtrlMode("normal");
+                                    send(deviceChild);
+                                    List<DeviceChild> deviceChildren2 = deviceChildDao.findGroupIdAllDevice(deviceChild.getHouseId());
+                                    for (DeviceChild deviceChild2 : deviceChildren2) {
+                                        if (deviceChild2.getType() == 1 && deviceChild2.getControlled() == 1) {
+                                            deviceChild2.setControlled(0);
+                                            deviceChild2.setCtrlMode("normal");
+                                            deviceChildDao.update(deviceChild2);
+                                            Log.i("controlled22222222", "-->" + deviceChild.getType() + "," + deviceChild.getControlled());
+                                            send(deviceChild2);
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
