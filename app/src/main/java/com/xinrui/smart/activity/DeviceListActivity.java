@@ -14,6 +14,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -314,7 +315,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 } else {
                     Utils.showToast(this, "主人，请对我温柔点!");
                 }
-
                 break;
             case R.id.image_mode2:
                 if (popupWindow != null && popupWindow.isShowing()) {
@@ -490,6 +490,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     /**
      * 打开恢复设置对话框
      */
+
     private void buildRestoreDialog() {
         final RestoreSetDialog dialog = new RestoreSetDialog(this);
         dialog.setOnNegativeClickListener(new RestoreSetDialog.OnNegativeClickListener() {
@@ -528,7 +529,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     protected void onStart() {
         super.onStart();
         Intent intent = getIntent();
-        String content = intent.getStringExtra("content");
+        final String content = intent.getStringExtra("content");
         childPosition = intent.getStringExtra("childPosition");
 
         deviceChild = deviceChildDao.findDeviceById(Long.parseLong(childPosition));
@@ -647,6 +648,18 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                             deviceChild.setOutputMod("fastHeat");//速热模式
                                             tv_outmode.setText("速热模式");
                                             animationDrawable.start();
+                                            if (curTemp>=manualMatTemp){
+                                                if (curTemp >= (manualMatTemp + 3)) {
+                                                    deviceChild.setOutputMod("saveTemp");//保温模式
+                                                    tv_outmode.setText("保温模式");
+                                                    animationDrawable.stop();
+                                                } else {
+                                                    deviceChild.setOutputMod("savePwr");//节能模式
+                                                    tv_outmode.setText("节能模式");
+                                                    animationDrawable.start();
+                                                }
+                                            }
+
                                         } else if (curTemp >= (manualMatTemp + 3)) {
                                             deviceChild.setOutputMod("saveTemp");//保温模式
                                             tv_outmode.setText("保温模式");
@@ -668,7 +681,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                 } else if ("timer".equals(workMode)) {
                                     deviceChild.setTimerTemp(mCurrent);
                                     deviceChildDao.update(deviceChild);
-                                    if ("timer".equals(deviceChild.getWorkMode()) && "enable".equals(deviceChild.getTimerShutdown())) {
+                                    if ("enable".equals(deviceChild.getTimerShutdown())) {
 //                                tv_timeShutDown.setVisibility(View.VISIBLE);
                                         tv_outmode.setText("定时关加热");
                                     } else {
@@ -685,13 +698,13 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                             }
                                         } else {
                                             int curTemp = deviceChild.getCurTemp();
-                                            if ((mCurrent - 3) > curTemp) {
+                                            if ((mCurrent - 3) >= curTemp) {
                                                 tv_outmode.setText("速热模式");
                                                 animationDrawable.start();
-                                            } else if ((mCurrent + 2) < curTemp) {
+                                            } else if ((mCurrent + 2) <= curTemp) {
                                                 tv_outmode.setText("保温模式");
                                                 animationDrawable.stop();
-                                            } else if ((mCurrent - 3) > curTemp) {
+                                            } else if ((mCurrent - 3) >= curTemp) {
                                                 tv_outmode.setText("节能模式");
                                                 animationDrawable.start();
                                             }
@@ -738,7 +751,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 //                                    send(deviceChild);
                                         outside = false;
                                     }
-
                                 } else if ((curAngle > 330 && curAngle <= 360)) {
                                     outside = true;
                                     if (outside) {
@@ -978,7 +990,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
         }
     };
-
+    boolean reSet=false;
     public void send(DeviceChild deviceChild) {
         try {
             if (deviceChild != null) {
@@ -995,6 +1007,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
                 maser.put("timerShutDown",deviceChild.getTimerShutdown());
+                maser.put("reSet",""+reSet);
                 maser.put("grade",grade);
 
                 String s = maser.toString();
@@ -1014,7 +1027,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                         success = mqService.publish(topicName, 2, s);
                     }
                 }
-                Log.i("send","-->"+s);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1343,60 +1355,45 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         protected String doInBackground(Map<String, TextView>... maps) {
             int count = 0;
             String result = "";
-
             try {
-                for (int timerTaskWeek = 1; timerTaskWeek <= 7; timerTaskWeek++) {
-                    count++;
-                    JSONObject jsonObject = new JSONObject();
-
-                    jsonObject.put("timerTaskWeek", timerTaskWeek);
-
-                    for (int i = 0; i < 24; i++) {
-                        jsonObject.put("h" + i, "on");
-                        jsonObject.put("t" + i, 18);
+                if (requestTime==0){
+                    reSet=true;
+                    send(deviceChild);
+                    reSet=false;
+                    Thread.sleep(2100);
+                    JSONObject jsonObject2 = new JSONObject();
+                    jsonObject2.put("loadDate", "7");
+                    String s = jsonObject2.toString();
+                    boolean success = false;
+                    String mac = deviceChild.getMacAddress();
+                    String topic = "rango/" + mac + "/set";
+                    success = mqService.publish(topic, 1, s);
+                    if (!success) {
+                        success = mqService.publish(topic, 1, s);
                     }
+                    result="恢复成功";
+                }else if (requestTime==1){
+                    for (int timerTaskWeek = 1; timerTaskWeek <= 7; timerTaskWeek++) {
+                        count++;
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("timerTaskWeek", timerTaskWeek);
+                        for (int i = 0; i < 24; i++) {
+                            jsonObject.put("h" + i, "on");
+                            jsonObject.put("t" + i, 18);
+                        }
                         String jsonData = jsonObject.toString();
                         Log.i("jsonData", jsonData);
-
                         if (bound) {
                             boolean success = false;
                             String mac = deviceChild.getMacAddress();
                             String topicName;
                             topicName = "rango/" + mac + "/set";
                             success = mqService.publish(topicName, 1, jsonData);
-                            if (requestTime==0){
-                                Thread.sleep(500);
-                            }else if (requestTime==1){
-                                Thread.sleep(50);
-                            }
+                            Thread.sleep(50);
                         }
-                    if (count == 7) {
-                            if (requestTime==0){
-                                Thread.sleep(300);
-                                String mac = deviceChild.getMacAddress();
-                                String topic = "rango/" + mac + "/set";
-                                deviceChild.setProtectProTemp(50);
-                                deviceChild.setManualMatTemp(18);
-                                deviceChild.setTimerTemp(18);
-                                deviceChild.setGrade(8);
-                                send(deviceChild);
-                                Log.i("connection", "-->" + count);
-                                if (mqService != null && count != 168) {
-
-                                    Log.i("ggggggggg", "-->" + "ggggggggggggggggg");
-                                    JSONObject jsonObject2 = new JSONObject();
-                                    jsonObject2.put("loadDate", "1");
-                                    String s = jsonObject2.toString();
-                                    boolean success = false;
-                                    success = mqService.publish(topic, 1, s);
-                                    if (!success) {
-                                        success = mqService.publish(topic, 1, s);
-                                    }
-                                }
-                                result = "恢复成功";
-                            }
                     }
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

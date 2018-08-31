@@ -24,6 +24,7 @@ import com.xinrui.smart.util.Utils;
 
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -82,22 +83,17 @@ public class TempChartActivity extends AppCompatActivity {
         int currentValue=deviceChild.getCurrentValue();
         float currentValue2=Float.parseFloat(currentValue+"");
         float currentValue3=currentValue2/1000;
-        String s3=currentValue3+"";
-        String s4=s3.substring(s3.indexOf(".")+1);
-        String s5=s3.substring(0,s3.indexOf("."));
-        if (s4.length()>2){
-            s4=s4.substring(1,3);
-        }else if (s4.length()<2){
-            s4=s4+"0";
-        }
+        BigDecimal decimal=new BigDecimal(currentValue3);
+        BigDecimal decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_DOWN);
+
         int ratedPower=deviceChild.getRatedPower();
-//        tv_power.setText("功率:"+powerValue+"w");
-//        tv_voltage.setText("电压:"+voltageValue+"v");
-//        tv_current.setText("电流:"+currentValue+"A");
-        String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+s5+"."+s4+"A";
+        String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+decimalScale+"A";
         tv_voltage.setText(s);
         String s2="额定功率:"+ratedPower+"W";
         tv_roatPower.setText(s2);
+        IntentFilter intentFilter = new IntentFilter("TempChartActivity");
+        receiver = new MessageReceiver();
+        registerReceiver(receiver, intentFilter);
         new TempChatAsync().execute();
     }
 
@@ -105,9 +101,6 @@ public class TempChartActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        IntentFilter intentFilter = new IntentFilter("TempChartActivity");
-        receiver = new MessageReceiver();
-        registerReceiver(receiver, intentFilter);
         running=true;
     }
 
@@ -123,8 +116,8 @@ public class TempChartActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        deviceChildDao.closeDaoSession();
-        deviceChild=null;
+        running=false;
+
     }
 
     @Override
@@ -277,16 +270,12 @@ public class TempChartActivity extends AppCompatActivity {
                                 int currentValue=deviceChild.getCurrentValue();
                                 float currentValue2=Float.parseFloat(currentValue+"");
                                 float currentValue3=currentValue2/1000;
-                                String s3=currentValue3+"";
-                                String s4=s3.substring(s3.indexOf(".")+1);
-                                String s5=s3.substring(0,s3.indexOf("."));
-                                if (s4.length()>2){
-                                    s4=s4.substring(1,3);
-                                }else if (s4.length()<2){
-                                    s4=s4+"0";
-                                }
+                                BigDecimal decimal=new BigDecimal(currentValue3);
+                                BigDecimal decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_DOWN);
+
                                 int ratedPower=deviceChild.getRatedPower();
-                                String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+s5+"."+s4+"A";
+                                String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+decimalScale+"A";
+
                                 tv_voltage.setText(s);
                                 String s2="额定功率:"+ratedPower+"W";
                                 tv_roatPower.setText(s2);

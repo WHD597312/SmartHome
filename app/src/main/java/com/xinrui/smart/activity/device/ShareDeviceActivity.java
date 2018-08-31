@@ -26,6 +26,7 @@ import com.bumptech.glide.Glide;
 
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.http.HttpUtils;
+import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.activity.MainActivity;
 import com.xinrui.smart.activity.TempChartActivity;
@@ -56,65 +57,58 @@ public class ShareDeviceActivity extends AppCompatActivity {
 
     public static boolean running=false;
     SharedPreferences preferences;
+    private MyApplication application;
     Unbinder unbinder;
+    long deviceId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_device);
+
         unbinder=ButterKnife.bind(this);
+        if (application==null){
+            application= (MyApplication) getApplication();
+            application.addActivity(this);
+        }
+
+        preferences = getSharedPreferences("my", MODE_PRIVATE);
+        deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
+
+        Log.i("share","-->onCreate");
+        Intent intent = getIntent();
+        String id = intent.getStringExtra("deviceId");
+        deviceId=Long.parseLong(id);
+        deviceChild = deviceChildDao.findDeviceById(deviceId);
+
+        if (deviceChild != null) {
+            tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
+            String name = deviceChild.getDeviceName();
+            tv_device.setText(name);
+            new ShareQrCodeAsync().execute();
+        }
+        IntentFilter intentFilter = new IntentFilter("ShareDeviceActivity");
+        receiver = new MessageReceiver();
+        registerReceiver(receiver, intentFilter);
+
+        Intent service = new Intent(this, MQService.class);
+        isBound=bindService(service, connection, Context.BIND_AUTO_CREATE);
+
     }
 
     DeviceChild deviceChild;
     @Override
     protected void onStart() {
         super.onStart();
-        preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
-        deviceChildDao=new DeviceChildDaoImpl(getApplicationContext());
-        Intent intent=getIntent();
-        long childPosition=Long.parseLong(intent.getStringExtra("deviceId"));
-        deviceChild=deviceChildDao.findDeviceChild(childPosition);
-
-        if (deviceChild!=null){
-            String mcuVeriosn=deviceChild.getMCUVerion();
-            if(Utils.isEmpty(mcuVeriosn)){
-                mcuVeriosn="v1.0";
-            }
-            tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
-            long deviceId=deviceChild.getId();
-            String deviceName=deviceChild.getDeviceName();
-            int type=deviceChild.getType();
-            String macAddress=deviceChild.getMacAddress();
-            int controlled=deviceChild.getControlled();
-            tv_device.setText(deviceName);
-//            try {
-//                JSONObject jsonObject=new JSONObject();
-//                jsonObject.put("deviceId",deviceId);
-//                jsonObject.put("deviceName",deviceName);
-//                jsonObject.put("type",type);
-//                jsonObject.put("macAddress",macAddress);
-//                jsonObject.put("controlled",controlled);
-//                jsonObject.put("shareHouseId",deviceChild.getHouseId());
-//                share=jsonObject.toString();
-//                Log.d("ss",share);
-//            }catch (Exception e){
-//                e.printStackTrace();
-//            }
-//            if (!Utils.isEmpty(share)){
-//                Message msg=handler.obtainMessage();
-//                msg.what=1;
-//                handler.sendMessage(msg);
-//            }
+        running=true;
+        deviceChild = deviceChildDao.findDeviceById(deviceId);
+        if (deviceChild==null){
+            Utils.showToast(this,"该设备已重置");
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("deviceList","deviceList");
+            startActivity(intent);
         }
     }
-//    Handler handler=new Handler(){
-//        @Override
-//        public void handleMessage(Message msg) {
-//            super.handleMessage(msg);
-//            if (msg.what==1){
-////                createQrCode();
-//            }
-//        }
-//    };
+
     MQService mqService;
     private boolean bound = false;
     ServiceConnection connection = new ServiceConnection() {
@@ -135,41 +129,16 @@ public class ShareDeviceActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Intent intent = new Intent(this, MQService.class);
-        isBound=bindService(intent, connection, Context.BIND_AUTO_CREATE);
-
-        IntentFilter intentFilter = new IntentFilter("ShareDeviceActivity");
-        receiver = new MessageReceiver();
-        registerReceiver(receiver, intentFilter);
-        running=true;
-        new ShareQrCodeAsync().execute();
     }
 
     @OnClick({R.id.img_back,R.id.btn_update_version})
     public void onClick(View view){
         switch (view.getId()){
             case R.id.img_back:
-                deviceChildDao.closeDaoSession();
                 finish();
                 break;
             case R.id.btn_update_version:
                 new UpdateVersionAsync().execute();
-//                try {
-//                    String mac=deviceChild.getMacAddress();
-//                    String topic="rango/"+mac+"/update/firmware";
-//                    JSONObject jsonObject2=new JSONObject();
-//                    jsonObject2.put("updateWifi",deviceChild.getWifiVersion());
-//                    jsonObject2.put("updateMCU",deviceChild.getMCUVerion());
-//                    String ss=jsonObject2.toString();
-//                    boolean succes=mqService.publish(topic,2,ss);
-//                    if (succes){
-//                        Utils.showToast(this,"更新成功");
-//                    }
-//                    Log.d("sss","-->"+succes);
-//                }catch (Exception e){
-//                    e.printStackTrace();
-//                }
-
                 break;
         }
     }
@@ -188,13 +157,11 @@ public class ShareDeviceActivity extends AppCompatActivity {
             unregisterReceiver(receiver);
         }
         running=false;
-
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-
         deviceChild=null;
     }
 
@@ -317,8 +284,6 @@ public class ShareDeviceActivity extends AppCompatActivity {
                             .centerCrop()
                             .into(180,180)
                             .get();
-
-
                 }catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -677,8 +677,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         popupWindow2.setOutsideTouchable(false);
 //        ColorDrawable dw = new ColorDrawable(0x30000000);
 //        popupWindow.setBackgroundDrawable(dw);
-        popupWindow2.showAsDropDown(btn_match, 0, -20);
-//        popupWindow.showAtLocation(tv_home_manager, Gravity.RIGHT, 0, 0);
+//        popupWindow2.showAsDropDown(btn_match, 0, -20);
+        popupWindow.showAtLocation(et_ssid, Gravity.CENTER, 0, 0);
         //添加按键事件监听
     }
 
@@ -888,23 +888,37 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             et_pswd.setText("");
         }
 
+        et_pswd.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                char chars[]=s.toString().toCharArray();
+                for (char c:chars){
+                    if (IsChinese.isChinese(c)){
+                        et_pswd.setText("");
+                        Utils.showToast(AddDeviceActivity.this,"不能输入中文");
+                        break;
+                    }
+                }
+            }
+        });
         if (!TextUtils.isEmpty(apSsid)) {
-            char[] chars=apSsid.toCharArray();
             et_ssid.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Utils.showToast(AddDeviceActivity.this,"WiFi名称不可编辑");
                 }
             });
-
-            for (char c:chars){
-                if (IsChinese.isChinese(c)){
-                    Utils.showToast(AddDeviceActivity.this,"WiFi名称不能是中文");
-                    et_ssid.setText("");
-                    et_pswd.setText("");
-                    break;
-                }
-            }
         } else {
             et_ssid.setText("");
             et_ssid.setOnClickListener(new View.OnClickListener() {

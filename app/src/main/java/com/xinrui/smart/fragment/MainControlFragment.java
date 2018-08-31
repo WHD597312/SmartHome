@@ -560,6 +560,9 @@ public class MainControlFragment extends Fragment {
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
                 maser.put("timerShutDown", deviceChild.getTimerShutdown());
+                maser.put("grade",deviceChild.getGrade());
+                maser.put("reSet",""+false);
+
                 String s = maser.toString();
                 boolean success = false;
                 String mac = deviceChild.getMacAddress();
