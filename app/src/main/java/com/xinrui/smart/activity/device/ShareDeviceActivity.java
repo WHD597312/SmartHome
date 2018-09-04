@@ -162,7 +162,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        deviceChild=null;
+        running=false;
     }
 
     /**生成二维码*/

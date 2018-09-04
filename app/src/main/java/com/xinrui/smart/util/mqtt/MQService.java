@@ -347,7 +347,7 @@ public class MQService extends Service {
                     JSONObject device = null;
                     String wifiVersion = "";
                     String MCUVerion = "";
-                    int MatTemp = 0;
+                    int MatTemp = -1;
                     String workMode = "";/**manual:手动模式	timer:定时模式*/
                     String LockScreen = "";/** open:上锁  close:解锁*/
                     String BackGroundLED = "";/**open:照明  close:节能*/
@@ -367,7 +367,7 @@ public class MQService extends Service {
                     int protectProTemp = 0;
                     int extTemp = 0;
                     int extHum = 0;
-                    int TimerTemp = 0;
+                    int TimerTemp = -1;
                     String machAttr = "";
                     int grade = -1;
 
@@ -595,15 +595,15 @@ public class MQService extends Service {
 
                                 if (!Utils.isEmpty(workMode)) {
                                     child.setWorkMode(workMode);
-                                    if (MatTemp != 0) {
-                                        child.setMatTemp(MatTemp);
-                                        if ("manual".equals(workMode)) {
-                                            child.setManualMatTemp(MatTemp);
-                                        } else if ("timer".equals(workMode)) {
-                                            child.setTimerTemp(TimerTemp);
-                                        }
-                                    }
                                 }
+                                if (MatTemp!=-1){
+                                    child.setManualMatTemp(MatTemp);
+                                }
+
+                                if (TimerTemp!=-1){
+                                    child.setTimerTemp(TimerTemp);
+                                }
+
                                 if (!Utils.isEmpty(LockScreen))
                                     child.setLockScreen(LockScreen);
                                 if (!Utils.isEmpty(BackGroundLED))

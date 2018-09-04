@@ -58,6 +58,37 @@ public class TempChartActivity extends AppCompatActivity {
             application= (MyApplication) getApplication();
         }
         application.addActivity(this);
+        deviceChildDao=new DeviceChildDaoImpl(getApplicationContext());
+
+        Intent intent=getIntent();
+        deviceId=intent.getStringExtra("deviceId");
+
+        deviceChild=deviceChildDao.findDeviceById(Integer.parseInt(deviceId));
+
+        int  powerValue=deviceChild.getPowerValue()/10;
+        float voltageValue2=deviceChild.getVoltageValue();
+        voltageValue2=voltageValue2/10;
+        BigDecimal decimal2=new BigDecimal(voltageValue2);
+        BigDecimal decimalScale2=decimal2.setScale(2,BigDecimal.ROUND_HALF_UP);
+        float voltageValue3=Float.parseFloat(decimalScale2+"");
+        int voltageValue= (int) voltageValue3;
+        int currentValue=deviceChild.getCurrentValue();
+        float currentValue2=Float.parseFloat(currentValue+"");
+        float currentValue3=currentValue2/1000;
+        BigDecimal decimal=new BigDecimal(currentValue3);
+        BigDecimal decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+        String ss=decimalScale+"";
+
+        powerValue=(int) (voltageValue*Float.parseFloat(ss));
+        String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+decimalScale+"A";
+        int ratedPower=deviceChild.getRatedPower();
+        tv_voltage.setText(s);
+        String s2="额定功率:"+ratedPower+"W";
+        tv_roatPower.setText(s2);
+        IntentFilter intentFilter = new IntentFilter("TempChartActivity");
+        receiver = new MessageReceiver();
+        registerReceiver(receiver, intentFilter);
+        new TempChatAsync().execute();
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -73,28 +104,13 @@ public class TempChartActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Intent intent=getIntent();
-        deviceId=intent.getStringExtra("deviceId");
-        deviceChildDao=new DeviceChildDaoImpl(getApplicationContext());
         deviceChild=deviceChildDao.findDeviceById(Integer.parseInt(deviceId));
-
-        int  powerValue=deviceChild.getPowerValue()/10;
-        int  voltageValue=deviceChild.getVoltageValue()/10;
-        int currentValue=deviceChild.getCurrentValue();
-        float currentValue2=Float.parseFloat(currentValue+"");
-        float currentValue3=currentValue2/1000;
-        BigDecimal decimal=new BigDecimal(currentValue3);
-        BigDecimal decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_DOWN);
-
-        int ratedPower=deviceChild.getRatedPower();
-        String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+decimalScale+"A";
-        tv_voltage.setText(s);
-        String s2="额定功率:"+ratedPower+"W";
-        tv_roatPower.setText(s2);
-        IntentFilter intentFilter = new IntentFilter("TempChartActivity");
-        receiver = new MessageReceiver();
-        registerReceiver(receiver, intentFilter);
-        new TempChatAsync().execute();
+        if (deviceChild==null){
+            Utils.showToast(TempChartActivity.this,"该设备已被重置");
+            Intent intent2=new Intent(TempChartActivity.this,MainActivity.class);
+            intent2.putExtra("deviceList","deviceList");
+            startActivity(intent2);
+        }
     }
 
     MessageReceiver receiver;
@@ -117,7 +133,6 @@ public class TempChartActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         running=false;
-
     }
 
     @Override
@@ -265,18 +280,23 @@ public class TempChartActivity extends AppCompatActivity {
                         deviceChildDao.update(deviceChild);
                         if (deviceChild != null) {
                             if (deviceChild.getOnLint()){
-                                int  powerValue=deviceChild.getPowerValue()/10;
-                                int  voltageValue=deviceChild.getVoltageValue()/10;
+                                float voltageValue2=deviceChild.getVoltageValue();
+                                voltageValue2=voltageValue2/10;
+                                BigDecimal decimal2=new BigDecimal(voltageValue2);
+                                BigDecimal decimalScale2=decimal2.setScale(2,BigDecimal.ROUND_HALF_UP);
+                                float voltageValue3=Float.parseFloat(decimalScale2+"");
+                                int voltageValue= (int) voltageValue3;
                                 int currentValue=deviceChild.getCurrentValue();
                                 float currentValue2=Float.parseFloat(currentValue+"");
                                 float currentValue3=currentValue2/1000;
                                 BigDecimal decimal=new BigDecimal(currentValue3);
-                                BigDecimal decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_DOWN);
+                                BigDecimal decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+                                String ss=decimalScale+"";
 
-                                int ratedPower=deviceChild.getRatedPower();
+                                int powerValue=(int) (voltageValue*Float.parseFloat(ss));
                                 String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+decimalScale+"A";
-
                                 tv_voltage.setText(s);
+                                int ratedPower=deviceChild.getRatedPower();
                                 String s2="额定功率:"+ratedPower+"W";
                                 tv_roatPower.setText(s2);
                             }else {

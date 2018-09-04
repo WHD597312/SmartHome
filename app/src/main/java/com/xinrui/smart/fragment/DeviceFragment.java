@@ -2077,9 +2077,9 @@ public class DeviceFragment extends Fragment {
                 maser.put("outputMode", deviceChild.getOutputMod());
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
-                maser.put("grade", deviceChild.getGrade());
                 maser.put("timerShutDown",deviceChild.getTimerShutdown());
-                maser.put("reSet",""+false);
+                maser.put("grade",deviceChild.getGrade());
+                maser.put("reSet","false");
                 String s = maser.toString();
                 boolean success = false;
                 String topicName;

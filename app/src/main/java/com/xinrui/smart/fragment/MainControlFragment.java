@@ -561,7 +561,7 @@ public class MainControlFragment extends Fragment {
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
                 maser.put("timerShutDown", deviceChild.getTimerShutdown());
                 maser.put("grade",deviceChild.getGrade());
-                maser.put("reSet",""+false);
+                maser.put("reSet","false");
 
                 String s = maser.toString();
                 boolean success = false;

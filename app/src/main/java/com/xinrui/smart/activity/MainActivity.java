@@ -181,12 +181,15 @@ public class MainActivity extends CheckPermissionsActivity {
 
         fragmentManager = getSupportFragmentManager();
 
-        Intent service = new Intent(MainActivity.this, MQService.class);
-        isConnected = bindService(service, connection, Context.BIND_AUTO_CREATE);
+
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         filter.addAction("mqttmessage2");
         myReceiver = new MQTTMessageReveiver();
         this.registerReceiver(myReceiver, filter);
+
+
+        Intent service = new Intent(MainActivity.this, MQService.class);
+        isConnected = bindService(service, connection, Context.BIND_AUTO_CREATE);
 
         drawer.setDrawerListener(toggle);
         toggle.syncState();

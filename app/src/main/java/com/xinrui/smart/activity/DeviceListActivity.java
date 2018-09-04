@@ -1230,7 +1230,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 return false;
             }
             VibratorUtil.StopVibrate(this);
-            application.removeActivity(this);
             Intent intent = new Intent();
             intent.putExtra("houseId", houseId);
             intent.putExtra("back","back");
@@ -1262,7 +1261,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             //解绑界面元素
             unbinder.unbind();
         }
-        application.removeActivity(this);
+//        application.removeActivity(this);
     }
 
     int requestTime=0;

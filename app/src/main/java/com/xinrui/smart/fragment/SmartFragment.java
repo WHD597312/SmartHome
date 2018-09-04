@@ -146,7 +146,7 @@ public class SmartFragment extends Fragment {
                         Intent intent = new Intent(getActivity(), MainControlActivity.class);
                         if ("主控机设置".equals(content)) {
                             if (!Utils.isEmpty(houseId)) {
-                                List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(Long.parseLong(houseId), 1,true);
+                                List<DeviceChild> deviceChildren = deviceChildDao.findDeviceType(Long.parseLong(houseId), 1);
                                 if (deviceChildren.size() < 2) {
                                     Utils.showToast(getActivity(), "在线设备数量不足");
                                 } else if (deviceChildren.size() >= 2) {
