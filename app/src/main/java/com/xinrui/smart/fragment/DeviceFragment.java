@@ -411,19 +411,19 @@ public class DeviceFragment extends Fragment {
         }
     }
 
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case 1:
-                    adapter.notifyDataSetChanged();
-                    break;
-
-            }
-        }
-    };
+//    @SuppressLint("HandlerLeak")
+//    Handler handler = new Handler() {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            super.handleMessage(msg);
+//            switch (msg.what) {
+//                case 1:
+//                    adapter.notifyDataSetChanged();
+//                    break;
+//
+//            }
+//        }
+//    };
 
     class CountTimer extends CountDownTimer {
         public CountTimer(long millisInFuture, long countDownInterval) {
@@ -1444,7 +1444,7 @@ public class DeviceFragment extends Fragment {
          * @param groupPosition
          */
 
-
+        int clickHead=-1;
         @Override
         public void onBindHeaderViewHolder(final BaseViewHolder holder, final int groupPosition) {
             final DeviceGroup entry = groups.get(groupPosition);
@@ -1464,6 +1464,8 @@ public class DeviceFragment extends Fragment {
                         boolean isConn = NetWorkUtil.isConn(MyApplication.getContext());
                         if (isConn) {
                             if (NoFastClickUtils.isFastClick()) {
+                                if (clickHead==1)
+                                    return;
                                 offlineDevices.clear();
                                 mDeviceChild = null;
                                 int count = 0;
@@ -1510,6 +1512,7 @@ public class DeviceFragment extends Fragment {
                                             }
                                         }
                                     }
+                                    clickHead=1;
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -1525,6 +1528,9 @@ public class DeviceFragment extends Fragment {
                         boolean isConn = NetWorkUtil.isConn(MyApplication.getContext());
                         if (isConn) {
                             if (NoFastClickUtils.isFastClick()) {
+                                if (clickHead==0)
+                                    return;
+
                                 mDeviceChild = null;
                                 isKeySwitch = true;
                                 offlineDevices.clear();
@@ -1573,7 +1579,7 @@ public class DeviceFragment extends Fragment {
 
                                         }
                                     }
-
+                                    clickHead=0;
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

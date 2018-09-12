@@ -1523,6 +1523,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                 setMode(deviceChild);
                             }
                         } else if ("offline".equals(online)) {
+                            if(popupWindow!=null && popupWindow.isShowing()){
+                                popupWindow.dismiss();
+                                enableClick();
+                                backgroundAlpha(1.0f);
+                            }
                             linearout.setVisibility(View.GONE);
                             tv_offline.setVisibility(View.VISIBLE);
                             tv_offline.setText("设备已离线");
