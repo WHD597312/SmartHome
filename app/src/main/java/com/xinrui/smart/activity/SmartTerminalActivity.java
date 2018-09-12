@@ -737,6 +737,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
             unbinder.unbind();
         }
         running = false;
+        handler.removeCallbacksAndMessages(null);
     }
 
     private boolean onClick = false;

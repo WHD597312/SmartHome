@@ -152,9 +152,8 @@ public class MainControlActivity extends AppCompatActivity{
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Intent intent=new Intent(this,MainActivity.class);
-            intent.putExtra("mainControl","mainControl");
-            startActivity(intent);
+            setResult(7000);
+            finish();
             return true;
         }
         return super.onKeyDown(keyCode, event);

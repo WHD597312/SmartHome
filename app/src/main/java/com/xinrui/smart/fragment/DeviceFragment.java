@@ -507,11 +507,7 @@ public class DeviceFragment extends Fragment {
                 if (NetWorkUtil.isConn(getActivity())) {
                     for (int i = 0; i < deviceChildren.size(); i++) {
                         DeviceChild deviceChild = deviceChildren.get(i);
-                        if (i == deviceChildren.size() - 1) {
-                            if (progressDialog != null) {
-                                progressDialog.dismiss();
-                            }
-                        }
+
                         if (mqService != null) {
                             try {
                                 String mac = deviceChild.getMacAddress();
@@ -550,6 +546,11 @@ public class DeviceFragment extends Fragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+
+            if (progressDialog != null) {
+                progressDialog.dismiss();
+            }
+
             if (!Utils.isEmpty(s)) {
                 CountTimer countTimer = new CountTimer(1000, 1000);
                 countTimer.start();

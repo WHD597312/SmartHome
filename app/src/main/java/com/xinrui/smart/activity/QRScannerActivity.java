@@ -179,10 +179,12 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                     unbindService(connection);
                 }
             }
+            handler.removeCallbacksAndMessages(null);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        application.removeActivity(this);
+
+
     }
 
     /**

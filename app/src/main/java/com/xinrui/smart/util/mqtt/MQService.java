@@ -415,6 +415,9 @@ public class MQService extends Service {
                         if (child != null) {/**删除和这个设备相关的所有数据*/
                             Log.i("groupPostion", "-->" + groupPostion);
 //                            new DeleteDeviceAsync().execute(child);
+                            if (offlineDevices.containsKey(macAddress)){
+                                offlineDevices.remove(macAddress);
+                            }
                             deviceChildDao.delete(child);
                             Log.i("controlled", "-->" + child.getType() + "," + child.getControlled());
                             List<TimeTask> timeTasks = timeTaskDao.findTimeTasks(child.getId());
@@ -707,6 +710,7 @@ public class MQService extends Service {
                                     child.setTemp(extTemp);
                                     child.setHum(extHum);
                                     deviceChildDao.update(child);
+                                    offlineDevices.put(macAddress,child);
                                 }
                             }
                         }
@@ -752,6 +756,8 @@ public class MQService extends Service {
                                     child.setTemp(sensorSimpleTemp);
                                     child.setHum(sensorSimpleHum);
                                     deviceChildDao.update(child);
+                                    offlineDevices.put(macAddress,child);
+
                                 }
                             }
                         }
@@ -763,6 +769,7 @@ public class MQService extends Service {
 //                            }
                             child.setOnLint(false);
                             deviceChildDao.update(child);
+                            offlineDevices.put(macAddress,child);
                         }
                     } else if (topicName.equals("rango/" + macAddress + "/lwt")) {
                         if (child != null) {
@@ -772,6 +779,7 @@ public class MQService extends Service {
 //                            }
                             child.setOnLint(false);
                             deviceChildDao.update(child);
+                            offlineDevices.put(macAddress,child);
                         }
                     }
                     Log.i("AddDeviceActivity", "-->" + AddDeviceActivity.running);

@@ -65,6 +65,7 @@ public class SmartFragmentManager extends Fragment {
     public static boolean running = false;
     SharedPreferences preferences;
     MyOnPageChangeListener listener;
+    FragmentPagerAdapter fragmentPagerAdapter;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -84,19 +85,24 @@ public class SmartFragmentManager extends Fragment {
             fragmentList.add(smartFragment);
         }
         preferences = getActivity().getSharedPreferences("smart", Context.MODE_PRIVATE);
-        FragmentPagerAdapter fragmentPagerAdapter = new SmartFragmentAdapter(getChildFragmentManager(), fragmentList);
+        fragmentPagerAdapter = new SmartFragmentAdapter(getChildFragmentManager(), fragmentList);
         mPager.setAdapter(fragmentPagerAdapter);
         listener = new MyOnPageChangeListener(getActivity(), mPager, linearout, fragmentList.size());
 
         mPager.addOnPageChangeListener(listener);
+        Log.i("SmartFragmentManager","-->onCreateView");
         if (preferences.contains("position")) {
             int postion = preferences.getInt("position", 0);
             Log.i("smart12222222","-->"+postion);
             listener.onPageSelected(postion);
             mPager.setCurrentItem(postion);
+        }else {
+            mPager.setCurrentItem(0);
+            listener.onPageSelected(0);
         }
         return view;
     }
+
 
     @Override
     public void onDestroyView() {
@@ -115,6 +121,7 @@ public class SmartFragmentManager extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        Log.i("SmartFragmentManager","-->onStart");
     }
 
 
@@ -223,28 +230,29 @@ public class SmartFragmentManager extends Fragment {
         /**
          * arg0是页面跳转完后得到的页面的Position（位置编号）。
          */
-        public void onPageSelected(int poistion) {
-            Message msg = handler.obtainMessage();
-            msg.what = poistion;
-            handler.sendMessage(msg);
+        public void onPageSelected(int position) {
+//            Message msg = handler.obtainMessage();
+//            msg.what = poistion;
+//            handler.sendMessage(msg);
+
+            Log.i("smartposition","-->"+position);
+            SharedPreferences.Editor editor=preferences.edit();
+            editor.putInt("position",position);
+            editor.commit();
         }
     }
 
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            int postion = msg.what;
-                try {
-                    SharedPreferences.Editor editor=preferences.edit();
-                    editor.putInt("position",postion);
-                    editor.commit();
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-        }
-    };
+//    Handler handler = new Handler() {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            super.handleMessage(msg);
+//                try {
+//                    fragmentPagerAdapter.notifyDataSetChanged();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//        }
+//    };
 
 //    MessageReceiver receiver;
 //

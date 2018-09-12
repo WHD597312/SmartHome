@@ -67,6 +67,7 @@ import com.xinrui.smart.view_custom.SemicircleBar;
 
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -704,7 +705,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                             } else if ((mCurrent + 2) <= curTemp) {
                                                 tv_outmode.setText("保温模式");
                                                 animationDrawable.stop();
-                                            } else if ((mCurrent - 3) >= curTemp) {
+                                            } else if ((mCurrent - 3) <= curTemp) {
                                                 tv_outmode.setText("节能模式");
                                                 animationDrawable.start();
                                             }
@@ -894,6 +895,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             finish();
         }
     }
+
 
     Handler handler = new Handler() {
         @Override
@@ -1261,7 +1263,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             //解绑界面元素
             unbinder.unbind();
         }
-//        application.removeActivity(this);
+        Log.i("DeviceListActivity","-->onDestroy");
+        handler.removeCallbacksAndMessages(null);
     }
 
     int requestTime=0;
@@ -1359,7 +1362,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     reSet=true;
                     send(deviceChild);
                     reSet=false;
-                    Thread.sleep(2100);
+                    Thread.currentThread().sleep(2100);
                     JSONObject jsonObject2 = new JSONObject();
                     jsonObject2.put("loadDate", "7");
                     String s = jsonObject2.toString();
@@ -1370,6 +1373,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     if (!success) {
                         success = mqService.publish(topic, 1, s);
                     }
+                    Thread.currentThread().sleep(2100);
                     result="恢复成功";
                 }else if (requestTime==1){
                     for (int timerTaskWeek = 1; timerTaskWeek <= 7; timerTaskWeek++) {

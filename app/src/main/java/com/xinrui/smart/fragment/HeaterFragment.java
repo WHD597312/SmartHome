@@ -1090,6 +1090,7 @@ public class HeaterFragment extends LazyFragment {
         if (unbinder!=null){
             unbinder.unbind();
         }
+        handler.removeCallbacksAndMessages(null);
     }
 
     @Override

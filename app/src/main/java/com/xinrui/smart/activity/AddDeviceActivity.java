@@ -1288,15 +1288,15 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         //添加按键事件监听
     }
 
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if (popupWindow != null) {
-                popupWindow.dismiss();
-            }
-        }
-    };
+//    Handler handler = new Handler() {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            super.handleMessage(msg);
+//            if (popupWindow != null) {
+//                popupWindow.dismiss();
+//            }
+//        }
+//    };
 
     int receiverCount = 0;
 

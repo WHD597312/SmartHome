@@ -290,16 +290,16 @@ public class MainActivity extends CheckPermissionsActivity {
         }
     }
 
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case 0:
-                    break;
-            }
-        }
-    };
+//    Handler handler = new Handler() {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            super.handleMessage(msg);
+//            switch (msg.what) {
+//                case 0:
+//                    break;
+//            }
+//        }
+//    };
 
 
     public void goLiveFragment() {
@@ -562,6 +562,7 @@ public class MainActivity extends CheckPermissionsActivity {
                     if (mqService != null) {
                         mqService.cancelAllsubscibe();
                         mqService.clearAllOfflineDevice();
+                        mqService.setOffineDevices();
                     }
                     deviceChildDao.deleteAll();
                     deviceGroupDao.deleteAll();
@@ -618,6 +619,10 @@ public class MainActivity extends CheckPermissionsActivity {
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
+                    if (result==1){
+                        smartFragmentManager=new SmartFragmentManager();
+                        result=0;
+                    }
                     isRunning = false;
                     fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.replace(R.id.layout_body, smartFragmentManager).commit();
@@ -720,7 +725,6 @@ public class MainActivity extends CheckPermissionsActivity {
             device_view.setVisibility(View.GONE);
             smart_view.setVisibility(View.VISIBLE);
             live_view.setVisibility(View.GONE);
-            smart.edit().clear().commit();
             clicked = 0;
             clicked2 = 1;
             clicked3 = 0;
