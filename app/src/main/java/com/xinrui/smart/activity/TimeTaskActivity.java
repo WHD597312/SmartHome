@@ -316,13 +316,21 @@ public class TimeTaskActivity extends AppCompatActivity {
         super.onStart();
 //        String mac=deviceChild.getMacAddress();
 //        String topicName = "rango/" + mac + "/set";
+        running = true;
+        deviceChild=deviceChildDao.findDeviceById(deviceId);
+        if (deviceChild==null){
+            Utils.showToast(this,"该设备已被重置");
+            Intent intent2=new Intent(this,MainActivity.class);
+            intent2.putExtra("deviceList","deviceList");
+            startActivity(intent2);
+        }
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        running = true;
+
     }
 
     TextView tv_copy;
@@ -994,6 +1002,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                 Utils.showToast(TimeTaskActivity.this, "网络已断开，请设置网络");
             } else {
                 if (!Utils.isEmpty(macAddress3)  && macAddress3.equals(deviceChild.getMacAddress())){
+                    TimeTaskActivity.running=false;
                     Utils.showToast(TimeTaskActivity.this,"该设备类型已为受控机");
                     Intent intent2=new Intent(TimeTaskActivity.this,MainActivity.class);
                     intent2.putExtra("deviceList","deviceList");
@@ -1001,13 +1010,13 @@ public class TimeTaskActivity extends AppCompatActivity {
                 }
                 if (!Utils.isEmpty(macAddress)) {
                     if (deviceChild.getMacAddress().equals(macAddress)) {
+                        TimeTaskActivity.running=false;
                         Utils.showToast(TimeTaskActivity.this, "该设备已被重置");
                         Intent intent2 = new Intent(TimeTaskActivity.this, MainActivity.class);
                         intent2.putExtra("deviceList", "deviceList");
                         startActivity(intent2);
                     }
                 } else {
-                    Log.i("deviceChild","-->"+deviceChild.getMacAddress());
                     DeviceChild deviceChild2 = deviceChildDao.findDeviceById(deviceId);
                     if (deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
                         List<TimeTask> timeTaskList = timeTaskDao.findWeekAll(deviceId, timerTaskWeek);

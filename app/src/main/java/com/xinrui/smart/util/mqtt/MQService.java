@@ -159,6 +159,7 @@ public class MQService extends Service {
         try {
             if (client != null && client.isConnected()) {
                 client.disconnect();
+                client.connect(options);
             }
             new ConAsync().execute();
         } catch (Exception e) {

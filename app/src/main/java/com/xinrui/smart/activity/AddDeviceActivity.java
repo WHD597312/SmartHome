@@ -583,6 +583,9 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         break;
                     }
                     if (!Utils.isEmpty(ssid)) {
+                        if (isBound){
+                            unbindService(connection);
+                        }
 //                    popupWindow();
                         match = 1;
                         window3 = 0;
@@ -593,7 +596,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
 //                        Intent service = new Intent(AddDeviceActivity.this, MQService.class);
 //                        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
-//                        mac="5asdfghi89hc";
+//                        mac="5asdfghi69hg";
                     }
                 }else {
                     Utils.showToast(AddDeviceActivity.this,"请检查网络");
@@ -678,7 +681,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 //        ColorDrawable dw = new ColorDrawable(0x30000000);
 //        popupWindow.setBackgroundDrawable(dw);
 //        popupWindow2.showAsDropDown(btn_match, 0, -20);
-        popupWindow.showAtLocation(et_ssid, Gravity.CENTER, 0, 0);
+        popupWindow2.showAsDropDown(btn_match, 0, -20);
         //添加按键事件监听
     }
 
@@ -705,7 +708,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         deviceId = content.getInt("id");
                         String deviceName = content.getString("deviceName");
                         int type = content.getInt("type");
-                        long houseId = content.getInt("houseId");
+                        long houseId = content.getLong("houseId");
                         int masterControllerUserId = content.getInt("masterControllerUserId");
                         int isUnlock = content.getInt("isUnlock");
                         int version = content.getInt("version");
@@ -1342,6 +1345,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         new WifiConectionAsync().execute(params);
                         receiverCount++;
                     } else {
+                        AddDeviceActivity.running=true;
                         new NoResultAsync().execute();
                     }
                 }

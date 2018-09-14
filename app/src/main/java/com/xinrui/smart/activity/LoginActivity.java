@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -318,8 +319,9 @@ public class LoginActivity extends CheckPermissionsActivity {
                 progressDialog.setCancelable(false);
                 progressDialog.show();
                 btn_login.setClickable(false);
+                CountTimer2 countTimer = new CountTimer2(5000, 1000);
+                countTimer.start();
             }
-
         }
 
         @Override
@@ -361,16 +363,16 @@ public class LoginActivity extends CheckPermissionsActivity {
                         for (int i = 0; i < houses.length(); i++) {
                             JSONObject house = houses.getJSONObject(i);
                             if (house != null) {
-                                int houseId = house.getInt("id");
+                                long houseId = house.getLong("id");
                                 String houseName = house.getString("houseName");
                                 String location = house.getString("location");
                                 int masterControllerDeviceId = house.getInt("masterControllerDeviceId");
                                 int externalSensorsId = house.getInt("externalSensorsId");
                                 String layers = house.getString("layers");
-                                DeviceGroup deviceGroup = new DeviceGroup((long) houseId, houseName + "." + location, houseName, location, masterControllerDeviceId, externalSensorsId, layers);
+                                DeviceGroup deviceGroup = new DeviceGroup(houseId, houseName + "." + location, houseName, location, masterControllerDeviceId, externalSensorsId, layers);
 //                                deviceGroup.setGroupPosition(i);
 
-                                if (deviceGroupDao.findById((long) houseId) != null) {
+                                if (deviceGroupDao.findById(houseId) != null) {
                                     deviceGroupDao.update(deviceGroup);
                                 } else {
                                     deviceGroupDao.insert(deviceGroup);
@@ -380,10 +382,10 @@ public class LoginActivity extends CheckPermissionsActivity {
                                     JSONObject device = deviceList.getJSONObject(j);
 
                                     if (device != null) {
-                                        int deviceId = device.getInt("id");
+                                        long deviceId = device.getLong("id");
                                         String deviceName = device.getString("deviceName");
                                         int type = device.getInt("type");
-                                        int groupId = device.getInt("houseId");
+                                        long groupId = device.getLong("houseId");
 
                                         int masterControllerUserId = device.getInt("masterControllerUserId");
                                         int isUnlock = device.getInt("isUnlock");
@@ -391,7 +393,7 @@ public class LoginActivity extends CheckPermissionsActivity {
                                         String macAddress = device.getString("macAddress");
                                         int controlled = device.getInt("controlled");
 
-                                        DeviceChild child = deviceChildDao.findDeviceChild((long) deviceId);
+                                        DeviceChild child = deviceChildDao.findDeviceChild(deviceId);
                                         if (child != null) {
                                             child.setType(type);
                                             child.setDeviceName(deviceName);
@@ -405,7 +407,7 @@ public class LoginActivity extends CheckPermissionsActivity {
 //                                            child.setChildPosition(j);
                                             deviceChildDao.update(child);
                                         } else {
-                                            DeviceChild deviceChild = new DeviceChild((long)deviceId, (long)groupId, deviceName, macAddress, type);
+                                            DeviceChild deviceChild = new DeviceChild(deviceId, groupId, deviceName, macAddress, type);
 //                                            DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, (long) groupId, masterControllerUserId, type, isUnlock);
                                             deviceChild.setVersion(version);
                                             deviceChild.setMacAddress(macAddress);
@@ -439,7 +441,7 @@ public class LoginActivity extends CheckPermissionsActivity {
                         for (int x = 0; x < deviceList.length(); x++) {
                             JSONObject device = deviceList.getJSONObject(x);
                             if (device != null) {
-                                int deviceId = device.getInt("id");
+                                long deviceId = device.getLong("id");
                                 String deviceName = device.getString("deviceName");
                                 int type = device.getInt("type");
                                 long groupId = shareHouseId;
@@ -450,12 +452,12 @@ public class LoginActivity extends CheckPermissionsActivity {
                                 String macAddress = device.getString("macAddress");
                                 int controlled = device.getInt("controlled");
 //                                DeviceChild deviceChild = new DeviceChild((long) deviceId, deviceName, imgs[0], 0, groupId, masterControllerUserId, type, isUnlock);
-                                DeviceChild deviceChild = new DeviceChild((long)deviceId, (long)groupId, deviceName, macAddress, type);
+                                DeviceChild deviceChild = new DeviceChild(deviceId, groupId, deviceName, macAddress, type);
                                 deviceChild.setControlled(controlled);
                                 deviceChild.setShareHouseId(houseId);
 //                                deviceChild.setGroupPosition(deviceGroups.size());
 //                                deviceChild.setChildPosition(x);
-                                DeviceChild deviceChild2 = deviceChildDao.findDeviceChild((long) deviceId);
+                                DeviceChild deviceChild2 = deviceChildDao.findDeviceChild(deviceId);
                                 if (deviceChild2 == null) {
                                     deviceChildDao.insert(deviceChild);
                                 } else {
@@ -495,6 +497,26 @@ public class LoginActivity extends CheckPermissionsActivity {
                 }
             }catch (Exception e){
                 e.printStackTrace();
+            }
+        }
+    }
+    class CountTimer2 extends CountDownTimer {
+
+        public CountTimer2(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+        @Override
+        public void onTick(long millisUntilFinished) {
+            Log.e("Tag", "倒计时=" + (millisUntilFinished / 1000));
+        }
+
+        @Override
+        public void onFinish() {
+            if (btn_login!=null){
+                btn_login.setClickable(true);
+            }
+            if (progressDialog!=null){
+                progressDialog.dismiss();
             }
         }
     }

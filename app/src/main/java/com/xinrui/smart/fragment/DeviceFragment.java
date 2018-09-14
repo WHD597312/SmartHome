@@ -425,6 +425,23 @@ public class DeviceFragment extends Fragment {
 //        }
 //    };
 
+    class CountTimer2 extends CountDownTimer{
+
+        public CountTimer2(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+        @Override
+        public void onTick(long millisUntilFinished) {
+            Log.e("Tag", "倒计时=" + (millisUntilFinished / 1000));
+        }
+
+        @Override
+        public void onFinish() {
+            if (progressDialog!=null){
+                progressDialog.dismiss();
+            }
+        }
+    }
     class CountTimer extends CountDownTimer {
         public CountTimer(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);
@@ -493,6 +510,16 @@ public class DeviceFragment extends Fragment {
                     progressDialog.setMessage("正在加载数据...");
                     progressDialog.setCancelable(false);
                     progressDialog.show();
+                    int total=0;
+                    if (deviceChildren.size()>0 && deviceChildren.size()<=3) {
+                        total=2000;
+                    }else if (deviceChildren.size()>3 && deviceChildren.size()>=6){
+                        total=4000;
+                    }else if (deviceChildren.size()>6){
+                        total=5000;
+                    }
+                    CountTimer2 countTimer = new CountTimer2(total, 1000);
+                    countTimer.start();
                 }
             }
         }
@@ -526,9 +553,9 @@ public class DeviceFragment extends Fragment {
                                     Log.i("macAddress3", "-->" + mac);
 //                                    Thread.sleep(200);
                                     Thread.currentThread().sleep(300);
-                                    if (!Utils.isEmpty(load) && i == deviceChildren.size() - 1) {
-                                        result = "result";
-                                    }
+                                }
+                                if (!Utils.isEmpty(load) && i == deviceChildren.size() - 1) {
+                                    result = "result";
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -536,7 +563,6 @@ public class DeviceFragment extends Fragment {
                         }
                     }
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -557,6 +583,7 @@ public class DeviceFragment extends Fragment {
             }
         }
     }
+
 
     String load = null;
 

@@ -2,9 +2,11 @@ package com.xinrui.smart.fragment;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -95,6 +97,8 @@ public class MainControlFragment extends Fragment {
         adapter = new MainControlAdapter(mainControls, getActivity());
         lv_homes.setAdapter(adapter);
 
+        Intent intent = new Intent(getActivity(), MQService.class);
+        isBound = getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
         return view;
     }
 
@@ -107,17 +111,20 @@ public class MainControlFragment extends Fragment {
 
     @Override
     public void onStart() {
+
         super.onStart();
+    }
+    private boolean isBound = false;
+
+    @Override
+    public void onStop() {
+        super.onStop();
 
     }
-
-    private boolean isBound = false;
 
     @Override
     public void onResume() {
         super.onResume();
-        Intent intent = new Intent(getActivity(), MQService.class);
-        isBound = getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
     private List<DeviceChild> getMainControls() {
@@ -262,7 +269,7 @@ public class MainControlFragment extends Fragment {
                         for (int i = 0; i < content.length(); i++) {
                             JSONObject device = content.getJSONObject(i);
                             if (device != null) {
-                                int id = device.getInt("id");
+                                long id = device.getLong("id");
                                 String deviceName = device.getString("deviceName");
                                 int type = device.getInt("type");
                                 int houseId = device.getInt("houseId");
@@ -427,10 +434,9 @@ public class MainControlFragment extends Fragment {
         super.onDestroy();
         try {
             if (isBound) {
-                if (connection != null) {
-                    getActivity().unbindService(connection);
-                }
+                getActivity().unbindService(connection);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -577,4 +583,5 @@ public class MainControlFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
 }

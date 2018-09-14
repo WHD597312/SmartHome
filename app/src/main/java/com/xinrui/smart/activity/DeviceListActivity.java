@@ -164,7 +164,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
      * 关机
      */
     private int mCurrent = 5;
-
+    private String macAddress;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -177,6 +177,20 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
         timeDao = new TimeDaoImpl(getApplicationContext());
         progressDialog = new ProgressDialog(this);
+        Intent intent = getIntent();
+        String content = intent.getStringExtra("content");
+        childPosition = intent.getStringExtra("childPosition");
+
+        deviceChild = deviceChildDao.findDeviceById(Long.parseLong(childPosition));
+        deviceId=deviceChild.getId();
+        macAddress=deviceChild.getMacAddress();
+
+        IntentFilter intentFilter = new IntentFilter("DeviceListActivity");
+        receiver = new MessageReceiver();
+        registerReceiver(receiver, intentFilter);
+
+        Intent service = new Intent(this, MQService.class);
+        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
     }
 
 
@@ -529,24 +543,33 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     @Override
     protected void onStart() {
         super.onStart();
-        Intent intent = getIntent();
-        final String content = intent.getStringExtra("content");
-        childPosition = intent.getStringExtra("childPosition");
-
-        deviceChild = deviceChildDao.findDeviceById(Long.parseLong(childPosition));
+        deviceChild=deviceChildDao.findDeviceById(deviceId);
         if (deviceChild != null) {
-            deviceId = deviceChild.getId();
+            if (deviceChild.getType()==1 && deviceChild.getControlled()==1){
+                VibratorUtil.StopVibrate(DeviceListActivity.this);
+                Intent intent2 = new Intent();
+                intent2.putExtra("houseId", houseId);
+                setResult(6000, intent2);
+                finish();
+            }
+            try {
+                if (mqService!=null){
+                    String mac = deviceChild.getMacAddress();
+                    String topic = "rango/" + mac + "/set";
+                    JSONObject jsonObject2 = new JSONObject();
+                    jsonObject2.put("loadDate", "1");
+                    String s2 = jsonObject2.toString();
+                    boolean success2 = false;
+                    success2 = mqService.publish(topic, 1, s2);
+                    if (!success2){
+                        mqService.publish(topic, 1, s2);
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             houseId = deviceChild.getHouseId();
-            tv_name.setText(content);
-//            fragmentManager =getSupportFragmentManager();
-//            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//            HeaterFragment heaterFragment=new HeaterFragment();
-//            Bundle bundle=new Bundle();
-//            bundle.putSerializable("deviceChild",deviceChild);
-//            heaterFragment.setArguments(bundle);
-//            fragmentTransaction.replace(R.id.linearout, heaterFragment);
-//            int commit=fragmentTransaction.commit();
-//            Log.i("mmmmm",commit+"");
+            tv_name.setText(deviceChild.getDeviceName());
 
             WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
             int width = wm.getDefaultDisplay().getWidth() - 200;
@@ -556,10 +579,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             params.leftMargin = 100;
 
             semicBar.setLayoutParams(params);
-//        params=new RelativeLayout.LayoutParams(width/2+100,width/2+100);
-//        params.leftMargin=200;
-//
-//        img_circle.setLayoutParams(params);
+
             semicBar.setModule("1");
             semicBar.setCanTouch(false);
             semicBar.setEnd(0);
@@ -568,8 +588,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 @Override
                 public void onChanged(SemicircleBar seekbar, double curValue) {
                     try {
-                        String handTask = (String) image_hand_task.getTag();
-                        String open = (String) image_switch.getTag();
                         img_circle.setImageResource(R.drawable.lottery_animlist);
                         AnimationDrawable animationDrawable = (AnimationDrawable) img_circle.getDrawable();
                         String module = semicBar.getModule();
@@ -587,13 +605,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                             int curTemp = deviceChild.getCurTemp();
                                             tv_cur_temp.setText(curTemp + "℃");
                                             deviceChild.setManualMatTemp(mCurrent);
-//                                        send(deviceChild);
                                             outside = false;
                                         }
                                     }
                                 }
                             } else if (curAngle > 330 && curAngle <= 360) {
-
                                 if ("open".equals(deviceState)) {
                                     if ("manual".equals(workMode)) {
                                         outside = true;
@@ -603,24 +619,17 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                             int curTemp = deviceChild.getCurTemp();
                                             tv_cur_temp.setText(curTemp + "℃");
                                             deviceChild.setManualMatTemp(mCurrent);
-//                                        send(deviceChild);
                                             outside = false;
                                         }
                                     }
                                 }
-
                             } else {
                                 mCurrent = (int) curAngle / 7 + 3;
                                 if (mCurrent < 5) {
                                     mCurrent = 5;
                                 }
                             }
-
                             if ("close".equals(deviceState)) {
-//                            Message msg = handler.obtainMessage();
-//                            msg.arg1 = 2;
-//                            msg.what = mCurrent;
-//                            handler.sendMessage(msg);
                                 tv_set_temp.setText("--" + "℃");
                                 int curTemp = deviceChild.getCurTemp();
                                 tv_cur_temp.setText(curTemp + "℃");
@@ -629,9 +638,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                 if ("manual".equals(workMode)) {
                                     deviceChild.setManualMatTemp(mCurrent);
                                     deviceChildDao.update(deviceChild);
-//                                tv_timeShutDown.setVisibility(View.GONE);
-//                                tv_outmode.setText("定时关加热");
-//                                tv_timeShutDown.setVisibility(View.GONE);
                                     String tempState = deviceChild.getTempState();
                                     String outputMode = deviceChild.getOutputMod();
                                     if ("err".equals(tempState)) {
@@ -643,29 +649,43 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                             animationDrawable.start();
                                         }
                                     } else {
-                                        int manualMatTemp = deviceChild.getManualMatTemp();
-                                        int curTemp = deviceChild.getCurTemp();
-                                        if (manualMatTemp >= (curTemp + 3)) {
+//                                        int manualMatTemp = deviceChild.getManualMatTemp();
+//                                        int curTemp = deviceChild.getCurTemp();
+//                                        if (manualMatTemp >= (curTemp + 3)) {
+//                                            deviceChild.setOutputMod("fastHeat");//速热模式
+//                                            tv_outmode.setText("速热模式");
+//                                            animationDrawable.start();
+//                                            if (curTemp>=manualMatTemp){
+//                                                if (curTemp >= (manualMatTemp + 3)) {
+////                                                    deviceChild.setOutputMod("saveTemp");//保温模式
+//                                                    tv_outmode.setText("保温模式");
+//                                                    animationDrawable.stop();
+//                                                } else {
+//                                                    deviceChild.setOutputMod("savePwr");//节能模式
+//                                                    tv_outmode.setText("节能模式");
+//                                                    animationDrawable.start();
+//                                                }
+//                                            }
+//
+//                                        } else if (curTemp >= (manualMatTemp + 3)) {
+////                                            deviceChild.setOutputMod("saveTemp");//保温模式
+//                                            tv_outmode.setText("保温模式");
+//                                            animationDrawable.stop();
+//                                        } else {
+////                                            deviceChild.setOutputMod("savePwr");//节能模式
+//                                            tv_outmode.setText("节能模式");
+//                                            animationDrawable.start();
+//                                        }
+
+                                        if ("fastHeat".equals(deviceChild.getOutputMod())){
                                             deviceChild.setOutputMod("fastHeat");//速热模式
                                             tv_outmode.setText("速热模式");
                                             animationDrawable.start();
-                                            if (curTemp>=manualMatTemp){
-                                                if (curTemp >= (manualMatTemp + 3)) {
-                                                    deviceChild.setOutputMod("saveTemp");//保温模式
-                                                    tv_outmode.setText("保温模式");
-                                                    animationDrawable.stop();
-                                                } else {
-                                                    deviceChild.setOutputMod("savePwr");//节能模式
-                                                    tv_outmode.setText("节能模式");
-                                                    animationDrawable.start();
-                                                }
-                                            }
-
-                                        } else if (curTemp >= (manualMatTemp + 3)) {
+                                        }else if ("saveTemp".equals(deviceChild.getOutputMod())){
                                             deviceChild.setOutputMod("saveTemp");//保温模式
                                             tv_outmode.setText("保温模式");
                                             animationDrawable.stop();
-                                        } else {
+                                        }else if ("savePwr".equals(deviceChild.getOutputMod())){
                                             deviceChild.setOutputMod("savePwr");//节能模式
                                             tv_outmode.setText("节能模式");
                                             animationDrawable.start();
@@ -683,7 +703,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                     deviceChild.setTimerTemp(mCurrent);
                                     deviceChildDao.update(deviceChild);
                                     if ("enable".equals(deviceChild.getTimerShutdown())) {
-//                                tv_timeShutDown.setVisibility(View.VISIBLE);
                                         tv_outmode.setText("定时关加热");
                                     } else {
                                         if ("err".equals(deviceChild.getTempState())) {
@@ -698,14 +717,28 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                                 animationDrawable.stop();
                                             }
                                         } else {
-                                            int curTemp = deviceChild.getCurTemp();
-                                            if ((mCurrent - 3) >= curTemp) {
+//                                            int curTemp = deviceChild.getCurTemp();
+//                                            if ((mCurrent - 3) >= curTemp) {
+//                                                tv_outmode.setText("速热模式");
+//                                                animationDrawable.start();
+//                                            } else if ((mCurrent + 2) <= curTemp) {
+//                                                tv_outmode.setText("保温模式");
+//                                                animationDrawable.stop();
+//                                            } else if ((mCurrent - 3) < curTemp) {
+//                                                tv_outmode.setText("节能模式");
+//                                                animationDrawable.start();
+//                                            }
+
+                                            if ("fastHeat".equals(deviceChild.getOutputMod())){
+                                                deviceChild.setOutputMod("fastHeat");//速热模式
                                                 tv_outmode.setText("速热模式");
                                                 animationDrawable.start();
-                                            } else if ((mCurrent + 2) <= curTemp) {
+                                            }else if ("saveTemp".equals(deviceChild.getOutputMod())){
+                                                deviceChild.setOutputMod("saveTemp");//保温模式
                                                 tv_outmode.setText("保温模式");
                                                 animationDrawable.stop();
-                                            } else if ((mCurrent - 3) <= curTemp) {
+                                            }else if ("savePwr".equals(deviceChild.getOutputMod())){
+                                                deviceChild.setOutputMod("savePwr");//节能模式
                                                 tv_outmode.setText("节能模式");
                                                 animationDrawable.start();
                                             }
@@ -722,10 +755,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                             }
                         } else if ("2".equals(module)) {
                             if ("close".equals(deviceState)) {
-//                            Message msg = handler.obtainMessage();
-//                            msg.arg1 = 2;
-//                            msg.what = mCurrent;
-//                            handler.sendMessageDelayed(msg,1000);
+
                                 tv_set_temp.setText("--" + "℃");
                                 int curTemp = deviceChild.getProtectProTemp();
                                 tv_cur_temp.setText(curTemp + "℃");
@@ -733,11 +763,10 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                 animationDrawable.stop();
                             } else if ("open".equals(deviceState)) {
                                 if ("enable".equals(deviceChild.getTimerShutdown()) && "timer".equals(deviceChild.getWorkMode())) {
-//                                    tv_timeShutDown.setVisibility(View.VISIBLE);
-//                                    tv_outmode.setVisibility(View.GONE);
                                     tv_outmode.setText("定时关加热");
                                     animationDrawable.stop();
                                 } else {
+                                    tv_outmode.setText("保护模式");
                                     animationDrawable.start();
                                 }
                                 if (curAngle > 272 && curAngle <= 330) {
@@ -749,7 +778,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                         tv_set_temp.setText(mCurrent + "℃");
                                         int curTemp = deviceChild.getProtectProTemp();
                                         tv_cur_temp.setText(curTemp + "℃");
-//                                    send(deviceChild);
                                         outside = false;
                                     }
                                 } else if ((curAngle > 330 && curAngle <= 360)) {
@@ -762,7 +790,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                         tv_set_temp.setText(mCurrent + "℃");
                                         int curTemp = deviceChild.getProtectProTemp();
                                         tv_cur_temp.setText(curTemp + "℃");
-//                                    send(deviceChild);
                                         outside = false;
                                     }
 
@@ -829,12 +856,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             gradView.setOnItemClickListener(this);
             adapter.setSelectedPosition(mPoistion);
 
-            IntentFilter intentFilter = new IntentFilter("DeviceListActivity");
-            receiver = new MessageReceiver();
-            registerReceiver(receiver, intentFilter);
-
-            Intent service = new Intent(this, MQService.class);
-            isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
             boolean online = deviceChild.getOnLint();
             Log.i("online", "-->" + online);
             String machineFall = deviceChild.getMachineFall();
@@ -1016,19 +1037,14 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 boolean success = false;
                 String topicName;
                 String mac = deviceChild.getMacAddress();
-                if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
-                    String houseId = deviceChild.getHouseId() + "";
-//                    topicName = "rango/masterController/"+houseId+"/"+mac+"/set";
-                    topicName = "rango/" + mac + "/set";
-                    if (bound) {
-                        success = mqService.publish(topicName, 2, s);
-                    }
-                } else {
-                    topicName = "rango/" + mac + "/set";
-                    if (bound) {
+                topicName = "rango/" + mac + "/set";
+                if (bound) {
+                    success = mqService.publish(topicName, 2, s);
+                    if (!success){
                         success = mqService.publish(topicName, 2, s);
                     }
                 }
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1246,14 +1262,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     protected void onStop() {
         super.onStop();
         deviceChildDao.closeDaoSession();
-        if (receiver != null) {
-            unregisterReceiver(receiver);
-        }
-        if (isBound) {
-            if (connection != null) {
-                unbindService(connection);
-            }
-        }
+
         running = false;
     }
     @Override
@@ -1262,6 +1271,14 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         if (unbinder != null) {
             //解绑界面元素
             unbinder.unbind();
+        }
+        if (receiver != null) {
+            unregisterReceiver(receiver);
+        }
+        if (isBound) {
+            if (connection != null) {
+                unbindService(connection);
+            }
         }
         Log.i("DeviceListActivity","-->onDestroy");
         handler.removeCallbacksAndMessages(null);

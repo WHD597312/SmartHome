@@ -60,7 +60,7 @@ public class DeviceChildDaoImpl {
         deviceChildDao.deleteInTx(deviceChildren);
     }
     public DeviceChild findDeviceChild(Long id){
-        return deviceChildDao.load(id);
+        return deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.Id.eq(id)).unique();
     }
 
     /**
@@ -171,8 +171,8 @@ public class DeviceChildDaoImpl {
         List<DeviceChild> children=deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.HouseId.eq(groupId)).orderAsc(DeviceChildDao.Properties.Id).list();
         return children;
     }
-    public DeviceChild findDeviceById(long id){
-        return deviceChildDao.load(id);
+    public DeviceChild findDeviceById(Long id){
+        return deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.Id.eq(id)).unique();
     }
     public List<DeviceChild> findAllDevice(){
         return deviceChildDao.loadAll();

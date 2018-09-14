@@ -334,7 +334,7 @@ public class ETSControlFragment extends Fragment{
                         for (int i=0;i<content.length();i++){
                             JSONObject device=content.getJSONObject(i);
                             if (device!=null){
-                                int id=device.getInt("id");
+                                long id=device.getLong("id");
                                 String deviceName=device.getString("deviceName");
                                 int type=device.getInt("type");
                                 int houseId=device.getInt("houseId");

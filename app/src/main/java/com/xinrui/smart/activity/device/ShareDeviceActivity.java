@@ -106,6 +106,8 @@ public class ShareDeviceActivity extends AppCompatActivity {
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("deviceList","deviceList");
             startActivity(intent);
+        }else {
+
         }
     }
 

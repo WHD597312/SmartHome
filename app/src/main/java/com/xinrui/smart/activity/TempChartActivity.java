@@ -47,7 +47,7 @@ public class TempChartActivity extends AppCompatActivity {
     @BindView(R.id.tv_roatPower) TextView tv_roatPower;
     private DeviceChildDaoImpl deviceChildDao;
     public static boolean running=false;
-
+    long Id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,8 +63,7 @@ public class TempChartActivity extends AppCompatActivity {
         Intent intent=getIntent();
         deviceId=intent.getStringExtra("deviceId");
 
-        deviceChild=deviceChildDao.findDeviceById(Integer.parseInt(deviceId));
-
+        deviceChild=deviceChildDao.findDeviceById(Long.parseLong(deviceId));
         int  powerValue=deviceChild.getPowerValue()/10;
         float voltageValue2=deviceChild.getVoltageValue();
         voltageValue2=voltageValue2/10;
@@ -104,7 +103,7 @@ public class TempChartActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        deviceChild=deviceChildDao.findDeviceById(Integer.parseInt(deviceId));
+        deviceChild=deviceChildDao.findDeviceById(Long.parseLong(deviceId));
         if (deviceChild==null){
             Utils.showToast(TempChartActivity.this,"该设备已被重置");
             Intent intent2=new Intent(TempChartActivity.this,MainActivity.class);

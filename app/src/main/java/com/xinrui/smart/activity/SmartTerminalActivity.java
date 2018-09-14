@@ -175,7 +175,20 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
             Toast.makeText(this, "请检查网络", Toast.LENGTH_SHORT).show();
         }
         getBitWheelInfos();
-//        smartTerminalCircle.setBitInfos(list);
+//
+        Intent service = new Intent(SmartTerminalActivity.this, MQService.class);
+        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
+
+        IntentFilter intentFilter = new IntentFilter("SmartTerminalActivity");
+        receiver = new MessageReceiver();
+        registerReceiver(receiver, intentFilter);
+
+        tempCurProgress = smartTerminalBar.getCurProcess();
+        humCurProgress = smartTerminalHumBar.getCurProcess();
+        smart_temp_decrease.setOnTouchListener(this);
+        smart_temp_add.setOnTouchListener(this);
+        smart_hum_decrease.setOnTouchListener(this);
+        smart_hum_add.setOnTouchListener(this);
     }
 
     public void getBitWheelInfos() {
@@ -194,28 +207,50 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
      */
     private boolean isBound = false;
 
+    int result=0;
     @Override
     protected void onStart() {
         super.onStart();
         running = true;
-        Intent service = new Intent(SmartTerminalActivity.this, MQService.class);
-        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
-
-        IntentFilter intentFilter = new IntentFilter("SmartTerminalActivity");
-        receiver = new MessageReceiver();
-        registerReceiver(receiver, intentFilter);
-
-        tempCurProgress = smartTerminalBar.getCurProcess();
-        humCurProgress = smartTerminalHumBar.getCurProcess();
-        smart_temp_decrease.setOnTouchListener(this);
-        smart_temp_add.setOnTouchListener(this);
-        smart_hum_decrease.setOnTouchListener(this);
-        smart_hum_add.setOnTouchListener(this);
-        if (deviceChild != null) {
+        deviceChild = deviceChildDao.findDeviceById(sensorId);
+        if (deviceChild != null && result==0) {
             String name = deviceChild.getDeviceName();
             tv_title.setText(name);
             setMode(deviceChild);
+            List<DeviceChild> revomeList=new ArrayList<>();
+            for(DeviceChild deviceChild2:linkList){
+                DeviceChild deviceChild3=deviceChildDao.findDeviceByMacAddress2(deviceChild2.getMacAddress());
+                if (deviceChild3==null){
+                    revomeList.add(deviceChild2);
+                }else if (deviceChild3!=null && deviceChild3.getType()==1 && deviceChild3.getControlled()==1){
+                    revomeList.add(deviceChild3);
+                }
+
+            }
+            if (!revomeList.isEmpty()){
+                list.clear();
+                getBitWheelInfos();
+                linkList.removeAll(revomeList);
+                List<SmartTerminalInfo> infoList = new ArrayList<>();
+                for (int i = 0; i < linkList.size(); i++) {
+                    DeviceChild deviceChild=linkList.get(i);
+                    int linked=deviceChild.getLinked();
+                    if (linked==1){
+                        SmartTerminalInfo terminalInfo = list.get(i);
+                        infoList.add(terminalInfo);
+                    }
+                }
+                if (smartTerminalCircle != null) {
+                    smartTerminalCircle.setBitInfos(infoList);
+                }
+            }
+        }else {
+            Intent intent=new Intent();
+            intent.putExtra("houseId",houseId);
+            setResult(6000,intent);
+            finish();
         }
+
     }
 
     private void setMode(DeviceChild deviceChild) {
@@ -486,6 +521,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == 100) {
+            result=1;
             linkList.clear();
             list.clear();
             getBitWheelInfos();
@@ -584,6 +620,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
             if (progressDialog != null) {
                 progressDialog.dismiss();
             }
+            result=1;
             switch (code) {
                 case 2000:
                     List<SmartTerminalInfo> infoList = new ArrayList<>();
@@ -629,6 +666,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
         }
     };
 
+
     class MessageReceiver extends BroadcastReceiver {
 
         @Override
@@ -652,9 +690,8 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                         DeviceChild deviceChild4 = null;
                         for (int i = 0; i < linkList.size(); i++) {
                             DeviceChild deviceChild5 = linkList.get(i);
-                            String mac = deviceChild5.getMacAddress();
                             String macAddress2 = deviceChild5.getMacAddress();
-                            if (macAddress2.equals(mac)) {
+                            if (macAddress2.equals(macAddress)) {
                                 deviceChild4 = deviceChild5;
                                 break;
                             }
@@ -722,12 +759,8 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
     @Override
     protected void onStop() {
         super.onStop();
-        if (isBound) {
-            unbindService(connection);
-        }
-        if (receiver != null) {
-            unregisterReceiver(receiver);
-        }
+        running=false;
+        result=0;
     }
 
     @Override
@@ -736,6 +769,17 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
         if (unbinder != null) {
             unbinder.unbind();
         }
+        try {
+            if (isBound) {
+                unbindService(connection);
+            }
+            if (receiver != null) {
+                unregisterReceiver(receiver);
+            }
+        }catch (Exception e){
+
+        }
+
         running = false;
         handler.removeCallbacksAndMessages(null);
     }
