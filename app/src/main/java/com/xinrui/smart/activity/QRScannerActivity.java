@@ -161,7 +161,6 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
         super.onPause();
         if (handler != null) {
             handler.quitSynchronously();
-            handler = null;
         }
         CameraManager.get().closeDriver();
     }
@@ -179,7 +178,10 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                     unbindService(connection);
                 }
             }
-            handler.removeCallbacksAndMessages(null);
+            if (handler!=null){
+                handler.removeCallbacksAndMessages(null);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

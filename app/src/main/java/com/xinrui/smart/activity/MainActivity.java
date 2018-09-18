@@ -670,10 +670,14 @@ public class MainActivity extends CheckPermissionsActivity {
         falling = false;
         if (keyCode == KeyEvent.KEYCODE_BACK) {
 
-            if (back < 1) {
-                Utils.showToast(this, "请再按一次退出Rango");
-                back++;
+            if ((System.currentTimeMillis() - exitTime) > 2000) {
+                Toast.makeText(getApplicationContext(), "再按一次退出Rango",
+                        Toast.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
                 return false;
+            }
+            if (mqService!=null){
+                mqService.setOffineDevices();
             }
             if (preferences.contains("login"))
                 preferences.edit().remove("login").commit();

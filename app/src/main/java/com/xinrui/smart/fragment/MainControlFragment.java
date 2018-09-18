@@ -69,7 +69,8 @@ public class MainControlFragment extends Fragment {
     private List<DeviceChild> beSelectedData = new ArrayList();
 
     private String masterUrl = "http://47.98.131.11:8082/warmer/v1.0/house/setMasterDevice";
-
+    public static boolean running=false;
+    private MessageReceiver receiver;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -99,6 +100,9 @@ public class MainControlFragment extends Fragment {
 
         Intent intent = new Intent(getActivity(), MQService.class);
         isBound = getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        IntentFilter intentFilter = new IntentFilter("MainControlFragment");
+        receiver = new MessageReceiver();
+        getActivity().registerReceiver(receiver, intentFilter);
         return view;
     }
 
@@ -111,7 +115,7 @@ public class MainControlFragment extends Fragment {
 
     @Override
     public void onStart() {
-
+        running=true;
         super.onStart();
     }
     private boolean isBound = false;
@@ -427,6 +431,7 @@ public class MainControlFragment extends Fragment {
         if (unbinder != null) {
             unbinder.unbind();
         }
+        running=false;
     }
 
     @Override
@@ -437,6 +442,9 @@ public class MainControlFragment extends Fragment {
                 getActivity().unbindService(connection);
             }
 
+            if (receiver!=null){
+                getActivity().unregisterReceiver(receiver);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -581,6 +589,34 @@ public class MainControlFragment extends Fragment {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    class MessageReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String macAddress=intent.getStringExtra("macAddress");
+            if (macAddress!=null){
+                DeviceChild deleteDevice=null;
+                for (DeviceChild deviceChild:mainControls){
+                    String mac=deviceChild.getMacAddress();
+                    if (macAddress.equals(mac)){
+                        deleteDevice=deviceChild;
+                        break;
+                    }
+                }
+                if (deleteDevice!=null){
+                    String name=deleteDevice.getDeviceName();
+                    mainControls.remove(deleteDevice);
+                    Utils.showToast(getActivity(),name+"设备已重置");
+                    if (mainControls.isEmpty()){
+                        getActivity().setResult(7000);
+                        getActivity().finish();
+                    }else {
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            }
         }
     }
 

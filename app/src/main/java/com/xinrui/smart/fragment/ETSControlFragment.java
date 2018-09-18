@@ -2,9 +2,11 @@ package com.xinrui.smart.fragment;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -61,29 +63,19 @@ public class ETSControlFragment extends Fragment{
 //    @BindView(R.id.textView) TextView textView;//外置传感器提示
     private List<DeviceChild> mainControls;//外置传感器数量
     private ETSControlAdapter adapter;//主控制设置适配器
-    public int runing=0;
+    public static boolean runing=false;
     private Map<Integer, Boolean> isSelected=new HashMap<>();
 
     private List<DeviceChild> beSelectedData = new ArrayList();
 
     private String extSensorUrl="http://47.98.131.11:8082/warmer/v1.0/device/setExtSensor";
+    private MessageReceiver receiver;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         view=inflater.inflate(R.layout.fragment_control,container,false);
         unbinder= ButterKnife.bind(this,view);
-        return view;
-    }
 
-    private String houseId;
-    private String houseName;
-    private DeviceChildDaoImpl deviceChildDao;
-    private DeviceGroupDaoImpl deviceGroupDao;
-    private int unbindPosition=-1;
-    private ProgressDialog progressDialog;
-    @Override
-    public void onStart() {
-        super.onStart();
         Bundle bundle=getArguments();
         houseId=bundle.getString("houseId");
         deviceGroupDao=new DeviceGroupDaoImpl(MyApplication.getContext());
@@ -118,13 +110,31 @@ public class ETSControlFragment extends Fragment{
         adapter=new ETSControlAdapter(mainControls,getActivity());
         lv_homes.setAdapter(adapter);
 
+        Intent intent = new Intent(getActivity(), MQService.class);
+        isBound=getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
+        IntentFilter intentFilter = new IntentFilter("ETSControlFragment");
+        receiver = new MessageReceiver();
+        getActivity().registerReceiver(receiver, intentFilter);
+        return view;
+    }
+
+    private String houseId;
+    private String houseName;
+    private DeviceChildDaoImpl deviceChildDao;
+    private DeviceGroupDaoImpl deviceGroupDao;
+    private int unbindPosition=-1;
+    private ProgressDialog progressDialog;
+    @Override
+    public void onStart() {
+        super.onStart();
+       runing=true;
     }
     private boolean isBound=false;
     @Override
     public void onResume() {
         super.onResume();
-        Intent intent = new Intent(getActivity(), MQService.class);
-        isBound=getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
     }
 
 
@@ -465,6 +475,7 @@ public class ETSControlFragment extends Fragment{
         if (unbinder!=null){
             unbinder.unbind();
         }
+        runing=false;
     }
     @Override
     public void onDestroy() {
@@ -475,6 +486,9 @@ public class ETSControlFragment extends Fragment{
                 if (connection != null) {
                     getActivity().unbindService(connection);
                 }
+            }
+            if (receiver!=null){
+                getActivity().unregisterReceiver(receiver);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -496,4 +510,32 @@ public class ETSControlFragment extends Fragment{
             bound = false;
         }
     };
+    class MessageReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String macAddress=intent.getStringExtra("macAddress");
+            if (macAddress!=null){
+                DeviceChild deleteDevice=null;
+                for (DeviceChild deviceChild:mainControls){
+                    String mac=deviceChild.getMacAddress();
+                    if (macAddress.equals(mac)){
+                        deleteDevice=deviceChild;
+                        break;
+                    }
+                }
+                if (deleteDevice!=null){
+                    String name=deleteDevice.getDeviceName();
+                    mainControls.remove(deleteDevice);
+                    Utils.showToast(getActivity(),name+"设备已重置");
+                    if (mainControls.isEmpty()){
+                        getActivity().setResult(7000);
+                        getActivity().finish();
+                    }else {
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            }
+        }
+    }
 }

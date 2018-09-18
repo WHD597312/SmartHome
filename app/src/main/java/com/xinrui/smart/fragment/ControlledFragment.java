@@ -2,9 +2,11 @@ package com.xinrui.smart.fragment;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -74,37 +76,21 @@ public class ControlledFragment extends Fragment{
     private List<DeviceChild> beSelectedData = new ArrayList();
 
     private ProgressDialog progressDialog;
+    private MessageReceiver receiver;
+    long houseId2;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         view=inflater.inflate(R.layout.fragment_control,container,false);
         unbinder=ButterKnife.bind(this,view);
         progressDialog = new ProgressDialog(getActivity());
-        return view;
-    }
-
-    private List<DeviceChild> getControlleds(){
-
-        if (!Utils.isEmpty(houseId)){
-            long id=Long.parseLong(houseId);
-            controlleds=deviceChildDao.findGroupIdAllDevice(id);
-        }
-        return controlleds;
-    }
-    private String houseId;
-    private String houseName;
-    private DeviceChildDaoImpl deviceChildDao;
-    private DeviceGroupDaoImpl deviceGroupDao;
-    @Override
-    public void onStart() {
-        super.onStart();
-        running=true;
 
         Bundle bundle=getArguments();
         houseId=bundle.getString("houseId");
         deviceGroupDao=new DeviceGroupDaoImpl(MyApplication.getContext());
         deviceChildDao=new DeviceChildDaoImpl(MyApplication.getContext());
         long id=Long.parseLong(houseId);
+        houseId2=id;
         DeviceGroup deviceGroup=deviceGroupDao.findById(id);
 
         tv_home.setBackgroundResource(R.drawable.shape_controled_header);
@@ -120,13 +106,38 @@ public class ControlledFragment extends Fragment{
         lv_homes.setAdapter(adapter);
 
         tv_home.setBackgroundResource(R.drawable.shape_header);
+        Intent intent = new Intent(getActivity(), MQService.class);
+        isBound=getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
+        IntentFilter intentFilter = new IntentFilter("ControlledFragment");
+        receiver = new MessageReceiver();
+        getActivity().registerReceiver(receiver, intentFilter);
+        return view;
+    }
+
+    private List<DeviceChild> getControlleds(){
+        if (!Utils.isEmpty(houseId)){
+            long id=Long.parseLong(houseId);
+            controlleds=deviceChildDao.findGroupIdAllDevice(id);
+        }
+        return controlleds;
+    }
+    private String houseId;
+    private String houseName;
+    private DeviceChildDaoImpl deviceChildDao;
+    private DeviceGroupDaoImpl deviceGroupDao;
+    @Override
+    public void onStart() {
+        super.onStart();
+        running=true;
+
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Intent intent = new Intent(getActivity(), MQService.class);
-        isBound=getActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
     }
 
     @Override
@@ -138,7 +149,9 @@ public class ControlledFragment extends Fragment{
                     getActivity().unbindService(connection);
                 }
             }
-
+            if (receiver!=null){
+                getActivity().unregisterReceiver(receiver);
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -435,6 +448,38 @@ public class ControlledFragment extends Fragment{
             bound = false;
         }
     };
+    class MessageReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String macAddress=intent.getStringExtra("macAddress");
+            if (macAddress!=null){
+                DeviceChild deleteDevice=null;
+                for (DeviceChild deviceChild:controlleds){
+                    String mac=deviceChild.getMacAddress();
+                    if (macAddress.equals(mac)){
+                        deleteDevice=deviceChild;
+                        break;
+                    }
+                }
+                if (deleteDevice!=null){
+                    String name=deleteDevice.getDeviceName();
+                    controlleds.remove(deleteDevice);
+                    Utils.showToast(getActivity(),name+"设备已重置");
+                    if (controlleds.isEmpty()){
+                        DeviceChild deviceChild=deviceChildDao.findMainControlDevice(houseId2,1,2);
+                        deviceChild.setCtrlMode("normal");
+                        deviceChild.setControlled(1);
+                        send(deviceChild);
+                        getActivity().setResult(7000);
+                        getActivity().finish();
+                    }else {
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            }
+        }
+    }
     public void send(DeviceChild deviceChild) {
         try {
             if (deviceChild != null) {

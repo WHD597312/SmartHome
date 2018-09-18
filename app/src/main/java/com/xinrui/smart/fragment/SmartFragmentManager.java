@@ -153,6 +153,7 @@ public class SmartFragmentManager extends Fragment {
 //        }
         deviceGroupDao.closeDaoSession();
         deviceChildDao.closeDaoSession();
+        handler.removeCallbacksAndMessages(null);
 
     }
 
@@ -231,9 +232,9 @@ public class SmartFragmentManager extends Fragment {
          * arg0是页面跳转完后得到的页面的Position（位置编号）。
          */
         public void onPageSelected(int position) {
-//            Message msg = handler.obtainMessage();
-//            msg.what = poistion;
-//            handler.sendMessage(msg);
+            Message msg = handler.obtainMessage();
+            msg.what = position;
+            handler.sendMessage(msg);
 
             Log.i("smartposition","-->"+position);
             SharedPreferences.Editor editor=preferences.edit();
@@ -242,17 +243,18 @@ public class SmartFragmentManager extends Fragment {
         }
     }
 
-//    Handler handler = new Handler() {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            super.handleMessage(msg);
-//                try {
-//                    fragmentPagerAdapter.notifyDataSetChanged();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//        }
-//    };
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+                try {
+                    int position=msg.what;
+                    mPager.setCurrentItem(position);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+        }
+    };
 
 //    MessageReceiver receiver;
 //

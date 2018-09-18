@@ -3,6 +3,7 @@ package com.xinrui.smart.fragment;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.app.Service;
+import android.bluetooth.BluetoothClass;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -479,15 +480,38 @@ public class DeviceFragment extends Fragment {
                     List<DeviceChild> deviceChildren = childern.get(i);
                     for (int j = 0; j < deviceChildren.size(); j++) {
                         DeviceChild deviceChild = deviceChildren.get(j);
-                        for (Map.Entry<String, DeviceChild> childEntry : childMap.entrySet()) {
-                            String macAddress = childEntry.getKey();
-                            Log.i("macAdd", "-->" + macAddress);
-                            DeviceChild deviceChild2 = childEntry.getValue();
-                            if (macAddress.equals(deviceChild.getMacAddress())) {
-                                childern.get(i).set(j, deviceChild2);
-                                break;
+                        String macAddress2=deviceChild.getMacAddress();
+                        if (childMap.containsKey(macAddress2)){
+                            DeviceChild deviceChild3=childMap.get(macAddress2);
+                            childern.get(i).set(j,deviceChild3);
+                        }else {
+                            deviceChild.setOnLint(false);
+                            deviceChild.setImg(imgs[0]);
+                            try {
+                                String mac = deviceChild.getMacAddress();
+                                String topic = "rango/" + mac + "/set";
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("loadDate", "1");
+                                String s = jsonObject.toString();
+                                boolean success = false;
+                                success = mqService.publish(topic, 1, s);
+                                if (!success){
+                                    success = mqService.publish(topic, 1, s);
+                                }
+                            }catch (Exception e){
+                                e.printStackTrace();
                             }
+                            childern.get(i).set(j,deviceChild);
                         }
+
+//                        for (Map.Entry<String, DeviceChild> m : childMap.entrySet()) {
+//                            DeviceChild deviceChild2=m.getValue();
+//                            String macAdddress=deviceChild2.getMacAddress();
+//                            if (macAddress2.equals(macAdddress)){
+//                                deviceChild3=deviceChild2;
+//                                break;
+//                            }
+//                        }
                         if (j == deviceChildren.size() - 1) {
                             adapter.notifyDataSetChanged();
                         }
@@ -537,23 +561,36 @@ public class DeviceFragment extends Fragment {
 
                         if (mqService != null) {
                             try {
-                                String mac = deviceChild.getMacAddress();
-                                String topic = "rango/" + mac + "/set";
-                                Log.i("macAddress2", "-->" + mac);
-                                JSONObject jsonObject = new JSONObject();
-                                jsonObject.put("loadDate", "1");
-                                String s = jsonObject.toString();
-                                boolean success = false;
-                                success = mqService.publish(topic, 1, s);
-                                if (!success) {
+                                if (deviceChild.getType()==1){
+                                    String mac = deviceChild.getMacAddress();
+                                    String topic = "rango/" + mac + "/set";
+                                    Log.i("macAddress2", "-->" + mac);
+                                    JSONObject jsonObject = new JSONObject();
+                                    jsonObject.put("loadDate", "1");
+                                    String s = jsonObject.toString();
+                                    boolean success = false;
                                     success = mqService.publish(topic, 1, s);
-                                    Log.i("macAddress", "-->" + mac);
-                                }
-                                if (success) {
-                                    Log.i("macAddress3", "-->" + mac);
+                                    if (!success) {
+                                        success = mqService.publish(topic, 1, s);
+                                        Log.i("macAddress", "-->" + mac);
+                                    }
+                                    if (success) {
+                                        Log.i("macAddress3", "-->" + mac);
 //                                    Thread.sleep(200);
-                                    Thread.currentThread().sleep(300);
+                                        Thread.currentThread().sleep(300);
+                                    }
+                                }else if (deviceChild.getType()==2){
+                                    String macAddress = deviceChild.getMacAddress();
+                                    String topic="p99/sensor1/" + macAddress + "/transfer";
+                                    boolean success=mqService.subscribe(topic,1);
+                                    if (!success){
+                                        success=mqService.subscribe(topic,1);
+                                    }
+                                    if (success){
+                                        Thread.currentThread().sleep(300);
+                                    }
                                 }
+
                                 if (!Utils.isEmpty(load) && i == deviceChildren.size() - 1) {
                                     result = "result";
                                 }

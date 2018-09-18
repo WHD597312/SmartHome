@@ -295,10 +295,12 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             public void onClick(View v) {
                 switch (v.getId()) {
                     case R.id.rl_heater:
+                        window3=0;
                         popupmenuWindow2();
                         popupWindow.dismiss();
                         break;
                     case R.id.rl_sensor:
+                        window3=0;
                         popupmenuWindow4();
                         popupWindow.dismiss();
                         break;
@@ -464,7 +466,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             case R.id.img_back:
                 match = 0;
                 Log.i("dialog", "sssssss");
-                window3 = 0;
+                window3 = 1;
                 et_ssid.setEnabled(true);
                 et_pswd.setEnabled(true);
                 btn_match.setEnabled(true);
@@ -503,6 +505,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 break;
             case R.id.layout_help:
                 match = 0;
+                window3=1;
                 et_ssid.setEnabled(false);
                 et_pswd.setEnabled(false);
                 btn_match.setEnabled(false);
@@ -510,6 +513,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 break;
             case R.id.btn_wifi:
                 match = 0;
+                window3=1;
                 wifi_drawable = wifi_drawables[1];
                 wifi_drawables[1] = wifi_drawables[0];
                 wifi_drawables[0] = wifi_drawable;
@@ -536,6 +540,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 break;
             case R.id.btn_scan:
                 match = 0;
+                window3=1;
                 wifi_drawable = wifi_drawables[1];
                 wifi_drawables[1] = wifi_drawables[0];
                 wifi_drawables[0] = wifi_drawable;
@@ -561,6 +566,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 break;
             case R.id.btn_scan2:
                 match = 0;
+                window3=1;
                 startActivity(new Intent(this, QRScannerActivity.class));
                 break;
             case R.id.btn_match:
@@ -588,7 +594,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         }
 //                    popupWindow();
                         match = 1;
-                        window3 = 0;
+                        window3 = 1;
                         et_ssid.setEnabled(false);
                         et_pswd.setEnabled(false);
                         btn_match.setEnabled(false);
@@ -596,7 +602,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
 //                        Intent service = new Intent(AddDeviceActivity.this, MQService.class);
 //                        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
-//                        mac="5asdfghi69hg";
+//                        mac="5asdfghi69m";
                     }
                 }else {
                     Utils.showToast(AddDeviceActivity.this,"请检查网络");
@@ -864,6 +870,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         receiver = new MessageReceiver();
         registerReceiver(receiver, intentFilter);
         Log.i("AddDevice", "-->" + "onStart");
+        match=0;
     }
 
     @Override
@@ -958,7 +965,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         super.onStop();
         Log.i("AddDevice", "-->" + "onStop");
         running = false;
-
+        match=0;
 //        receiverCount=0;
     }
 
@@ -1029,6 +1036,9 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     String topicName = "p99/" + macAddress + "/set";
                     String payLoad = "getType";
                     boolean step2 = mqService.publish(topicName, 1, payLoad);
+                    if (!step2){
+                       step2 = mqService.publish(topicName, 1, payLoad);
+                    }
                 }
             }
             return null;
@@ -1103,7 +1113,6 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
     private IEsptouchTask mEsptouchTask;
 
     private class EsptouchAsyncTask3 extends AsyncTask<String, Void, List<IEsptouchResult>> {
-
 
         // without the lock, if the user tap confirm and cancel quickly enough,
         // the bug will arise. the reason is follows:
@@ -1211,7 +1220,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             if (mEsptouchTask != null) {
                 mEsptouchTask.interrupt();
             }
-            window3 = 0;
+            window3 = 1;
+            match=0;
             if (countTimer2 != null) {
                 countTimer2.cancel();
             }
@@ -1325,7 +1335,6 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         AddDeviceActivity.running = false;
                         Log.i("receiverCount", "-->" + receiverCount);
                         Log.i("type2", "-->" + type);
-
                         Map<String, Object> params = new HashMap<>();
                         params.put("deviceName", deviceName);
                         params.put("houseId", houseId);

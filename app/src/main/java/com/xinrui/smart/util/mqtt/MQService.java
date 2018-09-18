@@ -42,6 +42,7 @@ import com.xinrui.smart.activity.TimeTaskActivity;
 import com.xinrui.smart.activity.device.ShareDeviceActivity;
 import com.xinrui.smart.fragment.ControlledFragment;
 import com.xinrui.smart.fragment.DeviceFragment;
+import com.xinrui.smart.fragment.ETSControlFragment;
 import com.xinrui.smart.fragment.HeaterFragment;
 import com.xinrui.smart.fragment.MainControlFragment;
 import com.xinrui.smart.fragment.SmartFragmentManager;
@@ -764,27 +765,19 @@ public class MQService extends Service {
                         }
                     } else if (("p99/sensor1/" + macAddress + "/lwt").equals(topicName)) {
                         if (child != null) {
-//                            send(child);
-//                            if ("open".equals(child.getDeviceState())) {
-//                                child.setImg(imgs[2]);
-//                            }
                             child.setOnLint(false);
                             deviceChildDao.update(child);
                             offlineDevices.put(macAddress,child);
                         }
                     } else if (topicName.equals("rango/" + macAddress + "/lwt")) {
                         if (child != null) {
-//                            send(child);
-//                            if ("open".equals(child.getDeviceState())) {
-//                                child.setImg(imgs[2]);
-//                            }
                             child.setOnLint(false);
                             deviceChildDao.update(child);
                             offlineDevices.put(macAddress,child);
                         }
                     }
                     Log.i("AddDeviceActivity", "-->" + AddDeviceActivity.running);
-                    if (DeviceListActivity.running || ShareDeviceActivity.running || TimeTaskActivity.running|| TempChartActivity.running){
+                    if (DeviceListActivity.running || ShareDeviceActivity.running || TimeTaskActivity.running|| TempChartActivity.running||MainControlFragment.running||ControlledFragment.running|| ETSControlFragment.runing){
                         MainActivity.falling=false;
                         DeviceFragment.running=false;
                         falling=-1;
@@ -856,7 +849,6 @@ public class MQService extends Service {
                                 mqttIntent.putExtra("online", "offline");
                                 sendBroadcast(mqttIntent);
                             }
-
                         }
                     } else if (TimeTaskActivity.running) {
                         if (!Utils.isEmpty(reSet)) {
@@ -914,7 +906,25 @@ public class MQService extends Service {
                                 sendBroadcast(mqttIntent);
                             }
                         }
-                    } else if (Btn1_fragment.running == 2) {
+                    } else if(MainControlFragment.running==true){
+                        if (!Utils.isEmpty(reSet)){
+                            Intent mqttIntent = new Intent("MainControlFragment");
+                            mqttIntent.putExtra("macAddress", macAddress);
+                            sendBroadcast(mqttIntent);
+                        }
+                    }else if (ControlledFragment.running){
+                        if (!Utils.isEmpty(reSet)){
+                            Intent mqttIntent = new Intent("ControlledFragment");
+                            mqttIntent.putExtra("macAddress", macAddress);
+                            sendBroadcast(mqttIntent);
+                        }
+                    }else if (ETSControlFragment.runing){
+                        if (!Utils.isEmpty(reSet)){
+                            Intent mqttIntent = new Intent("ETSControlFragment");
+                            mqttIntent.putExtra("macAddress", macAddress);
+                            sendBroadcast(mqttIntent);
+                        }
+                    }else if (Btn1_fragment.running == 2) {
                         Intent mqttIntent = new Intent("Btn1_fragment");
                         mqttIntent.putExtra("extTemp", extTemp);
                         mqttIntent.putExtra("extHum", extHum);
