@@ -16,6 +16,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -170,6 +171,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
 //        linkList=deviceChildDao.findLinkDevice(houseId,roomId,3);
         boolean isConn = NetWorkUtil.isConn(this);
         if (isConn) {
+            result=1;
             new GetLinkedAsync().execute();
         } else {
             Toast.makeText(this, "请检查网络", Toast.LENGTH_SHORT).show();
@@ -208,6 +210,19 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
     private boolean isBound = false;
 
     int result=0;
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Intent intent = new Intent();
+            intent.putExtra("houseId", houseId);
+            setResult(6000, intent);
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -225,7 +240,6 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                 }else if (deviceChild3!=null && deviceChild3.getType()==1 && deviceChild3.getControlled()==1){
                     revomeList.add(deviceChild3);
                 }
-
             }
             if (!revomeList.isEmpty()){
                 list.clear();
@@ -245,10 +259,12 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                 }
             }
         }else {
-            Intent intent=new Intent();
-            intent.putExtra("houseId",houseId);
-            setResult(6000,intent);
-            finish();
+            if (deviceChild==null && result==0){
+                Intent intent=new Intent();
+                intent.putExtra("houseId",houseId);
+                setResult(6000,intent);
+                finish();
+            }
         }
 
     }
@@ -584,6 +600,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
             int code = 0;
             String url = "http://47.98.131.11:8082/warmer/v1.0/device/getDeviceLinked?sensorsId=" + sensorId + "&houseId=" + houseId;
             String result = HttpUtils.getOkHpptRequest(url);
+            SmartTerminalActivity.this.result=1;
             if (!TextUtils.isEmpty(result)) {
                 Log.i("result", "-->" + result);
                 try {
@@ -592,6 +609,9 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                     if (code == 2000) {
                         JSONArray content = jsonObject.getJSONArray("content");
                         for (int i = 0; i < content.length(); i++) {
+                            if (linkList.size()>8){
+                                break;
+                            }
                             JSONObject device = content.getJSONObject(i);
                             int deviceId = device.getInt("deviceId");
                             int linked = device.getInt("linked");
@@ -601,7 +621,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                             deviceChild.setLinked(linked);
                             deviceChild.setControlled(controlled);
                             if (controlled==2 || controlled==0){
-                                if (!linkList.contains(deviceChild)){
+                                if (!linkList.contains(deviceChild)) {
                                     linkList.add(deviceChild);
                                 }
                             }

@@ -36,6 +36,7 @@ import com.xinrui.smart.activity.AddDeviceActivity;
 import com.xinrui.smart.activity.DeviceListActivity;
 import com.xinrui.smart.activity.LoginActivity;
 import com.xinrui.smart.activity.MainActivity;
+import com.xinrui.smart.activity.SmartLinkedActivity;
 import com.xinrui.smart.activity.SmartTerminalActivity;
 import com.xinrui.smart.activity.TempChartActivity;
 import com.xinrui.smart.activity.TimeTaskActivity;
@@ -777,7 +778,7 @@ public class MQService extends Service {
                         }
                     }
                     Log.i("AddDeviceActivity", "-->" + AddDeviceActivity.running);
-                    if (DeviceListActivity.running || ShareDeviceActivity.running || TimeTaskActivity.running|| TempChartActivity.running||MainControlFragment.running||ControlledFragment.running|| ETSControlFragment.runing){
+                    if (DeviceListActivity.running || ShareDeviceActivity.running || TimeTaskActivity.running|| TempChartActivity.running||MainControlFragment.running||ControlledFragment.running|| ETSControlFragment.runing || SmartLinkedActivity.running){
                         MainActivity.falling=false;
                         DeviceFragment.running=false;
                         falling=-1;
@@ -923,6 +924,20 @@ public class MQService extends Service {
                             Intent mqttIntent = new Intent("ETSControlFragment");
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
+                        }
+                    }else if (SmartLinkedActivity.running){
+                        if (!Utils.isEmpty(reSet)){
+                            Intent mqttIntent = new Intent("SmartLinkedActivity");
+                            mqttIntent.putExtra("macAddress", macAddress);
+                            mqttIntent.putExtra("deviceChild",child);
+                            sendBroadcast(mqttIntent);
+                        }else {
+                            if (child.getType()==1 && child.getControlled()==1){
+                                Intent mqttIntent = new Intent("SmartLinkedActivity");
+                                mqttIntent.putExtra("macAddress", macAddress);
+                                mqttIntent.putExtra("deviceChild",child);
+                                sendBroadcast(mqttIntent);
+                            }
                         }
                     }else if (Btn1_fragment.running == 2) {
                         Intent mqttIntent = new Intent("Btn1_fragment");
@@ -1131,9 +1146,7 @@ public class MQService extends Service {
                 if (deviceChild.getType() == 1 && deviceChild.getControlled() == 2) {
                     String houseId = deviceChild.getHouseId() + "";
                     topicName = "rango/masterController/" + houseId + "/" + mac + "/set";
-
                     publish(topicName, 1, s);
-
                 } else {
                     topicName = "rango/" + mac + "/set";
                     publish(topicName, 1, s);

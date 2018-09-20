@@ -37,7 +37,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="@dimen/dp_22"
         android:scaleType="centerInside"
-        android:background="@drawable/selector_round"
+        android:background="@drawable/selector_round2"
         android:button="@null"
         />
 </RelativeLayout>
