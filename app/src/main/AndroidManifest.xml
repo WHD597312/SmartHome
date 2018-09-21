@@ -62,7 +62,7 @@
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
-        android:hardwareAccelerated="true"
+        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
@@ -101,6 +101,7 @@
             android:name=".activity.LoginActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
+            android:hardwareAccelerated="false"
             android:windowSoftInputMode="adjustNothing">
             >
             <intent-filter>
@@ -110,31 +111,37 @@
             </intent-filter>
         </activity>
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.RegistActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.ForgetPswdActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.MainActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.AddDeviceActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.MainControlActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="true"
             android:name=".activity.DeviceListActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -149,11 +156,13 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="true"
             android:name=".activity.TimeTaskActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.TempChartActivity"
             android:label=""
             android:screenOrientation="portrait"
@@ -169,6 +178,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.device.ShareDeviceActivity"
             android:label=""
             android:screenOrientation="portrait"
@@ -186,16 +196,19 @@
         </receiver>
 
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.ComProblemActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.PersonInfoActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.QRScannerActivity"
             android:label=""
             android:screenOrientation="portrait"
@@ -206,31 +219,37 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.device.AboutUsActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.device.CommonProblemActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.device.CommonSetActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.device.AboutAppActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
+            android:hardwareAccelerated="true"
             android:name=".activity.SmartTerminalActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             />
         <activity
+            android:hardwareAccelerated="false"
             android:name=".activity.SmartLinkedActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"

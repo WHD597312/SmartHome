@@ -49,6 +49,7 @@ import java.io.Serializable;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -140,7 +141,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
     @BindView(R.id.tv_smart_hum) TextView tv_smart_hum;/**设定湿度*/
     MessageReceiver receiver;
     public static boolean running = false;
-    private List<DeviceChild> linkList = new ArrayList<>();
+    private List<DeviceChild> linkList = new LinkedList<>();
     long sensorId;
     long houseId;
     long roomId;
@@ -170,6 +171,9 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
 //        warmers=deviceChildDao.findDeviceByType(houseId,roomId,2,true);
 //        linkList=deviceChildDao.findLinkDevice(houseId,roomId,3);
         boolean isConn = NetWorkUtil.isConn(this);
+        String name = deviceChild.getDeviceName();
+        tv_title.setText(name);
+        setMode(deviceChild);
         if (isConn) {
             result=1;
             new GetLinkedAsync().execute();
@@ -232,32 +236,37 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
             String name = deviceChild.getDeviceName();
             tv_title.setText(name);
             setMode(deviceChild);
-            List<DeviceChild> revomeList=new ArrayList<>();
-            for(DeviceChild deviceChild2:linkList){
-                DeviceChild deviceChild3=deviceChildDao.findDeviceByMacAddress2(deviceChild2.getMacAddress());
-                if (deviceChild3==null){
-                    revomeList.add(deviceChild2);
-                }else if (deviceChild3!=null && deviceChild3.getType()==1 && deviceChild3.getControlled()==1){
-                    revomeList.add(deviceChild3);
-                }
-            }
-            if (!revomeList.isEmpty()){
-                list.clear();
-                getBitWheelInfos();
-                linkList.removeAll(revomeList);
-                List<SmartTerminalInfo> infoList = new ArrayList<>();
-                for (int i = 0; i < linkList.size(); i++) {
-                    DeviceChild deviceChild=linkList.get(i);
-                    int linked=deviceChild.getLinked();
-                    if (linked==1){
-                        SmartTerminalInfo terminalInfo = list.get(i);
-                        infoList.add(terminalInfo);
+            if (mqService!=null){
+                int first=linkList.size();
+                for(int i=0;i<linkList.size();i++){
+                    DeviceChild deviceChild2=linkList.get(i);
+                    DeviceChild deviceChild3=mqService.findDeviceByMacAddress(deviceChild2.getMacAddress());
+                    if (deviceChild3==null){
+                        linkList.remove(i);
+                    }else if (deviceChild3!=null && deviceChild3.getType()==1 && deviceChild3.getControlled()==1){
+                        linkList.remove(i);
                     }
                 }
-                if (smartTerminalCircle != null) {
-                    smartTerminalCircle.setBitInfos(infoList);
+
+                int second=linkList.size();
+                if (first!=second){
+                    list.clear();
+                    getBitWheelInfos();
+                    List<SmartTerminalInfo> infoList = new ArrayList<>();
+                    for (int i = 0; i < linkList.size(); i++) {
+                        DeviceChild deviceChild=linkList.get(i);
+                        int linked=deviceChild.getLinked();
+                        if (linked==1){
+                            SmartTerminalInfo terminalInfo = list.get(i);
+                            infoList.add(terminalInfo);
+                        }
+                    }
+                    if (smartTerminalCircle != null) {
+                        smartTerminalCircle.setBitInfos(infoList);
+                    }
                 }
             }
+
         }else {
             if (deviceChild==null && result==0){
                 Intent intent=new Intent();
@@ -613,14 +622,11 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                                 break;
                             }
                             JSONObject device = content.getJSONObject(i);
-                            int deviceId = device.getInt("deviceId");
+                            long deviceId = device.getLong("deviceId");
                             int linked = device.getInt("linked");
-                            int controlled=device.getInt("controlled");
-                            String macAddress = device.getString("macAddress");
-                            DeviceChild deviceChild = deviceChildDao.findDeviceById((long) deviceId);
+                            DeviceChild deviceChild = deviceChildDao.findDeviceById(deviceId);
                             deviceChild.setLinked(linked);
-                            deviceChild.setControlled(controlled);
-                            if (controlled==2 || controlled==0){
+                            if (deviceChild.getType()==1 && deviceChild.getControlled()!=1){
                                 if (!linkList.contains(deviceChild)) {
                                     linkList.add(deviceChild);
                                 }

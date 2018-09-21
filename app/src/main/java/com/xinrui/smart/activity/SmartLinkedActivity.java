@@ -1,11 +1,14 @@
 package com.xinrui.smart.activity;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -28,6 +31,7 @@ import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.SmartTerminalInfo;
 import com.xinrui.smart.util.Utils;
+import com.xinrui.smart.util.mqtt.MQService;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -36,6 +40,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +56,7 @@ public class SmartLinkedActivity extends AppCompatActivity {
     @BindView(R.id.list_linked) ListView list_linked;/**可联动的设备视图列表*/
     private Map<Long,DeviceChild> linkedMap=new LinkedHashMap<>();/**已联动的设备*/
     private String chooseDevicesIp="http://47.98.131.11:8082/warmer/v1.0/device/chooseDeviceLinked";
-    private List<DeviceChild> list=new ArrayList<>();/**可联动的设备*/
+    private List<DeviceChild> list=new LinkedList<>();/**可联动的设备*/
     private LinkdAdapter adapter;
     private long sensorId;/**传感器Id*/
     long houseId;
@@ -61,6 +66,7 @@ public class SmartLinkedActivity extends AppCompatActivity {
     MessageReceiver receiver;
     public static boolean running=false;
     private List<DeviceChild> linkedList2=new ArrayList<>();
+    private boolean isBound=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,11 +97,29 @@ public class SmartLinkedActivity extends AppCompatActivity {
         registerReceiver(receiver, intentFilter);
         adapter=new LinkdAdapter(this,list);
         list_linked.setAdapter(adapter);
+
+        Intent service = new Intent(SmartLinkedActivity.this, MQService.class);
+        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
     }
     @Override
     public void onBackPressed() {
         finish();
     }
+    MQService mqService;
+    private boolean bound;
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MQService.LocalBinder binder = (MQService.LocalBinder) service;
+            mqService = binder.getService();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
 
     @Override
     protected void onStart() {
@@ -108,35 +132,38 @@ public class SmartLinkedActivity extends AppCompatActivity {
             intent2.putExtra("deviceList","deviceList");
             startActivity(intent2);
         }else {
-            if (!list.isEmpty()){
-                List<DeviceChild> removeList=new ArrayList<>();
-                for (DeviceChild deviceChild2:list){
-                    DeviceChild deviceChild3=deviceChildDao.findDeviceByMacAddress2(deviceChild2.getMacAddress());
-
-                    if (deviceChild3==null){
-                        String macAddress=deviceChild2.getMacAddress();
-                        if (linkedMap.containsKey(macAddress)){
-                            linkedMap.remove(deviceChild2);
-                        }
-                        removeList.add(deviceChild2);
-                    }else {
-                        if (deviceChild3.getType()==1 && deviceChild3.getControlled()==1){
+            if (mqService!=null){
+                if (!list.isEmpty()){
+                    int first=list.size();
+                    for (int i=0;i<list.size();i++){
+                        DeviceChild deviceChild2=list.get(i);
+                        DeviceChild deviceChild3=mqService.findDeviceByMacAddress(deviceChild2.getMacAddress());
+                        if (deviceChild3==null){
                             String macAddress=deviceChild2.getMacAddress();
                             if (linkedMap.containsKey(macAddress)){
                                 linkedMap.remove(deviceChild2);
                             }
-                            removeList.remove(deviceChild2);
+                            list.remove(i);
+                        }else {
+                            if (deviceChild3.getType()==1 && deviceChild3.getControlled()==1){
+                                String macAddress=deviceChild2.getMacAddress();
+                                if (linkedMap.containsKey(macAddress)){
+                                    linkedMap.remove(deviceChild2);
+                                }
+                                list.remove(i);
+                            }
                         }
                     }
-                }
-                list.removeAll(removeList);
-                if (list.isEmpty()){
-                    Intent intent=new Intent();
-                    intent.putExtra("list",(Serializable) list);
-                    setResult(100,intent);
-                    finish();
-                }else {
-                    adapter.notifyDataSetChanged();
+                    int second=list.size();
+                    if (list.isEmpty()){
+                        Intent intent=new Intent();
+                        intent.putExtra("list",(Serializable) list);
+                        setResult(100,intent);
+                        finish();
+                    }else {
+                        if (first!=second)
+                            adapter.notifyDataSetChanged();
+                    }
                 }
             }
         }
@@ -184,6 +211,9 @@ public class SmartLinkedActivity extends AppCompatActivity {
         }
         if (receiver!=null){
             unregisterReceiver(receiver);
+        }
+        if (isBound){
+            unbindService(connection);
         }
     }
 
@@ -342,8 +372,7 @@ public class SmartLinkedActivity extends AppCompatActivity {
                             String macAddress = device.getString("macAddress");
                             DeviceChild deviceChild = deviceChildDao.findDeviceById(deviceId);
                             deviceChild.setLinked(linked);
-                            deviceChild.setControlled(controlled);
-                            if (controlled==2 || controlled==0){
+                            if (deviceChild.getType()==1 && deviceChild.getControlled()!=1){
                                 linkedMap.put(deviceId,deviceChild);
                                 if (!list2.contains(deviceChild)){
                                     list2.add(deviceChild);
@@ -380,7 +409,7 @@ public class SmartLinkedActivity extends AppCompatActivity {
             String macAddress=intent.getStringExtra("macAddress");
             DeviceChild deviceChild4= (DeviceChild) intent.getSerializableExtra("deviceChild");
             if (deviceChild4==null){
-                if (macAddress.equals(deviceChild.getMacAddress())){
+                if (deviceChild!=null && macAddress.equals(deviceChild.getMacAddress())){
                     String name=deviceChild.getDeviceName();
                     Utils.showToast(SmartLinkedActivity.this,name+"设备已重置");
                     Intent intent2=new Intent(SmartLinkedActivity.this,MainActivity.class);
@@ -423,6 +452,7 @@ public class SmartLinkedActivity extends AppCompatActivity {
                     if (deviceChild3!=null){
                         String name=deviceChild3.getDeviceName();
                         list.remove(deviceChild3);
+                        deviceChildDao.update(deviceChild4);
                         if (linkedMap.containsKey(macAddress)){
                             linkedMap.remove(deviceChild3);
                         }

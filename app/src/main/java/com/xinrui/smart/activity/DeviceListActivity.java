@@ -1461,7 +1461,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                             String topicName;
                             topicName = "rango/" + mac + "/set";
                             success = mqService.publish(topicName, 1, jsonData);
-                            Thread.sleep(50);
                         }
                     }
                 }
@@ -1602,12 +1601,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                 VibratorUtil.Vibrate(DeviceListActivity.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s  //震动10s
                                 gradView.setVisibility(View.GONE);
                             } else {
-                                if (dialog!=null&&dialog.isShowing()){
-                                    dialog.dismiss();
-                                }
-                                if (dialog2!=null && dialog2.isShowing()){
-                                    dialog2.dismiss();
-                                }
+
                                 VibratorUtil.StopVibrate(DeviceListActivity.this);
                                 linearout.setVisibility(View.VISIBLE);
                                 tv_offline.setVisibility(View.GONE);

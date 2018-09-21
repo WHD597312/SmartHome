@@ -78,6 +78,7 @@ public class ControlledFragment extends Fragment{
     private ProgressDialog progressDialog;
     private MessageReceiver receiver;
     long houseId2;
+    DeviceChild mastDevice;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -98,6 +99,7 @@ public class ControlledFragment extends Fragment{
         if (!Utils.isEmpty(houseName)){
             tv_home.setText(houseName);
         }
+        masterDevice=deviceChildDao.findMainControlDevice(houseId2,1,2);
 //        controlleds=getControlleds();
         controlleds=new ArrayList<>();
 //        controlleds=deviceChildDao.findDeviceType(id,1);
@@ -455,26 +457,39 @@ public class ControlledFragment extends Fragment{
             String macAddress=intent.getStringExtra("macAddress");
             if (macAddress!=null){
                 DeviceChild deleteDevice=null;
-                for (DeviceChild deviceChild:controlleds){
-                    String mac=deviceChild.getMacAddress();
-                    if (macAddress.equals(mac)){
-                        deleteDevice=deviceChild;
-                        break;
-                    }
-                }
-                if (deleteDevice!=null){
-                    String name=deleteDevice.getDeviceName();
-                    controlleds.remove(deleteDevice);
-                    Utils.showToast(getActivity(),name+"设备已重置");
-                    if (controlleds.isEmpty()){
-                        DeviceChild deviceChild=deviceChildDao.findMainControlDevice(houseId2,1,2);
+                if (masterDevice!=null && macAddress.equals(masterDevice.getMacAddress())){
+                    List<DeviceChild> list=deviceChildDao.findDeviceType(houseId2,1);
+                    for (DeviceChild deviceChild:list){
                         deviceChild.setCtrlMode("normal");
                         deviceChild.setControlled(1);
                         send(deviceChild);
-                        getActivity().setResult(7000);
-                        getActivity().finish();
-                    }else {
-                        adapter.notifyDataSetChanged();
+                    }
+                    Utils.showToast(getActivity(),"主控设备已重置");
+                    getActivity().setResult(7000);
+                    getActivity().finish();
+
+                }else {
+                    for (DeviceChild deviceChild:controlleds){
+                        String mac=deviceChild.getMacAddress();
+                        if (macAddress.equals(mac)){
+                            deleteDevice=deviceChild;
+                            break;
+                        }
+                    }
+                    if (deleteDevice!=null){
+                        String name=deleteDevice.getDeviceName();
+                        controlleds.remove(deleteDevice);
+                        Utils.showToast(getActivity(),name+"设备已重置");
+                        if (controlleds.isEmpty()){
+                            DeviceChild deviceChild=deviceChildDao.findMainControlDevice(houseId2,1,2);
+                            deviceChild.setCtrlMode("normal");
+                            deviceChild.setControlled(1);
+                            send(deviceChild);
+                            getActivity().setResult(7000);
+                            getActivity().finish();
+                        }else {
+                            adapter.notifyDataSetChanged();
+                        }
                     }
                 }
             }

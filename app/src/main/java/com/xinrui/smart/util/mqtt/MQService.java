@@ -1413,4 +1413,7 @@ public class MQService extends Service {
             new LoadMqttAsync3().execute(deviceChildren);
         }
     }
+    public DeviceChild findDeviceByMacAddress(String macAddress){
+        return deviceChildDao.findDeviceByMacAddress2(macAddress);
+    }
 }

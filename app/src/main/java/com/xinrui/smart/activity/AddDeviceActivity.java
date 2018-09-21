@@ -602,7 +602,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
 //                        Intent service = new Intent(AddDeviceActivity.this, MQService.class);
 //                        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
-//                        mac="5asdfghi69w";
+//                        mac="5asdfghi69k";
                     }
                 }else {
                     Utils.showToast(AddDeviceActivity.this,"请检查网络");
