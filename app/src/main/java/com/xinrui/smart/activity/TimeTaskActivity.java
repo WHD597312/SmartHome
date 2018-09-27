@@ -534,7 +534,11 @@ public class TimeTaskActivity extends AppCompatActivity {
                         if (start > end) {
                             Utils.showToast(this, "关的时间应大于开的时间");
                             close_time.setText((start + 1) + ":00");
-                            return;
+                            break;
+                        }else if (start==end){
+                            Utils.showToast(this, "关的时间不能等于开的时间");
+                            close_time.setText((start + 1) + ":00");
+                            break;
                         }
                         if ("日".equals(mSelectedWeek)) {
                             mSelectedWeek = "七";
@@ -676,25 +680,25 @@ public class TimeTaskActivity extends AppCompatActivity {
                 if ("开始时间".equals(OPEN_CLOSE)) {
                     open_time.setText(hour + ":00");
                 } else if ("结束时间".equals(OPEN_CLOSE)) {
-                    close_time.setText(hour + ":00");
                     String openTime = open_time.getText().toString();
                     openTime = openTime.substring(0, openTime.indexOf(":"));
-                    String closeTime = close_time.getText().toString();
-                    closeTime = closeTime.substring(0, closeTime.indexOf(":"));
-                    Log.i("fff", closeTime);
-
-                    Log.i("fff", closeTime);
-
-                    if (Integer.parseInt(openTime) > Integer.parseInt(closeTime)) {
-
-                        int endTime = Integer.parseInt(closeTime);
-                        if (endTime == 0) {
-                            endTime = 24;
-                            close_time.setText((endTime) + ":00");
+                    int startTime=Integer.parseInt(openTime);
+                    if (startTime > hour) {
+                        if (hour == 0) {
+                            close_time.setText(24 + ":00");
                         } else {
                             Utils.showToast(this, "结束时间要大于开始时间");
-                            close_time.setText((endTime + 1) + ":00");
+                            int time=Integer.parseInt(openTime)+1;
+                            close_time.setText(time + ":00");
+                            break;
                         }
+                    }else  if (startTime==hour){
+                        Utils.showToast(this, "结束时间不能等于开始时间");
+                        int time=Integer.parseInt(openTime)+1;
+                        close_time.setText(time + ":00");
+                        break;
+                    }else {
+                        close_time.setText(hour + ":00");
                     }
                 }
                 tv_temp_num.setText(temperature + "℃");

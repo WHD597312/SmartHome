@@ -205,20 +205,24 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                 content = new String(Base64.decode(content, Base64.DEFAULT));
                 if (!Utils.isEmpty(content)) {
                     shareContent = content;
-                    String[] ss = content.split("&");
-                    String s0 = ss[0];
-                    String deviceId = s0.substring(s0.indexOf("'") + 1);
-                    String s2 = ss[2];
-                    String macAddress = s2.substring(s2.indexOf("'") + 1);
-                    shareMacAddress = macAddress;
+                    if (!content.contains("macAddress") && !content.contains("deviceId")){
+                        Toast.makeText(QRScannerActivity.this, "扫描内容不符合!", Toast.LENGTH_SHORT).show();
+                    }else {
+                        String[] ss = content.split("&");
+                        String s0 = ss[0];
+                        String deviceId = s0.substring(s0.indexOf("'") + 1);
+                        String s2 = ss[2];
+                        String macAddress = s2.substring(s2.indexOf("'") + 1);
+                        shareMacAddress = macAddress;
 
 
-                    Map<String, Object> params = new HashMap<>();
-                    params.put("deviceId", deviceId);
-                    params.put("userId", userId);
-                    Intent service = new Intent(QRScannerActivity.this, MQService.class);
-                    isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
-                    new QrCodeAsync().execute(params);
+                        Map<String, Object> params = new HashMap<>();
+                        params.put("deviceId", deviceId);
+                        params.put("userId", userId);
+                        Intent service = new Intent(QRScannerActivity.this, MQService.class);
+                        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
+                        new QrCodeAsync().execute(params);
+                    }
                 }
             }
         }
