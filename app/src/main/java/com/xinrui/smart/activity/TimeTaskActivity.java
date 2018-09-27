@@ -675,6 +675,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                 linearout.setVisibility(View.GONE);
                 if ("开始时间".equals(OPEN_CLOSE)) {
                     open_time.setText(hour + ":00");
+                    break;
                 } else if ("结束时间".equals(OPEN_CLOSE)) {
                     close_time.setText(hour + ":00");
                     String openTime = open_time.getText().toString();
@@ -695,9 +696,8 @@ public class TimeTaskActivity extends AppCompatActivity {
                             Utils.showToast(this, "结束时间要大于开始时间");
                             close_time.setText((endTime + 1) + ":00");
                         }
-
-                        return;
                     }
+                    break;
                 }
                 tv_temp_num.setText(temperature + "℃");
                 break;

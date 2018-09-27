@@ -1172,6 +1172,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                             Intent service = new Intent(AddDeviceActivity.this, MQService.class);
                             isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
                             mac = ssid;
+                            break;
                         }
                         count++;
                         if (count >= maxDisplayCount) {

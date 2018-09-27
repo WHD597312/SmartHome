@@ -81,14 +81,6 @@ public class MainControlActivity extends AppCompatActivity{
 
         tv_main_device.setText(content);
         fragmentManager=getFragmentManager();
-    }
-
-
-    String houseId;
-    String content;
-    @Override
-    protected void onStart() {
-        super.onStart();
 
         if ("主控机设置".equals(content)){
             FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
@@ -122,6 +114,15 @@ public class MainControlActivity extends AppCompatActivity{
                 fragmentTransaction.commit();
             }
         }
+    }
+
+
+    String houseId;
+    String content;
+    @Override
+    protected void onStart() {
+        super.onStart();
+
     }
     @OnClick({R.id.img_cancel,R.id.img_back})
     public void onClick(View view){

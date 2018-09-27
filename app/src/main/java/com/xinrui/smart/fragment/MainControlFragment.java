@@ -71,6 +71,7 @@ public class MainControlFragment extends Fragment {
     private String masterUrl = "http://47.98.131.11:8082/warmer/v1.0/house/setMasterDevice";
     public static boolean running=false;
     private MessageReceiver receiver;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -91,6 +92,7 @@ public class MainControlFragment extends Fragment {
         progressDialog = new ProgressDialog(getActivity());
 
         mainControls = new ArrayList<>();
+
 //        mainControls=deviceChildDao.findDeviceControl(id,1,1);
 
 
@@ -113,17 +115,18 @@ public class MainControlFragment extends Fragment {
     private int unbindPosition = -1;
     private ProgressDialog progressDialog;
 
+
     @Override
     public void onStart() {
         running=true;
         super.onStart();
+
     }
     private boolean isBound = false;
 
     @Override
     public void onStop() {
         super.onStop();
-
     }
 
     @Override

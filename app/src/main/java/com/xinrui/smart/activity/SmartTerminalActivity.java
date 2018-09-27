@@ -139,6 +139,8 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
     private String linkedUrl = HttpUtils.ipAddress + "/family/device/sensors/getDevicesInRoom";
     private String updateDeviceNameUrl = HttpUtils.ipAddress + "/family/device/changeDeviceName";
     @BindView(R.id.tv_smart_hum) TextView tv_smart_hum;/**设定湿度*/
+    @BindView(R.id.tv_temp_state) TextView tv_temp_state;/**温度状态*/
+    @BindView(R.id.tv_hum_state) TextView tv_hum_state;/**湿度状态*/
     MessageReceiver receiver;
     public static boolean running = false;
     private List<DeviceChild> linkList = new LinkedList<>();
@@ -292,6 +294,36 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
             tv_air_state.setText("良");
         } else if (sorsorPm > 75) {
             tv_air_value.setText("差");
+        }
+        if (sensorSimpleTemp>=0){
+            tv_temp_value.setText(sensorSimpleTemp + "");
+        }else {
+            tv_temp_value.setText("--");
+        }
+        if (sensorSimpleHum>=0){
+            tv_hum_value.setText(sensorSimpleHum + "");
+        }else {
+            tv_hum_value.setText("--");
+        }
+        if (sorsorPm>=0){
+            tv_air_value.setText(sorsorPm + "");
+        }else {
+            tv_air_value.setText("__");
+        }
+        if (sensorSimpleTemp<18){
+            tv_temp_state.setText("较低");
+        }else if (sensorSimpleTemp>=18 && sensorSimpleTemp<26){
+            tv_temp_state.setText("舒适");
+        }else if (sensorSimpleTemp>=26){
+            tv_temp_state.setText("较高");
+        }
+
+        if (sensorSimpleHum<30){
+            tv_hum_state.setText("干燥");
+        }else  if (sensorSimpleHum>=30 && sensorSimpleHum<60){
+            tv_hum_state.setText("舒适");
+        }else if (sensorSimpleHum>=60){
+            tv_hum_state.setText("潮湿");
         }
         int extTemp = deviceChild.getTemp();
         int extHum = deviceChild.getHum();

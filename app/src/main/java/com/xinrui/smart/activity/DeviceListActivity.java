@@ -525,6 +525,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             @Override
             public void onPositiveClick() {
                 dialog2.dismiss();
+                requestTime=0;
                 new PasteWeekAsync().execute();
             }
         });
