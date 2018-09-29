@@ -186,6 +186,8 @@ public class LoginActivity extends CheckPermissionsActivity {
                 progressDialog.setCancelable(false);
                 progressDialog.show();
                 btn_login.setClickable(false);
+                CountTimer2 countTimer = new CountTimer2(3000, 1000);
+                countTimer.start();
             }
         }
 
@@ -519,6 +521,7 @@ public class LoginActivity extends CheckPermissionsActivity {
             }
             if (progressDialog!=null){
                 progressDialog.dismiss();
+
             }
         }
     }

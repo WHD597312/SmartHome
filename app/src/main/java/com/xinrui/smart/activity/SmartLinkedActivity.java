@@ -408,7 +408,7 @@ public class SmartLinkedActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String macAddress=intent.getStringExtra("macAddress");
             DeviceChild deviceChild4= (DeviceChild) intent.getSerializableExtra("deviceChild");
-            if (deviceChild4==null){
+            if (deviceChild4==null&& deviceChild!=null){
                 if (deviceChild!=null && macAddress.equals(deviceChild.getMacAddress())){
                     String name=deviceChild.getDeviceName();
                     Utils.showToast(SmartLinkedActivity.this,name+"设备已重置");
@@ -441,7 +441,7 @@ public class SmartLinkedActivity extends AppCompatActivity {
                     }
                 }
             }else {
-                if (deviceChild4.getType()==1 && deviceChild4.getControlled()==1){
+                if (deviceChild!=null&& deviceChild4.getType()==1 && deviceChild4.getControlled()==1){
                     DeviceChild deviceChild3=null;
                     for(DeviceChild deviceChild2:list){
                         if (macAddress.equals(deviceChild2.getMacAddress())){

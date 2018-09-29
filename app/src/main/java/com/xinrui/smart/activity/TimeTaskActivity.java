@@ -1048,7 +1048,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                     intent2.putExtra("deviceList","deviceList");
                     startActivity(intent2);
                 }
-                if (!Utils.isEmpty(macAddress)) {
+                if (!Utils.isEmpty(macAddress) && deviceChild!=null) {
                     if (deviceChild.getMacAddress().equals(macAddress)) {
                         TimeTaskActivity.running=false;
                         Utils.showToast(TimeTaskActivity.this, "该设备已被重置");
@@ -1058,7 +1058,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                     }
                 } else {
                     DeviceChild deviceChild2 = deviceChildDao.findDeviceById(deviceId);
-                    if (deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
+                    if (deviceChild2!=null && deviceChild!=null && deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
                         List<TimeTask> timeTaskList = timeTaskDao.findWeekAll(deviceId, timerTaskWeek);
                         timeTaskDao.updateTaskTimeList(timeTaskList);
 //                        Calendar calendar = Calendar.getInstance();

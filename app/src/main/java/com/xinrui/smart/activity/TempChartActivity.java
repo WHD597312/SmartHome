@@ -274,7 +274,7 @@ public class TempChartActivity extends AppCompatActivity {
                     intent2.putExtra("deviceList","deviceList");
                     startActivity(intent2);
                 }else {
-                    if (deviceChild2.getMacAddress().equals(deviceChild.getMacAddress())) {
+                    if (deviceChild!=null&& deviceChild2.getMacAddress().equals(deviceChild.getMacAddress())) {
                         deviceChild = deviceChild2;
                         deviceChildDao.update(deviceChild);
                         if (deviceChild != null) {

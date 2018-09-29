@@ -774,7 +774,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                             smartTerminalCircle.setBitInfos(infoList);
                         }
                     }
-                } else if (deviceChild2 != null) {
+                } else if (deviceChild!=null && deviceChild2 != null) {
                     String macAddress2=deviceChild2.getMacAddress();
                     int controlled=deviceChild2.getControlled();
                     int type=deviceChild2.getType();
