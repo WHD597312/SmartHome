@@ -313,13 +313,14 @@ public class ControlledFragment extends Fragment{
                                 int isUnlock=device.getInt("isUnlock");
                                 int controlled=device.getInt("controlled");
                                 DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
-
-                                deviceChild.setControlled(controlled);
+                                if (deviceChild!=null){
+                                    deviceChild.setControlled(controlled);
 //                                deviceChildDao.update(deviceChild);
-                                list.add(deviceChild);
-                                if (controlled==1){
-                                    controlledDeviceChildren.add(deviceChild);
-                                    contollledDeviceChildMap.put(id,deviceChild);
+                                    list.add(deviceChild);
+                                    if (controlled==1){
+                                        controlledDeviceChildren.add(deviceChild);
+                                        contollledDeviceChildMap.put(id,deviceChild);
+                                    }
                                 }
                             }
                         }

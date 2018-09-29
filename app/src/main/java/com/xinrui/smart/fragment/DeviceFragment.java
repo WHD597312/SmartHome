@@ -1797,16 +1797,20 @@ public class DeviceFragment extends Fragment {
                                         Utils.showToast(getActivity(),"该设备正在升级");
                                     }
                                     long id = deviceChild.getId();
+                                    int count = timeDao.findAll(deviceChild.getId()).size();
                                     Intent intent = new Intent(context, DeviceListActivity.class);
                                     intent.putExtra("content", deviceChild.getDeviceName());
                                     intent.putExtra("childPosition", id + "");
+                                    if (count!=168){
+                                        intent.putExtra("loadData","loadData");
+                                    }
                                     try {
                                         JSONObject jsonObject = new JSONObject();
                                         jsonObject.put("loadDate", "7");
                                         String s = jsonObject.toString();
                                         String mac = deviceChild.getMacAddress();
                                         String topic = "rango/" + mac + "/set";
-                                        int count = timeDao.findAll(deviceChild.getId()).size();
+
                                         if (mqService != null && count != 168) {
                                             boolean success = false;
                                             Log.i("ggggggggg", "-->" + "ggggggggggggggggg");

@@ -81,5 +81,5 @@ dependencies {
     implementation files('libs/zxing.jar')
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.2'
     implementation 'com.android.support:percent:24.2.0'
-
+    implementation 'com.weigan:loopView:0.1.2'
 }

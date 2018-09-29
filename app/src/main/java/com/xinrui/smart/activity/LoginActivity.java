@@ -67,6 +67,7 @@ public class LoginActivity extends CheckPermissionsActivity {
     private ProgressDialog progressDialog;
     public static boolean loading=false;
     String fall=null;
+    public static int count=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -199,6 +200,7 @@ public class LoginActivity extends CheckPermissionsActivity {
                     code = jsonObject.getInt("code");
 
                     if (code==2000){
+                        count=1;
                         JSONObject content=jsonObject.getJSONObject("content");
                         int userId=content.getInt("userId");
                         String phone=content.getString("phone");

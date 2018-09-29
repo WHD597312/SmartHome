@@ -285,25 +285,21 @@ public class MainControlFragment extends Fragment {
                                 int controlled = device.getInt("controlled");
 
                                 DeviceChild deviceChild = deviceChildDao.findDeviceById(id);
+                                if (deviceChild!=null){
+                                    String machAttr = deviceChild.getMachAttr();
+                                    boolean online = deviceChild.getOnLint();
+                                    if (online) {
+                                        if ("M".equals(machAttr)) {
 
-                                String machAttr = deviceChild.getMachAttr();
-                                boolean online = deviceChild.getOnLint();
-                                if (online) {
-                                    if ("M".equals(machAttr)) {
-
-                                    } else {
-                                        deviceChild.setControlled(controlled);
-                                        list.add(deviceChild);
+                                        } else {
+                                            deviceChild.setControlled(controlled);
+                                            list.add(deviceChild);
+                                        }
                                     }
-                                }
-
-//                                list.add(deviceChild);
-
-//                                deviceChildDao.update(deviceChild);
-
-                                if (controlled == 2) {
-                                    bindMainControlled = deviceChild;
-                                    deviceChild2 = deviceChild;
+                                    if (controlled == 2) {
+                                        bindMainControlled = deviceChild;
+                                        deviceChild2 = deviceChild;
+                                    }
                                 }
                             }
                         }

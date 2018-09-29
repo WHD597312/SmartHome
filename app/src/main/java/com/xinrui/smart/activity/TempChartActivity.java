@@ -268,7 +268,7 @@ public class TempChartActivity extends AppCompatActivity {
             if (!Utils.isEmpty(noNet)){
                 Utils.showToast(TempChartActivity.this,"网络已断开，请设置网络");
             }else {
-                if (!Utils.isEmpty(macAddress) && deviceChild.getMacAddress().equals(macAddress)){
+                if (!Utils.isEmpty(macAddress) && deviceChild!=null && deviceChild.getMacAddress().equals(macAddress)){
                     Utils.showToast(TempChartActivity.this,"该设备已被重置");
                     Intent intent2=new Intent(TempChartActivity.this,MainActivity.class);
                     intent2.putExtra("deviceList","deviceList");

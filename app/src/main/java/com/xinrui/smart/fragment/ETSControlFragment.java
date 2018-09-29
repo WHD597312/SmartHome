@@ -353,12 +353,14 @@ public class ETSControlFragment extends Fragment{
                                 int controlled=device.getInt("controlled");
 
                                 DeviceChild deviceChild=deviceChildDao.findDeviceById(id);
-                                deviceChild.setControlled(controlled);
+                                if (deviceChild!=null){
+                                    deviceChild.setControlled(controlled);
 //                                deviceChildDao.update(deviceChild);
-                                list.add(deviceChild);
-                                if (controlled==1){
-                                    bindESTControlled=deviceChild;
-                                    deviceChild2=deviceChild;
+                                    list.add(deviceChild);
+                                    if (controlled==1){
+                                        bindESTControlled=deviceChild;
+                                        deviceChild2=deviceChild;
+                                    }
                                 }
                             }
                         }

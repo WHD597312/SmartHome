@@ -531,6 +531,7 @@ public class PersonInfoActivity extends AppCompatActivity {
             File file = files[0];
             String userId = preferences.getString("userId", "");
             String url = "http://47.98.131.11:8082/warmer/v1.0/user/" + userId + "/headImg";
+            Log.i("sssssssssssssssss","url:"+url);
             String result = HttpUtils.upLoadFile(url, "HeadPortrait2.jpg", file);
             if (!Utils.isEmpty(result)) {
                 code = Integer.parseInt(result);

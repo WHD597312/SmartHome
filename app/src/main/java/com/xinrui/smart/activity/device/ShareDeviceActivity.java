@@ -257,7 +257,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
             if (!Utils.isEmpty(noNet)){
                 Utils.showToast(ShareDeviceActivity.this,"网络已断开，请设置网络");
             }else {
-                if (!Utils.isEmpty(macAddress) && deviceChild2==null && deviceChild.getMacAddress().equals(macAddress)){
+                if (!Utils.isEmpty(macAddress) && deviceChild2==null && deviceChild!=null && deviceChild.getMacAddress().equals(macAddress)){
                     Utils.showToast(ShareDeviceActivity.this,"该设备已被重置");
                     Intent intent2=new Intent(ShareDeviceActivity.this,MainActivity.class);
                     intent2.putExtra("deviceList","deviceList");

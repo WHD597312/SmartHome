@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +30,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.weigan.loopview.LoopView;
+import com.weigan.loopview.OnItemSelectedListener;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeDaoImpl;
 import com.xinrui.database.dao.daoimpl.TimeTaskDaoImpl;
@@ -98,12 +101,12 @@ public class TimeTaskActivity extends AppCompatActivity {
     @BindView(R.id.tv_clock)
     TextView tv_clock;
     @BindView(R.id.timePicker)
-    NumberPicker timePicker;
+    LoopView timePicker;
     /**
      * 时间选择器
      */
     @BindView(R.id.numberPicker)
-    NumberPicker numberPicker;
+    LoopView numberPicker;
     /**
      * 数字选择器
      */
@@ -174,7 +177,8 @@ public class TimeTaskActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private TextView[] week = new TextView[7];
 
-
+    List<String> hours=new ArrayList<>();
+    List<String> temps=new ArrayList<>();
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -208,30 +212,64 @@ public class TimeTaskActivity extends AppCompatActivity {
 
 //        week.setOnItemClickListener(this);
 
-
-        numberPicker.setMinValue(5);
-        numberPicker.setMaxValue(42);
-        numberPicker.setValue(5);
+        for (int i=5;i<=42;i++){
+            temps.add(""+i);
+        }
+        numberPicker.setItems(temps);
+        numberPicker.setCenterTextColor(Color.parseColor("#101010"));
+        numberPicker.setOuterTextColor(Color.parseColor("#bbbbbb"));
+        numberPicker.setTextSize(20);
+        numberPicker.setInitPosition(0);
+//        numberPicker.setMinValue(5);
+//        numberPicker.setMaxValue(42);
+//        numberPicker.setValue(5);
         temperature = 5;
-        numberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+        numberPicker.setListener(new OnItemSelectedListener() {
             @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                temperature = newVal;
+            public void onItemSelected(int index) {
+                String temp=temps.get(index);
+                temperature=Integer.parseInt(temp);
+                Log.i("temperature","-->"+temperature);
+
             }
         });
-        timePicker.setMinValue(0);
-        timePicker.setMaxValue(23);
+//        numberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+//            @Override
+//            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+//                temperature = newVal;
+//            }
+//        });
+        for (int i=0;i<=23;i++){
+            hours.add(""+i);
+        }
+        timePicker.setItems(hours);
+        timePicker.setCenterTextColor(Color.parseColor("#101010"));
+        timePicker.setOuterTextColor(Color.parseColor("#bbbbbb"));
+        timePicker.setTextSize(20);
+//        timePicker.setMinValue(0);
+//        timePicker.setMaxValue(23);
         Calendar calendar = Calendar.getInstance();
 
         hour = calendar.get(Calendar.HOUR_OF_DAY);
-        timePicker.setValue(hour);
+        String timeHour=""+hour;
+        if (hours.contains(timeHour)){
+            int position=hours.indexOf(timeHour);
+            timePicker.setCurrentPosition(position);
+        }
+       timePicker.setListener(new OnItemSelectedListener() {
+           @Override
+           public void onItemSelected(int index) {
+               String s=hours.get(index);
+               hour=Integer.parseInt(s);
+           }
+       });
 
-        timePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                hour = newVal;
-            }
-        });
+//        timePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+//            @Override
+//            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+//                hour = newVal;
+//            }
+//        });
 
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;
@@ -1003,7 +1041,7 @@ public class TimeTaskActivity extends AppCompatActivity {
             if (!Utils.isEmpty(noNet)) {
                 Utils.showToast(TimeTaskActivity.this, "网络已断开，请设置网络");
             } else {
-                if (!Utils.isEmpty(macAddress3)  && macAddress3.equals(deviceChild.getMacAddress())){
+                if (!Utils.isEmpty(macAddress3)  && deviceChild!=null && macAddress3.equals(deviceChild.getMacAddress())){
                     TimeTaskActivity.running=false;
                     Utils.showToast(TimeTaskActivity.this,"该设备类型已为受控机");
                     Intent intent2=new Intent(TimeTaskActivity.this,MainActivity.class);

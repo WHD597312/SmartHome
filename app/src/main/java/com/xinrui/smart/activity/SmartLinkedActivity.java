@@ -372,7 +372,7 @@ public class SmartLinkedActivity extends AppCompatActivity {
                             String macAddress = device.getString("macAddress");
                             DeviceChild deviceChild = deviceChildDao.findDeviceById(deviceId);
                             deviceChild.setLinked(linked);
-                            if (deviceChild.getType()==1 && deviceChild.getControlled()!=1){
+                            if (deviceChild!=null && deviceChild.getType()==1 && deviceChild.getControlled()!=1){
                                 linkedMap.put(deviceId,deviceChild);
                                 if (!list2.contains(deviceChild)){
                                     list2.add(deviceChild);

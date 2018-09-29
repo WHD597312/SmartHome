@@ -223,25 +223,22 @@
                 android:layout_marginRight="@dimen/dp_10"
                 android:textColor="@color/color_black"
                 android:text="@string/ensure" />
-            <NumberPicker
+            <com.weigan.loopview.LoopView
                 android:id="@+id/timePicker"
-                android:layout_width="@dimen/dp_100"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/btn_cancle2"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true"
-                android:timePickerMode="spinner"
-                android:theme="@android:style/Theme.Holo.Light"
                 android:visibility="gone"
                 />
-            <NumberPicker
+            <com.weigan.loopview.LoopView
                 android:id="@+id/numberPicker"
-                android:layout_width="@dimen/dp_100"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/btn_cancle2"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentBottom="true"
-                android:theme="@android:style/Theme.Holo.Light"
                 />
         </RelativeLayout>
     </LinearLayout>

@@ -658,7 +658,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                             int linked = device.getInt("linked");
                             DeviceChild deviceChild = deviceChildDao.findDeviceById(deviceId);
                             deviceChild.setLinked(linked);
-                            if (deviceChild.getType()==1 && deviceChild.getControlled()!=1){
+                            if (deviceChild!=null && deviceChild.getType()==1 && deviceChild.getControlled()!=1){
                                 if (!linkList.contains(deviceChild)) {
                                     linkList.add(deviceChild);
                                 }

@@ -160,6 +160,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
      */
     private int mCurrent = 5;
     private String macAddress;
+    private long firstTime;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -176,6 +177,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         String content = intent.getStringExtra("content");
         childPosition = intent.getStringExtra("childPosition");
 
+
         deviceChild = deviceChildDao.findDeviceById(Long.parseLong(childPosition));
         deviceId=deviceChild.getId();
         macAddress=deviceChild.getMacAddress();
@@ -186,6 +188,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
         Intent service = new Intent(this, MQService.class);
         isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
+        firstTime=System.currentTimeMillis();
     }
 
 
@@ -1375,15 +1378,23 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 //                gradView.setVisibility(View.GONE);
                 break;
             case 2:
-                int count = timeDao.findAll(deviceChild.getId()).size();
-                if (count!=168){
-                    requestTime=1;
-                    new PasteWeekAsync().execute();
-                }
+//                int count = timeDao.findAll(deviceChild.getId()).size();
+//                if (count!=168){
+//                    requestTime=1;
+//                    new PasteWeekAsync().execute();
+//                }
+                long secondTime=System.currentTimeMillis();
+                long s=(secondTime-firstTime);
+//                if (s<=3000){
+//                    int count = timeDao.findAll(deviceChild.getId()).size();
+//                    if (count!=168){
+//                        requestTime=1;
+//                        new PasteWeekAsync().execute();
+//                    }
+//                }
                 Intent timeTask = new Intent(this, TimeTaskActivity.class);
                 timeTask.putExtra("deviceId", childPosition);
                 startActivity(timeTask);
-
 //                Toast.makeText(this,"我的订阅",Toast.LENGTH_SHORT).show();
                 break;
             case 3:
@@ -1552,7 +1563,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 intent2.putExtra("houseId", houseId);
                 DeviceListActivity.this.setResult(6000, intent2);
                 DeviceListActivity.this.finish();
-            } else if (!Utils.isEmpty(macAddress) && deviceChild2 == null && macAddress.equals(deviceChild.getMacAddress())) {
+            } else if (!Utils.isEmpty(macAddress) && deviceChild2 == null && deviceChild!=null && macAddress.equals(deviceChild.getMacAddress())) {
                 if(popupWindow!=null && popupWindow.isShowing()){
                     popupWindow.dismiss();
                     enableClick();
