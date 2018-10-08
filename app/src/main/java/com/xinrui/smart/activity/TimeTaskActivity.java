@@ -1067,8 +1067,8 @@ public class TimeTaskActivity extends AppCompatActivity {
 //                        int day = calendar.get(Calendar.DAY_OF_MONTH);
 //                        int week2 = calendar.get(Calendar.DAY_OF_WEEK);
 //                        mWeek = Utils.getWeek(year, month, day, week2).substring(2);
-                        Log.i("sss", "ss" + timerTaskWeek);
-                        list.addAll(timeTasks);
+                        Log.i("timerTaskWeek", "ss" + timerTaskWeek);
+//                        list.addAll(timeTasks);
                         int secelctWeek = ChineseNumber.chineseNumber2Int(mSelectedWeek);
                         if (secelctWeek == timerTaskWeek) {
                             list.clear();

@@ -72,6 +72,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -161,6 +162,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     private int mCurrent = 5;
     private String macAddress;
     private long firstTime;
+    Map<String,Long> loadData7Map=new HashMap<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1392,10 +1394,25 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 //                        new PasteWeekAsync().execute();
 //                    }
 //                }
-                Intent timeTask = new Intent(this, TimeTaskActivity.class);
-                timeTask.putExtra("deviceId", childPosition);
-                startActivity(timeTask);
+//                Intent timeTask = new Intent(this, TimeTaskActivity.class);
+//                timeTask.putExtra("deviceId", childPosition);
+//                startActivity(timeTask);
 //                Toast.makeText(this,"我的订阅",Toast.LENGTH_SHORT).show();
+
+                long currentTime=System.currentTimeMillis();
+                if (loadData7Map.containsKey(macAddress)){
+                    long lastTime=loadData7Map.get(macAddress);
+                    long diff=currentTime-lastTime;
+                    if (diff<1000*60*5){
+                        Intent timeTask = new Intent(this, TimeTaskActivity.class);
+                        timeTask.putExtra("deviceId", childPosition);
+                        startActivity(timeTask);
+                    }else {
+                        new LoadData7Async().execute();
+                    }
+                }else {
+                    new LoadData7Async().execute();
+                }
                 break;
             case 3:
                 Intent intent3 = new Intent(this, TempChartActivity.class);
@@ -1414,6 +1431,76 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             default:
                 Toast.makeText(this, "1", Toast.LENGTH_SHORT).show();
                 break;
+        }
+    }
+
+    class CountTimer extends CountDownTimer {
+        public CountTimer(long millisInFuture, long countDownInterval) {
+            super(millisInFuture, countDownInterval);
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+
+        }
+
+        @Override
+        public void onFinish() {
+            if (progressDialog!=null){
+                progressDialog.dismiss();
+                long currentTime=System.currentTimeMillis();
+                loadData7Map.put(macAddress,currentTime);
+                Intent timeTask = new Intent(DeviceListActivity.this, TimeTaskActivity.class);
+                timeTask.putExtra("deviceId", childPosition);
+                startActivity(timeTask);
+            }
+        }
+    }
+    class LoadData7Async extends AsyncTask<String,Void,Integer>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (progressDialog!=null){
+                progressDialog.setMessage("正在加载数据,请稍后...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
+        }
+
+        @Override
+        protected Integer doInBackground(String... strings) {
+            int code=0;
+           try {
+               JSONObject jsonObject2 = new JSONObject();
+               jsonObject2.put("loadDate", "7");
+               String s = jsonObject2.toString();
+               boolean success = false;
+               String mac = deviceChild.getMacAddress();
+               String topic = "rango/" + mac + "/set";
+               success = mqService.publish(topic, 1, s);
+               if (!success) {
+                   success = mqService.publish(topic, 1, s);
+               }
+               if (success){
+                   code=2000;
+               }
+           }catch (Exception e){
+               e.printStackTrace();
+           }
+
+            return code;
+        }
+
+        @Override
+        protected void onPostExecute(Integer code) {
+            super.onPostExecute(code);
+            if (code==2000) {
+                new CountTimer(3500, 1000).start();
+            }else{
+                progressDialog.dismiss();
+                Utils.showToast(DeviceListActivity.this,"加载失败,请重试");
+            }
         }
     }
 
