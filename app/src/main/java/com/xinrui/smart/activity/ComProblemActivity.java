@@ -43,8 +43,8 @@ public class ComProblemActivity extends AppCompatActivity implements AdapterView
         }
         application.addActivity(this);
         list=new ArrayList<>();
-        list.add("指示灯不亮，加热器不加热");
-        list.add("指示灯不亮，加热器加热");
+//        list.add("指示灯不亮，加热器不加热");
+//        list.add("指示灯不亮，加热器加热");
         list.add("指示灯亮，加热器不加热");
         list.add("控制面板的触摸按键均不起作用");
         list.add("控制面板按键均正常,但加热器不加热");
@@ -85,25 +85,25 @@ public class ComProblemActivity extends AppCompatActivity implements AdapterView
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         switch (position){
+//            case 0:
+//                String reason="原因:\n\n1.温控器未打开或温控器损坏\n" +
+//                        "2.加热器未直立放置";
+//                String cs="措施:\n\n1.把温控器旋至加热器接通的位置，联系维修\n" +
+//                        "2.正确放置加热器";
+//                Intent intent=new Intent(ComProblemActivity.this, ReasonActivity.class);
+//                intent.putExtra("reason",reason);
+//                intent.putExtra("cs",cs);
+//                startActivity(intent);
+//                break;
+//            case 1:
+//                String reason2="原因:\n\n1.指示灯损坏";
+//                String cs2="措施:\n\n1.联系维修，更换指示灯";
+//                Intent intent2=new Intent(ComProblemActivity.this, ReasonActivity.class);
+//                intent2.putExtra("reason",reason2);
+//                intent2.putExtra("cs",cs2);
+//                startActivity(intent2);
+//                break;
             case 0:
-                String reason="原因:\n\n1.温控器未打开或温控器损坏\n" +
-                        "2.加热器未直立放置";
-                String cs="措施:\n\n1.把温控器旋至加热器接通的位置，联系维修\n" +
-                        "2.正确放置加热器";
-                Intent intent=new Intent(ComProblemActivity.this, ReasonActivity.class);
-                intent.putExtra("reason",reason);
-                intent.putExtra("cs",cs);
-                startActivity(intent);
-                break;
-            case 1:
-                String reason2="原因:\n\n1.指示灯损坏";
-                String cs2="措施:\n\n1.联系维修，更换指示灯";
-                Intent intent2=new Intent(ComProblemActivity.this, ReasonActivity.class);
-                intent2.putExtra("reason",reason2);
-                intent2.putExtra("cs",cs2);
-                startActivity(intent2);
-                break;
-            case 2:
                 String reason3="原因:\n\n1.功率旋钮处于“关”位置\n" +
                 "2.电加热管烧坏或连接线松脱";
                 String cs3="措施:\n\n1.调整旋钮到相应的功率处\n" +
@@ -113,7 +113,7 @@ public class ComProblemActivity extends AppCompatActivity implements AdapterView
                 intent3.putExtra("cs",cs3);
                 startActivity(intent3);
                 break;
-            case 3:
+            case 1:
                 String reason4="原因:\n\n1.未按下电源开关\n" +
                         "2.加热器未直立放置";
                 String cs4="措施:\n\n1.按下电源开关使加热器处于待机状态\n" +
@@ -123,7 +123,7 @@ public class ComProblemActivity extends AppCompatActivity implements AdapterView
                 intent4.putExtra("cs",cs4);
                 startActivity(intent4);
                 break;
-            case 4:
+            case 2:
                 String reason5="原因:\n\n电加热管烧坏或连接线松脱";
 
                 String cs5="措施:\n\n联系维修";
@@ -132,7 +132,7 @@ public class ComProblemActivity extends AppCompatActivity implements AdapterView
                 intent5.putExtra("cs",cs5);
                 startActivity(intent5);
                 break;
-            case 5:
+            case 3:
                 String reason6="原因:\n\n散热翅片上少量挥发油残留";
 
                 String cs6="措施:\n\n初次使用时，打开门窗，让室内通风，等其消散后，再关闭门窗。属正常情况";
@@ -141,16 +141,15 @@ public class ComProblemActivity extends AppCompatActivity implements AdapterView
                 intent6.putExtra("cs",cs6);
                 startActivity(intent6);
                 break;
-            case 6:
+            case 4:
                 String reason7="原因:\n\n热胀冷缩的原因";
-
                 String cs7="措施:\n\n正常现象，可放心使用";
                 Intent intent7=new Intent(ComProblemActivity.this, ReasonActivity.class);
                 intent7.putExtra("reason",reason7);
                 intent7.putExtra("cs",cs7);
                 startActivity(intent7);
                 break;
-            case 7:
+            case 5:
                 String reason8="原因:\n\n与房间保温效果，环境温度，房间面积相关";
                 String cs8="措施:\n\n只要加热器能加热，说明机器正常，建议使用更高功率的加热器或改善房间保温效果";
                 Intent intent8=new Intent(ComProblemActivity.this, ReasonActivity.class);
@@ -158,7 +157,7 @@ public class ComProblemActivity extends AppCompatActivity implements AdapterView
                 intent8.putExtra("cs",cs8);
                 startActivity(intent8);
                 break;
-            case 8:
+            case 6:
                 String reason9="原因:\n\n1.已开启了童锁功能\n" +
                         "2.关机键，选择键需触摸2秒方可作用（防误操作）";
                 String cs9="措施:\n\n1.打开童锁（按遥控器上解锁键）\n" +
@@ -168,7 +167,7 @@ public class ComProblemActivity extends AppCompatActivity implements AdapterView
                 intent9.putExtra("cs",cs9);
                 startActivity(intent9);
                 break;
-            case 9:
+            case 7:
                 String reason10="原因:\n\n遥控器发射口没有对准显示屏上的红外接收口";
                 String cs10="措施:\n\n操作时，需对准显示屏上的红外接收口";
                 Intent intent10=new Intent(ComProblemActivity.this, ReasonActivity.class);

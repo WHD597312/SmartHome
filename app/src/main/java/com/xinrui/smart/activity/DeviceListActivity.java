@@ -493,7 +493,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     DeviceChildProjectDialog dialog;
     private void buildOpenChildProjectDialog() {
 //        final Dialog dialog=new DeviceChildDialog(getActivity());
-        dialog = new DeviceChildProjectDialog(this);
+        if (dialog==null){
+            dialog = new DeviceChildProjectDialog(this);
+        }
         dialog.setOnNegativeClickListener(new DeviceChildProjectDialog.OnNegativeClickListener() {
             @Override
             public void onNegativeClick() {
@@ -1380,39 +1382,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 //                gradView.setVisibility(View.GONE);
                 break;
             case 2:
-//                int count = timeDao.findAll(deviceChild.getId()).size();
-//                if (count!=168){
-//                    requestTime=1;
-//                    new PasteWeekAsync().execute();
-//                }
-                long secondTime=System.currentTimeMillis();
-                long s=(secondTime-firstTime);
-//                if (s<=3000){
-//                    int count = timeDao.findAll(deviceChild.getId()).size();
-//                    if (count!=168){
-//                        requestTime=1;
-//                        new PasteWeekAsync().execute();
-//                    }
-//                }
-//                Intent timeTask = new Intent(this, TimeTaskActivity.class);
-//                timeTask.putExtra("deviceId", childPosition);
-//                startActivity(timeTask);
-//                Toast.makeText(this,"我的订阅",Toast.LENGTH_SHORT).show();
-
-                long currentTime=System.currentTimeMillis();
-                if (loadData7Map.containsKey(macAddress)){
-                    long lastTime=loadData7Map.get(macAddress);
-                    long diff=currentTime-lastTime;
-                    if (diff<1000*60*5){
-                        Intent timeTask = new Intent(this, TimeTaskActivity.class);
-                        timeTask.putExtra("deviceId", childPosition);
-                        startActivity(timeTask);
-                    }else {
-                        new LoadData7Async().execute();
-                    }
-                }else {
-                    new LoadData7Async().execute();
-                }
+                Intent timeTask = new Intent(this, TimeTaskActivity.class);
+                timeTask.putExtra("deviceId", childPosition);
+                startActivity(timeTask);
                 break;
             case 3:
                 Intent intent3 = new Intent(this, TempChartActivity.class);
@@ -1426,7 +1398,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 break;
             case 5:
                 buildRestoreDialog();
-
                 break;
             default:
                 Toast.makeText(this, "1", Toast.LENGTH_SHORT).show();
@@ -1434,6 +1405,23 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         }
     }
 
+    private void loadData7(){
+        try {
+            JSONObject jsonObject2 = new JSONObject();
+            jsonObject2.put("loadDate", "7");
+            String s2 = jsonObject2.toString();
+            boolean success = false;
+            String mac = deviceChild.getMacAddress();
+            String topic = "rango/" + mac + "/set";
+            success = mqService.publish(topic, 1, s2);
+            if (!success) {
+                success = mqService.publish(topic, 1, s2);
+            }
+            Log.i("loadData7","-->"+success);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
     class CountTimer extends CountDownTimer {
         public CountTimer(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);

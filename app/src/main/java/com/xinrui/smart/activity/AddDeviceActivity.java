@@ -213,6 +213,13 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         houseAddress = deviceGroup.getLocation();
         String wifi = intent.getStringExtra("wifi");
 
+        Intent service = new Intent(AddDeviceActivity.this, MQService.class);
+        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
+
+
+        IntentFilter intentFilter = new IntentFilter("AddDeviceActivity");
+        receiver = new MessageReceiver();
+        registerReceiver(receiver, intentFilter);
         if (!Utils.isEmpty(wifi)) {
             if ("wifi".equals(wifi)) {
                 linearout_add_wifi_device.setVisibility(View.VISIBLE);
@@ -255,9 +262,6 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             btn_wifi.setVisibility(View.GONE);
             btn_scan.setVisibility(View.GONE);
         }
-        Intent service = new Intent(this, MQService.class);
-        startService(service);
-
         initLocation();
         startLocation();//开始定位
     }
@@ -335,7 +339,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             gifDrawable.start();
             image_heater_help.setImageDrawable(gifDrawable);
 
-            CountTimer2 countTimer2 = new CountTimer2(10000, 1000);
+            CountTimer2 countTimer2 = new CountTimer2(6000, 1000);
             countTimer2.start();
         }
 
@@ -445,7 +449,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     gifDrawable.start();
                     image_heater_help.setImageDrawable(gifDrawable);
                     if (countTimer2 == null) {
-                        countTimer2 = new CountTimer2(10000, 1000);
+                        countTimer2 = new CountTimer2(5000, 1000);
                         countTimer2.start();
                     } else if (countTimer2 != null) {
                         countTimer2.start();
@@ -589,9 +593,6 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         break;
                     }
                     if (!Utils.isEmpty(ssid)) {
-                        if (isBound){
-                            unbindService(connection);
-                        }
 //                    popupWindow();
                         match = 1;
                         window3 = 1;
@@ -600,9 +601,6 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         btn_match.setEnabled(false);
                         popupmenuWindow3();
                         new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
-//                        Intent service = new Intent(AddDeviceActivity.this, MQService.class);
-//                        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
-//                        mac="5asdfghi69k";
                     }
                 }else {
                     Utils.showToast(AddDeviceActivity.this,"请检查网络");
@@ -865,10 +863,6 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
         deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
-
-        IntentFilter intentFilter = new IntentFilter("AddDeviceActivity");
-        receiver = new MessageReceiver();
-        registerReceiver(receiver, intentFilter);
         Log.i("AddDevice", "-->" + "onStart");
         match=0;
     }
@@ -1006,16 +1000,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             MQService.LocalBinder binder = (MQService.LocalBinder) service;
             mqService = binder.getService();
             bound = true;
-            if (bound == true && !TextUtils.isEmpty(mac)) {
-                String wifiName = et_ssid.getText().toString();
-                macAddress = wifiName + mac;
-                deviceName = mac;
-                if (!TextUtils.isEmpty(macAddress)) {
-                    new AddDeviceAsync().execute(macAddress);
-                }
-            }
         }
-
         @Override
         public void onServiceDisconnected(ComponentName name) {
             bound = false;
@@ -1039,6 +1024,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     if (!step2){
                        step2 = mqService.publish(topicName, 1, payLoad);
                     }
+                    Log.i("diff","-->"+System.currentTimeMillis());
                 }
             }
             return null;
@@ -1110,6 +1096,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         }
     }
 
+    private int diff;
     private IEsptouchTask mEsptouchTask;
 
     private class EsptouchAsyncTask3 extends AsyncTask<String, Void, List<IEsptouchResult>> {
@@ -1164,21 +1151,33 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 if (firstResult.isSuc()) {
                     StringBuilder sb = new StringBuilder();
                     String ssid = "";
-                    for (IEsptouchResult resultInList : result) {
-                        ssid = resultInList.getBssid();
-                        Log.i("ssidssid", "-->" + ssid);
-                        sb.append("配置成功");
-                        if (!TextUtils.isEmpty(ssid)) {
-                            Intent service = new Intent(AddDeviceActivity.this, MQService.class);
-                            isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
-                            mac = ssid;
-                            break;
+                    try {
+                        Log.i("diff","-->"+System.currentTimeMillis());
+                        Thread.sleep(300);
+                        for (IEsptouchResult resultInList : result) {
+                            ssid = resultInList.getBssid();
+                            Log.i("ssidssid", "-->" + ssid);
+                            sb.append("配置成功");
+                            if (!TextUtils.isEmpty(ssid)) {
+                                if (mqService!=null) {
+                                    String wifiName = et_ssid.getText().toString();
+                                    macAddress = wifiName +ssid ;
+                                    deviceName = ssid;
+                                    if (!TextUtils.isEmpty(macAddress)) {
+                                        new AddDeviceAsync().execute(macAddress);
+                                    }
+                                }
+                                break;
+                            }
+                            count++;
+                            if (count >= maxDisplayCount) {
+                                break;
+                            }
                         }
-                        count++;
-                        if (count >= maxDisplayCount) {
-                            break;
-                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
+
                     if (count < result.size()) {
                         sb.append("\nthere's " + (result.size() - count)
                                 + " more result(s) without showing\n");
@@ -1395,7 +1394,6 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 if (isBound) {
                     unbindService(connection);
                 }
-
                 if (receiver != null) {
                     unregisterReceiver(receiver);
                 }

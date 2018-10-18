@@ -110,7 +110,6 @@ public class NoDeviceFragment extends Fragment{
             if (!Utils.isEmpty(houseHome)){
                 tv_myhome.setText(houseHome);
             }
-
         }
     }
     @OnClick({R.id.btn_add_device,R.id.image_position,R.id.image_home,R.id.tv_myhome,R.id.tv_city})

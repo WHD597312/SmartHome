@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.weigan.loopview.LoopView;
 import com.weigan.loopview.OnItemSelectedListener;
 import com.xinrui.database.dao.daoimpl.DeviceChildDaoImpl;
@@ -988,9 +989,7 @@ public class TimeTaskActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-
         running = false;
-
     }
 
     MQService mqService;
@@ -1001,25 +1000,7 @@ public class TimeTaskActivity extends AppCompatActivity {
             MQService.LocalBinder binder = (MQService.LocalBinder) service;
             mqService = binder.getService();
             bound = true;
-            String mac=deviceChild.getMacAddress();
-            String topic = "rango/" + mac + "/set";
-            int count=timeDao.findAll(deviceId).size();
-            Log.i("connection","-->"+count);
-            if (mqService!=null && count!=168){
-                try {
-                    Log.i("ggggggggg","-->"+"ggggggggggggggggg");
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("loadDate", "7");
-                    String s = jsonObject.toString();
-                    boolean success = false;
-                    success = mqService.publish(topic, 1, s);
-                    if (!success) {
-                        success = mqService.publish(topic, 1, s);
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
+            new LoadData7Async().execute();
         }
 
         @Override
@@ -1028,6 +1009,69 @@ public class TimeTaskActivity extends AppCompatActivity {
         }
     };
 
+
+    class LoadData7Async extends AsyncTask<String,Void,Integer>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (progressDialog!=null){
+                progressDialog.setMessage("正在加载数据,请稍后...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+            }
+        }
+
+        @Override
+        protected Integer doInBackground(String... strings) {
+            int code=0;
+            try {
+                for (int i = 1; i <=7 ; i++) {
+                    Log.i("loadData7","-->"+i);
+                    Thread.sleep(750);
+                }
+                Thread.sleep(500);
+                int count=timeDao.findAll(deviceId).size();
+                Log.i("connection","-->"+count);
+                if (mqService!=null && count!=168){
+                    try {
+                        Log.i("ggggggggg","-->"+"ggggggggggggggggg");
+                        for (int timerTaskWeek = 1; timerTaskWeek <= 7; timerTaskWeek++) {
+                            count++;
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("timerTaskWeek", timerTaskWeek);
+                            for (int i = 0; i < 24; i++) {
+                                jsonObject.put("h" + i, "on");
+                                jsonObject.put("t" + i, 18);
+                            }
+                            String jsonData = jsonObject.toString();
+                            Log.i("jsonData", jsonData);
+                            if (bound) {
+                                boolean success = false;
+                                String macAddress = deviceChild.getMacAddress();
+                                String topicName;
+                                topicName = "rango/" + macAddress + "/set";
+                                success = mqService.publish(topicName, 1, jsonData);
+                            }
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return code;
+        }
+
+        @Override
+        protected void onPostExecute(Integer code) {
+            super.onPostExecute(code);
+            if (progressDialog!=null){
+                progressDialog.dismiss();
+            }
+        }
+    }
     public class MessageReceiver extends BroadcastReceiver {
 
         @Override

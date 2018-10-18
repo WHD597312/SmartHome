@@ -1745,13 +1745,7 @@ public class DeviceFragment extends Fragment {
                         holder.setImageResource(R.id.image_switch, imgs[0]);
                     }
                 } else if (entry.getType() == 2) {
-                    if ("fall".equals(entry.getMachineFall())) {
-                        tv_state.setText("设备已倾倒");
-                        VibratorUtil.Vibrate(getActivity(), new long[]{1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000}, true);   //震动10s
-                    } else {
-                        tv_state.setText("温度：" + entry.getSensorSimpleTemp() + "℃");
-                        VibratorUtil.StopVibrate(getActivity());
-                    }
+                    tv_state.setText("温度：" + entry.getSensorSimpleTemp() + "℃");
                 }
             } else {
                 tv_state.setText("离线");
@@ -1800,24 +1794,23 @@ public class DeviceFragment extends Fragment {
                                     Intent intent = new Intent(context, DeviceListActivity.class);
                                     intent.putExtra("content", deviceChild.getDeviceName());
                                     intent.putExtra("childPosition", id + "");
-//                                    try {
-//                                        JSONObject jsonObject = new JSONObject();
-//                                        jsonObject.put("loadDate", "7");
-//                                        String s = jsonObject.toString();
-//                                        String mac = deviceChild.getMacAddress();
-//                                        String topic = "rango/" + mac + "/set";
-//
-//                                        if (mqService != null && count != 168) {
-//                                            boolean success = false;
-//                                            Log.i("ggggggggg", "-->" + "ggggggggggggggggg");
-//                                            success = mqService.publish(topic, 1, s);
-//                                            if (!success) {
-//                                                success = mqService.publish(topic, 1, s);
-//                                            }
-//                                        }
-//                                    } catch (Exception e) {
-//                                        e.printStackTrace();
-//                                    }
+                                    try {
+                                        JSONObject jsonObject = new JSONObject();
+                                        jsonObject.put("loadDate", "7");
+                                        String s = jsonObject.toString();
+                                        String mac = deviceChild.getMacAddress();
+                                        String topic = "rango/" + mac + "/set";
+                                        if (mqService !=null) {
+                                            boolean success = false;
+                                            Log.i("ggggggggg", "-->" + "ggggggggggggggggg");
+                                            success = mqService.publish(topic, 1, s);
+                                            if (!success) {
+                                                success = mqService.publish(topic, 1, s);
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
 //                                    context.startActivity(intent);
                                     startActivityForResult(intent, 6000);
                                 } else if (entry.getControlled() == 1) {

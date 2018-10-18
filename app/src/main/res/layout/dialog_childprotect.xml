@@ -28,7 +28,7 @@
 
             <Button
                 android:id="@+id/button_cancel"
-                android:layout_width="@dimen/dp_135"
+                android:layout_width="@dimen/dp_125"
                 android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
                 android:background="@drawable/home_back"
@@ -41,7 +41,7 @@
 
             <Button
                 android:id="@+id/button_ensure"
-                android:layout_width="@dimen/dp_135"
+                android:layout_width="@dimen/dp_125"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="确 定"

@@ -173,9 +173,6 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
 //        warmers=deviceChildDao.findDeviceByType(houseId,roomId,2,true);
 //        linkList=deviceChildDao.findLinkDevice(houseId,roomId,3);
         boolean isConn = NetWorkUtil.isConn(this);
-        String name = deviceChild.getDeviceName();
-        tv_title.setText(name);
-        setMode(deviceChild);
         if (isConn) {
             result=1;
             new GetLinkedAsync().execute();
@@ -234,10 +231,12 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
         super.onStart();
         running = true;
         deviceChild = deviceChildDao.findDeviceById(sensorId);
-        if (deviceChild != null && result==0) {
+        if (deviceChild!=null){
             String name = deviceChild.getDeviceName();
             tv_title.setText(name);
             setMode(deviceChild);
+        }
+        if (deviceChild != null && result==0) {
             if (mqService!=null){
                 int first=linkList.size();
                 for(int i=0;i<linkList.size();i++){
@@ -268,7 +267,6 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                     }
                 }
             }
-
         }else {
             if (deviceChild==null && result==0){
                 Intent intent=new Intent();
@@ -277,7 +275,6 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
                 finish();
             }
         }
-
     }
 
     private void setMode(DeviceChild deviceChild) {
@@ -288,12 +285,12 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
         tv_temp_value.setText(sensorSimpleTemp + "");
         tv_hum_value.setText(sensorSimpleHum + "");
         tv_air_value.setText(sorsorPm + "");
-        if (sorsorPm > 0 && sensorSimpleHum <= 35) {
+        if (sorsorPm > 0 && sorsorPm <= 35) {
             tv_air_state.setText("优");
         } else if (sorsorPm > 35 && sorsorPm <= 75) {
             tv_air_state.setText("良");
         } else if (sorsorPm > 75) {
-            tv_air_value.setText("差");
+            tv_air_state.setText("差");
         }
         if (sensorSimpleTemp>=0){
             tv_temp_value.setText(sensorSimpleTemp + "");

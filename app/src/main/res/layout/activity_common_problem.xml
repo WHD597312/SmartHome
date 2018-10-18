@@ -37,6 +37,14 @@
             />
     </RelativeLayout>
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="特别提示：WIFI重置需要在接通电源两分钟之内!"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginLeft="@dimen/dp_10"
+        />
+    <TextView
         android:id="@+id/tv_problem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

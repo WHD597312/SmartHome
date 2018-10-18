@@ -148,6 +148,7 @@ public class CheckPermissionsActivity extends AppCompatActivity {
 	 * @since 2.5.0
 	 *
 	 */
+	AlertDialog dialog=null;
 	private void showMissingPermissionDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("提示");
@@ -158,7 +159,9 @@ public class CheckPermissionsActivity extends AppCompatActivity {
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						finish();
+						if (dialog!=null){
+							dialog.dismiss();
+						}
 					}
 				});
 
@@ -172,7 +175,7 @@ public class CheckPermissionsActivity extends AppCompatActivity {
 
 		builder.setCancelable(false);
 
-		builder.show();
+		dialog= builder.show();
 	}
 
 	/**
