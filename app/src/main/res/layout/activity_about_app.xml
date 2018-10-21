@@ -67,7 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/imageView"
             android:layout_alignLeft="@+id/textView2"
-            android:text="可以配置和控制使用使用rango方案的智能设备"
+            android:text="可以配置和控制使用rango方案的智能设备"
             android:textSize="@dimen/sp_13"
             />
 

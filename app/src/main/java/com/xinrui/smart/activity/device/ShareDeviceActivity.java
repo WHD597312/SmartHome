@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -80,11 +81,26 @@ public class ShareDeviceActivity extends AppCompatActivity {
         deviceId=Long.parseLong(id);
         deviceChild = deviceChildDao.findDeviceById(deviceId);
 
+
         if (deviceChild != null) {
             tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
             String name = deviceChild.getDeviceName();
             tv_device.setText(name);
-            new ShareQrCodeAsync().execute();
+            String userId = preferences.getString("userId", "");
+            String macAddress=deviceChild.getMacAddress();
+            int controlled=deviceChild.getControlled();
+            int type=deviceChild.getType();
+            long houseId=deviceChild.getHouseId();
+            String deviceName=deviceChild.getDeviceName();
+            String share2="deviceId'"+deviceId+"&userId'"+userId+"&macAddress'"+macAddress+"&type'"+type+"&controlled'"+controlled+"&houseId'"+houseId+"&deviceName'"+deviceName;
+            try {
+                share=new String(Base64.encode(share2.getBytes("utf-8"), Base64.NO_WRAP),"UTF-8");
+                Log.i("share","-->"+share);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            createQrCode();
+//            new ShareQrCodeAsync().execute();
         }
         IntentFilter intentFilter = new IntentFilter("ShareDeviceActivity");
         receiver = new MessageReceiver();
@@ -169,7 +185,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
 
     /**生成二维码*/
     private void createQrCode(){
-        Bitmap bitmap = ZXingUtils.createQRImage(share,img_qrCode.getWidth(), img_qrCode.getHeight());
+        Bitmap bitmap = ZXingUtils.createQRImage(share,400, 400);
         img_qrCode.setImageBitmap(bitmap);
     }
     class UpdateVersionAsync extends AsyncTask<Void,Void,String>{
@@ -284,7 +300,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
                             .load(url)
                             .asBitmap()
                             .centerCrop()
-                            .into(180,180)
+                            .into(250,250)
                             .get();
                 }catch (Exception e) {
                     e.printStackTrace();

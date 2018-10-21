@@ -203,6 +203,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
             String content = resultString;
             if (!Utils.isEmpty(content)) {
                 content = new String(Base64.decode(content, Base64.DEFAULT));
+                Log.i("content","-->"+content);
                 if (!Utils.isEmpty(content)) {
                     shareContent = content;
                     if (!content.contains("macAddress") && !content.contains("deviceId")){
@@ -272,7 +273,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                             DeviceChild deviceChild = new DeviceChild((long)deviceId, houseId, deviceName, macAddress, type);
 //                            deviceChild.setImg(imgs[0]);
                             deviceChild.setControlled(controlled);
-                            deviceChild.setOnLint(true);
+//                            deviceChild.setOnLint(true);
                             deviceChild.setShareHouseId(shareHouseId);
 
 //                            List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();

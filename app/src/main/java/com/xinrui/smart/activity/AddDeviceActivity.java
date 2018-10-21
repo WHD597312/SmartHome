@@ -1022,7 +1022,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     String payLoad = "getType";
                     boolean step2 = mqService.publish(topicName, 1, payLoad);
                     if (!step2){
-                       step2 = mqService.publish(topicName, 1, payLoad);
+                        step2 = mqService.publish(topicName, 1, payLoad);
                     }
                     Log.i("diff","-->"+System.currentTimeMillis());
                 }
@@ -1153,7 +1153,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     String ssid = "";
                     try {
                         Log.i("diff","-->"+System.currentTimeMillis());
-                        Thread.sleep(300);
+                        Thread.sleep(200);
                         for (IEsptouchResult resultInList : result) {
                             ssid = resultInList.getBssid();
                             Log.i("ssidssid", "-->" + ssid);

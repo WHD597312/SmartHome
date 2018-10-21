@@ -7,6 +7,7 @@ import com.xinrui.esptouch.task.EsptouchTaskParameter;
 import com.xinrui.esptouch.task.IEsptouchTaskParameter;
 import com.xinrui.esptouch.task.__EsptouchTask;
 
+
 import java.util.List;
 
 public class EsptouchTask implements IEsptouchTask {

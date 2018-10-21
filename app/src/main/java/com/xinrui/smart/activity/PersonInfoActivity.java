@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -244,6 +245,12 @@ public class PersonInfoActivity extends AppCompatActivity {
                 }
             }
         });
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                backgroundAlpha(1.0f);
+            }
+        });
         dialog.show();
     }
 
@@ -338,6 +345,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                         //android 6.0权限问题
                         if (ContextCompat.checkSelfPermission(PersonInfoActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                                 ContextCompat.checkSelfPermission(PersonInfoActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            Utils.showToast(PersonInfoActivity.this,"请打开相机权限");
                             ActivityCompat.requestPermissions(PersonInfoActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, CAMERAPRESS);
                         } else {
                             startCamera();
@@ -357,6 +365,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                         //android 6.0权限问题
                         if (ContextCompat.checkSelfPermission(PersonInfoActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                                 ContextCompat.checkSelfPermission(PersonInfoActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            Utils.showToast(PersonInfoActivity.this,"请打开相机权限");
                             ActivityCompat.requestPermissions(PersonInfoActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, ICONPRESS);
                         } else {
                             startGallery();

@@ -15,6 +15,7 @@ import com.xinrui.esptouch.udp.UDPSocketServer;
 import com.xinrui.esptouch.util.ByteUtil;
 import com.xinrui.esptouch.util.EspNetUtil;
 
+
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -128,7 +129,7 @@ public class __EsptouchTask implements __IEsptouchTask {
 				esptouchResultFail.setIsCancelled(mIsCancelled.get());
 				mEsptouchResultList.add(esptouchResultFail);
 			}
-			
+
 			return mEsptouchResultList;
 		}
 	}
@@ -348,7 +349,7 @@ public class __EsptouchTask implements __IEsptouchTask {
 			}
 			this.__interrupt();
 		}
-		
+
 		return __getEsptouchResultList();
 	}
 

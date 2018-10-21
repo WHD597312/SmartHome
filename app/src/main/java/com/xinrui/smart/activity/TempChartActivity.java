@@ -1,6 +1,7 @@
 package com.xinrui.smart.activity;
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -47,6 +49,7 @@ public class TempChartActivity extends AppCompatActivity {
     @BindView(R.id.tv_roatPower) TextView tv_roatPower;
     private DeviceChildDaoImpl deviceChildDao;
     public static boolean running=false;
+    private ProgressDialog progressDialog;
     long Id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,10 +87,12 @@ public class TempChartActivity extends AppCompatActivity {
         tv_voltage.setText(s);
         String s2="额定功率:"+ratedPower+"W";
         tv_roatPower.setText(s2);
+        progressDialog = new ProgressDialog(this);
         IntentFilter intentFilter = new IntentFilter("TempChartActivity");
         receiver = new MessageReceiver();
         registerReceiver(receiver, intentFilter);
         new TempChatAsync().execute();
+
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -149,12 +154,22 @@ public class TempChartActivity extends AppCompatActivity {
     class TempChatAsync extends AsyncTask<Void,Void,List<Integer>>{
 
         @Override
+        protected void onPreExecute() {
+            progressDialog.setMessage("请稍后...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
         protected List<Integer> doInBackground(Void... voids) {
             int code=0;
             List<Integer> list=null;
             String tempUrl="http://47.98.131.11:8082/warmer/v1.0/device/everyHourTemp?deviceId="+deviceId;
             try {
                 String result=HttpUtils.getOkHpptRequest(tempUrl);
+                if (TextUtils.isEmpty(result)){
+                    result=HttpUtils.getOkHpptRequest(tempUrl);
+                }
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject2=new JSONObject(result);
                     code=jsonObject2.getInt("code");
@@ -220,41 +235,46 @@ public class TempChartActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<Integer> doubles) {
             super.onPostExecute(doubles);
-            if (!doubles.isEmpty()){
+            try {
+                progressDialog.dismiss();
+                if (!doubles.isEmpty()){
+                    LineChartManager lineChartManager1 = new LineChartManager(line_chart);
 
-                LineChartManager lineChartManager1 = new LineChartManager(line_chart);
+                    //设置x轴的数据
+                    ArrayList<Integer> xValues = new ArrayList<>();
+                    for (int i = 0; i <24; i++) {
+                        xValues.add(i);
+                    }
 
-                //设置x轴的数据
-                ArrayList<Integer> xValues = new ArrayList<>();
-                for (int i = 0; i <24; i++) {
-                    xValues.add(i);
+                    //设置y轴的数据()
+                    List<List<Integer>> yValues = new ArrayList<>();
+
+                    yValues.add(doubles);
+
+                    //颜色集合
+                    List<Integer> colours = new ArrayList<>();
+                    colours.add(Color.GREEN);
+                    colours.add(Color.BLUE);
+                    colours.add(Color.RED);
+                    colours.add(Color.CYAN);
+
+                    //线的名字集合
+                    List<String> names = new ArrayList<>();
+                    names.add("温度曲线");
+                    names.add("折线二");
+                    names.add("折线三");
+                    names.add("折线四");
+
+                    //创建多条折线的图表
+                    lineChartManager1.showLineChart(xValues, yValues.get(0), names.get(0), colours.get(3));
+                    lineChartManager1.setDescription("温度");
+                    lineChartManager1.setYAxis(60, 0, 24);
+                    lineChartManager1.setHightLimitLine(60,"高温报警",0);
                 }
-
-                //设置y轴的数据()
-                List<List<Integer>> yValues = new ArrayList<>();
-
-                yValues.add(doubles);
-
-                //颜色集合
-                List<Integer> colours = new ArrayList<>();
-                colours.add(Color.GREEN);
-                colours.add(Color.BLUE);
-                colours.add(Color.RED);
-                colours.add(Color.CYAN);
-
-                //线的名字集合
-                List<String> names = new ArrayList<>();
-                names.add("温度曲线");
-                names.add("折线二");
-                names.add("折线三");
-                names.add("折线四");
-
-                //创建多条折线的图表
-                lineChartManager1.showLineChart(xValues, yValues.get(0), names.get(0), colours.get(3));
-                lineChartManager1.setDescription("温度");
-                lineChartManager1.setYAxis(60, 0, 24);
-                lineChartManager1.setHightLimitLine(60,"高温报警",0);
+            }catch (Exception e){
+                e.printStackTrace();
             }
+
         }
     }
 

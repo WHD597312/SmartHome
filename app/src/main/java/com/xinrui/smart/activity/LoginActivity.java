@@ -104,8 +104,6 @@ public class LoginActivity extends CheckPermissionsActivity {
     protected void onStart() {
         super.onStart();
 
-
-
     }
 
     @Override

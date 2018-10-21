@@ -152,7 +152,7 @@ public class CheckPermissionsActivity extends AppCompatActivity {
 	private void showMissingPermissionDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("提示");
-		builder.setMessage("当前应用缺少必要权限。\\n\\n请点击\\\"设置\\\"-\\\"权限\\\"-打开所需权限。");
+		builder.setMessage("当前应用缺少必要权限。请点击\"设置\""+"打开所需权限。");
 
 		// 拒绝, 退出应用
 		builder.setNegativeButton("取消",
