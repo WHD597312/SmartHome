@@ -25,7 +25,7 @@
                 android:scaleType="centerInside"
                 android:background="@null"
                 android:paddingLeft="@dimen/dp_10"
-                android:src="@mipmap/heater2" />
+                android:src="@mipmap/shebei" />
 
             <TextView
                 android:id="@+id/tv_device_child"

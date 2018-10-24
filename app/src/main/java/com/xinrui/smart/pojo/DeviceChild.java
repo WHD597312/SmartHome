@@ -66,6 +66,9 @@ public class DeviceChild  implements Serializable{
     int linked;
     int grade;/**亮度等级*/
     private String updateGrade;
+    private String address="";
+    private String houseAddress="";
+    private String province;
 
     public DeviceChild() {
     }
@@ -495,7 +498,31 @@ public class DeviceChild  implements Serializable{
         this.updateGrade = updateGrade;
     }
 
-    @Generated(hash = 630330431)
+    public String getAddress() {
+        return this.address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getProvince() {
+        return this.province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    public String getHouseAddress() {
+        return this.houseAddress;
+    }
+
+    public void setHouseAddress(String houseAddress) {
+        this.houseAddress = houseAddress;
+    }
+
+    @Generated(hash = 924072520)
     public DeviceChild(Long id, String deviceName, String macAddress, int img, int direction,
             Long houseId, int masterControllerUserId, int controlled, int type, int isUnlock,
             int version, int ratedPower, int MatTemp, String workMode, String LockScreen,
@@ -506,7 +533,7 @@ public class DeviceChild  implements Serializable{
             String reSet, String timerShutdown, long shareHouseId, int groupPosition,
             int childPosition, String machAttr, int sensorSimpleTemp, int sensorSimpleHum,
             int sorsorPm, int sensorOx, int sensorHcho, int sensorState, int busModel, int linked,
-            int grade, String updateGrade) {
+            int grade, String updateGrade, String address, String houseAddress, String province) {
         this.id = id;
         this.deviceName = deviceName;
         this.macAddress = macAddress;
@@ -558,6 +585,9 @@ public class DeviceChild  implements Serializable{
         this.linked = linked;
         this.grade = grade;
         this.updateGrade = updateGrade;
+        this.address = address;
+        this.houseAddress = houseAddress;
+        this.province = province;
     }
 
 }

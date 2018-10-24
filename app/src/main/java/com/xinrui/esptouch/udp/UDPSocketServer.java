@@ -110,20 +110,22 @@ public class UDPSocketServer {
 		Log.d(TAG, "receiveSpecLenBytes() entrance: len = " + len);
 		try {
 			acquireLock();
-			mServerSocket.receive(mReceivePacket);
-			byte[] recDatas = Arrays.copyOf(mReceivePacket.getData(), mReceivePacket.getLength());
-			Log.d(TAG, "received len : " + recDatas.length);
-			for (int i = 0; i < recDatas.length; i++) {
-				Log.e(TAG, "recDatas[" + i + "]:" + recDatas[i]);
+			if (mServerSocket!=null && mReceivePacket!=null){
+				mServerSocket.receive(mReceivePacket);
+				byte[] recDatas = Arrays.copyOf(mReceivePacket.getData(), mReceivePacket.getLength());
+				Log.d(TAG, "received len : " + recDatas.length);
+				for (int i = 0; i < recDatas.length; i++) {
+					Log.e(TAG, "recDatas[" + i + "]:" + recDatas[i]);
+				}
+				Log.e(TAG, "receiveSpecLenBytes: " + new String(recDatas));
+				if (recDatas.length != len) {
+					Log.w(TAG,
+							"received len is different from specific len, return null");
+					return null;
+				}
+				return recDatas;
 			}
-			Log.e(TAG, "receiveSpecLenBytes: " + new String(recDatas));
-			if (recDatas.length != len) {
-				Log.w(TAG,
-						"received len is different from specific len, return null");
-				return null;
-			}
-			return recDatas;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -137,9 +139,11 @@ public class UDPSocketServer {
 	public synchronized void close() {
 		if (!this.mIsClosed) {
 			Log.e(TAG, "mServerSocket is closed");
-			mServerSocket.close();
-			releaseLock();
-			this.mIsClosed = true;
+			if (mServerSocket!=null){
+				mServerSocket.close();
+				releaseLock();
+				this.mIsClosed = true;
+			}
 		}
 	}
 

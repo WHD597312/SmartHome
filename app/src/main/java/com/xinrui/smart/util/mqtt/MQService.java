@@ -159,8 +159,7 @@ public class MQService extends Service {
 
     public void connect() {
         try {
-            if (client != null && client.isConnected()) {
-                client.disconnect();
+            if (client != null && client.isConnected() == false) {
                 client.connect(options);
             }
             new ConAsync().execute();
@@ -175,8 +174,12 @@ public class MQService extends Service {
         protected Void doInBackground(Void... voids) {
 
             try {
-                if (!client.isConnected()) {
+                if (client.isConnected() == false) {
                     client.connect(options);
+                }
+                List<DeviceChild> list=deviceChildDao.findZerosType(0);
+                if (list!=null && !list.isEmpty()){
+                    new UpdateDeviceTypeAsync2().execute(list);
                 }
                 List<String> topicNames = getTopicNames();
                 if (client.isConnected() && !topicNames.isEmpty()) {
@@ -250,7 +253,7 @@ public class MQService extends Service {
     int groupPostion = 0;
     int childPosition = 0;
     int timerTaskWeek = 0;
-    private int falling=-1;
+    private int falling = -1;
 
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch, R.mipmap.image_switch2};
 
@@ -271,6 +274,87 @@ public class MQService extends Service {
             } else if (topicName.startsWith("p99")) {
                 macAddress = topicName.substring(4, topicName.lastIndexOf("/"));
             }
+            if ("offline".equals(message)){
+                DeviceChild deviceChild=deviceChildDao.findDeviceByMacAddress2(macAddress);
+                if (deviceChild!=null){
+                    deviceChild.setOnLint(false);
+                    deviceChildDao.update(deviceChild);
+                }
+            }
+            if (("p99/" + macAddress + "/transfer").equals(topicName)) {
+                try {
+                    JSONObject device = new JSONObject(message);
+                    if (device.has("productType")) {
+                        String productType = device.getString("productType");
+                        DeviceChild deviceChild = deviceChildDao.findDeviceByMacAddress2(macAddress);
+                        deviceType = Integer.parseInt(productType);
+                        if (deviceChild != null && deviceChild.getType() == 0) {
+                            if (deviceType == 3) {
+                                deviceType = 2;
+                            }
+                            deviceChild.setType(deviceType);
+                            deviceChildDao.update(deviceChild);
+                            deviceChild.setType(deviceType);
+                            long deviceId = deviceChild.getId();
+                            String url = HttpUtils.ipAddress + "/device/updateDeviceType?deviceId=" + deviceId + "&deviceType=" + deviceType;
+                            new UpdateDeviceTypeAsync().execute(url, macAddress);
+
+                            String city = deviceChild.getAddress();
+                            String houseAddress = deviceChild.getHouseAddress();
+                            String province = deviceChild.getProvince();
+                            boolean succ = false;
+                            if (deviceType == 1) {
+                                String topicName2 = "rango/" + macAddress + "/transfer";
+                                String topicOffline = "rango/" + macAddress + "/lwt";
+                                succ = subscribe(topicName2, 1);
+                                if (!succ)
+                                    subscribe(topicName2, 1);
+                                succ = subscribe(topicOffline, 1);
+                                if (!succ)
+                                    subscribe(topicOffline, 1);
+                                JSONObject jsonObject = new JSONObject();
+                                jsonObject.put("loadData", 1);
+                                String s = jsonObject.toString();
+
+                                String topicName3 = "rango/" + macAddress + "/set";
+                                boolean success = publish(topicName3, 1, s);
+                                if (!success)
+                                    success = publish(topicName3, 1, s);
+                            } else if (deviceType == 2) {
+                                String onlineTopicName = "p99/sensor1/" + macAddress + "/transfer";
+                                String offlineTopicName = "p99/sensor1/" + macAddress + "/lwt";
+                                subscribe(onlineTopicName, 1);
+                                subscribe(offlineTopicName, 1);
+                                String topicName3 = "p99/sensor1/" + macAddress + "/set";
+                                boolean success3 = subscribe(topicName3, 1);
+                                if (!success3) {
+                                    subscribe(topicName3, 1);
+                                }
+                                String topicName2="p99/sensor1/" + macAddress + "/set";
+                                if (TextUtils.isEmpty(city)) {
+                                    city = houseAddress;
+                                    if (city.contains("市")) {
+                                        city = city.substring(0, city.length() - 1);
+                                    }
+
+                                    String info = "url:http://apicloud.mob.com/v1/weather/query?key=257a640199764&city=" + URLEncoder.encode(city, "utf-8");
+                                    publish(topicName2, 1, info);
+                                } else {
+                                    if (city.contains("市")) {
+                                        city = city.substring(0, city.length() - 1);
+                                    }
+                                    String info = "url:http://apicloud.mob.com/v1/weather/query?key=257a640199764&city=" + URLEncoder.encode(city, "utf-8") + "&province=" + URLEncoder.encode(province, "utf-8");
+                                    publish(topicName2, 1, info);
+                                }
+                            }
+                        }
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
 
             String topicShare = "rango/" + macAddress + "/refresh";
 
@@ -281,36 +365,9 @@ public class MQService extends Service {
             }
 
 
-
             Log.i("sssss", message);
             Log.i("ssss", message);
 
-
-            if (AddDeviceActivity.running && !TextUtils.isEmpty(message) && message.startsWith("{") && message.endsWith("}")) {
-                try {
-                    Log.i("AddDeviceActivity", "-->" + message);
-                    JSONObject device = new JSONObject(message);
-                    if (device.has("productType")) {
-
-                        AddDeviceActivity.running = false;
-                        String productType = device.getString("productType");
-                        deviceType = Integer.parseInt(productType);
-
-                        Intent mqttIntent = new Intent("AddDeviceActivity");
-                        mqttIntent.putExtra("deviceType", deviceType);
-                        mqttIntent.putExtra("macAddress", macAddress);
-                        mqttIntent.putExtra("add", "add");
-                        sendBroadcast(mqttIntent);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else if (AddDeviceActivity.running && !TextUtils.isEmpty(message) && "online".equals(message)) {
-                Intent mqttIntent = new Intent("AddDeviceActivity");
-                mqttIntent.putExtra("online", "online");
-                mqttIntent.putExtra("macAddress", macAddress);
-                sendBroadcast(mqttIntent);
-            }
 
             if ("upgradeFinish".equals(message) || "mcu no response yet!".equals(message) || "There is no need to upgrade!".equals(message) || "upgradeFinish".equals(message) || "online".equals(message) || "machine_dump!!!".equals(message)) {
                 if (message != null && message.length() == 0) {
@@ -318,21 +375,21 @@ public class MQService extends Service {
                 }
                 return null;
             }
-            String updateGrade="";
-            if ("Have upgrade task!".equals(message)){
-                updateGrade="updateGrade";
+            String updateGrade = "";
+            if ("Have upgrade task!".equals(message)) {
+                updateGrade = "updateGrade";
             }
-            Log.i("updateGrade","-->"+updateGrade);
+            Log.i("updateGrade", "-->" + updateGrade);
             String reSet = null;
 
             if ("reSet".equals(message)) {
                 reSet = "reSet";
                 String topicOffline = "rango/" + macAddress + "/lwt";
                 String topicShare2 = "rango/" + macAddress + "/refresh";
-                String topicOffline2="p99/sensor1"+macAddress+"/lwt";
-                String topicShares="p99/sensor1"+macAddress+"/transfer";
-                String topic="rango/"+macAddress+"/transfer";
-                String topic2="p99/"+macAddress+"/transfer";
+                String topicOffline2 = "p99/sensor1" + macAddress + "/lwt";
+                String topicShares = "p99/sensor1" + macAddress + "/transfer";
+                String topic = "rango/" + macAddress + "/transfer";
+                String topic2 = "p99/" + macAddress + "/transfer";
                 unsubscribe(topic2);
                 unsubscribe(topicShares);
                 unsubscribe(topicShare);
@@ -346,7 +403,7 @@ public class MQService extends Service {
                 Log.i("messsage", "-->" + message);
             try {
                 Log.i("macAddress", "-->" + macAddress);
-                if (!Utils.isEmpty(macAddress) && AddDeviceActivity.running == false) {
+                if (!Utils.isEmpty(macAddress)) {
                     JSONObject device = null;
                     String wifiVersion = "";
                     String MCUVerion = "";
@@ -408,7 +465,7 @@ public class MQService extends Service {
                         groupPostion++;
                     }
 
-                    if (child!=null){
+                    if (child != null) {
                         child.setUpdateGrade(updateGrade);
                         deviceChildDao.update(child);
                     }
@@ -418,7 +475,7 @@ public class MQService extends Service {
                         if (child != null) {/**删除和这个设备相关的所有数据*/
                             Log.i("groupPostion", "-->" + groupPostion);
 //                            new DeleteDeviceAsync().execute(child);
-                            if (offlineDevices.containsKey(macAddress)){
+                            if (offlineDevices.containsKey(macAddress)) {
                                 offlineDevices.remove(macAddress);
                             }
                             deviceChildDao.delete(child);
@@ -602,11 +659,11 @@ public class MQService extends Service {
                                 if (!Utils.isEmpty(workMode)) {
                                     child.setWorkMode(workMode);
                                 }
-                                if (MatTemp!=-1){
+                                if (MatTemp != -1) {
                                     child.setManualMatTemp(MatTemp);
                                 }
 
-                                if (TimerTemp!=-1){
+                                if (TimerTemp != -1) {
                                     child.setTimerTemp(TimerTemp);
                                 }
 
@@ -666,7 +723,7 @@ public class MQService extends Service {
                                     child.setMachineFall(machineFall);
 //                                child.setOnLint(true);
                                     if ("fall".equals(machineFall)) {
-                                        falling=1;
+                                        falling = 1;
                                         child.setMachineFall("fall");
                                         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
                                         Intent notifyIntent = new Intent(getApplicationContext(), LoginActivity.class);
@@ -692,8 +749,8 @@ public class MQService extends Service {
 //                                        VibratorUtil.Vibrate(MQService.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
                                     } else {
 //                                        VibratorUtil.StopVibrate(MQService.this);
-                                        MainActivity.falling=false;
-                                        falling=0;
+                                        MainActivity.falling = false;
+                                        falling = 0;
                                         child.setMachineFall("nor");
                                     }
                                 }
@@ -707,13 +764,13 @@ public class MQService extends Service {
 
                                 if (child != null) {
 
-                                    if (!Utils.isEmpty(deviceState)){
+                                    if (!Utils.isEmpty(deviceState)) {
                                         child.setOnLint(true);
                                     }
                                     child.setTemp(extTemp);
                                     child.setHum(extHum);
                                     deviceChildDao.update(child);
-                                    offlineDevices.put(macAddress,child);
+                                    offlineDevices.put(macAddress, child);
                                 }
                             }
                         }
@@ -759,7 +816,7 @@ public class MQService extends Service {
                                     child.setTemp(sensorSimpleTemp);
                                     child.setHum(sensorSimpleHum);
                                     deviceChildDao.update(child);
-                                    offlineDevices.put(macAddress,child);
+                                    offlineDevices.put(macAddress, child);
 
                                 }
                             }
@@ -768,37 +825,37 @@ public class MQService extends Service {
                         if (child != null) {
                             child.setOnLint(false);
                             deviceChildDao.update(child);
-                            offlineDevices.put(macAddress,child);
+                            offlineDevices.put(macAddress, child);
                         }
                     } else if (topicName.equals("rango/" + macAddress + "/lwt")) {
                         if (child != null) {
                             child.setOnLint(false);
                             deviceChildDao.update(child);
-                            offlineDevices.put(macAddress,child);
+                            offlineDevices.put(macAddress, child);
                         }
                     }
-                    Log.i("AddDeviceActivity", "-->" + AddDeviceActivity.running);
-                    if (DeviceListActivity.running || ShareDeviceActivity.running || TimeTaskActivity.running|| TempChartActivity.running||MainControlFragment.running||ControlledFragment.running|| ETSControlFragment.runing || SmartLinkedActivity.running){
-                        MainActivity.falling=false;
-                        DeviceFragment.running=false;
-                        falling=-1;
+//                    Log.i("AddDeviceActivity", "-->" + AddDeviceActivity.running);
+                    if (DeviceListActivity.running || ShareDeviceActivity.running || TimeTaskActivity.running || TempChartActivity.running || MainControlFragment.running || ControlledFragment.running || ETSControlFragment.runing || SmartLinkedActivity.running) {
+                        MainActivity.falling = false;
+                        DeviceFragment.running = false;
+                        falling = -1;
                     }
-                    if (SmartTerminalActivity.running){
-                        MainActivity.falling=false;
-                        DeviceFragment.running=false;
-                        falling=-1;
+                    if (SmartTerminalActivity.running) {
+                        MainActivity.falling = false;
+                        DeviceFragment.running = false;
+                        falling = -1;
                     }
-                    if (SmartFragmentManager.running){
-                        MainActivity.falling=false;
-                        DeviceFragment.running=false;
-                        falling=-1;
+                    if (SmartFragmentManager.running) {
+                        MainActivity.falling = false;
+                        DeviceFragment.running = false;
+                        falling = -1;
                     }
-                    if (Btn1_fragment.running==2 || Btn2_fragment.running==2 || Btn3_fragment.running==2 || Btn4_fragment.running==2){
-                        MainActivity.falling=false;
-                        DeviceFragment.running=false;
-                        falling=-1;
+                    if (Btn1_fragment.running == 2 || Btn2_fragment.running == 2 || Btn3_fragment.running == 2 || Btn4_fragment.running == 2) {
+                        MainActivity.falling = false;
+                        DeviceFragment.running = false;
+                        falling = -1;
                     }
-                    if (DeviceFragment.running || falling==0 || falling==1) {
+                    if (DeviceFragment.running || falling == 0 || falling == 1) {
                         if (child == null) {
                             Intent mqttIntent = new Intent("DeviceFragment");
                             Log.i("groupPostion", "-->" + groupPostion);
@@ -814,17 +871,17 @@ public class MQService extends Service {
                             mqttIntent.putExtra("deviceChild", child);
                             sendBroadcast(mqttIntent);
                         }
-                    }else if (SmartFragmentManager.running){
-                        if (child!=null){
+                    } else if (SmartFragmentManager.running) {
+                        if (child != null) {
                             Intent mqttIntent = new Intent("SmartFragmentManager");
                             mqttIntent.putExtra("deviceChild", child);
                             sendBroadcast(mqttIntent);
-                        }else {
+                        } else {
                             Intent mqttIntent = new Intent("SmartFragmentManager");
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
                         }
-                    }else if (DeviceListActivity.running) {
+                    } else if (DeviceListActivity.running) {
                         if (!Utils.isEmpty(reSet)) {
                             Intent mqttIntent = new Intent("DeviceListActivity");
                             mqttIntent.putExtra("macAddress", macAddress);
@@ -907,39 +964,39 @@ public class MQService extends Service {
                                 sendBroadcast(mqttIntent);
                             }
                         }
-                    } else if(MainControlFragment.running==true){
-                        if (!Utils.isEmpty(reSet)){
+                    } else if (MainControlFragment.running == true) {
+                        if (!Utils.isEmpty(reSet)) {
                             Intent mqttIntent = new Intent("MainControlFragment");
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
                         }
-                    }else if (ControlledFragment.running){
-                        if (!Utils.isEmpty(reSet)){
+                    } else if (ControlledFragment.running) {
+                        if (!Utils.isEmpty(reSet)) {
                             Intent mqttIntent = new Intent("ControlledFragment");
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
                         }
-                    }else if (ETSControlFragment.runing){
-                        if (!Utils.isEmpty(reSet)){
+                    } else if (ETSControlFragment.runing) {
+                        if (!Utils.isEmpty(reSet)) {
                             Intent mqttIntent = new Intent("ETSControlFragment");
                             mqttIntent.putExtra("macAddress", macAddress);
                             sendBroadcast(mqttIntent);
                         }
-                    }else if (SmartLinkedActivity.running){
-                        if (!Utils.isEmpty(reSet)){
+                    } else if (SmartLinkedActivity.running) {
+                        if (!Utils.isEmpty(reSet)) {
                             Intent mqttIntent = new Intent("SmartLinkedActivity");
                             mqttIntent.putExtra("macAddress", macAddress);
-                            mqttIntent.putExtra("deviceChild",child);
+                            mqttIntent.putExtra("deviceChild", child);
                             sendBroadcast(mqttIntent);
-                        }else {
-                            if (child.getType()==1 && child.getControlled()==1){
+                        } else {
+                            if (child.getType() == 1 && child.getControlled() == 1) {
                                 Intent mqttIntent = new Intent("SmartLinkedActivity");
                                 mqttIntent.putExtra("macAddress", macAddress);
-                                mqttIntent.putExtra("deviceChild",child);
+                                mqttIntent.putExtra("deviceChild", child);
                                 sendBroadcast(mqttIntent);
                             }
                         }
-                    }else if (Btn1_fragment.running == 2) {
+                    } else if (Btn1_fragment.running == 2) {
                         Intent mqttIntent = new Intent("Btn1_fragment");
                         mqttIntent.putExtra("extTemp", extTemp);
                         mqttIntent.putExtra("extHum", extHum);
@@ -994,7 +1051,7 @@ public class MQService extends Service {
             super.handleMessage(msg);
             if (DeviceListActivity.running) {
                 MainActivity.running = false;
-                DeviceFragment.running=false;
+                DeviceFragment.running = false;
             }
             switch (msg.what) {
                 case 1:
@@ -1346,6 +1403,64 @@ public class MQService extends Service {
         }
     }
 
+    class UpdateDeviceTypeAsync2 extends AsyncTask<List<DeviceChild>, Void, Void> {
+        @Override
+        protected Void doInBackground(List<DeviceChild>... lists) {
+            List<DeviceChild> list = lists[0];
+            for (DeviceChild deviceChild : list) {
+                if (deviceChild.getType() == 0) {
+                    String macAddress = deviceChild.getMacAddress();
+                    String topicName = "p99/" + macAddress + "/transfer";
+
+                    try {
+                        boolean success = subscribe(topicName, 1);
+                        if (!success) {
+                            success = subscribe(topicName, 1);
+                        }
+                        if (success) {
+                            String topicName2 = "p99/" + macAddress + "/set";
+                            String payLoad = "getType";
+                            boolean step2 = publish(topicName2, 1, payLoad);
+                            if (!step2) {
+                                step2 = publish(topicName2, 1, payLoad);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+            return null;
+        }
+    }
+
+    class UpdateDeviceTypeAsync extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            try {
+                String url = strings[0];
+                String macAddress = strings[1];
+                Log.i("macAddress", "-->" + macAddress);
+                String result = HttpUtils.getOkHpptRequest(url);
+                if (TextUtils.isEmpty(result)) {
+                    HttpUtils.getOkHpptRequest(url);
+                } else {
+                    JSONObject jsonObject = new JSONObject(result);
+                    int code = jsonObject.getInt("code");
+                    if (code == 2000) {
+                        unsubscribe("p99/" + macAddress + "/transfer");
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+
     class LoadMqttAsync3 extends AsyncTask<List<DeviceChild>, Void, String> {
 
 
@@ -1413,7 +1528,8 @@ public class MQService extends Service {
             new LoadMqttAsync3().execute(deviceChildren);
         }
     }
-    public DeviceChild findDeviceByMacAddress(String macAddress){
+
+    public DeviceChild findDeviceByMacAddress(String macAddress) {
         return deviceChildDao.findDeviceByMacAddress2(macAddress);
     }
 }

@@ -108,12 +108,14 @@
                 android:inputType="textVisiblePassword"
                 android:paddingLeft="@dimen/dp_5"
                 />
-
-            <View
+            <TextView
+                android:id="@+id/tv_desc"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_1"
-                android:background="@color/color_dark_gray" />
-
+                android:layout_height="wrap_content"
+                android:textColor="@color/holo_red_dark"
+                android:text="WiFi名密码不能为表情、中文、+/等特殊字符"
+                android:textSize="@dimen/sp_12"
+                />
             <Button
                 android:id="@+id/btn_match"
                 android:layout_width="match_parent"

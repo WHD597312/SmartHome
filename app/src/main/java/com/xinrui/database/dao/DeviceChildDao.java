@@ -75,6 +75,9 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         public final static Property Linked = new Property(48, int.class, "linked", false, "LINKED");
         public final static Property Grade = new Property(49, int.class, "grade", false, "GRADE");
         public final static Property UpdateGrade = new Property(50, String.class, "updateGrade", false, "UPDATE_GRADE");
+        public final static Property Address = new Property(51, String.class, "address", false, "ADDRESS");
+        public final static Property HouseAddress = new Property(52, String.class, "houseAddress", false, "HOUSE_ADDRESS");
+        public final static Property Province = new Property(53, String.class, "province", false, "PROVINCE");
     }
 
 
@@ -140,7 +143,10 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
                 "\"BUS_MODEL\" INTEGER NOT NULL ," + // 47: busModel
                 "\"LINKED\" INTEGER NOT NULL ," + // 48: linked
                 "\"GRADE\" INTEGER NOT NULL ," + // 49: grade
-                "\"UPDATE_GRADE\" TEXT);"); // 50: updateGrade
+                "\"UPDATE_GRADE\" TEXT," + // 50: updateGrade
+                "\"ADDRESS\" TEXT," + // 51: address
+                "\"HOUSE_ADDRESS\" TEXT," + // 52: houseAddress
+                "\"PROVINCE\" TEXT);"); // 53: province
     }
 
     /** Drops the underlying database table. */
@@ -279,6 +285,21 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         if (updateGrade != null) {
             stmt.bindString(51, updateGrade);
         }
+ 
+        String address = entity.getAddress();
+        if (address != null) {
+            stmt.bindString(52, address);
+        }
+ 
+        String houseAddress = entity.getHouseAddress();
+        if (houseAddress != null) {
+            stmt.bindString(53, houseAddress);
+        }
+ 
+        String province = entity.getProvince();
+        if (province != null) {
+            stmt.bindString(54, province);
+        }
     }
 
     @Override
@@ -411,6 +432,21 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         if (updateGrade != null) {
             stmt.bindString(51, updateGrade);
         }
+ 
+        String address = entity.getAddress();
+        if (address != null) {
+            stmt.bindString(52, address);
+        }
+ 
+        String houseAddress = entity.getHouseAddress();
+        if (houseAddress != null) {
+            stmt.bindString(53, houseAddress);
+        }
+ 
+        String province = entity.getProvince();
+        if (province != null) {
+            stmt.bindString(54, province);
+        }
     }
 
     @Override
@@ -471,7 +507,10 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
             cursor.getInt(offset + 47), // busModel
             cursor.getInt(offset + 48), // linked
             cursor.getInt(offset + 49), // grade
-            cursor.isNull(offset + 50) ? null : cursor.getString(offset + 50) // updateGrade
+            cursor.isNull(offset + 50) ? null : cursor.getString(offset + 50), // updateGrade
+            cursor.isNull(offset + 51) ? null : cursor.getString(offset + 51), // address
+            cursor.isNull(offset + 52) ? null : cursor.getString(offset + 52), // houseAddress
+            cursor.isNull(offset + 53) ? null : cursor.getString(offset + 53) // province
         );
         return entity;
     }
@@ -529,6 +568,9 @@ public class DeviceChildDao extends AbstractDao<DeviceChild, Long> {
         entity.setLinked(cursor.getInt(offset + 48));
         entity.setGrade(cursor.getInt(offset + 49));
         entity.setUpdateGrade(cursor.isNull(offset + 50) ? null : cursor.getString(offset + 50));
+        entity.setAddress(cursor.isNull(offset + 51) ? null : cursor.getString(offset + 51));
+        entity.setHouseAddress(cursor.isNull(offset + 52) ? null : cursor.getString(offset + 52));
+        entity.setProvince(cursor.isNull(offset + 53) ? null : cursor.getString(offset + 53));
      }
     
     @Override

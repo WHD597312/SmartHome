@@ -570,16 +570,12 @@ public class MainActivity extends CheckPermissionsActivity {
                     glideCacheUtil.clearImageAllCache();
                     glideCacheUtil.clearImageDiskCache();
                     glideCacheUtil.clearImageMemoryCache();
-
                     fragmentPreferences.edit().clear().commit();
-
-
                     application.removeAllFragment();
                     running = false;
 
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     startActivity(intent);
-
                 }
 
                 break;
@@ -710,6 +706,10 @@ public class MainActivity extends CheckPermissionsActivity {
                 deviceId = data.getStringExtra("deviceId");
                 if (!Utils.isEmpty(deviceId)) {
                     bundle.putString("deviceId", deviceId);
+                }
+                String macAddress=data.getStringExtra("macAddress");
+                if (!Utils.isEmpty(macAddress)){
+                    bundle.putString("macAddress",macAddress);
                 }
                 deviceFragment.setArguments(bundle);
                 fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
@@ -859,6 +859,7 @@ public class MainActivity extends CheckPermissionsActivity {
                                             child.setVersion(version);
                                             child.setMacAddress(macAddress);
                                             child.setControlled(controlled);
+                                            child.setHouseAddress(location);
 //                                            child.setGroupPosition(i);
 //                                            child.setChildPosition(j);
                                             deviceChildDao.update(child);
@@ -870,6 +871,7 @@ public class MainActivity extends CheckPermissionsActivity {
                                             deviceChild.setControlled(controlled);
 //                                            deviceChild.setGroupPosition(i);
 //                                            deviceChild.setChildPosition(j);
+                                            deviceChild.setHouseAddress(location);
                                             deviceChildDao.insert(deviceChild);
                                         }
                                     }
@@ -912,7 +914,6 @@ public class MainActivity extends CheckPermissionsActivity {
                                 deviceChild.setShareHouseId(houseId);
 //                                deviceChild.setGroupPosition(deviceGroups.size());
 //                                deviceChild.setChildPosition(x);
-
                                 deviceChildDao.insert(deviceChild);
                             }
                         }

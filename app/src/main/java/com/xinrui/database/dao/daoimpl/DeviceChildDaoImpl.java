@@ -177,6 +177,10 @@ public class DeviceChildDaoImpl {
     public List<DeviceChild> findAllDevice(){
         return deviceChildDao.loadAll();
     }
+    public List<DeviceChild> findZerosType(int type){
+        List<DeviceChild> children=deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.Type.eq(type)).orderAsc(DeviceChildDao.Properties.Id).list();
+        return children;
+    }
     public void closeDaoSession(){
         if (session!=null){
             session.clear();

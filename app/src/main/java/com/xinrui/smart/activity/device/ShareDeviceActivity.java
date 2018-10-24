@@ -91,6 +91,9 @@ public class ShareDeviceActivity extends AppCompatActivity {
             int controlled=deviceChild.getControlled();
             int type=deviceChild.getType();
             long houseId=deviceChild.getHouseId();
+            if (houseId==Long.MAX_VALUE){
+                houseId=deviceChild.getShareHouseId();
+            }
             String deviceName=deviceChild.getDeviceName();
             String share2="deviceId'"+deviceId+"&userId'"+userId+"&macAddress'"+macAddress+"&type'"+type+"&controlled'"+controlled+"&houseId'"+houseId+"&deviceName'"+deviceName;
             try {

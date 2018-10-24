@@ -162,7 +162,7 @@ public class DeviceFragment extends Fragment {
     public static boolean loading = false;
     private LinkedList<String> offlineList = new LinkedList<String>();
     private String deviceId;
-
+    private String macAddress;
     //    List
     @Nullable
     @Override
@@ -225,6 +225,7 @@ public class DeviceFragment extends Fragment {
         Bundle bundle = getArguments();
         load = bundle.getString("load");
         deviceId = bundle.getString("deviceId");
+        macAddress=bundle.getString("macAddress");
         adapter = new DeviceAdapter(getActivity(), deviceGroups, childern);
         rv_list.setAdapter(adapter);
         Intent service = new Intent(getActivity(), MQService.class);
@@ -1306,6 +1307,37 @@ public class DeviceFragment extends Fragment {
     private static long lastClickTime = 0;
 
 
+    class UpdateDeviceTypeAsync extends AsyncTask<List<DeviceChild>,Void,Void>{
+        @Override
+        protected Void doInBackground(List<DeviceChild>... lists) {
+            List<DeviceChild> list=lists[0];
+            for (DeviceChild deviceChild:list){
+                if (deviceChild.getType()==0){
+                    String macAddress=deviceChild.getMacAddress();
+                    String topicName="p99/" + macAddress + "/transfer";
+                    if (mqService!=null){
+                        try {
+                            boolean success = mqService.subscribe(topicName, 1);
+                            if (!success){
+                                success = mqService.subscribe(topicName, 1);
+                            }
+                            if (success) {
+                                String topicName2 = "p99/" + macAddress + "/set";
+                                String payLoad = "getType";
+                                boolean step2 = mqService.publish(topicName2, 1, payLoad);
+                                if (!step2){
+                                    step2 = mqService.publish(topicName2, 1, payLoad);
+                                }
+                            }
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+    }
     class LoadMqttAsync extends AsyncTask<List<DeviceChild>, Void, Integer> {
 
         @Override
@@ -1713,7 +1745,26 @@ public class DeviceFragment extends Fragment {
             myRecyclerViewItem= (MyRecyclerViewItem) holder.itemView.findViewById(R.id.scroll_item);
             myRecyclerViewItem.reset();
 
-
+            if (entry.getType()==0 && mqService!=null){
+                String macAddress = entry.getMacAddress();
+                String topicName = "p99/" + macAddress + "/transfer";
+                try {
+                    boolean success = mqService.subscribe(topicName, 1);
+                    if (!success) {
+                        success =mqService.subscribe(topicName, 1);
+                    }
+                    if (success) {
+                        String topicName2 = "p99/" + macAddress + "/set";
+                        String payLoad = "getType";
+                        boolean step2 = mqService.publish(topicName2, 1, payLoad);
+                        if (!step2) {
+                            step2 = mqService.publish(topicName2, 1, payLoad);
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             if (entry.getOnLint()) {
                 if (entry.getType() == 1) {
                     if (entry.getControlled() == 2 || entry.getControlled() == 0) {
@@ -2170,7 +2221,10 @@ public class DeviceFragment extends Fragment {
             MQService.LocalBinder binder = (MQService.LocalBinder) service;
             mqService = binder.getService();
             bound = true;
-            Log.i("load", "-->" + load);
+            List<DeviceChild> list=deviceChildDao.findZerosType(0);
+            if (list!=null && !list.isEmpty()){
+                new UpdateDeviceTypeAsync().execute(list);
+            }
             if (!Utils.isEmpty(load)) {
                 List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
                 new LoadMqttAsync3().execute(deviceChildren);

@@ -407,6 +407,7 @@ public class LoginActivity extends CheckPermissionsActivity {
                                             child.setControlled(controlled);
 //                                            child.setGroupPosition(i);
 //                                            child.setChildPosition(j);
+                                            child.setHouseAddress(location);
                                             deviceChildDao.update(child);
                                         } else {
                                             DeviceChild deviceChild = new DeviceChild(deviceId, groupId, deviceName, macAddress, type);
@@ -416,6 +417,7 @@ public class LoginActivity extends CheckPermissionsActivity {
                                             deviceChild.setControlled(controlled);
 //                                            deviceChild.setGroupPosition(i);
 //                                            deviceChild.setChildPosition(j);
+                                            deviceChild.setHouseAddress(location);
                                             deviceChildDao.insert(deviceChild);
                                         }
                                     }

@@ -36,6 +36,7 @@ import com.xinrui.smart.MyApplication;
 import com.xinrui.smart.R;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.DeviceGroup;
+import com.xinrui.smart.util.IsBase64;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.camera.CameraManager;
 import com.xinrui.smart.util.decoding.CaptureActivityHandler;
@@ -197,36 +198,45 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
         playBeepSoundAndVibrate();
         String resultString = result.getText();
 
-        if (TextUtils.isEmpty(resultString)) {
-            Toast.makeText(QRScannerActivity.this, "扫描失败!", Toast.LENGTH_SHORT).show();
-        } else {
-            String content = resultString;
-            if (!Utils.isEmpty(content)) {
-                content = new String(Base64.decode(content, Base64.DEFAULT));
-                Log.i("content","-->"+content);
+        try {
+            if (TextUtils.isEmpty(resultString)) {
+                Toast.makeText(QRScannerActivity.this, "扫描失败!", Toast.LENGTH_SHORT).show();
+            } else {
+                String content = resultString;
                 if (!Utils.isEmpty(content)) {
-                    shareContent = content;
-                    if (!content.contains("macAddress") && !content.contains("deviceId")){
-                        Toast.makeText(QRScannerActivity.this, "扫描内容不符合!", Toast.LENGTH_SHORT).show();
+                    boolean isBase64=IsBase64.isBase64(content);
+                    if (isBase64){
+                        content = new String(Base64.decode(content, Base64.DEFAULT));
+                        Log.i("content","-->"+content);
+                        if (!Utils.isEmpty(content)) {
+                            shareContent = content;
+                            if (!content.contains("macAddress") && !content.contains("deviceId")){
+                                Toast.makeText(QRScannerActivity.this, "扫描内容不符合!", Toast.LENGTH_SHORT).show();
+                            }else {
+                                String[] ss = content.split("&");
+                                String s0 = ss[0];
+                                String deviceId = s0.substring(s0.indexOf("'") + 1);
+                                String s2 = ss[2];
+                                String macAddress = s2.substring(s2.indexOf("'") + 1);
+                                shareMacAddress = macAddress;
+
+                                Map<String, Object> params = new HashMap<>();
+                                params.put("deviceId", deviceId);
+                                params.put("userId", userId);
+                                Intent service = new Intent(QRScannerActivity.this, MQService.class);
+                                isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
+                                new QrCodeAsync().execute(params);
+                            }
+                        }
                     }else {
-                        String[] ss = content.split("&");
-                        String s0 = ss[0];
-                        String deviceId = s0.substring(s0.indexOf("'") + 1);
-                        String s2 = ss[2];
-                        String macAddress = s2.substring(s2.indexOf("'") + 1);
-                        shareMacAddress = macAddress;
-
-
-                        Map<String, Object> params = new HashMap<>();
-                        params.put("deviceId", deviceId);
-                        params.put("userId", userId);
-                        Intent service = new Intent(QRScannerActivity.this, MQService.class);
-                        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
-                        new QrCodeAsync().execute(params);
+                        Toast.makeText(QRScannerActivity.this, "扫描内容不符合!", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
     //http://host:port/app/version/device/getDeviceById?deviceId='deviceId'

@@ -73,6 +73,7 @@ public class NoDeviceFragment extends Fragment{
     private String homeUrl="http://47.98.131.11:8082/warmer/v1.0/house/registerHouse";
     DeviceGroup deviceGroup=null;
     public static boolean running=false;
+    private long houseId;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -99,6 +100,7 @@ public class NoDeviceFragment extends Fragment{
         }
         if (deviceGroup!=null){
             updateDeviceGroup=deviceGroup;
+            houseId=deviceGroup.getId();
             String location=deviceGroup.getLocation();
             Log.i("deviceGroup","-->"+location);
             String houseHome=deviceGroup.getHouseName();
@@ -116,7 +118,7 @@ public class NoDeviceFragment extends Fragment{
     public void onClick(View view){
         switch(view.getId()){
             case R.id.btn_add_device:
-                String group=tv_myhome.getText().toString();
+//                String group=tv_myhome.getText().toString();
                 if (deviceGroup!=null) {
                         city=tv_city.getText().toString().trim();
                         if (Utils.isEmpty(city)){
@@ -125,6 +127,7 @@ public class NoDeviceFragment extends Fragment{
                         deviceGroup.setLocation(city);
                         new UpdateHomeLocationAsync().execute(deviceGroup);
                 }
+
                 break;
             case R.id.image_position:
                 stopLocation();
@@ -229,6 +232,10 @@ public class NoDeviceFragment extends Fragment{
                         deviceGroup.setHeader(deviceGroup.getHouseName()+"."+deviceGroup.getLocation());
                         deviceGroupDao.update(updateDeviceGroup);
                     }
+                }else {
+                    deviceGroup.setHeader(deviceGroup.getHouseName()+"."+deviceGroup.getLocation());
+                    deviceGroupDao.update(updateDeviceGroup);
+                    code=2000;
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -241,7 +248,6 @@ public class NoDeviceFragment extends Fragment{
             super.onPostExecute(code);
             switch (code){
                 case 2000:
-                    long houseId=deviceGroup.getId();
                     Intent intent=new Intent(getActivity(), AddDeviceActivity.class);
                     intent.putExtra("houseId",houseId+"");
                     startActivityForResult(intent,6000);
