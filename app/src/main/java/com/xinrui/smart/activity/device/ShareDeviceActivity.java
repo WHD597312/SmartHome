@@ -125,8 +125,6 @@ public class ShareDeviceActivity extends AppCompatActivity {
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("deviceList","deviceList");
             startActivity(intent);
-        }else {
-
         }
     }
 
@@ -281,7 +279,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
                     Intent intent2=new Intent(ShareDeviceActivity.this,MainActivity.class);
                     intent2.putExtra("deviceList","deviceList");
                     startActivity(intent2);
-                }else if (!Utils.isEmpty(macAddress) && deviceChild2!=null && macAddress.equals(deviceChild.getMacAddress())){
+                }else if (!Utils.isEmpty(macAddress) && deviceChild2!=null && deviceChild!=null && macAddress.equals(deviceChild.getMacAddress())){
                     deviceChild=deviceChild2;
                     deviceChildDao.update(deviceChild);
                     tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());

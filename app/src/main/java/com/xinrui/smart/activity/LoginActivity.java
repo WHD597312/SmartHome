@@ -488,7 +488,7 @@ public class LoginActivity extends CheckPermissionsActivity {
                     case 2000:
                         Utils.showToast(LoginActivity.this,"登录成功");
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.putExtra("login","login");
                         startActivity(intent);
                         break;

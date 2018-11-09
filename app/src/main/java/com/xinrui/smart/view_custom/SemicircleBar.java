@@ -507,11 +507,70 @@ public class SemicircleBar extends View {
         Log.i("height","-->"+height);
         Log.i("width","-->"+width);
 
-        if ("open".equals(online) && "timer".equals(workMode) && !"childProtect".equals(output) && event.getAction()==MotionEvent.ACTION_DOWN){
-            Toast toast=Toast.makeText(getContext(),"定时模式下不能滑动",Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER,0,0);
-            toast.show();
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                if ("open".equals(online) && "timer".equals(workMode) && !"childProtect".equals(output) && event.getAction()==MotionEvent.ACTION_DOWN){
+                    Toast toast=Toast.makeText(getContext(),"定时模式下不能滑动",Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER,0,0);
+                    toast.show();
+                }
+                end=0;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y)) && isInCiecle(x,y)) {
+                    // 通过当前触摸点搞到cos角度值
+                    outside = false;
+                    float cos = computeCos(x, y);
+                    // 通过反三角函数获得角度值
+                    double angle;
+
+                    if (x < getWidth() / 2) { // 滑动超过180度
+                        angle = Math.PI * RADIAN + Math.acos(cos) * RADIAN;
+                    } else { // 没有超过180度
+                        angle = Math.PI * RADIAN - Math.acos(cos) * RADIAN;
+                    }
+                    if (isScrollOneCircle) {
+                        if (mCurAngle > 270 && angle < 90) {
+                            mCurAngle = 360;
+                            cos = -1;
+                        } else if (mCurAngle < 90 && angle > 270) {
+                            mCurAngle = 0;
+                            cos = -1;
+                        } else {
+                            mCurAngle = angle;
+                        }
+                    } else {
+                        mCurAngle = angle;
+
+                    }
+                    mCurProcess = getSelectedValue();
+                    refershWheelCurPosition(cos);
+                    end = 0;
+                    if (mChangListener != null && (event.getAction() & (MotionEvent.ACTION_MOVE | MotionEvent.ACTION_UP)) > 0) {
+
+//                        if (event.getAction() == MotionEvent.ACTION_UP) {
+//                            end = 1;
+//                        } else {
+//                            end = 0;
+//                        }
+                        end=0;
+                        Log.i("mmm", "-->" + mUnreachedWidth);
+                        Log.i("xxx", "-->" + x);
+                        Log.i("yyy", "-->" + y);
+                        mChangListener.onChanged(this, mCurProcess);
+                        Log.i("out", "-->" + outside);
+                    }
+                    invalidate();
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                end=0;
+                if (onWheelCheckListener!=null){
+                    onWheelCheckListener.onWheelCheckListener(this, mCurProcess);
+                }
+                break;
         }
+
 //        if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y)) && isInCiecle(x,y)){
 //            end=1;
 //            mChangListener.onChanged(this, mCurProcess);
@@ -519,64 +578,17 @@ public class SemicircleBar extends View {
 //            return true;
 //        }
 
-        if (isCanTouch && (event.getAction() == MotionEvent.ACTION_MOVE || isTouch(x, y)) && isInCiecle(x,y)) {
-            // 通过当前触摸点搞到cos角度值
-            outside=false;
-            float cos = computeCos(x, y);
-            // 通过反三角函数获得角度值
-            double angle;
 
-            if (x < getWidth() / 2) { // 滑动超过180度
-                angle = Math.PI * RADIAN + Math.acos(cos) * RADIAN;
-            } else { // 没有超过180度
-                angle = Math.PI * RADIAN - Math.acos(cos) * RADIAN;
-            }
-            if (isScrollOneCircle) {
-                if (mCurAngle > 270 && angle < 90) {
-                    mCurAngle = 360;
-                    cos = -1;
-                } else if (mCurAngle < 90 && angle > 270) {
-                    mCurAngle = 0;
-                    cos = -1;
-                } else {
-                    mCurAngle = angle;
-                }
-            } else {
-                mCurAngle = angle;
+//        } else if (isCanTouch && (event.getAction() == MotionEvent.ACTION_UP)){
+//
+//        }else {
+//            end=0;
+//            Log.i("out","-->"+outside);
+//
+//
+//        }
 
-            }
-            mCurProcess = getSelectedValue();
-            refershWheelCurPosition(cos);
-            end=0;
-            if (mChangListener != null && (event.getAction() & (MotionEvent.ACTION_MOVE | MotionEvent.ACTION_UP)) > 0) {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    end=1;
-                }else {
-                    end=0;
-                }
-                Log.i("mmm","-->"+mUnreachedWidth);
-                Log.i("xxx","-->"+x);
-                Log.i("yyy","-->"+y);
-
-                mChangListener.onChanged(this, mCurProcess);
-                Log.i("out","-->"+outside);
-
-            }
-            invalidate();
-
-            return true;
-        } else if (isCanTouch && (event.getAction() == MotionEvent.ACTION_UP)){
-            end=1;
-            mChangListener.onChanged(this, mCurProcess);
-            invalidate();
-            return true;
-        }else {
-            end=0;
-            Log.i("out","-->"+outside);
-            return super.onTouchEvent(event);
-
-        }
-
+        return true;
     }
 
     /**判断落点是否在圆环上*/
@@ -889,5 +901,13 @@ public class SemicircleBar extends View {
 
     public interface OnSeekBarChangeListener {
         void onChanged(SemicircleBar seekbar, double curValue);
+    }
+    private OnWheelCheckListener onWheelCheckListener;
+    public interface OnWheelCheckListener{
+        void onWheelCheckListener(SemicircleBar semicircleBar,double curValue);
+    }
+
+    public void setOnWheelCheckListener(OnWheelCheckListener onWheelCheckListener) {
+        this.onWheelCheckListener = onWheelCheckListener;
     }
 }

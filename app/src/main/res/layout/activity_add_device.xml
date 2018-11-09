@@ -46,8 +46,8 @@
             android:id="@+id/add_device_way"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/dp_80"
-            android:layout_marginRight="@dimen/dp_80"
+            android:layout_marginLeft="@dimen/dp_70"
+            android:layout_marginRight="@dimen/dp_70"
             android:layout_marginTop="@dimen/dp_10"
             android:gravity="center_vertical"
             android:orientation="horizontal">
@@ -80,9 +80,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginLeft="@dimen/dp_50"
-            android:layout_marginRight="@dimen/dp_50"
-            android:layout_marginTop="@dimen/dp_10"
+            android:layout_marginLeft="@dimen/dp_30"
+            android:layout_marginRight="@dimen/dp_30"
+            android:layout_marginTop="@dimen/dp_15"
             android:orientation="vertical">
 
             <EditText
@@ -112,20 +112,29 @@
                 android:id="@+id/tv_desc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/holo_red_dark"
-                android:text="WiFi名密码不能为表情、中文、+/等特殊字符"
-                android:textSize="@dimen/sp_12"
+                android:textColor="#999999"
+                android:text="WiFi名密码不能为表情、中文、+/#等特殊字符"
+                android:textSize="@dimen/sp_14"
+                android:layout_marginTop="@dimen/dp_10"
+                android:paddingLeft="@dimen/dp_5"
                 />
             <Button
                 android:id="@+id/btn_match"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp_20"
                 android:background="@color/white"
                 android:gravity="center"
                 android:text="开始配置"
                 android:textColor="@color/color_orange" />
-
+            <TextView
+                android:layout_marginTop="@dimen/dp_5"
+                android:id="@+id/tv_desc2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="连接WiFi前请前往设备上操作,请在通电两分钟之内对设备进行重置"
+                android:textColor="#999999"
+                />
             <RelativeLayout
                 android:id="@+id/layout_help"
                 android:layout_width="wrap_content"

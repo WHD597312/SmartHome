@@ -275,6 +275,7 @@ public class MQService extends Service {
                 macAddress = topicName.substring(4, topicName.lastIndexOf("/"));
             }
             if ("offline".equals(message)){
+                Log.i("offline","-->"+topicName);
                 DeviceChild deviceChild=deviceChildDao.findDeviceByMacAddress2(macAddress);
                 if (deviceChild!=null){
                     deviceChild.setOnLint(false);
@@ -348,7 +349,6 @@ public class MQService extends Service {
                                 }
                             }
                         }
-
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -398,6 +398,7 @@ public class MQService extends Service {
                 unsubscribe(topicOffline2);
                 unsubscribe(topicShare2);
                 unsubscribe(topicName);
+
             }
             if (!Utils.isEmpty(message))
                 Log.i("messsage", "-->" + message);

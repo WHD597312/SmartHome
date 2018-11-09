@@ -162,7 +162,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     private int mCurrent = 5;
     private String macAddress;
     private long firstTime;
-    Map<String,Long> loadData7Map=new HashMap<>();
+    Map<String, Long> loadData7Map = new HashMap<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,8 +182,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
 
         deviceChild = deviceChildDao.findDeviceById(Long.parseLong(childPosition));
-        deviceId=deviceChild.getId();
-        macAddress=deviceChild.getMacAddress();
+        deviceId = deviceChild.getId();
+        macAddress = deviceChild.getMacAddress();
 
         IntentFilter intentFilter = new IntentFilter("DeviceListActivity");
         receiver = new MessageReceiver();
@@ -190,14 +191,14 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
         Intent service = new Intent(this, MQService.class);
         isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
-        firstTime=System.currentTimeMillis();
+        firstTime = System.currentTimeMillis();
     }
 
 
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch};
     private int position = -1;
 
-    @OnClick({R.id.img_back, R.id.image_home,R.id.linearout, R.id.relative,R.id.image_switch, R.id.image_mode2, R.id.image_mode, R.id.image_mode3, R.id.image_mode4, R.id.semicBar})
+    @OnClick({R.id.img_back, R.id.image_home, R.id.linearout, R.id.relative, R.id.image_switch, R.id.image_mode2, R.id.image_mode, R.id.image_mode3, R.id.image_mode4, R.id.semicBar})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.relative:
@@ -219,9 +220,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
-                    String updateGrade=deviceChild.getUpdateGrade();
-                    if (!TextUtils.isEmpty(updateGrade)){
-                        Utils.showToast(this,"该设备正在升级");
+                    String updateGrade = deviceChild.getUpdateGrade();
+                    if (!TextUtils.isEmpty(updateGrade)) {
+                        Utils.showToast(this, "该设备正在升级");
                         deviceChild.setUpdateGrade("");
                         deviceChildDao.update(deviceChild);
                     }
@@ -262,13 +263,13 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             case R.id.image_mode:
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
-                   enableClick();
+                    enableClick();
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
-                    String updateGrade=deviceChild.getUpdateGrade();
-                    if (!TextUtils.isEmpty(updateGrade)){
-                        Utils.showToast(this,"该设备正在升级");
+                    String updateGrade = deviceChild.getUpdateGrade();
+                    if (!TextUtils.isEmpty(updateGrade)) {
+                        Utils.showToast(this, "该设备正在升级");
                         deviceChild.setUpdateGrade("");
                         deviceChildDao.update(deviceChild);
                     }
@@ -334,14 +335,14 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             case R.id.image_mode2:
                 if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
-                   enableClick();
+                    enableClick();
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
 //                    buildOpenChildProjectDialog();
-                    String updateGrade=deviceChild.getUpdateGrade();
-                    if (!TextUtils.isEmpty(updateGrade)){
-                        Utils.showToast(this,"该设备正在升级");
+                    String updateGrade = deviceChild.getUpdateGrade();
+                    if (!TextUtils.isEmpty(updateGrade)) {
+                        Utils.showToast(this, "该设备正在升级");
                         deviceChild.setUpdateGrade("");
                         deviceChildDao.update(deviceChild);
                     }
@@ -401,9 +402,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
-                    String updateGrade=deviceChild.getUpdateGrade();
-                    if (!TextUtils.isEmpty(updateGrade)){
-                        Utils.showToast(this,"该设备正在升级");
+                    String updateGrade = deviceChild.getUpdateGrade();
+                    if (!TextUtils.isEmpty(updateGrade)) {
+                        Utils.showToast(this, "该设备正在升级");
                         deviceChild.setUpdateGrade("");
                         deviceChildDao.update(deviceChild);
                     }
@@ -431,9 +432,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     break;
                 }
                 if (NoFastClickUtils.isFastClick()) {
-                    String updateGrade=deviceChild.getUpdateGrade();
-                    if (!TextUtils.isEmpty(updateGrade)){
-                        Utils.showToast(this,"该设备正在升级");
+                    String updateGrade = deviceChild.getUpdateGrade();
+                    if (!TextUtils.isEmpty(updateGrade)) {
+                        Utils.showToast(this, "该设备正在升级");
                         deviceChild.setUpdateGrade("");
                         deviceChildDao.update(deviceChild);
                     }
@@ -459,23 +460,23 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 }
                 break;
             case R.id.img_back:
-                if(popupWindow!=null && popupWindow.isShowing()){
+                if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
                     enableClick();
                     backgroundAlpha(1.0f);
                     break;
                 }
-                if (dialog!=null&&dialog.isShowing()){
+                if (dialog != null && dialog.isShowing()) {
                     dialog.dismiss();
                     break;
                 }
-                if (dialog2!=null && dialog2.isShowing()){
+                if (dialog2 != null && dialog2.isShowing()) {
                     dialog2.dismiss();
                     break;
                 }
                 Intent intent = new Intent();
                 intent.putExtra("houseId", houseId);
-                intent.putExtra("back","back");
+                intent.putExtra("back", "back");
                 setResult(6000, intent);
                 finish();
                 break;
@@ -491,9 +492,10 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
      * 打开儿童保护模式对话框
      */
     DeviceChildProjectDialog dialog;
+
     private void buildOpenChildProjectDialog() {
 //        final Dialog dialog=new DeviceChildDialog(getActivity());
-        if (dialog==null){
+        if (dialog == null) {
             dialog = new DeviceChildProjectDialog(this);
         }
         dialog.setOnNegativeClickListener(new DeviceChildProjectDialog.OnNegativeClickListener() {
@@ -532,7 +534,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             @Override
             public void onPositiveClick() {
                 dialog2.dismiss();
-                requestTime=0;
+                requestTime = 0;
                 new PasteWeekAsync().execute();
             }
         });
@@ -558,18 +560,18 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     @Override
     protected void onStart() {
         super.onStart();
-        deviceChild=deviceChildDao.findDeviceById(deviceId);
+        deviceChild = deviceChildDao.findDeviceById(deviceId);
         if (deviceChild != null) {
-            if (deviceChild.getType()==1 && deviceChild.getControlled()==1){
-                if(popupWindow!=null && popupWindow.isShowing()){
+            if (deviceChild.getType() == 1 && deviceChild.getControlled() == 1) {
+                if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
                     enableClick();
                     backgroundAlpha(1.0f);
                 }
-                if (dialog!=null&&dialog.isShowing()){
+                if (dialog != null && dialog.isShowing()) {
                     dialog.dismiss();
                 }
-                if (dialog2!=null && dialog2.isShowing()){
+                if (dialog2 != null && dialog2.isShowing()) {
                     dialog2.dismiss();
                 }
                 VibratorUtil.StopVibrate(DeviceListActivity.this);
@@ -579,7 +581,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 finish();
             }
             try {
-                if (mqService!=null){
+                if (mqService != null) {
                     String mac = deviceChild.getMacAddress();
                     String topic = "rango/" + mac + "/set";
                     JSONObject jsonObject2 = new JSONObject();
@@ -587,11 +589,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     String s2 = jsonObject2.toString();
                     boolean success2 = false;
                     success2 = mqService.publish(topic, 1, s2);
-                    if (!success2){
+                    if (!success2) {
                         mqService.publish(topic, 1, s2);
                     }
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             houseId = deviceChild.getHouseId();
@@ -609,7 +611,13 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             semicBar.setModule("1");
             semicBar.setCanTouch(false);
             semicBar.setEnd(0);
-            setMode(deviceChild);
+//            setMode(deviceChild);
+            semicBar.setOnWheelCheckListener(new SemicircleBar.OnWheelCheckListener() {
+                @Override
+                public void onWheelCheckListener(SemicircleBar semicircleBar, double curValue) {
+                    send(deviceChild);
+                }
+            });
             semicBar.setOnSeekBarChangeListener(new SemicircleBar.OnSeekBarChangeListener() {
                 @Override
                 public void onChanged(SemicircleBar seekbar, double curValue) {
@@ -675,43 +683,15 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                             animationDrawable.start();
                                         }
                                     } else {
-//                                        int manualMatTemp = deviceChild.getManualMatTemp();
-//                                        int curTemp = deviceChild.getCurTemp();
-//                                        if (manualMatTemp >= (curTemp + 3)) {
-//                                            deviceChild.setOutputMod("fastHeat");//速热模式
-//                                            tv_outmode.setText("速热模式");
-//                                            animationDrawable.start();
-//                                            if (curTemp>=manualMatTemp){
-//                                                if (curTemp >= (manualMatTemp + 3)) {
-////                                                    deviceChild.setOutputMod("saveTemp");//保温模式
-//                                                    tv_outmode.setText("保温模式");
-//                                                    animationDrawable.stop();
-//                                                } else {
-//                                                    deviceChild.setOutputMod("savePwr");//节能模式
-//                                                    tv_outmode.setText("节能模式");
-//                                                    animationDrawable.start();
-//                                                }
-//                                            }
-//
-//                                        } else if (curTemp >= (manualMatTemp + 3)) {
-////                                            deviceChild.setOutputMod("saveTemp");//保温模式
-//                                            tv_outmode.setText("保温模式");
-//                                            animationDrawable.stop();
-//                                        } else {
-////                                            deviceChild.setOutputMod("savePwr");//节能模式
-//                                            tv_outmode.setText("节能模式");
-//                                            animationDrawable.start();
-//                                        }
-
-                                        if ("fastHeat".equals(deviceChild.getOutputMod())){
+                                        if ("fastHeat".equals(deviceChild.getOutputMod())) {
                                             deviceChild.setOutputMod("fastHeat");//速热模式
                                             tv_outmode.setText("速热模式");
                                             animationDrawable.start();
-                                        }else if ("saveTemp".equals(deviceChild.getOutputMod())){
+                                        } else if ("saveTemp".equals(deviceChild.getOutputMod())) {
                                             deviceChild.setOutputMod("saveTemp");//保温模式
                                             tv_outmode.setText("保温模式");
                                             animationDrawable.stop();
-                                        }else if ("savePwr".equals(deviceChild.getOutputMod())){
+                                        } else if ("savePwr".equals(deviceChild.getOutputMod())) {
                                             deviceChild.setOutputMod("savePwr");//节能模式
                                             tv_outmode.setText("节能模式");
                                             animationDrawable.start();
@@ -743,27 +723,15 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                                 animationDrawable.stop();
                                             }
                                         } else {
-//                                            int curTemp = deviceChild.getCurTemp();
-//                                            if ((mCurrent - 3) >= curTemp) {
-//                                                tv_outmode.setText("速热模式");
-//                                                animationDrawable.start();
-//                                            } else if ((mCurrent + 2) <= curTemp) {
-//                                                tv_outmode.setText("保温模式");
-//                                                animationDrawable.stop();
-//                                            } else if ((mCurrent - 3) < curTemp) {
-//                                                tv_outmode.setText("节能模式");
-//                                                animationDrawable.start();
-//                                            }
-
-                                            if ("fastHeat".equals(deviceChild.getOutputMod())){
+                                            if ("fastHeat".equals(deviceChild.getOutputMod())) {
                                                 deviceChild.setOutputMod("fastHeat");//速热模式
                                                 tv_outmode.setText("速热模式");
                                                 animationDrawable.start();
-                                            }else if ("saveTemp".equals(deviceChild.getOutputMod())){
+                                            } else if ("saveTemp".equals(deviceChild.getOutputMod())) {
                                                 deviceChild.setOutputMod("saveTemp");//保温模式
                                                 tv_outmode.setText("保温模式");
                                                 animationDrawable.stop();
-                                            }else if ("savePwr".equals(deviceChild.getOutputMod())){
+                                            } else if ("savePwr".equals(deviceChild.getOutputMod())) {
                                                 deviceChild.setOutputMod("savePwr");//节能模式
                                                 tv_outmode.setText("节能模式");
                                                 animationDrawable.start();
@@ -820,9 +788,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                     }
 
                                 } else {
-                                    if (curAngle == 0) {
+                                    if (curAngle >= 0 && curAngle <= 10) {
                                         mCurrent = 48;
-                                    } else if (curAngle >= 0 && curAngle <= 35) {
+                                    } else if (curAngle > 10 && curAngle <= 35) {
                                         mCurrent = 49;
                                     } else if (curAngle > 35 && curAngle <= 60) {
                                         mCurrent = 50;
@@ -844,13 +812,13 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                         mCurrent = 58;
                                     } else if (curAngle > 224 && curAngle <= 240) {
                                         mCurrent = 59;
-                                    } else if (curAngle > 260 && curAngle <= 280) {
+                                    } else if (curAngle > 240 && curAngle <= 300) {
                                         mCurrent = 60;
                                     }
 
                                     deviceChild.setProtectSetTemp(mCurrent);
                                     deviceChildDao.update(deviceChild);
-                                    tv_set_temp.setText(mCurrent + "℃");
+                                    tv_set_temp.setText(deviceChild.getProtectSetTemp() + "℃");
                                     int curTemp = deviceChild.getProtectProTemp();
                                     tv_cur_temp.setText(curTemp + "℃");
 
@@ -888,29 +856,33 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             Log.i("machineFall", "-->" + machineFall);
             if (online) {
                 if ("fall".equals(machineFall)) {
-                    if(popupWindow!=null && popupWindow.isShowing()){
+                    if (popupWindow != null && popupWindow.isShowing()) {
                         popupWindow.dismiss();
                         enableClick();
                         backgroundAlpha(1.0f);
                     }
-                    if (dialog!=null&&dialog.isShowing()){
+                    if (dialog != null && dialog.isShowing()) {
                         dialog.dismiss();
                     }
-                    if (dialog2!=null && dialog2.isShowing()){
+                    if (dialog2 != null && dialog2.isShowing()) {
                         dialog2.dismiss();
                     }
                     linearout.setVisibility(View.GONE);
                     tv_offline.setVisibility(View.VISIBLE);
                     tv_offline.setText("设备已倾倒");
-                    VibratorUtil.Vibrate(DeviceListActivity.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
+                    VibratorUtil.Vibrate(DeviceListActivity.this, new long[]{1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000}, false);   //震动10s
                     gradView.setVisibility(View.GONE);
                 } else {
-                    if(popupWindow!=null && popupWindow.isShowing()){
+                    setMode(deviceChild);
+                    if (popupWindow != null && popupWindow.isShowing()) {
                         popupWindow.dismiss();
                         enableClick();
                         backgroundAlpha(1.0f);
                     }
-                    if (dialog2!=null && dialog2.isShowing()){
+                    if (dialog != null && dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                    if (dialog2 != null && dialog2.isShowing()) {
                         dialog2.dismiss();
                     }
                     linearout.setVisibility(View.VISIBLE);
@@ -919,46 +891,35 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     VibratorUtil.StopVibrate(DeviceListActivity.this);
                 }
             } else {
-                if ("fall".equals(machineFall)) {
-                    if(popupWindow!=null && popupWindow.isShowing()){
-                        popupWindow.dismiss();
-                        enableClick();
-                        backgroundAlpha(1.0f);
-                    }
-                    if (dialog!=null&&dialog.isShowing()){
-                        dialog.dismiss();
-                    }
-                    if (dialog2!=null && dialog2.isShowing()){
-                        dialog2.dismiss();
-                    }
-                    linearout.setVisibility(View.GONE);
-                    tv_offline.setVisibility(View.VISIBLE);
-                    tv_offline.setText("设备已倾倒");
-                    VibratorUtil.Vibrate(DeviceListActivity.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
-                } else {
-                    if(popupWindow!=null && popupWindow.isShowing()){
-                        popupWindow.dismiss();
-                        enableClick();
-                        backgroundAlpha(1.0f);
-                    }
-                    if (dialog!=null&&dialog.isShowing()){
-                        dialog.dismiss();
-                    }
-                    if (dialog2!=null && dialog2.isShowing()){
-                        dialog2.dismiss();
-                    }
-                    VibratorUtil.StopVibrate(DeviceListActivity.this);
-                    linearout.setVisibility(View.GONE);
-                    tv_offline.setVisibility(View.VISIBLE);
-                    tv_offline.setText("设备已离线");
-                    gradView.setVisibility(View.GONE);
+                if (popupWindow != null && popupWindow.isShowing()) {
+                    popupWindow.dismiss();
+                    enableClick();
+                    backgroundAlpha(1.0f);
                 }
+                if (dialog != null && dialog.isShowing()) {
+                    dialog.dismiss();
+                }
+                if (dialog2 != null && dialog2.isShowing()) {
+                    dialog2.dismiss();
+                }
+                deviceChild.setOnLint(false);
+                deviceChildDao.update(deviceChild);
+                VibratorUtil.StopVibrate(DeviceListActivity.this);
+                linearout.setVisibility(View.GONE);
+                tv_offline.setVisibility(View.VISIBLE);
+                tv_offline.setText("设备已离线");
+                gradView.setVisibility(View.GONE);
             }
         } else {
-            if (dialog!=null&&dialog.isShowing()){
+            if (popupWindow != null && popupWindow.isShowing()) {
+                popupWindow.dismiss();
+                enableClick();
+                backgroundAlpha(1.0f);
+            }
+            if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
             }
-            if (dialog2!=null && dialog2.isShowing()){
+            if (dialog2 != null && dialog2.isShowing()) {
                 dialog2.dismiss();
             }
             VibratorUtil.StopVibrate(DeviceListActivity.this);
@@ -1066,7 +1027,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
         }
     };
-    boolean reSet=false;
+    boolean reSet = false;
+
     public void send(DeviceChild deviceChild) {
         try {
             if (deviceChild != null) {
@@ -1082,9 +1044,9 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 maser.put("outputMode", deviceChild.getOutputMod());
                 maser.put("protectProTemp", deviceChild.getProtectProTemp());
                 maser.put("protectSetTemp", deviceChild.getProtectSetTemp());
-                maser.put("timerShutDown",deviceChild.getTimerShutdown());
-                maser.put("reSet",""+reSet);
-                maser.put("grade",grade);
+                maser.put("timerShutDown", deviceChild.getTimerShutdown());
+                maser.put("reSet", "" + reSet);
+                maser.put("grade", grade);
 
                 String s = maser.toString();
                 boolean success = false;
@@ -1093,7 +1055,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 topicName = "rango/" + mac + "/set";
                 if (bound) {
                     success = mqService.publish(topicName, 2, s);
-                    if (!success){
+                    if (!success) {
+                        Log.i("message", "-->" + s);
                         success = mqService.publish(topicName, 2, s);
                     }
                 }
@@ -1131,6 +1094,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         String machineFall = deviceChild.getMachineFall();
         int protectSetTemp = deviceChild.getProtectSetTemp();
         int protectProTemp = deviceChild.getProtectProTemp();
+        grade = deviceChild.getGrade();
 
         img_circle.setImageResource(R.drawable.lottery_animlist);
         AnimationDrawable animationDrawable = (AnimationDrawable) img_circle.getDrawable();
@@ -1184,7 +1148,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             if ("open".equals(BackGroundLED)) {
                 image_srceen.setImageResource(R.mipmap.img_screen_open);
             } else if ("close".equals(BackGroundLED)) {
-                if (popupWindow!=null && popupWindow.isShowing()){
+                if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
                 }
                 image_srceen.setImageResource(R.mipmap.img_screen);
@@ -1196,7 +1160,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 image_lock.setImageResource(R.mipmap.close_lockscreen);
             }
         } else if ("close".equals(deviceState)) {
-            if(popupWindow!=null && popupWindow.isShowing()){
+            if (popupWindow != null && popupWindow.isShowing()) {
                 popupWindow.dismiss();
                 backgroundAlpha(1.0f);
             }
@@ -1293,24 +1257,24 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if(popupWindow!=null && popupWindow.isShowing()){
+            if (popupWindow != null && popupWindow.isShowing()) {
                 popupWindow.dismiss();
                 enableClick();
                 backgroundAlpha(1.0f);
                 return false;
             }
-            if (dialog!=null&&dialog.isShowing()){
+            if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
                 return false;
             }
-            if (dialog2!=null && dialog2.isShowing()){
+            if (dialog2 != null && dialog2.isShowing()) {
                 dialog2.dismiss();
                 return false;
             }
             VibratorUtil.StopVibrate(this);
             Intent intent = new Intent();
             intent.putExtra("houseId", houseId);
-            intent.putExtra("back","back");
+            intent.putExtra("back", "back");
             setResult(6000, intent);
             finish();
             return true;
@@ -1325,6 +1289,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
         running = false;
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -1340,11 +1305,12 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 unbindService(connection);
             }
         }
-        Log.i("DeviceListActivity","-->onDestroy");
+        Log.i("DeviceListActivity", "-->onDestroy");
         handler.removeCallbacksAndMessages(null);
     }
 
-    int requestTime=0;
+    int requestTime = 0;
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (popupWindow != null && popupWindow.isShowing()) {
@@ -1362,19 +1328,19 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 startActivity(intent);
                 break;
             case 1:
-                if (deviceChild!=null){
-                    boolean online=deviceChild.getOnLint();
-                    if (online){
-                        String deviceState=deviceChild.getDeviceState();
+                if (deviceChild != null) {
+                    boolean online = deviceChild.getOnLint();
+                    if (online) {
+                        String deviceState = deviceChild.getDeviceState();
                         String BackGroundLED = deviceChild.getBackGroundLED();
-                        if ("open".equals(deviceState)){
-                            if ("open".equals(BackGroundLED)){
+                        if ("open".equals(deviceState)) {
+                            if ("open".equals(BackGroundLED)) {
                                 popupWindow();
-                            }else if ("close".equals(BackGroundLED)){
-                                Utils.showToast(DeviceListActivity.this,"请打开屏保");
+                            } else if ("close".equals(BackGroundLED)) {
+                                Utils.showToast(DeviceListActivity.this, "请打开屏保");
                             }
-                        }else {
-                            Utils.showToast(DeviceListActivity.this,"设备已关机");
+                        } else {
+                            Utils.showToast(DeviceListActivity.this, "设备已关机");
                         }
                     }
                 }
@@ -1405,7 +1371,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         }
     }
 
-    private void loadData7(){
+    private void loadData7() {
         try {
             JSONObject jsonObject2 = new JSONObject();
             jsonObject2.put("loadDate", "7");
@@ -1417,11 +1383,12 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             if (!success) {
                 success = mqService.publish(topic, 1, s2);
             }
-            Log.i("loadData7","-->"+success);
-        }catch (Exception e){
+            Log.i("loadData7", "-->" + success);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     class CountTimer extends CountDownTimer {
         public CountTimer(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);
@@ -1434,22 +1401,23 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
         @Override
         public void onFinish() {
-            if (progressDialog!=null){
+            if (progressDialog != null) {
                 progressDialog.dismiss();
-                long currentTime=System.currentTimeMillis();
-                loadData7Map.put(macAddress,currentTime);
+                long currentTime = System.currentTimeMillis();
+                loadData7Map.put(macAddress, currentTime);
                 Intent timeTask = new Intent(DeviceListActivity.this, TimeTaskActivity.class);
                 timeTask.putExtra("deviceId", childPosition);
                 startActivity(timeTask);
             }
         }
     }
-    class LoadData7Async extends AsyncTask<String,Void,Integer>{
+
+    class LoadData7Async extends AsyncTask<String, Void, Integer> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if (progressDialog!=null){
+            if (progressDialog != null) {
                 progressDialog.setMessage("正在加载数据,请稍后...");
                 progressDialog.setCancelable(false);
                 progressDialog.show();
@@ -1458,24 +1426,24 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 
         @Override
         protected Integer doInBackground(String... strings) {
-            int code=0;
-           try {
-               JSONObject jsonObject2 = new JSONObject();
-               jsonObject2.put("loadDate", "7");
-               String s = jsonObject2.toString();
-               boolean success = false;
-               String mac = deviceChild.getMacAddress();
-               String topic = "rango/" + mac + "/set";
-               success = mqService.publish(topic, 1, s);
-               if (!success) {
-                   success = mqService.publish(topic, 1, s);
-               }
-               if (success){
-                   code=2000;
-               }
-           }catch (Exception e){
-               e.printStackTrace();
-           }
+            int code = 0;
+            try {
+                JSONObject jsonObject2 = new JSONObject();
+                jsonObject2.put("loadDate", "7");
+                String s = jsonObject2.toString();
+                boolean success = false;
+                String mac = deviceChild.getMacAddress();
+                String topic = "rango/" + mac + "/set";
+                success = mqService.publish(topic, 1, s);
+                if (!success) {
+                    success = mqService.publish(topic, 1, s);
+                }
+                if (success) {
+                    code = 2000;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             return code;
         }
@@ -1483,11 +1451,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
-            if (code==2000) {
+            if (code == 2000) {
                 new CountTimer(3500, 1000).start();
-            }else{
+            } else {
                 progressDialog.dismiss();
-                Utils.showToast(DeviceListActivity.this,"加载失败,请重试");
+                Utils.showToast(DeviceListActivity.this, "加载失败,请重试");
             }
         }
     }
@@ -1497,7 +1465,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            if (requestTime==0){
+            if (requestTime == 0) {
                 if ("恢复成功".equals(s)) {
                     Utils.showToast(DeviceListActivity.this, "恢复成功");
                 } else {
@@ -1514,10 +1482,10 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             int count = 0;
             String result = "";
             try {
-                if (requestTime==0){
-                    reSet=true;
+                if (requestTime == 0) {
+                    reSet = true;
                     send(deviceChild);
-                    reSet=false;
+                    reSet = false;
                     Thread.currentThread().sleep(2100);
                     JSONObject jsonObject2 = new JSONObject();
                     jsonObject2.put("loadDate", "7");
@@ -1530,8 +1498,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                         success = mqService.publish(topic, 1, s);
                     }
                     Thread.currentThread().sleep(2100);
-                    result="恢复成功";
-                }else if (requestTime==1){
+                    result = "恢复成功";
+                } else if (requestTime == 1) {
                     for (int timerTaskWeek = 1; timerTaskWeek <= 7; timerTaskWeek++) {
                         count++;
                         JSONObject jsonObject = new JSONObject();
@@ -1560,7 +1528,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if (requestTime==0){
+            if (requestTime == 0) {
                 progressDialog.setMessage("请稍后...");
                 progressDialog.setCancelable(false);
                 progressDialog.show();
@@ -1622,15 +1590,15 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             String macAddress = intent.getStringExtra("macAddress");
             String macAddress3 = intent.getStringExtra("macAddress3");
             if (!Utils.isEmpty(macAddress3) && macAddress3.equals(deviceChild.getMacAddress())) {
-                if(popupWindow!=null && popupWindow.isShowing()){
+                if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
                     enableClick();
                     backgroundAlpha(1.0f);
                 }
-                if (dialog!=null&&dialog.isShowing()){
+                if (dialog != null && dialog.isShowing()) {
                     dialog.dismiss();
                 }
-                if (dialog2!=null && dialog2.isShowing()){
+                if (dialog2 != null && dialog2.isShowing()) {
                     dialog2.dismiss();
                 }
                 Utils.showToast(DeviceListActivity.this, "该设备类型已为受控机");
@@ -1638,16 +1606,16 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 intent2.putExtra("houseId", houseId);
                 DeviceListActivity.this.setResult(6000, intent2);
                 DeviceListActivity.this.finish();
-            } else if (!Utils.isEmpty(macAddress) && deviceChild2 == null && deviceChild!=null && macAddress.equals(deviceChild.getMacAddress())) {
-                if(popupWindow!=null && popupWindow.isShowing()){
+            } else if (!Utils.isEmpty(macAddress) && deviceChild2 == null && deviceChild != null && macAddress.equals(deviceChild.getMacAddress())) {
+                if (popupWindow != null && popupWindow.isShowing()) {
                     popupWindow.dismiss();
                     enableClick();
                     backgroundAlpha(1.0f);
                 }
-                if (dialog!=null&&dialog.isShowing()){
+                if (dialog != null && dialog.isShowing()) {
                     dialog.dismiss();
                 }
-                if (dialog2!=null && dialog2.isShowing()){
+                if (dialog2 != null && dialog2.isShowing()) {
                     dialog2.dismiss();
                 }
                 Utils.showToast(DeviceListActivity.this, "该设备已被重置");
@@ -1657,10 +1625,10 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 DeviceListActivity.this.finish();
             } else if (!Utils.isEmpty(macAddress2) && macAddress2.equals(deviceChild.getMacAddress())) {
                 String deviceName = intent.getStringExtra("deviceName");
-                if (dialog!=null&&dialog.isShowing()){
+                if (dialog != null && dialog.isShowing()) {
                     dialog.dismiss();
                 }
-                if (dialog2!=null && dialog2.isShowing()){
+                if (dialog2 != null && dialog2.isShowing()) {
                     dialog2.dismiss();
                 }
                 if (!TextUtils.isEmpty(deviceName)) {
@@ -1671,58 +1639,59 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                     if (deviceChild != null && deviceChild2 != null && deviceChild.getMacAddress().equals(deviceChild2.getMacAddress())) {
                         if ("online".equals(online)) {
                             if ("fall".equals(machineFall)) {
-                                if(popupWindow!=null && popupWindow.isShowing()){
+                                if (popupWindow != null && popupWindow.isShowing()) {
                                     popupWindow.dismiss();
                                     enableClick();
                                     backgroundAlpha(1.0f);
                                 }
-                                if (dialog!=null&&dialog.isShowing()){
+                                if (dialog != null && dialog.isShowing()) {
                                     dialog.dismiss();
                                 }
-                                if (dialog2!=null && dialog2.isShowing()){
+                                if (dialog2 != null && dialog2.isShowing()) {
                                     dialog2.dismiss();
                                 }
                                 linearout.setVisibility(View.GONE);
                                 tv_offline.setVisibility(View.VISIBLE);
                                 tv_offline.setText("设备已倾倒");
-                                VibratorUtil.Vibrate(DeviceListActivity.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s  //震动10s
+                                VibratorUtil.Vibrate(DeviceListActivity.this, new long[]{1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000}, false);   //震动10s  //震动10s
                                 gradView.setVisibility(View.GONE);
                             } else {
-
                                 VibratorUtil.StopVibrate(DeviceListActivity.this);
                                 linearout.setVisibility(View.VISIBLE);
                                 tv_offline.setVisibility(View.GONE);
                                 gradView.setVisibility(View.VISIBLE);
                                 deviceChild = deviceChild2;
-                                String backGroundLed=deviceChild.getBackGroundLED();
-                                if (popupWindow!=null && popupWindow.isShowing()){
-                                    if ("open".equals(backGroundLed)){
-                                        if (deviceChild!=null){
-                                            grade=deviceChild.getGrade();
+                                String backGroundLed = deviceChild.getBackGroundLED();
+                                if (popupWindow != null && popupWindow.isShowing()) {
+                                    if ("open".equals(backGroundLed)) {
+                                        if (deviceChild != null) {
+                                            grade = deviceChild.getGrade();
                                         }
-                                        if (grade==1){
+                                        if (grade == 1) {
                                             mySeekBar.setProgress(0);
-                                        }else {
-                                            mySeekBar.setProgress((int) 12.5*grade);
+                                        } else {
+                                            mySeekBar.setProgress((int) 12.5 * grade);
                                         }
-                                    }else {
+                                    } else {
                                         popupWindow.dismiss();
                                     }
                                 }
                                 setMode(deviceChild);
                             }
                         } else if ("offline".equals(online)) {
-                            if(popupWindow!=null && popupWindow.isShowing()){
+                            if (popupWindow != null && popupWindow.isShowing()) {
                                 popupWindow.dismiss();
                                 enableClick();
                                 backgroundAlpha(1.0f);
                             }
-                            if (dialog!=null&&dialog.isShowing()){
+                            if (dialog != null && dialog.isShowing()) {
                                 dialog.dismiss();
                             }
-                            if (dialog2!=null && dialog2.isShowing()){
+                            if (dialog2 != null && dialog2.isShowing()) {
                                 dialog2.dismiss();
                             }
+                            deviceChild.setOnLint(false);
+                            deviceChildDao.update(deviceChild);
                             linearout.setVisibility(View.GONE);
                             tv_offline.setVisibility(View.VISIBLE);
                             tv_offline.setText("设备已离线");
@@ -1742,41 +1711,24 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                         }
                     }
                 } else {
-                    if ("fall".equals(machineFall)) {
-                        if(popupWindow!=null && popupWindow.isShowing()){
-                            popupWindow.dismiss();
-                            enableClick();
-                            backgroundAlpha(1.0f);
-                        }
-                        if (dialog!=null&&dialog.isShowing()){
-                            dialog.dismiss();
-                        }
-                        if (dialog2!=null && dialog2.isShowing()){
-                            dialog2.dismiss();
-                        }
-                        linearout.setVisibility(View.GONE);
-                        tv_offline.setVisibility(View.VISIBLE);
-                        tv_offline.setText("设备已倾倒");
-                        gradView.setVisibility(View.GONE);
-                        VibratorUtil.Vibrate(DeviceListActivity.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);
-                    } else {
-                        if(popupWindow!=null && popupWindow.isShowing()){
-                            popupWindow.dismiss();
-                            enableClick();
-                            backgroundAlpha(1.0f);
-                        }
-                        if (dialog!=null&&dialog.isShowing()){
-                            dialog.dismiss();
-                        }
-                        if (dialog2!=null && dialog2.isShowing()){
-                            dialog2.dismiss();
-                        }
-                        VibratorUtil.StopVibrate(DeviceListActivity.this);
-                        linearout.setVisibility(View.GONE);
-                        tv_offline.setVisibility(View.VISIBLE);
-                        tv_offline.setText("设备已离线");
-                        gradView.setVisibility(View.GONE);
+                    if (popupWindow != null && popupWindow.isShowing()) {
+                        popupWindow.dismiss();
+                        enableClick();
+                        backgroundAlpha(1.0f);
                     }
+                    if (dialog != null && dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                    if (dialog2 != null && dialog2.isShowing()) {
+                        dialog2.dismiss();
+                    }
+                    deviceChild.setOnLint(false);
+                    deviceChildDao.update(deviceChild);
+                    VibratorUtil.StopVibrate(DeviceListActivity.this);
+                    linearout.setVisibility(View.GONE);
+                    tv_offline.setVisibility(View.VISIBLE);
+                    tv_offline.setText("设备已离线");
+                    gradView.setVisibility(View.GONE);
                 }
             }
         }
@@ -1794,13 +1746,13 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         View view = View.inflate(this, R.layout.popup_clockset, null);
         mySeekBar = (MySeekBar) view.findViewById(R.id.beautySeekBar1);
         mySeekBar.setOnSeekBarChangeListener(this);
-        if (deviceChild!=null){
-            grade=deviceChild.getGrade();
+        if (deviceChild != null) {
+            grade = deviceChild.getGrade();
         }
-        if (grade==1){
+        if (grade == 1) {
             mySeekBar.setProgress(0);
-        }else {
-            mySeekBar.setProgress((int) 12.5*grade);
+        } else {
+            mySeekBar.setProgress((int) 12.5 * grade);
         }
 
         int width = getResources().getDisplayMetrics().widthPixels;
@@ -1834,7 +1786,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 //        image_lock.setClickable(false);
 //        image_srceen.setClickable(false);
     }
-    private void enableClick(){
+
+    private void enableClick() {
         backgroundAlpha(1.0f);
     }
 

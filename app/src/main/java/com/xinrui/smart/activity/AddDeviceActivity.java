@@ -356,7 +356,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         popupWindow2.setOutsideTouchable(false);
 //        ColorDrawable dw = new ColorDrawable(0x30000000);
 //        popupWindow.setBackgroundDrawable(dw);
-        popupWindow2.showAsDropDown(btn_match, 0, -20);
+        popupWindow2.showAsDropDown(et_pswd, 0, -20);
 //        popupWindow.showAtLocation(tv_home_manager, Gravity.RIGHT, 0, 0);
         //添加按键事件监听
     }
@@ -652,7 +652,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         popupWindow2.setOutsideTouchable(false);
 //        ColorDrawable dw = new ColorDrawable(0x30000000);
 //        popupWindow.setBackgroundDrawable(dw);
-        popupWindow2.showAsDropDown(btn_match, 0, -20);
+        popupWindow2.showAsDropDown(et_pswd, 0, -20);
 //        popupWindow.showAtLocation(tv_home_manager, Gravity.RIGHT, 0, 0);
         //添加按键事件监听
     }
@@ -689,7 +689,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
 //        ColorDrawable dw = new ColorDrawable(0x30000000);
 //        popupWindow.setBackgroundDrawable(dw);
 //        popupWindow2.showAsDropDown(btn_match, 0, -20);
-        popupWindow2.showAsDropDown(btn_match, 0, -20);
+        popupWindow2.showAsDropDown(et_pswd, 0, -20);
         //添加按键事件监听
     }
 
@@ -818,7 +818,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                         backgroundAlpha(1f);
                     }
 
-                    Utils.showToast(AddDeviceActivity.this, "创建成功");
+                    Utils.showToast(AddDeviceActivity.this, "添加设备成功");
                     Intent intent = new Intent();
                     intent.putExtra("deviceId", deviceId + "");
                     intent.putExtra("houseId", houseId);
@@ -843,7 +843,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                             }
                             if (btn_match != null) {
                                 btn_match.setEnabled(true);
-                                Utils.showToast(AddDeviceActivity.this, "提交设备失败，请重置设备");
+                                Utils.showToast(AddDeviceActivity.this, "添加设备失败，请重置设备");
                             }
 
                             if (mEsptouchTask != null) {
@@ -896,9 +896,9 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         }
         String s2=et_ssid.getText().toString();
         if (!TextUtils.isEmpty(s2)){
-            if (s2.contains("+") || s2.contains("/")){
+            if (s2.contains("+") || s2.contains("/") ||s2.contains("#")){
                 et_ssid.setText("");
-                Utils.showToast(AddDeviceActivity.this,"WiFi名称为不含有+/特殊符号的英文");
+                Utils.showToast(AddDeviceActivity.this,"WiFi名称为不含有+/#特殊符号的英文");
             }else {
                 char chars[] = s2.toString().toCharArray();
                 for (char c : chars) {

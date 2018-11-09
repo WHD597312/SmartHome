@@ -324,8 +324,17 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
         }
         int extTemp = deviceChild.getTemp();
         int extHum = deviceChild.getHum();
-        tv_smart_temp.setText(extTemp+"℃");
-        tv_smart_hum.setText(extHum+"%");
+        if (extTemp>=0){
+            tv_smart_temp.setText(extTemp+"℃");
+        }else {
+            tv_smart_temp.setText(0+"℃");
+        }
+        if (extTemp>=0){
+            tv_smart_hum.setText(extHum+"%");
+        }else {
+            tv_smart_hum.setText(0+"%");
+        }
+
 
         if (extTemp<=0){
             tempCurProgress=-11;

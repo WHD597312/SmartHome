@@ -65,7 +65,6 @@ public class TempChartActivity extends AppCompatActivity {
 
         Intent intent=getIntent();
         deviceId=intent.getStringExtra("deviceId");
-
         deviceChild=deviceChildDao.findDeviceById(Long.parseLong(deviceId));
         int  powerValue=deviceChild.getPowerValue()/10;
         float voltageValue2=deviceChild.getVoltageValue();
@@ -92,7 +91,6 @@ public class TempChartActivity extends AppCompatActivity {
         receiver = new MessageReceiver();
         registerReceiver(receiver, intentFilter);
         new TempChatAsync().execute();
-
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -282,48 +280,52 @@ public class TempChartActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            String macAddress=intent.getStringExtra("macAddress");
-            String noNet=intent.getStringExtra("noNet");
-            DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
-            if (!Utils.isEmpty(noNet)){
-                Utils.showToast(TempChartActivity.this,"网络已断开，请设置网络");
-            }else {
-                if (!Utils.isEmpty(macAddress) && deviceChild!=null && deviceChild.getMacAddress().equals(macAddress)){
-                    Utils.showToast(TempChartActivity.this,"该设备已被重置");
-                    Intent intent2=new Intent(TempChartActivity.this,MainActivity.class);
-                    intent2.putExtra("deviceList","deviceList");
-                    startActivity(intent2);
+            try {
+                String macAddress=intent.getStringExtra("macAddress");
+                String noNet=intent.getStringExtra("noNet");
+                DeviceChild deviceChild2 = (DeviceChild) intent.getSerializableExtra("deviceChild");
+                if (!Utils.isEmpty(noNet)){
+                    Utils.showToast(TempChartActivity.this,"网络已断开，请设置网络");
                 }else {
-                    if (deviceChild!=null&& deviceChild2.getMacAddress().equals(deviceChild.getMacAddress())) {
-                        deviceChild = deviceChild2;
-                        deviceChildDao.update(deviceChild);
-                        if (deviceChild != null) {
-                            if (deviceChild.getOnLint()){
-                                float voltageValue2=deviceChild.getVoltageValue();
-                                voltageValue2=voltageValue2/10;
-                                BigDecimal decimal2=new BigDecimal(voltageValue2);
-                                BigDecimal decimalScale2=decimal2.setScale(2,BigDecimal.ROUND_HALF_UP);
-                                float voltageValue3=Float.parseFloat(decimalScale2+"");
-                                int voltageValue= (int) voltageValue3;
-                                int currentValue=deviceChild.getCurrentValue();
-                                float currentValue2=Float.parseFloat(currentValue+"");
-                                float currentValue3=currentValue2/1000;
-                                BigDecimal decimal=new BigDecimal(currentValue3);
-                                BigDecimal decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
-                                String ss=decimalScale+"";
+                    if (!Utils.isEmpty(macAddress) && deviceChild!=null && deviceChild.getMacAddress().equals(macAddress)){
+                        Utils.showToast(TempChartActivity.this,"该设备已被重置");
+                        Intent intent2=new Intent(TempChartActivity.this,MainActivity.class);
+                        intent2.putExtra("deviceList","deviceList");
+                        startActivity(intent2);
+                    }else {
+                        if (deviceChild!=null&& deviceChild2!=null && deviceChild2.getMacAddress().equals(deviceChild.getMacAddress())) {
+                            deviceChild = deviceChild2;
+                            deviceChildDao.update(deviceChild);
+                            if (deviceChild != null) {
+                                if (deviceChild.getOnLint()){
+                                    float voltageValue2=deviceChild.getVoltageValue();
+                                    voltageValue2=voltageValue2/10;
+                                    BigDecimal decimal2=new BigDecimal(voltageValue2);
+                                    BigDecimal decimalScale2=decimal2.setScale(2,BigDecimal.ROUND_HALF_UP);
+                                    float voltageValue3=Float.parseFloat(decimalScale2+"");
+                                    int voltageValue= (int) voltageValue3;
+                                    int currentValue=deviceChild.getCurrentValue();
+                                    float currentValue2=Float.parseFloat(currentValue+"");
+                                    float currentValue3=currentValue2/1000;
+                                    BigDecimal decimal=new BigDecimal(currentValue3);
+                                    BigDecimal decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+                                    String ss=decimalScale+"";
 
-                                int powerValue=(int) (voltageValue*Float.parseFloat(ss));
-                                String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+decimalScale+"A";
-                                tv_voltage.setText(s);
-                                int ratedPower=deviceChild.getRatedPower();
-                                String s2="额定功率:"+ratedPower+"W";
-                                tv_roatPower.setText(s2);
-                            }else {
-                                Utils.showToast(TempChartActivity.this,"该设备已离线");
+                                    int powerValue=(int) (voltageValue*Float.parseFloat(ss));
+                                    String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+decimalScale+"A";
+                                    tv_voltage.setText(s);
+                                    int ratedPower=deviceChild.getRatedPower();
+                                    String s2="额定功率:"+ratedPower+"W";
+                                    tv_roatPower.setText(s2);
+                                }else {
+                                    Utils.showToast(TempChartActivity.this,"该设备已离线");
+                                }
                             }
                         }
                     }
                 }
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
     }

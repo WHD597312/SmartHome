@@ -335,7 +335,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                         unbindService(connection);
                     }
                     success = "success";
-                    Utils.showToast(QRScannerActivity.this, "创建成功");
+                    Utils.showToast(QRScannerActivity.this, "添加设备成功");
                     Intent intent2 = new Intent(QRScannerActivity.this, MainActivity.class);
                     intent2.putExtra("deviceList", "deviceList");
                     intent2.putExtra("deviceId", deviceId + "");
@@ -347,6 +347,9 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                 case -3018:
                     Utils.showToast(QRScannerActivity.this, "自己的设备只能分享给别人");
                     break;
+                    default:
+                        Utils.showToast(QRScannerActivity.this, "分享设备添加失败");
+                        break;
             }
         }
     }
