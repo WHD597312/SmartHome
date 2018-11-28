@@ -104,6 +104,8 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
         }
         SharedPreferences my = getSharedPreferences("my", MODE_PRIVATE);
         userId = my.getString("userId", "");
+        Intent service = new Intent(QRScannerActivity.this, MQService.class);
+        isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
     }
 
     private void init() {
@@ -223,8 +225,6 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
                                 Map<String, Object> params = new HashMap<>();
                                 params.put("deviceId", deviceId);
                                 params.put("userId", userId);
-                                Intent service = new Intent(QRScannerActivity.this, MQService.class);
-                                isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
                                 new QrCodeAsync().execute(params);
                             }
                         }

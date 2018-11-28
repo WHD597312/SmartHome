@@ -166,10 +166,10 @@
                 android:layout_alignTop="@id/image_user"
                 android:gravity="center_vertical"
                 android:layout_toRightOf="@+id/image_user"
-                android:layout_marginLeft="@dimen/dp_10"
-                android:textSize="@dimen/sp_18"
-                android:layout_marginRight="@dimen/dp_90"
-                android:text="SS" />
+                android:layout_marginLeft="@dimen/dp_1"
+                android:textSize="@dimen/sp_16"
+                android:layout_marginRight="@dimen/dp_80"
+                android:text="18857428766" />
         </RelativeLayout>
 
 

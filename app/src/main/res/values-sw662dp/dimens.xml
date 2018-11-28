@@ -33,7 +33,6 @@
 	<dimen name="dp_28">51.4889dp</dimen>
 	<dimen name="dp_29">53.3278dp</dimen>
 	<dimen name="dp_30">55.1667dp</dimen>
-	<dimen name="dp_30.25">55.6264dp</dimen>
 	<dimen name="dp_31">57.0056dp</dimen>
 	<dimen name="dp_32">58.8444dp</dimen>
 	<dimen name="dp_33">60.6833dp</dimen>
@@ -64,7 +63,6 @@
 	<dimen name="dp_58">106.6556dp</dimen>
 	<dimen name="dp_59">108.4944dp</dimen>
 	<dimen name="dp_60">110.3333dp</dimen>
-	<dimen name="dp_60.5">111.2528dp</dimen>
 	<dimen name="dp_61">112.1722dp</dimen>
 	<dimen name="dp_62">114.0111dp</dimen>
 	<dimen name="dp_63">115.8500dp</dimen>
@@ -99,7 +97,6 @@
 	<dimen name="dp_92">169.1778dp</dimen>
 	<dimen name="dp_93">171.0167dp</dimen>
 	<dimen name="dp_94">172.8556dp</dimen>
-	<dimen name="dp_94.5">173.7750dp</dimen>
 	<dimen name="dp_95">174.6944dp</dimen>
 	<dimen name="dp_96">176.5333dp</dimen>
 	<dimen name="dp_97">178.3722dp</dimen>
@@ -199,7 +196,6 @@
 	<dimen name="dp_191">351.2278dp</dimen>
 	<dimen name="dp_192">353.0667dp</dimen>
 	<dimen name="dp_193">354.9056dp</dimen>
-	<dimen name="dp_193.75">356.2847dp</dimen>
 	<dimen name="dp_194">356.7444dp</dimen>
 	<dimen name="dp_195">358.5833dp</dimen>
 	<dimen name="dp_196">360.4222dp</dimen>
@@ -348,4 +344,6 @@
 	<dimen name="def_shadow_radius">3.6778dp</dimen>
 	<dimen name="def_shadow_offset">3.6778dp</dimen>
 	<dimen name="fab_margin">29.4222dp</dimen>
+	<dimen name="activity_horizontal_margin">29.4222dp</dimen>
+	<dimen name="activity_vertical_margin">29.4222dp</dimen>
 </resources>

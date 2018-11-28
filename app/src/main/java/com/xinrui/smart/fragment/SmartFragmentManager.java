@@ -53,7 +53,8 @@ import butterknife.Unbinder;
 public class SmartFragmentManager extends Fragment {
     @BindView(R.id.viewpager)
     ViewPager mPager;
-    @BindView(R.id.linearout) LinearLayout linearout;
+    @BindView(R.id.linearout)
+    LinearLayout linearout;
     List<Fragment> fragmentList;
 
     DeviceGroupDaoImpl deviceGroupDao;
@@ -64,8 +65,10 @@ public class SmartFragmentManager extends Fragment {
     Unbinder unbinder;
     public static boolean running = false;
     SharedPreferences preferences;
-    MyOnPageChangeListener listener;
+
     FragmentPagerAdapter fragmentPagerAdapter;
+    MyOnPageChangeListener listener;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -73,33 +76,26 @@ public class SmartFragmentManager extends Fragment {
         view = inflater.inflate(R.layout.fragment_smart_manager, container, false);
         unbinder = ButterKnife.bind(this, view);
         //初始化fragment
+
         deviceGroupDao = new DeviceGroupDaoImpl(MyApplication.getContext());
         deviceGroups = deviceGroupDao.findAllDevices();
         deviceChildDao = new DeviceChildDaoImpl(MyApplication.getContext());
         fragmentList = new ArrayList<>();
+//        fragmentList.clear();
         for (int i = 0; i < deviceGroups.size() - 1; i++) {
-            DeviceGroup deviceGroup=deviceGroups.get(i);
-            String houseId=deviceGroup.getId()+"";
-            SmartFragment smartFragment=new SmartFragment();
+            DeviceGroup deviceGroup = deviceGroups.get(i);
+            String houseId = deviceGroup.getId() + "";
+            SmartFragment smartFragment = new SmartFragment();
             smartFragment.setHouseId(houseId);
             fragmentList.add(smartFragment);
         }
-        preferences = getActivity().getSharedPreferences("smart", Context.MODE_PRIVATE);
+
+        Log.i("SmartFragmentManager", "-->onStart");
         fragmentPagerAdapter = new SmartFragmentAdapter(getChildFragmentManager(), fragmentList);
         mPager.setAdapter(fragmentPagerAdapter);
         listener = new MyOnPageChangeListener(getActivity(), mPager, linearout, fragmentList.size());
-
         mPager.addOnPageChangeListener(listener);
-        Log.i("SmartFragmentManager","-->onCreateView");
-        if (preferences.contains("position")) {
-            int postion = preferences.getInt("position", 0);
-            Log.i("smart12222222","-->"+postion);
-            listener.onPageSelected(postion);
-            mPager.setCurrentItem(postion);
-        }else {
-            mPager.setCurrentItem(0);
-            listener.onPageSelected(0);
-        }
+        Log.i("SmartFragmentManager", "-->onCreateView");
         return view;
     }
 
@@ -121,11 +117,25 @@ public class SmartFragmentManager extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Log.i("SmartFragmentManager","-->onStart");
+        preferences = getActivity().getSharedPreferences("smart", Context.MODE_PRIVATE);
+        if (preferences.contains("position")) {
+            int postion = preferences.getInt("position", 0);
+            Log.i("smart12222222", "-->" + postion);
+            Bundle bundle = getArguments();
+            if (bundle != null) {
+                postion = bundle.getInt("position");
+            }
+            mPager.setCurrentItem(postion);
+            listener.onPageSelected(postion);
+        } else {
+            mPager.setCurrentItem(0);
+            listener.onPageSelected(0);
+        }
     }
 
 
-    private boolean isBound=false;
+    private boolean isBound = false;
+
     @Override
     public void onResume() {
         super.onResume();
@@ -153,7 +163,7 @@ public class SmartFragmentManager extends Fragment {
 //        }
         deviceGroupDao.closeDaoSession();
         deviceChildDao.closeDaoSession();
-        handler.removeCallbacksAndMessages(null);
+//        handler.removeCallbacksAndMessages(null);
 
     }
 
@@ -224,6 +234,7 @@ public class SmartFragmentManager extends Fragment {
          */
         public void onPageScrollStateChanged(int arg0) {
             // TODO Auto-generated method stub
+
         }
 
         @Override
@@ -232,29 +243,31 @@ public class SmartFragmentManager extends Fragment {
          * arg0是页面跳转完后得到的页面的Position（位置编号）。
          */
         public void onPageSelected(int position) {
-            Message msg = handler.obtainMessage();
-            msg.what = position;
-            handler.sendMessage(msg);
-
-            Log.i("smartposition","-->"+position);
-            SharedPreferences.Editor editor=preferences.edit();
-            editor.putInt("position",position);
+//            Message msg = handler.obtainMessage();
+//            msg.what = position;
+//            handler.sendMessage(msg);
+            Log.i("smartposition", "-->" + position);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putInt("position", position);
             editor.commit();
         }
     }
 
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-                try {
-                    int position=msg.what;
-                    mPager.setCurrentItem(position);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-        }
-    };
+//    Handler handler = new Handler() {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            super.handleMessage(msg);
+//                try {
+//                    int position=msg.what;
+//                    Log.i("posistion","-->"+position);
+//                    if (position==0){
+//                        mPager.setCurrentItem(0);
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//        }
+//    };
 
 //    MessageReceiver receiver;
 //

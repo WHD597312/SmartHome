@@ -160,12 +160,16 @@ public class PersonInfoActivity extends AppCompatActivity {
             case R.id.img_back:
                 if (!Utils.isEmpty(device)) {
                     Intent intent = new Intent(this, MainActivity.class);
-                    intent.putExtra("deviceList","deviceList");
-                    startActivity(intent);
+//                    intent.putExtra("deviceList","deviceList");
+//                    startActivity(intent);
+                    setResult(6000,intent);
+                    finish();
                 } else if (!Utils.isEmpty(smart)) {
                     Intent intent = new Intent(this, MainActivity.class);
-                    intent.putExtra("mainControl","mainControl");
-                    startActivity(intent);
+//                    intent.putExtra("mainControl","mainControl");
+//                    startActivity(intent);
+                    setResult(7000,intent);
+                    finish();
                 }else if (!Utils.isEmpty(live)){
                     Intent intent = new Intent(this, MainActivity.class);
                     intent.putExtra("live","live");
@@ -193,20 +197,26 @@ public class PersonInfoActivity extends AppCompatActivity {
         }
         if (!Utils.isEmpty(device)) {
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("deviceList","deviceList");
-            startActivity(intent);
+//            intent.putExtra("deviceList","deviceList");
+//            startActivity(intent);
+            setResult(6000,intent);
+            finish();
         }else if (!Utils.isEmpty(smart)) {
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("mainControl","mainControl");
-            startActivity(intent);
+//            intent.putExtra("mainControl","mainControl");
+//            startActivity(intent);
+            setResult(7000,intent);
+            finish();
         }else if (!Utils.isEmpty(live)){
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("live","live");
             startActivity(intent);
         }else {
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("deviceList","deviceList");
-            startActivity(intent);
+//            intent.putExtra("deviceList","deviceList");
+//            startActivity(intent);
+            setResult(6000,intent);
+            finish();
         }
 
     }
@@ -540,6 +550,7 @@ public class PersonInfoActivity extends AppCompatActivity {
             File file = files[0];
             String userId = preferences.getString("userId", "");
             String url = "http://47.98.131.11:8082/warmer/v1.0/user/" + userId + "/headImg";
+//            String url="http://192.168.1.74:8080/Test2/user/fileLoad/user/2";
             Log.i("sssssssssssssssss","url:"+url);
             String result = HttpUtils.upLoadFile(url, "HeadPortrait2.jpg", file);
             if (!Utils.isEmpty(result)) {

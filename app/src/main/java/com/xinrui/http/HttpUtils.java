@@ -77,10 +77,8 @@ public class HttpUtils {
                     .url(url)
                     .post(requestBody)
                     .build();
-
             OkHttpClient okHttpClient=new OkHttpClient();
             Response response=okHttpClient.newCall(request).execute();
-
             if(response.isSuccessful()){
                 result= response.body().string();
             }
@@ -224,7 +222,7 @@ public class HttpUtils {
         String result = null;
         try {
             com.squareup.okhttp.Response response=OkHttpUtils.post()
-                    .addHeader(" content-type","multipart/form-data")
+                    .addHeader("content-type","multipart/form-data")
                     .addFile("file", fileNmae, file)
                     .url(url)
                     .build()

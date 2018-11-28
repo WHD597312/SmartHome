@@ -122,7 +122,9 @@ public class MQService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand");
-        reconnect = intent.getStringExtra("reconnect");
+        if (intent != null) {
+            reconnect = intent.getStringExtra("reconnect");
+        }
         connect();
         if (!Utils.isEmpty(reconnect)) {
             CountTimer countTimer = new CountTimer(2000, 1000);
@@ -177,8 +179,8 @@ public class MQService extends Service {
                 if (client.isConnected() == false) {
                     client.connect(options);
                 }
-                List<DeviceChild> list=deviceChildDao.findZerosType(0);
-                if (list!=null && !list.isEmpty()){
+                List<DeviceChild> list = deviceChildDao.findZerosType(0);
+                if (list != null && !list.isEmpty()) {
                     new UpdateDeviceTypeAsync2().execute(list);
                 }
                 List<String> topicNames = getTopicNames();
@@ -274,10 +276,10 @@ public class MQService extends Service {
             } else if (topicName.startsWith("p99")) {
                 macAddress = topicName.substring(4, topicName.lastIndexOf("/"));
             }
-            if ("offline".equals(message)){
-                Log.i("offline","-->"+topicName);
-                DeviceChild deviceChild=deviceChildDao.findDeviceByMacAddress2(macAddress);
-                if (deviceChild!=null){
+            if ("offline".equals(message)) {
+                Log.i("offline", "-->" + topicName);
+                DeviceChild deviceChild = deviceChildDao.findDeviceByMacAddress2(macAddress);
+                if (deviceChild != null) {
                     deviceChild.setOnLint(false);
                     deviceChildDao.update(deviceChild);
                 }
@@ -331,7 +333,7 @@ public class MQService extends Service {
                                 if (!success3) {
                                     subscribe(topicName3, 1);
                                 }
-                                String topicName2="p99/sensor1/" + macAddress + "/set";
+                                String topicName2 = "p99/sensor1/" + macAddress + "/set";
                                 if (TextUtils.isEmpty(city)) {
                                     city = houseAddress;
                                     if (city.contains("市")) {
@@ -370,6 +372,9 @@ public class MQService extends Service {
 
 
             if ("upgradeFinish".equals(message) || "mcu no response yet!".equals(message) || "There is no need to upgrade!".equals(message) || "upgradeFinish".equals(message) || "online".equals(message) || "machine_dump!!!".equals(message)) {
+                if (topicName.startsWith("rango") && "mcu no response yet!".equals(message)){
+                    sendLoadData1(macAddress);
+                }
                 if (message != null && message.length() == 0) {
                     return null;
                 }
@@ -469,6 +474,14 @@ public class MQService extends Service {
                     if (child != null) {
                         child.setUpdateGrade(updateGrade);
                         deviceChildDao.update(child);
+
+                        if ("updateGrade".equals(updateGrade)) {
+                            Message msg = handler.obtainMessage();
+                            msg.what = 6;
+                            msg.obj = child.getDeviceName();
+                            handler.sendMessage(msg);
+                        }
+
                     }
                     Log.i("groupPostion2", "-->" + groupPostion);
                     if (!Utils.isEmpty(reSet)) {
@@ -1081,6 +1094,10 @@ public class MQService extends Service {
                         sendBroadcast(mqttIntent2);
                     }
                     break;
+                case 6:
+                    String deviceName = (String) msg.obj;
+                    Utils.showToast(MQService.this, deviceName + "设备正在升级，屏幕将黑屏并停止被操作，请等待5分钟，切勿关闭电源!");
+                    break;
             }
         }
     };
@@ -1461,7 +1478,6 @@ public class MQService extends Service {
         }
     }
 
-
     class LoadMqttAsync3 extends AsyncTask<List<DeviceChild>, Void, String> {
 
 
@@ -1472,6 +1488,7 @@ public class MQService extends Service {
             try {
                 for (int i = 0; i < deviceChildren.size(); i++) {
                     DeviceChild deviceChild = deviceChildren.get(i);
+
                     String mac = deviceChild.getMacAddress();
                     String topic = "rango/" + mac + "/set";
                     Log.i("macAddress2", "-->" + mac);
@@ -1486,6 +1503,7 @@ public class MQService extends Service {
                     } else {
                         Thread.currentThread().sleep(300);
                     }
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1525,12 +1543,31 @@ public class MQService extends Service {
 //            if (progressDialog != null) {
 //                progressDialog.dismiss();
 //            }
-            List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
+            List<DeviceChild> deviceChildren = deviceChildDao.findZerosType(1);
             new LoadMqttAsync3().execute(deviceChildren);
         }
     }
 
     public DeviceChild findDeviceByMacAddress(String macAddress) {
         return deviceChildDao.findDeviceByMacAddress2(macAddress);
+    }
+
+    /**
+     * 发送loadData1数据
+     * @param macAddress
+     */
+    public void sendLoadData1(String macAddress){
+        try {
+            String topicName="rango/"+macAddress+"transfer";
+            JSONObject jsonObject=new JSONObject();
+            jsonObject.put("loadData",1);
+            String payLoad=jsonObject.toString();
+            boolean success=publish(topicName,1,payLoad);
+            if (!success)
+                publish(topicName,1,topicName);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

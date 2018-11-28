@@ -29,6 +29,7 @@ import okhttp3.Protocol;
  */
 
 public class MyApplication extends Application {
+    public static String update="cancel";
     private int count = 0;
     private List<Activity> activities;
     private List<Fragment> fragments;

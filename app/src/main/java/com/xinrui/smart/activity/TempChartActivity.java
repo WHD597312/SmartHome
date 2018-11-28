@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -73,16 +74,34 @@ public class TempChartActivity extends AppCompatActivity {
         BigDecimal decimalScale2=decimal2.setScale(2,BigDecimal.ROUND_HALF_UP);
         float voltageValue3=Float.parseFloat(decimalScale2+"");
         int voltageValue= (int) voltageValue3;
-        int currentValue=deviceChild.getCurrentValue();
-        float currentValue2=Float.parseFloat(currentValue+"");
-        float currentValue3=currentValue2/1000;
+        float currentValue3=powerValue/voltageValue3;
         BigDecimal decimal=new BigDecimal(currentValue3);
         BigDecimal decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
         String ss=decimalScale+"";
 
-        powerValue=(int) (voltageValue*Float.parseFloat(ss));
-        String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+decimalScale+"A";
+        float powerValue2=(voltageValue*Float.parseFloat(ss));
         int ratedPower=deviceChild.getRatedPower();
+        String outputMod=deviceChild.getOutputMod();
+        if (((1.0*powerValue)/ratedPower>=0.25) && "fastHeat".equals(outputMod)){
+            powerValue2= 1.05f*ratedPower;
+            powerValue= (int) powerValue2;
+            float currentValue4=powerValue/voltageValue2;
+            decimal=new BigDecimal(currentValue4);
+            decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+            ss=decimalScale+"";
+        }else if((powerValue/ratedPower<=0.45 || powerValue/ratedPower>=0.55) && "savePwr".equals(outputMod)){
+            powerValue2=0.5f*ratedPower;
+            powerValue= (int) powerValue2;
+            float currentValue4=powerValue/voltageValue2;
+            decimal=new BigDecimal(currentValue4);
+            decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+            ss=decimalScale+"";
+        }else if ("saveTemp".equals(outputMod)){
+            powerValue=0;
+            ss=0.00+"";
+        }
+
+        String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+ss+"A";
         tv_voltage.setText(s);
         String s2="额定功率:"+ratedPower+"W";
         tv_roatPower.setText(s2);
@@ -90,7 +109,12 @@ public class TempChartActivity extends AppCompatActivity {
         IntentFilter intentFilter = new IntentFilter("TempChartActivity");
         receiver = new MessageReceiver();
         registerReceiver(receiver, intentFilter);
-        new TempChatAsync().execute();
+        try {
+            new TempChatAsync().execute().get(3, TimeUnit.SECONDS);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -298,23 +322,42 @@ public class TempChartActivity extends AppCompatActivity {
                             deviceChildDao.update(deviceChild);
                             if (deviceChild != null) {
                                 if (deviceChild.getOnLint()){
+                                    int  powerValue=deviceChild.getPowerValue()/10;
                                     float voltageValue2=deviceChild.getVoltageValue();
                                     voltageValue2=voltageValue2/10;
                                     BigDecimal decimal2=new BigDecimal(voltageValue2);
                                     BigDecimal decimalScale2=decimal2.setScale(2,BigDecimal.ROUND_HALF_UP);
                                     float voltageValue3=Float.parseFloat(decimalScale2+"");
                                     int voltageValue= (int) voltageValue3;
-                                    int currentValue=deviceChild.getCurrentValue();
-                                    float currentValue2=Float.parseFloat(currentValue+"");
-                                    float currentValue3=currentValue2/1000;
+                                    float currentValue3=powerValue/voltageValue3;
                                     BigDecimal decimal=new BigDecimal(currentValue3);
                                     BigDecimal decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
                                     String ss=decimalScale+"";
 
-                                    int powerValue=(int) (voltageValue*Float.parseFloat(ss));
-                                    String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+decimalScale+"A";
-                                    tv_voltage.setText(s);
+                                    float powerValue2=(voltageValue*Float.parseFloat(ss));
                                     int ratedPower=deviceChild.getRatedPower();
+                                    String outputMod=deviceChild.getOutputMod();
+                                    if (((1.0*powerValue)/ratedPower>=0.25) && "fastHeat".equals(outputMod)){
+                                        powerValue2= 1.05f*ratedPower;
+                                        powerValue= (int) powerValue2;
+                                        float currentValue4=powerValue/voltageValue2;
+                                        decimal=new BigDecimal(currentValue4);
+                                        decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+                                        ss=decimalScale+"";
+                                    }else if((powerValue/ratedPower<=0.45 || powerValue/ratedPower>=0.55) && "savePwr".equals(outputMod)){
+                                        powerValue2=0.5f*ratedPower;
+                                        powerValue= (int) powerValue2;
+                                        float currentValue4=powerValue/voltageValue2;
+                                        decimal=new BigDecimal(currentValue4);
+                                        decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+                                        ss=decimalScale+"";
+                                    }else if ("saveTemp".equals(outputMod)){
+                                        powerValue=0;
+                                        ss=0.00+"";
+                                    }
+
+                                    String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+ss+"A";
+                                    tv_voltage.setText(s);
                                     String s2="额定功率:"+ratedPower+"W";
                                     tv_roatPower.setText(s2);
                                 }else {

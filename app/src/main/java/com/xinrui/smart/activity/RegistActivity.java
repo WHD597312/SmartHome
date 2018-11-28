@@ -132,22 +132,29 @@ public class RegistActivity extends AppCompatActivity {
                         break;
                     }
                     if (TextUtils.isEmpty(code)) {
-                        Utils.showToast(this, "请输入验证码");
+                        Utils.showToast(this, "请输入密码");
                         break;
                     }
                     if (TextUtils.isEmpty(password)) {
-                        Utils.showToast(this, "请输入密码");
+                        Utils.showToast(this, "请输入确认密码");
                         break;
                     }
                     if (password.length() < 6) {
                         Utils.showToast(this, "密码最少6位");
                         break;
                     }
-                    Map<String, Object> params = new HashMap<>();
-                    params.put("phone", phone2);
-                    params.put("code", code);
-                    params.put("password", password);
-                    new RegistAsyncTask().execute(params);
+                    if (code.length()<6){
+                        Utils.showToast(this, "密码最少6位");
+                        break;
+                    }
+                    if (code.equals(password)){
+                        Map<String, Object> params = new HashMap<>();
+                        params.put("phone", phone2);
+                        params.put("password", password);
+                        new RegistAsyncTask().execute(params);
+                    }else {
+                        Utils.showToast(this, "两次输入的密码不同");
+                    }
                 }
 
                 break;
@@ -230,7 +237,7 @@ public class RegistActivity extends AppCompatActivity {
                                 String password = et_password.getText().toString().trim();
                                 editor.putString("phone", phone);
                                 editor.putString("password", password);
-                                editor.putString("userId", userId + "");
+                                editor.putString("userId",userId+"");
                                 editor.commit();
                                 if (preferences.contains("login")) {
                                     editor.remove("login").commit();
@@ -269,9 +276,9 @@ public class RegistActivity extends AppCompatActivity {
                     Intent intent = new Intent(RegistActivity.this, MainActivity.class);
                     startActivity(intent);
                     break;
-                case -1003:
+               default:
 //                    Utils.showToast(RegistActivity.this, "手机验证码错误");
-                    toast=Toast.makeText(RegistActivity.this,"手机验证码错误",Toast.LENGTH_SHORT);
+                    toast=Toast.makeText(RegistActivity.this,"注册失败",Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER,0,0);
                     toast.show();
                     break;

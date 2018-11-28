@@ -1839,7 +1839,7 @@ public class DeviceFragment extends Fragment {
                                     DeviceChild deviceChild = childern.get(groupPosition).get(childPosition);
                                     String updateGrade=deviceChild.getUpdateGrade();
                                     if (!TextUtils.isEmpty(updateGrade)){
-                                        Utils.showToast(getActivity(),"该设备正在升级");
+                                        Utils.showToast(getActivity(),"该设备正在升级，屏幕将黑屏并停止被操作，请等待5分钟，切勿关闭电源!");
                                     }
                                     long id = deviceChild.getId();
                                     Intent intent = new Intent(context, DeviceListActivity.class);
@@ -1885,7 +1885,7 @@ public class DeviceFragment extends Fragment {
                             }
                             String updateGrade=entry.getUpdateGrade();
                             if (!TextUtils.isEmpty(updateGrade)){
-                                Utils.showToast(getActivity(),"该设备正在升级");
+                                Utils.showToast(getActivity(),"该设备正在升级，屏幕将黑屏并停止被操作，请等待5分钟，切勿关闭电源!");
                             }else {
                                 Utils.showToast(context, "该设备离线");
                             }
@@ -1907,7 +1907,7 @@ public class DeviceFragment extends Fragment {
                                     try {
                                         String updateGrade=entry.getUpdateGrade();
                                         if (!TextUtils.isEmpty(updateGrade)){
-                                            Utils.showToast(getActivity(),"该设备正在升级");
+                                            Utils.showToast(getActivity(),"该设备正在升级，屏幕将黑屏并停止被操作，请等待5分钟，切勿关闭电源!");
                                             entry.setUpdateGrade("");
                                             deviceChildDao.update(entry);
                                         }
@@ -1928,7 +1928,7 @@ public class DeviceFragment extends Fragment {
                             } else if (entry.getImg() == imgs[1]) {
                                 String updateGrade=entry.getUpdateGrade();
                                 if (!TextUtils.isEmpty(updateGrade)){
-                                    Utils.showToast(getActivity(),"该设备正在升级");
+                                    Utils.showToast(getActivity(),"该设备正在升级，屏幕将黑屏并停止被操作，请等待5分钟，切勿关闭电源!");
                                     entry.setUpdateGrade("");
                                     deviceChildDao.update(entry);
                                 }

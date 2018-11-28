@@ -47,6 +47,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -146,7 +147,11 @@ public class LoginActivity extends CheckPermissionsActivity {
                     boolean isConn = NetWorkUtil.isConn(MyApplication.getContext());
 
                     if (isConn){
-                        new LoginAsyncTask().execute(params);
+                        try {
+                            new LoginAsyncTask().execute(params).get(3, TimeUnit.SECONDS);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                     }else {
                         Utils.showToast(this,"请检查你的网络");
                     }
@@ -175,7 +180,6 @@ public class LoginActivity extends CheckPermissionsActivity {
     }
 
     class LoginAsyncTask extends AsyncTask<Map<String, Object>, Void, Integer> {
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -184,8 +188,8 @@ public class LoginActivity extends CheckPermissionsActivity {
                 progressDialog.setCancelable(false);
                 progressDialog.show();
                 btn_login.setClickable(false);
-                CountTimer2 countTimer = new CountTimer2(3000, 1000);
-                countTimer.start();
+//                CountTimer2 countTimer = new CountTimer2(3000, 1000);
+//                countTimer.start();
             }
         }
 
@@ -260,7 +264,7 @@ public class LoginActivity extends CheckPermissionsActivity {
                     case 2000:
                         deviceGroupDao = new DeviceGroupDaoImpl(getApplicationContext());
                         deviceChildDao = new DeviceChildDaoImpl(getApplicationContext());
-                        new LoadDeviceAsync().execute();
+                        new LoadDeviceAsync().execute().get(5,TimeUnit.SECONDS);
                         break;
                         default:
                             btn_login.setClickable(true);
@@ -321,8 +325,8 @@ public class LoginActivity extends CheckPermissionsActivity {
                 progressDialog.setCancelable(false);
                 progressDialog.show();
                 btn_login.setClickable(false);
-                CountTimer2 countTimer = new CountTimer2(5000, 1000);
-                countTimer.start();
+//                CountTimer2 countTimer = new CountTimer2(5000, 1000);
+//                countTimer.start();
             }
         }
 

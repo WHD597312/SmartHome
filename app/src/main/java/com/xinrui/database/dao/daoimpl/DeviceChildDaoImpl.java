@@ -29,15 +29,29 @@ public class DeviceChildDaoImpl {
        deviceChildDao=session.getDeviceChildDao();
     }
 
+    /**
+     * 添加设备
+     * @param deviceChild
+     */
     public void insert(DeviceChild deviceChild){
         deviceChildDao.insert(deviceChild);
     }
     public void insertAll(List<DeviceChild> deviceChildren){
         deviceChildDao.insertInTx(deviceChildren);
     }
+
+    /**
+     * 更新设备
+     * @param deviceChild
+     */
     public void update(DeviceChild deviceChild){
         deviceChildDao.update(deviceChild);
     }
+
+    /**
+     * 批量更新设备
+     * @param deviceChildren
+     */
     public void updateAll(List<DeviceChild> deviceChildren){
         deviceChildDao.updateInTx(deviceChildren);
     }
@@ -53,12 +67,28 @@ public class DeviceChildDaoImpl {
     public void deleteGroupDevice(List<DeviceChild> deviceChildren){
         deviceChildDao.deleteInTx(deviceChildren);
     }
+
+    /**
+     * 删除设备
+     * @param deviceChild
+     */
     public void delete(DeviceChild deviceChild){
         deviceChildDao.delete(deviceChild);
     }
+
+    /**
+     * 删除某个家中的所有设备
+     * @param deviceChildren
+     */
     public void deleteGroup(List<DeviceChild> deviceChildren){
         deviceChildDao.deleteInTx(deviceChildren);
     }
+
+    /**
+     * 根据设备Id查询固定设备
+     * @param id
+     * @return
+     */
     public DeviceChild findDeviceChild(Long id){
         return deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.Id.eq(id)).unique();
     }
@@ -171,22 +201,49 @@ public class DeviceChildDaoImpl {
         List<DeviceChild> children=deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.HouseId.eq(groupId)).orderAsc(DeviceChildDao.Properties.Id).list();
         return children;
     }
+
+    /**
+     * 根据设备Id查询固定设备
+     * @param id
+     * @return
+     */
     public DeviceChild findDeviceById(Long id){
         return deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.Id.eq(id)).unique();
     }
+
+    /**
+     * 查询所有设备
+     * @return
+     */
     public List<DeviceChild> findAllDevice(){
         return deviceChildDao.loadAll();
     }
+
+    /**
+     * 查询设备类型为0的所有设备
+     * @param type
+     * @return
+     */
     public List<DeviceChild> findZerosType(int type){
         List<DeviceChild> children=deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.Type.eq(type)).orderAsc(DeviceChildDao.Properties.Id).list();
         return children;
     }
+
+    /**
+     * 关闭数据库本次对话
+     */
     public void closeDaoSession(){
         if (session!=null){
             session.clear();
             session=null;
         }
     }
+
+    /**
+     * 查询某个家中的所有设备
+     * @param group
+     * @return
+     */
     public List<DeviceChild> findHouseDevices(int group){
         List<DeviceChild> deviceChildren=deviceChildDao.queryBuilder().where(DeviceChildDao.Properties.GroupPosition.eq(group)).orderAsc(DeviceChildDao.Properties.Id).list();
         return deviceChildren;

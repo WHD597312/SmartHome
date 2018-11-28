@@ -104,6 +104,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
             }
             createQrCode();
 //            new ShareQrCodeAsync().execute();
+            new UpdateVersionAsync().execute(-1);
         }
         IntentFilter intentFilter = new IntentFilter("ShareDeviceActivity");
         receiver = new MessageReceiver();
@@ -157,7 +158,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.btn_update_version:
-                new UpdateVersionAsync().execute();
+                startActivity(new Intent(this,DeviceNewFunActivity.class));
                 break;
         }
     }
@@ -186,12 +187,13 @@ public class ShareDeviceActivity extends AppCompatActivity {
 
     /**生成二维码*/
     private void createQrCode(){
-        Bitmap bitmap = ZXingUtils.createQRImage(share,400, 400);
+        Bitmap bitmap = ZXingUtils.createQRImage(share,1000, 1000);
         img_qrCode.setImageBitmap(bitmap);
     }
-    class UpdateVersionAsync extends AsyncTask<Void,Void,String>{
+    class UpdateVersionAsync extends AsyncTask<Integer,Void,Integer>{
         @Override
-        protected String doInBackground(Void... maps) {
+        protected Integer doInBackground(Integer... maps) {
+            int i=maps[0];
             String s=null;
             int code=0;
             int type=-1;
@@ -220,9 +222,18 @@ public class ShareDeviceActivity extends AppCompatActivity {
                             Log.i("wifiVersion0","wifiVersion0->"+wifiVersion0);
                             Log.i("mcuVersion0","mcuVersion0->"+mcuVersion0);
                             if (wifiVersion2!=null && wifiVersion2.equals(wifiVersion) && mcuVersion2!=null&& mcuVersion2.equals(mcuVersion)){
-                                s="已经是最新版本啦!";
+                                if (i==-1){
+                                    code=-2001;
+                                }else if (i==1){
+                                    code=2001;
+                                }
                             }else {
-                                s="版本更新成功";
+                                if (i==-1){
+                                    code=-2002;
+                                }else if (i==1){
+                                    code=2002;
+                                }
+
                                 double wifiVersion3=Double.parseDouble(wifiVersion2.substring(1));
                                 double mcuVersion3=Double.parseDouble(mcuVersion2.substring(1));
 //                                double wifiVersion0=Double.parseDouble(deviceChild.getWifiVersion().substring(1));
@@ -247,20 +258,31 @@ public class ShareDeviceActivity extends AppCompatActivity {
                     }
                 }
             }
-            return s;
+            return code;
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            if ("已经是最新版本啦!".equals(s)){
-                Utils.showToast(ShareDeviceActivity.this,s);
-//                btn_update_version.setVisibility(View.GONE);
-                tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
-            }else {
-//                btn_update_version.setVisibility(View.VISIBLE);
-                Utils.showToast(ShareDeviceActivity.this,s);
-                tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
+        protected void onPostExecute(Integer code) {
+            super.onPostExecute(code);
+            switch (code){
+                case -2001:
+                    tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
+                    btn_update_version.setText("新功能");
+                    break;
+                case 2001:
+                    Utils.showToast(ShareDeviceActivity.this,"已经是最新版本啦!");
+                    tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
+                    btn_update_version.setText("新功能");
+                    break;
+                case -2002:
+                    tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
+                    btn_update_version.setText("新功能");
+                    break;
+                case 2002:
+                    Utils.showToast(ShareDeviceActivity.this,"升级成功");
+                    tv_version.setText(deviceChild.getWifiVersion()+","+deviceChild.getMCUVerion());
+                    btn_update_version.setText("新功能");
+                    break;
             }
         }
     }

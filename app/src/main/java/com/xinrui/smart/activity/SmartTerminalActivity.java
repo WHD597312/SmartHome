@@ -52,6 +52,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -175,7 +176,12 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
         boolean isConn = NetWorkUtil.isConn(this);
         if (isConn) {
             result=1;
-            new GetLinkedAsync().execute();
+            try {
+                new GetLinkedAsync().execute().get(3, TimeUnit.SECONDS);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
         } else {
             Toast.makeText(this, "请检查网络", Toast.LENGTH_SHORT).show();
         }

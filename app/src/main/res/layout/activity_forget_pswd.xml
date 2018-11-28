@@ -134,7 +134,7 @@
         android:inputType="textPassword"
         android:hint="设置密码"
         android:textColorHint="@color/white"
-         />
+        />
     <View
         android:id="@+id/view3"
         android:layout_width="match_parent"

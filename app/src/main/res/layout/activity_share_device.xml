@@ -91,19 +91,18 @@
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/tv_version"
             android:background="@color/white"
-            android:text="版本升级"
+            android:text="升级固件"
             android:textSize="@dimen/sp_16"
             android:textColor="@color/color_orange"
             android:layout_marginLeft="@dimen/dp_10"
             />
-
         <ImageView
             android:id="@+id/img_qrCode"
             android:layout_width="@dimen/dp_250"
             android:layout_height="@dimen/dp_250"
-            android:layout_centerInParent="true"
             android:scaleType="centerCrop"
+            android:layout_marginTop="@dimen/dp_10"
+            android:layout_centerInParent="true"
              />
-
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>

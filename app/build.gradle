@@ -9,7 +9,7 @@ repositories {
 }
 
 greendao {
-    schemaVersion 54
+    schemaVersion 55
     daoPackage 'com.xinrui.database.dao'
     targetGenDir 'src/main/java'
 }
@@ -34,7 +34,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 25
         versionCode 2
-        versionName "2.3"
+        versionName "2.4.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

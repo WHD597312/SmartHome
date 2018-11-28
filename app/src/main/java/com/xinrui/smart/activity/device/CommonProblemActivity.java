@@ -51,19 +51,22 @@ public class CommonProblemActivity extends AppCompatActivity {
         smart=intent.getStringExtra("smart");
         live=intent.getStringExtra("live");
     }
-
     @OnClick({R.id.image_back})
     public void onClick(View view){
         switch (view.getId()){
             case R.id.image_back:
                 if (!Utils.isEmpty(device)){
                     Intent intent=new Intent(this,MainActivity.class);
-                    intent.putExtra("deviceList","deviceList");
-                    startActivity(intent);
+//                    intent.putExtra("deviceList","deviceList");
+//                    startActivity(intent);
+                    setResult(6000,intent);
+                    finish();
                 } else if (!Utils.isEmpty(smart)){
                     Intent intent = new Intent(this, MainActivity.class);
-                    intent.putExtra("mainControl","mainControl");
-                    startActivity(intent);
+//                    intent.putExtra("mainControl","mainControl");
+//                    startActivity(intent);
+                    setResult(7000,intent);
+                    finish();
                 }else if (!Utils.isEmpty(live)){
                     Intent intent = new Intent(this, MainActivity.class);
                     intent.putExtra("live","live");
@@ -78,12 +81,16 @@ public class CommonProblemActivity extends AppCompatActivity {
         super.onBackPressed();
         if (!Utils.isEmpty(device)){
             Intent intent=new Intent(this,MainActivity.class);
-            intent.putExtra("deviceList","deviceList");
-            startActivity(intent);
+//            intent.putExtra("deviceList","deviceList");
+//            startActivity(intent);
+            setResult(6000,intent);
+            finish();
         } else if (!Utils.isEmpty(smart)){
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("mainControl","mainControl");
-            startActivity(intent);
+//            intent.putExtra("mainControl","mainControl");
+//            startActivity(intent);
+            setResult(7000,intent);
+            finish();
         }else if (!Utils.isEmpty(live)){
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("live","live");

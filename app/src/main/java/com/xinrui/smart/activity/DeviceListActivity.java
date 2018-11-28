@@ -222,7 +222,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 if (NoFastClickUtils.isFastClick()) {
                     String updateGrade = deviceChild.getUpdateGrade();
                     if (!TextUtils.isEmpty(updateGrade)) {
-                        Utils.showToast(this, "该设备正在升级");
+                        Utils.showToast(this, "该设备正在升级，屏幕将黑屏并停止被操作，请等待5分钟，切勿关闭电源!");
                         deviceChild.setUpdateGrade("");
                         deviceChildDao.update(deviceChild);
                     }
@@ -269,7 +269,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 if (NoFastClickUtils.isFastClick()) {
                     String updateGrade = deviceChild.getUpdateGrade();
                     if (!TextUtils.isEmpty(updateGrade)) {
-                        Utils.showToast(this, "该设备正在升级");
+                        Utils.showToast(this, "该设备正在升级，屏幕将黑屏并停止被操作，请等待5分钟，切勿关闭电源!");
                         deviceChild.setUpdateGrade("");
                         deviceChildDao.update(deviceChild);
                     }
@@ -342,7 +342,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
 //                    buildOpenChildProjectDialog();
                     String updateGrade = deviceChild.getUpdateGrade();
                     if (!TextUtils.isEmpty(updateGrade)) {
-                        Utils.showToast(this, "该设备正在升级");
+                        Utils.showToast(this, "该设备正在升级，屏幕将黑屏并停止被操作，请等待5分钟，切勿关闭电源!");
                         deviceChild.setUpdateGrade("");
                         deviceChildDao.update(deviceChild);
                     }
@@ -404,7 +404,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 if (NoFastClickUtils.isFastClick()) {
                     String updateGrade = deviceChild.getUpdateGrade();
                     if (!TextUtils.isEmpty(updateGrade)) {
-                        Utils.showToast(this, "该设备正在升级");
+                        Utils.showToast(this, "该设备正在升级，屏幕将黑屏并停止被操作，请等待5分钟，切勿关闭电源!");
                         deviceChild.setUpdateGrade("");
                         deviceChildDao.update(deviceChild);
                     }
@@ -434,7 +434,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 if (NoFastClickUtils.isFastClick()) {
                     String updateGrade = deviceChild.getUpdateGrade();
                     if (!TextUtils.isEmpty(updateGrade)) {
-                        Utils.showToast(this, "该设备正在升级");
+                        Utils.showToast(this, "该设备正在升级，屏幕将黑屏并停止被操作，请等待5分钟，切勿关闭电源!");
                         deviceChild.setUpdateGrade("");
                         deviceChildDao.update(deviceChild);
                     }

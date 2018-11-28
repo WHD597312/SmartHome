@@ -181,12 +181,15 @@ public class CommonSetActivity extends AppCompatActivity {
             case R.id.image_back:
                 if (!Utils.isEmpty(device)){
                     Intent intent=new Intent(this,MainActivity.class);
-                    intent.putExtra("deviceList","deviceList");
-                    startActivity(intent);
+//                    intent.putExtra("deviceList","deviceList");
+//                    startActivity(intent);
+                    setResult(6000,intent);
+                    finish();
                 } else if (!Utils.isEmpty(smart)){
                     Intent intent = new Intent(this, MainActivity.class);
-                    intent.putExtra("mainControl","mainControl");
-                    startActivity(intent);
+//                    intent.putExtra("mainControl","mainControl");
+//                    startActivity(intent);
+                    setResult(7000,intent);
                 }else if (!Utils.isEmpty(live)){
                     Intent intent = new Intent(this, MainActivity.class);
                     intent.putExtra("live","live");
@@ -212,12 +215,15 @@ public class CommonSetActivity extends AppCompatActivity {
         }
         if (!Utils.isEmpty(device)){
             Intent intent=new Intent(this,MainActivity.class);
-            intent.putExtra("deviceList","deviceList");
-            startActivity(intent);
+//            intent.putExtra("deviceList","deviceList");
+//            startActivity(intent);
+            setResult(6000,intent);
+            finish();
         } else if (!Utils.isEmpty(smart)){
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("mainControl","mainControl");
-            startActivity(intent);
+//            intent.putExtra("mainControl","mainControl");
+//            startActivity(intent);
+            setResult(7000,intent);
         }else if (!Utils.isEmpty(live)){
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("live","live");

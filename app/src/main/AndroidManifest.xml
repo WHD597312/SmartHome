@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.xinrui.smart">
 
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -23,7 +22,6 @@
         android:name="android.permission.CHANGE_CONFIGURATION"
         tools:ignore="ProtectedPermissions" />
 
-
     <!-- 不是SDK需要的权限，是示例中的后台唤醒定位需要的权限 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -34,8 +32,6 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- 用于提高GPS定位速度 -->
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
-
-
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -44,11 +40,14 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
-
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
 
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
         android:name=".MyApplication"
@@ -79,6 +78,7 @@
             android:name=".util.mqtt.MQService"
             android:enabled="true"
             android:exported="true" />
+
         <receiver
             android:name=".reveiver.MQTTMessageReveiver"
             android:enabled="true"
@@ -90,9 +90,9 @@
 
         <activity
             android:name=".activity.LoginActivity"
+            android:hardwareAccelerated="false"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:hardwareAccelerated="false"
             android:windowSoftInputMode="adjustNothing">
             >
             <intent-filter>
@@ -102,38 +102,38 @@
             </intent-filter>
         </activity>
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.RegistActivity"
+            android:hardwareAccelerated="false"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.ForgetPswdActivity"
+            android:hardwareAccelerated="false"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.MainActivity"
+            android:hardwareAccelerated="false"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.AddDeviceActivity"
-            android:label=""
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:hardwareAccelerated="false"
-            android:name=".activity.MainControlActivity"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="true"
+            android:name=".activity.MainControlActivity"
+            android:hardwareAccelerated="false"
+            android:label=""
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".activity.DeviceListActivity"
+            android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -147,14 +147,14 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="true"
             android:name=".activity.TimeTaskActivity"
+            android:hardwareAccelerated="true"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.TempChartActivity"
+            android:hardwareAccelerated="false"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -169,8 +169,8 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.device.ShareDeviceActivity"
+            android:hardwareAccelerated="false"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -187,20 +187,20 @@
         </receiver>
 
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.ComProblemActivity"
+            android:hardwareAccelerated="false"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.PersonInfoActivity"
+            android:hardwareAccelerated="false"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.QRScannerActivity"
+            android:hardwareAccelerated="false"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -210,40 +210,40 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.device.AboutUsActivity"
+            android:hardwareAccelerated="false"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.device.CommonProblemActivity"
+            android:hardwareAccelerated="false"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.device.CommonSetActivity"
+            android:hardwareAccelerated="false"
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.device.AboutAppActivity"
+            android:hardwareAccelerated="false"
             android:label=""
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="true"
             android:name=".activity.SmartTerminalActivity"
+            android:hardwareAccelerated="true"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"
-            />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:hardwareAccelerated="false"
             android:name=".activity.SmartLinkedActivity"
+            android:hardwareAccelerated="false"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"
-            />
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".activity.device.DeviceNewFunActivity"></activity>
     </application>
+
 </manifest>

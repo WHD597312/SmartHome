@@ -80,7 +80,8 @@ public class MQTTMessageReveiver extends BroadcastReceiver {
             editor.commit();
             try {
                 DeviceChildDaoImpl deviceChildDao = new DeviceChildDaoImpl(context);
-                List<DeviceChild> deviceChildren = deviceChildDao.findAllDevice();
+                List<DeviceChild> deviceChildren =
+                        deviceChildDao.findAllDevice();
                 for (DeviceChild deviceChild : deviceChildren) {
                     deviceChild.setOnLint(false);
                     if ("open".equals(deviceChild.getDeviceState())) {
