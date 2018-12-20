@@ -294,7 +294,7 @@ public class ControlledFragment extends Fragment{
             List<DeviceChild> list=new ArrayList<>();
             try {
                 String getAllMainControl="http://47.98.131.11:8082/warmer/v1.0/device/getControlledDevice?houseId="+ URLEncoder.encode(houseId,"utf-8");
-                String result=HttpUtils.getOkHpptRequest(getAllMainControl);
+                String result=HttpUtils.requestGet(getAllMainControl);
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
@@ -376,7 +376,7 @@ public class ControlledFragment extends Fragment{
             int code=0;
             Map<String,Object> params=maps[0];
             long arr[]= (long[]) params.get("controlledId");
-            String result=HttpUtils.postOkHpptRequest(controlledUrl,params);
+            String result=HttpUtils.requestPost(controlledUrl,params);
 
             if (!Utils.isEmpty(result)){
                 try{

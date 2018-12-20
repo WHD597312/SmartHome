@@ -197,7 +197,7 @@ public class LoginActivity extends CheckPermissionsActivity {
         protected Integer doInBackground(Map<String, Object>... maps) {
             int code = 0;
             Map<String, Object> params = maps[0];
-            String result = HttpUtils.postOkHpptRequest(url, params);
+            String result = HttpUtils.requestPost(url,params);
             try {
                 if (!Utils.isEmpty(result)) {
                     JSONObject jsonObject = new JSONObject(result);
@@ -359,7 +359,8 @@ public class LoginActivity extends CheckPermissionsActivity {
 //                timeTaskDao.closeDaoSession();
                 String userId = preferences.getString("userId", "");
                 String allDeviceUrl = "http://47.98.131.11:8082/warmer/v1.0/device/findAll?userId=" + URLEncoder.encode(userId, "utf-8");
-                String result = HttpUtils.getOkHpptRequest(allDeviceUrl);
+//                String []params={"findUserAllDevice",userId};
+                String result = HttpUtils.requestGet(allDeviceUrl);
                 if (!Utils.isEmpty(result)) {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");

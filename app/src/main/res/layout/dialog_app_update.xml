@@ -56,30 +56,37 @@
             android:layout_marginRight="@dimen/dp_10"
             android:layout_marginTop="@dimen/dp_20"
             android:orientation="horizontal">
-
-
             <Button
                 android:id="@+id/button_cancel"
-                android:layout_width="@dimen/dp_135"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_alignParentLeft="true"
                 android:background="@drawable/app_update_cancel"
                 android:gravity="center"
                 android:text="取 消"
-                android:textSize="16sp" />
-
-
+                android:textSize="16sp"
+                android:layout_alignRight="@+id/view"
+                android:layout_marginRight="@dimen/dp_15"
+                />
+            <View
+                android:id="@+id/view"
+                android:layout_width="@dimen/dp_5"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                />
             <Button
                 android:id="@+id/button_ensure"
-                android:layout_width="@dimen/dp_135"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_alignParentRight="true"
                 android:background="@drawable/app_update_ensure"
                 android:gravity="center"
                 android:text="确 定"
                 android:textColor="@color/color_orange"
-                android:textSize="16sp" />
-
+                android:textSize="16sp"
+                android:layout_alignLeft="@+id/view"
+                android:layout_marginLeft="@dimen/dp_15"
+                />
         </RelativeLayout>
     </LinearLayout>
 </RelativeLayout>

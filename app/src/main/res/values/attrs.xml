@@ -19,7 +19,7 @@
             <enum name="FILL" value="1"></enum>
         </attr>
     </declare-styleable>
-    <declare-styleable name="MySeekBar">
+    <declare-styleable name="MySeekBar2">
         <attr name="textSize2" format="dimension" />
         <attr name="textColor2" format="color" />
         <attr name="textBackground" format="reference" />

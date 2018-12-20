@@ -742,6 +742,7 @@ public class MainActivity extends CheckPermissionsActivity {
             }
             if (mqService!=null){
                 mqService.setOffineDevices();
+                mqService.cancelNotition();
             }
             if (preferences.contains("login"))
                 preferences.edit().remove("login").commit();
@@ -874,8 +875,8 @@ public class MainActivity extends CheckPermissionsActivity {
             try {
                 String userId = preferences.getString("userId", "");
                 String allDeviceUrl = "http://47.98.131.11:8082/warmer/v1.0/device/findAll?userId=" + URLEncoder.encode(userId, "utf-8");
-                String result = HttpUtils.getOkHpptRequest(allDeviceUrl);
-
+//                String[] params={"findUserAllDevice",userId};
+                String result = HttpUtils.requestGet(allDeviceUrl);
                 if (!Utils.isEmpty(result)) {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
@@ -1060,7 +1061,7 @@ public class MainActivity extends CheckPermissionsActivity {
         protected Integer doInBackground(Void... voids) {
             int code=0;
             try {
-                String result=HttpUtils.getOkHpptRequest(appUrl);
+                String result=HttpUtils.requestGet(appUrl);
                 if (!TextUtils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
                     int resultCode=jsonObject.getInt("code");
@@ -1106,7 +1107,6 @@ public class MainActivity extends CheckPermissionsActivity {
                         intent.setAction(Intent.ACTION_VIEW);
                         MainActivity.this.startActivity(intent); //启动浏览器
                         dialog.dismiss();
-
                     }
                 });
                 dialog.show();

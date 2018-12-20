@@ -172,7 +172,7 @@ public class ForgetPswdActivity extends AppCompatActivity {
             phone=s[0];
             try {
                 String isExistUrl="http://47.98.131.11:8082/warmer/v1.0/user/isExist?phone="+phone;
-                String result=HttpUtils.getOkHpptRequest(isExistUrl);
+                String result=HttpUtils.requestGet(isExistUrl);
                 if (!TextUtils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
@@ -208,7 +208,7 @@ public class ForgetPswdActivity extends AppCompatActivity {
         protected Integer doInBackground(Map<String, Object>... maps) {
             int code = 0;
             Map<String, Object> params = maps[0];
-            String result = HttpUtils.postOkHpptRequest(url, params);
+            String result = HttpUtils.requestPost(url, params);
             if (!Utils.isEmpty(result)) {
                 try {
                     JSONObject jsonObject = new JSONObject(result);

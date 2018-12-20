@@ -749,7 +749,7 @@ public class DeviceFragment extends Fragment {
             int code = 0;
             try {
                 String url = urls[0];
-                String result = HttpUtils.getOkHpptRequest(url);
+                String result = HttpUtils.requestGet(url);
                 if (!Utils.isEmpty(result)) {
                     JSONObject object = new JSONObject(result);
                     code = object.getInt("code");
@@ -867,7 +867,8 @@ public class DeviceFragment extends Fragment {
             int code = 0;
             Map<String, Object> params = maps[0];
 
-            String result = HttpUtils.postOkHpptRequest(homeUrl, params);
+//            String result = HttpUtils.postOkHpptRequest(homeUrl, params);
+            String result=HttpUtils.requestPost(homeUrl,params);
             if (!Utils.isEmpty(result)) {
                 try {
                     JSONObject jsonObject = new JSONObject(result);
@@ -925,12 +926,14 @@ public class DeviceFragment extends Fragment {
             try {
                 String updateHomeUrl = "http://47.98.131.11:8082/warmer/v1.0/house/changeHouseName?houseId=" +
                         URLEncoder.encode(updateDeviceGroup.getId() + "", "UTF-8") + "&houseName=" + URLEncoder.encode(updateDeviceGroup.getHouseName(), "UTF-8");
-                String result = HttpUtils.getOkHpptRequest(updateHomeUrl);
+//                String houseId=updateDeviceGroup.getId()+"";
+//                String houseName=updateDeviceGroup.getHouseName();
+//                String methodName="updateHouseName";
+                String result = HttpUtils.requestGet(updateHomeUrl);
                 if (!Utils.isEmpty(result)) {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
                     if (code == 2000) {
-
                         updateDeviceGroup.setHeader(updateDeviceGroup.getHouseName() + "." + updateDeviceGroup.getLocation());
                         deviceGroupDao.update(updateDeviceGroup);
                     }
@@ -1069,7 +1072,7 @@ public class DeviceFragment extends Fragment {
             try {
                 String updateHomeUrl = "http://47.98.131.11:8082/warmer/v1.0/house/changeHouseLocation?houseId=" +
                         URLEncoder.encode(updateDeviceGroup.getId() + "", "UTF-8") + "&houseLocation=" + URLEncoder.encode(updateDeviceGroup.getLocation(), "UTF-8");
-                String result = HttpUtils.getOkHpptRequest(updateHomeUrl);
+                String result = HttpUtils.requestGet(updateHomeUrl);
                 if (!Utils.isEmpty(result)) {
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
@@ -2022,7 +2025,7 @@ public class DeviceFragment extends Fragment {
                 try {
                     String updateDeviceNameUrl = "http://47.98.131.11:8082/warmer/v1.0/device/changeDeviceName?deviceId=" +
                             URLEncoder.encode(deviceChild.getId() + "", "UTF-8") + "&newName=" + URLEncoder.encode(deviceChild.getDeviceName(), "UTF-8");
-                    String result = HttpUtils.getOkHpptRequest(updateDeviceNameUrl);
+                    String result = HttpUtils.requestGet(updateDeviceNameUrl);
                     JSONObject jsonObject = new JSONObject(result);
                     code = jsonObject.getInt("code");
                     if (code == 2000) {
@@ -2072,7 +2075,7 @@ public class DeviceFragment extends Fragment {
                             + "&houseId=" + URLEncoder.encode(houseId, "UTF-8");
 //                String updateDeviceNameUrl="http://192.168.168.3:8082/warmer/v1.0/device/deleteDevice?deviceId=6&userId=1&houseId=1000";
 //                String updateDeviceNameUrl="http://192.168.168.10:8082/warmer/v1.0/device/deleteDevice?deviceId=1004&userId=1&&houseId=1001";
-                    String result = HttpUtils.getOkHpptRequest(updateDeviceNameUrl);
+                    String result = HttpUtils.requestGet(updateDeviceNameUrl);
                     if (TextUtils.isEmpty(result)){
                         if (mDeviceChild != null && mDeviceChild.getMacAddress().equals(deviceChild.getMacAddress())) {
                             mDeviceChild = null;

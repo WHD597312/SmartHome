@@ -67,6 +67,8 @@ public class TempChartActivity extends AppCompatActivity {
         Intent intent=getIntent();
         deviceId=intent.getStringExtra("deviceId");
         deviceChild=deviceChildDao.findDeviceById(Long.parseLong(deviceId));
+        String wifi=deviceChild.getMacAddress();
+
         int  powerValue=deviceChild.getPowerValue()/10;
         float voltageValue2=deviceChild.getVoltageValue();
         voltageValue2=voltageValue2/10;
@@ -74,31 +76,55 @@ public class TempChartActivity extends AppCompatActivity {
         BigDecimal decimalScale2=decimal2.setScale(2,BigDecimal.ROUND_HALF_UP);
         float voltageValue3=Float.parseFloat(decimalScale2+"");
         int voltageValue= (int) voltageValue3;
-        float currentValue3=powerValue/voltageValue3;
-        BigDecimal decimal=new BigDecimal(currentValue3);
-        BigDecimal decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
-        String ss=decimalScale+"";
-
+        float currentValue3=0;
+        BigDecimal decimal=null;
+        BigDecimal decimalScale=null;
+        String ss="0.00";
+        if (voltageValue3!=0){
+            currentValue3=powerValue/voltageValue3;
+            decimal=new BigDecimal(currentValue3);
+            decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+            ss=decimalScale+"";
+        }
         float powerValue2=(voltageValue*Float.parseFloat(ss));
         int ratedPower=deviceChild.getRatedPower();
         String outputMod=deviceChild.getOutputMod();
-        if (((1.0*powerValue)/ratedPower>=0.25) && "fastHeat".equals(outputMod)){
-            powerValue2= 1.05f*ratedPower;
-            powerValue= (int) powerValue2;
-            float currentValue4=powerValue/voltageValue2;
-            decimal=new BigDecimal(currentValue4);
-            decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
-            ss=decimalScale+"";
-        }else if((powerValue/ratedPower<=0.45 || powerValue/ratedPower>=0.55) && "savePwr".equals(outputMod)){
-            powerValue2=0.5f*ratedPower;
-            powerValue= (int) powerValue2;
-            float currentValue4=powerValue/voltageValue2;
-            decimal=new BigDecimal(currentValue4);
-            decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
-            ss=decimalScale+"";
-        }else if ("saveTemp".equals(outputMod)){
-            powerValue=0;
-            ss=0.00+"";
+        if ("vlinks".startsWith(wifi)){
+            powerValue2=voltageValue2*currentValue3;
+            powerValue=(int)powerValue2;
+        }else {
+            if (ratedPower!=0){
+                if (((1.0*powerValue)/ratedPower>=0.25) && "fastHeat".equals(outputMod)){
+                    powerValue2= 1.05f*ratedPower;
+                    powerValue= (int) powerValue2;
+                    if (voltageValue2!=0){
+                        float currentValue4=powerValue/voltageValue2;
+                        decimal=new BigDecimal(currentValue4);
+                        decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+                        ss=decimalScale+"";
+                    }else {
+                        ss="0.00";
+                    }
+                }else if((powerValue/ratedPower<=0.45 || powerValue/ratedPower>=0.55) && "savePwr".equals(outputMod)){
+                    powerValue2=0.5f*ratedPower;
+                    powerValue= (int) powerValue2;
+                    if (voltageValue2!=0){
+                        float currentValue4=powerValue/voltageValue2;
+                        decimal=new BigDecimal(currentValue4);
+                        decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+                        ss=decimalScale+"";
+                    }else {
+                        ss="0.00";
+                    }
+                }else if ("saveTemp".equals(outputMod)){
+                    powerValue=0;
+                    ss=0.00+"";
+                }
+            }else {
+                powerValue=0;
+                voltageValue=0;
+                ss="0.00";
+            }
         }
 
         String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+ss+"A";
@@ -188,9 +214,9 @@ public class TempChartActivity extends AppCompatActivity {
             List<Integer> list=null;
             String tempUrl="http://47.98.131.11:8082/warmer/v1.0/device/everyHourTemp?deviceId="+deviceId;
             try {
-                String result=HttpUtils.getOkHpptRequest(tempUrl);
+                String result=HttpUtils.requestGet(tempUrl);
                 if (TextUtils.isEmpty(result)){
-                    result=HttpUtils.getOkHpptRequest(tempUrl);
+                    result=HttpUtils.requestGet(tempUrl);
                 }
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject2=new JSONObject(result);
@@ -329,33 +355,57 @@ public class TempChartActivity extends AppCompatActivity {
                                     BigDecimal decimalScale2=decimal2.setScale(2,BigDecimal.ROUND_HALF_UP);
                                     float voltageValue3=Float.parseFloat(decimalScale2+"");
                                     int voltageValue= (int) voltageValue3;
-                                    float currentValue3=powerValue/voltageValue3;
-                                    BigDecimal decimal=new BigDecimal(currentValue3);
-                                    BigDecimal decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
-                                    String ss=decimalScale+"";
+                                    float currentValue3=0;
+                                    BigDecimal decimal=null;
+                                    BigDecimal decimalScale=null;
+                                    String ss="0.00";
 
+                                    if (voltageValue3!=0){
+                                        currentValue3=powerValue/voltageValue3;
+                                        decimal=new BigDecimal(currentValue3);
+                                        decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+                                        ss=decimalScale+"";
+                                    }
                                     float powerValue2=(voltageValue*Float.parseFloat(ss));
                                     int ratedPower=deviceChild.getRatedPower();
                                     String outputMod=deviceChild.getOutputMod();
-                                    if (((1.0*powerValue)/ratedPower>=0.25) && "fastHeat".equals(outputMod)){
-                                        powerValue2= 1.05f*ratedPower;
-                                        powerValue= (int) powerValue2;
-                                        float currentValue4=powerValue/voltageValue2;
-                                        decimal=new BigDecimal(currentValue4);
-                                        decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
-                                        ss=decimalScale+"";
-                                    }else if((powerValue/ratedPower<=0.45 || powerValue/ratedPower>=0.55) && "savePwr".equals(outputMod)){
-                                        powerValue2=0.5f*ratedPower;
-                                        powerValue= (int) powerValue2;
-                                        float currentValue4=powerValue/voltageValue2;
-                                        decimal=new BigDecimal(currentValue4);
-                                        decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
-                                        ss=decimalScale+"";
-                                    }else if ("saveTemp".equals(outputMod)){
-                                        powerValue=0;
-                                        ss=0.00+"";
+                                    if ("vlinks".startsWith(macAddress)){
+                                        powerValue2=voltageValue2*currentValue3;
+                                        powerValue=(int)powerValue2;
+                                    }else {
+                                        if (ratedPower!=0){
+                                            if (((1.0*powerValue)/ratedPower>=0.25) && "fastHeat".equals(outputMod)){
+                                                powerValue2= 1.05f*ratedPower;
+                                                powerValue= (int) powerValue2;
+                                                if (voltageValue2!=0){
+                                                    float currentValue4=powerValue/voltageValue2;
+                                                    decimal=new BigDecimal(currentValue4);
+                                                    decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+                                                    ss=decimalScale+"";
+                                                }else {
+                                                    ss="0.00";
+                                                }
+                                            }else if((powerValue/ratedPower<=0.45 || powerValue/ratedPower>=0.55) && "savePwr".equals(outputMod)){
+                                                powerValue2=0.5f*ratedPower;
+                                                powerValue= (int) powerValue2;
+                                                if (voltageValue2!=0){
+                                                    float currentValue4=powerValue/voltageValue2;
+                                                    decimal=new BigDecimal(currentValue4);
+                                                    decimalScale=decimal.setScale(2,BigDecimal.ROUND_HALF_UP);
+                                                    ss=decimalScale+"";
+                                                }else {
+                                                    ss="0.00";
+                                                }
+                                            }else if ("saveTemp".equals(outputMod)){
+                                                powerValue=0;
+                                                ss=0.00+"";
+                                            }
+                                        }else {
+                                            powerValue=0;
+                                            voltageValue=0;
+                                            ss="0.00";
+                                        }
                                     }
-
                                     String s="功率:"+powerValue+"W"+" 电压:"+voltageValue+"V"+" 电流:"+ss+"A";
                                     tv_voltage.setText(s);
                                     String s2="额定功率:"+ratedPower+"W";

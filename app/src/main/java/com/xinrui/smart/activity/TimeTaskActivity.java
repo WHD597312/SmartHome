@@ -240,7 +240,7 @@ public class TimeTaskActivity extends AppCompatActivity {
 //                temperature = newVal;
 //            }
 //        });
-        for (int i=0;i<=23;i++){
+        for (int i=0;i<=24;i++){
             hours.add(""+i);
         }
         timePicker.setItems(hours);
@@ -295,6 +295,7 @@ public class TimeTaskActivity extends AppCompatActivity {
         int week3 = ChineseNumber.chineseNumber2Int(mWeek);
         seekbar.setWeek(week3);
         seekbar.setDeviceId(deviceId + "");
+        seekbar.invalidate();
 
         /**初始化时间适配器*/
         list = timeTaskDao.findWeekAll(deviceId, week3);/**查询某个设备，一周某一天的定时数据*/
@@ -723,14 +724,14 @@ public class TimeTaskActivity extends AppCompatActivity {
                     openTime = openTime.substring(0, openTime.indexOf(":"));
                     int startTime=Integer.parseInt(openTime);
                     if (startTime > hour) {
-                        if (hour == 0) {
-                            close_time.setText(24 + ":00");
-                        } else {
+//                        if (hour == 0) {
+//                            close_time.setText(24 + ":00");
+//                        } else {
                             Utils.showToast(this, "结束时间要大于开始时间");
                             int time=Integer.parseInt(openTime)+1;
                             close_time.setText(time + ":00");
                             break;
-                        }
+//                        }
                     }else  if (startTime==hour){
                         Utils.showToast(this, "结束时间不能等于开始时间");
                         int time=Integer.parseInt(openTime)+1;

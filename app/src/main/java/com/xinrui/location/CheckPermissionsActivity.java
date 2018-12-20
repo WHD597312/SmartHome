@@ -149,6 +149,16 @@ public class CheckPermissionsActivity extends AppCompatActivity {
 	 *
 	 */
 	AlertDialog dialog=null;
+	private String message;
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
 	private void showMissingPermissionDialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("提示");

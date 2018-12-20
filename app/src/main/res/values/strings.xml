@@ -98,4 +98,6 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="location">请打开定位权限</string>
+    <string name="camer">请打开相机权限</string>
 </resources>

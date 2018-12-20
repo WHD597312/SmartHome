@@ -62,6 +62,7 @@ import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.util.mqtt.VibratorUtil;
 import com.xinrui.smart.view_custom.DeviceChildProjectDialog;
+import com.xinrui.smart.view_custom.MySeekBar2;
 import com.xinrui.smart.view_custom.RestoreSetDialog;
 import com.xinrui.smart.view_custom.SemicircleBar;
 
@@ -115,6 +116,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     SemicircleBar semicBar;
     @BindView(R.id.tv_set_temp)
     TextView tv_set_temp;
+    @BindView(R.id.tv_cur_protect_temp) TextView tv_cur_protect_temp;/**保护当前温度*/
+    @BindView(R.id.tv_cur_protect) TextView tv_cur_protect;
     /**
      * 设定温度
      */
@@ -580,25 +583,24 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 setResult(6000, intent2);
                 finish();
             }
-            try {
-                if (mqService != null) {
-                    String mac = deviceChild.getMacAddress();
-                    String topic = "rango/" + mac + "/set";
-                    JSONObject jsonObject2 = new JSONObject();
-                    jsonObject2.put("loadDate", "1");
-                    String s2 = jsonObject2.toString();
-                    boolean success2 = false;
-                    success2 = mqService.publish(topic, 1, s2);
-                    if (!success2) {
-                        mqService.publish(topic, 1, s2);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//            try {
+////                if (mqService != null) {
+////                    String mac = deviceChild.getMacAddress();
+////                    String topic = "rango/" + mac + "/set";
+////                    JSONObject jsonObject2 = new JSONObject();
+////                    jsonObject2.put("loadDate", "1");
+////                    String s2 = jsonObject2.toString();
+////                    boolean success2 = false;
+////                    success2 = mqService.publish(topic, 1, s2);
+////                    if (!success2) {
+////                        mqService.publish(topic, 1, s2);
+////                    }
+////                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
             houseId = deviceChild.getHouseId();
             tv_name.setText(deviceChild.getDeviceName());
-
             WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
             int width = wm.getDefaultDisplay().getWidth() - 200;
             Log.w("width", "width" + width);
@@ -737,7 +739,6 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                                 animationDrawable.start();
                                             }
                                         }
-
                                     }
                                 }
 
@@ -747,91 +748,91 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                 tv_cur_temp.setText(curTemp + "℃");
 
                             }
-                        } else if ("2".equals(module)) {
-                            if ("close".equals(deviceState)) {
-
-                                tv_set_temp.setText("--" + "℃");
-                                int curTemp = deviceChild.getProtectProTemp();
-                                tv_cur_temp.setText(curTemp + "℃");
-                                tv_outmode.setText("关机状态!");
-                                animationDrawable.stop();
-                            } else if ("open".equals(deviceState)) {
-                                if ("enable".equals(deviceChild.getTimerShutdown()) && "timer".equals(deviceChild.getWorkMode())) {
-                                    tv_outmode.setText("定时关加热");
-                                    animationDrawable.stop();
-                                } else {
-                                    tv_outmode.setText("保护模式");
-                                    animationDrawable.start();
-                                }
-                                if (curAngle > 272 && curAngle <= 330) {
-                                    outside = true;
-                                    if (outside) {
-                                        mCurrent = 60;
-                                        deviceChild.setProtectSetTemp(mCurrent);
-                                        deviceChildDao.update(deviceChild);
-                                        tv_set_temp.setText(mCurrent + "℃");
-                                        int curTemp = deviceChild.getProtectProTemp();
-                                        tv_cur_temp.setText(curTemp + "℃");
-                                        outside = false;
-                                    }
-                                } else if ((curAngle > 330 && curAngle <= 360)) {
-                                    outside = true;
-                                    if (outside) {
-                                        mCurrent = 48;
-
-                                        deviceChild.setProtectSetTemp(mCurrent);
-                                        deviceChildDao.update(deviceChild);
-                                        tv_set_temp.setText(mCurrent + "℃");
-                                        int curTemp = deviceChild.getProtectProTemp();
-                                        tv_cur_temp.setText(curTemp + "℃");
-                                        outside = false;
-                                    }
-
-                                } else {
-                                    if (curAngle >= 0 && curAngle <= 10) {
-                                        mCurrent = 48;
-                                    } else if (curAngle > 10 && curAngle <= 35) {
-                                        mCurrent = 49;
-                                    } else if (curAngle > 35 && curAngle <= 60) {
-                                        mCurrent = 50;
-                                    } else if (curAngle > 60 && curAngle <= 80) {
-                                        mCurrent = 51;
-                                    } else if (curAngle > 80 && curAngle <= 90) {
-                                        mCurrent = 52;
-                                    } else if (curAngle > 90 && curAngle <= 112) {
-                                        mCurrent = 53;
-                                    } else if (curAngle > 112 && curAngle <= 128) {
-                                        mCurrent = 54;
-                                    } else if (curAngle > 128 && curAngle <= 160) {
-                                        mCurrent = 55;
-                                    } else if (curAngle > 160 && curAngle <= 176) {
-                                        mCurrent = 56;
-                                    } else if (curAngle > 176 && curAngle <= 208) {
-                                        mCurrent = 57;
-                                    } else if (curAngle > 208 && curAngle <= 224) {
-                                        mCurrent = 58;
-                                    } else if (curAngle > 224 && curAngle <= 240) {
-                                        mCurrent = 59;
-                                    } else if (curAngle > 240 && curAngle <= 300) {
-                                        mCurrent = 60;
-                                    }
-
-                                    deviceChild.setProtectSetTemp(mCurrent);
-                                    deviceChildDao.update(deviceChild);
-                                    tv_set_temp.setText(deviceChild.getProtectSetTemp() + "℃");
-                                    int curTemp = deviceChild.getProtectProTemp();
-                                    tv_cur_temp.setText(curTemp + "℃");
-
-                                    if (seekbar.getEnd() == 1) {
-
-                                        send(deviceChild);
-                                        seekbar.setEnd(0);
-                                        Message msg = handler.obtainMessage();
-                                        msg.arg1 = 7;
-                                        handler.sendMessage(msg);
-                                    }
-                                }
-                            }
+//                        } else if ("2".equals(module)) {
+//                            if ("close".equals(deviceState)) {
+//
+//                                tv_set_temp.setText("--" + "℃");
+//                                int curTemp = deviceChild.getProtectProTemp();
+//                                tv_cur_temp.setText(curTemp + "℃");
+//                                tv_outmode.setText("关机状态!");
+//                                animationDrawable.stop();
+//                            } else if ("open".equals(deviceState)) {
+//                                if ("enable".equals(deviceChild.getTimerShutdown()) && "timer".equals(deviceChild.getWorkMode())) {
+//                                    tv_outmode.setText("定时关加热");
+//                                    animationDrawable.stop();
+//                                } else {
+//                                    tv_outmode.setText("保护模式");
+//                                    animationDrawable.start();
+//                                }
+//                                if (curAngle > 272 && curAngle <= 330) {
+//                                    outside = true;
+//                                    if (outside) {
+//                                        mCurrent = 60;
+//                                        deviceChild.setProtectSetTemp(mCurrent);
+//                                        deviceChildDao.update(deviceChild);
+//                                        tv_set_temp.setText(mCurrent + "℃");
+//                                        int curTemp = deviceChild.getProtectProTemp();
+//                                        tv_cur_temp.setText(curTemp + "℃");
+//                                        outside = false;
+//                                    }
+//                                } else if ((curAngle > 330 && curAngle <= 360)) {
+//                                    outside = true;
+//                                    if (outside) {
+//                                        mCurrent = 48;
+//
+//                                        deviceChild.setProtectSetTemp(mCurrent);
+//                                        deviceChildDao.update(deviceChild);
+//                                        tv_set_temp.setText(mCurrent + "℃");
+//                                        int curTemp = deviceChild.getProtectProTemp();
+//                                        tv_cur_temp.setText(curTemp + "℃");
+//                                        outside = false;
+//                                    }
+//
+//                                } else {
+//                                    if (curAngle >= 0 && curAngle <= 10) {
+//                                        mCurrent = 48;
+//                                    } else if (curAngle > 10 && curAngle <= 35) {
+//                                        mCurrent = 49;
+//                                    } else if (curAngle > 35 && curAngle <= 60) {
+//                                        mCurrent = 50;
+//                                    } else if (curAngle > 60 && curAngle <= 80) {
+//                                        mCurrent = 51;
+//                                    } else if (curAngle > 80 && curAngle <= 90) {
+//                                        mCurrent = 52;
+//                                    } else if (curAngle > 90 && curAngle <= 112) {
+//                                        mCurrent = 53;
+//                                    } else if (curAngle > 112 && curAngle <= 128) {
+//                                        mCurrent = 54;
+//                                    } else if (curAngle > 128 && curAngle <= 160) {
+//                                        mCurrent = 55;
+//                                    } else if (curAngle > 160 && curAngle <= 176) {
+//                                        mCurrent = 56;
+//                                    } else if (curAngle > 176 && curAngle <= 208) {
+//                                        mCurrent = 57;
+//                                    } else if (curAngle > 208 && curAngle <= 224) {
+//                                        mCurrent = 58;
+//                                    } else if (curAngle > 224 && curAngle <= 240) {
+//                                        mCurrent = 59;
+//                                    } else if (curAngle > 240 && curAngle <= 300) {
+//                                        mCurrent = 60;
+//                                    }
+//
+//                                    deviceChild.setProtectSetTemp(mCurrent);
+//                                    deviceChildDao.update(deviceChild);
+//                                    tv_set_temp.setText(deviceChild.getProtectSetTemp() + "℃");
+//                                    int curTemp = deviceChild.getProtectProTemp();
+//                                    tv_cur_temp.setText(curTemp + "℃");
+//
+//                                    if (seekbar.getEnd() == 1) {
+//
+//                                        send(deviceChild);
+//                                        seekbar.setEnd(0);
+//                                        Message msg = handler.obtainMessage();
+//                                        msg.arg1 = 7;
+//                                        handler.sendMessage(msg);
+//                                    }
+//                                }
+//                            }
                         }
 
                     } catch (Exception e) {
@@ -840,7 +841,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 }
             });
             list = new ArrayList<>();
-            String[] titles = {"分享设备", "亮度调节", "定时任务", "设备状态", "常见问题", "恢复设置"};
+            String[] titles = {"分享设备", "亮度调节", "定时任务", "设备状态", "外壳温度", "恢复设置"};
             for (int i = 0; i < titles.length; i++) {
                 list.add(titles[i]);
             }
@@ -1020,6 +1021,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                         semicBar.setOutput(output);
                         semicBar.setOnline(online);
                         break;
+                    case 8:
+                        int temp=msg.what;
+                        int progess=temp-48;
+                        mySeekBar2.setProgress(progess);
+                        break;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1099,48 +1105,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         img_circle.setImageResource(R.drawable.lottery_animlist);
         AnimationDrawable animationDrawable = (AnimationDrawable) img_circle.getDrawable();
 
-        if ("childProtect".equals(outputMode) && "enable".equals(protectEnable)) {
-            if ("manual".equals(workMode)) {
-                image_hand_task.setImageResource(R.mipmap.module_handle);
-                image_hand_task.setTag("手动");
-//
-            } else if ("timer".equals(workMode)) {
-                image_hand_task.setImageResource(R.mipmap.module_task);
-                image_hand_task.setTag("定时");
-            }
-            model_protect.setEnabled(true);
-            if ("open".equals(deviceState)) {
-                semicBar.setCanTouch(true);
-                animationDrawable.start();
-            } else {
-                semicBar.setCanTouch(false);
-                animationDrawable.stop();
-            }
-            model_protect.setTag("保护");
-            model_protect.setBackgroundResource(R.mipmap.img_child_pro);
-
-            image_temp.setImageResource(R.mipmap.img_child_pro);
-
-            tv_outmode.setText("保护模式");
-            tv_set_temp.setText(protectSetTemp + "℃");
-//            tv_cur_temp.setText(protectProTemp + "℃");
-            Message msg = handler.obtainMessage();
-            msg.arg1 = 6;
-            msg.what = protectSetTemp;
-//            handler.sendMessageDelayed(msg,1000);
-            handler.sendMessage(msg);
-            semicBar.setModule("2");
-        }
-        if ("disable".equals(protectEnable)) {
-            semicBar.setCanTouch(false);
-            model_protect.setTag("不保护");
-            model_protect.setBackgroundResource(0);
-//            model_protect.setEnabled(false);
-        }
-
-        /**开机，关机状态*/
-        if ("open".equals(deviceState)) {
-            animationDrawable.start();
+        if ("open".equals(deviceState)){
             tv_outmode.setVisibility(View.VISIBLE);
             image_switch.setTag("开");
             image_switch.setImageResource(R.mipmap.img_switch);
@@ -1153,65 +1118,80 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 }
                 image_srceen.setImageResource(R.mipmap.img_screen);
             }
-
             if ("open".equals(LockScreen)) {
                 image_lock.setImageResource(R.mipmap.open_lockscreen);
             } else if ("close".equals(LockScreen)) {
                 image_lock.setImageResource(R.mipmap.close_lockscreen);
             }
-        } else if ("close".equals(deviceState)) {
+            if ("childProtect".equals(outputMode) && "enable".equals(protectEnable)) {
+                semicBar.setCanTouch(false);
+                model_protect.setTag("保护");
+                model_protect.setBackgroundResource(R.mipmap.img_child_pro);
+                image_temp.setImageResource(R.mipmap.img_child_pro);
+                tv_outmode.setText("保护模式");
+                tv_cur_protect.setVisibility(View.VISIBLE);
+                tv_cur_protect_temp.setVisibility(View.VISIBLE);
+                tv_cur_protect_temp.setText(protectProTemp + "℃");
+            }
+            if (!"childProtect".equals(outputMode)) {
+                semicBar.setCanTouch(false);
+                model_protect.setBackgroundResource(0);
+                tv_cur_protect.setVisibility(View.GONE);
+                tv_cur_protect_temp.setVisibility(View.GONE);
+                if (popupWindow2!=null && popupWindow2.isShowing()){
+                    popupWindow2.dismiss();
+                }
+
+            }
+            if ("disable".equals(protectEnable)) {
+                semicBar.setCanTouch(false);
+                model_protect.setTag("不保护");
+                model_protect.setBackgroundResource(0);
+                if (popupWindow2!=null && popupWindow2.isShowing()){
+                    popupWindow2.dismiss();
+                }
+            }
+        }else if ("close".equals(deviceState)) {
             if (popupWindow != null && popupWindow.isShowing()) {
                 popupWindow.dismiss();
                 backgroundAlpha(1.0f);
             }
+            if (popupWindow2!=null && popupWindow2.isShowing()){
+                popupWindow2.dismiss();
+                backgroundAlpha(1.0f);
+            }
             animationDrawable.stop();
             image_switch.setTag("关");
-
             image_switch.setImageResource(R.mipmap.img_close);
             semicBar.setCanTouch(false);
             relative4.setVisibility(View.GONE);
             tv_outmode.setText("关机状态!");
+            tv_set_temp.setText("--" + "℃");
         }
-        if (!"childProtect".equals(outputMode)) {
-            model_protect.setBackgroundResource(0);
-            if ("manual".equals(workMode)) {
-                if ("open".equals(deviceState)) {
-                    semicBar.setCanTouch(true);
-                } else {
-                    semicBar.setCanTouch(false);
-                }
-                image_hand_task.setImageResource(R.mipmap.module_handle);
-                image_hand_task.setTag("手动");
-
-                image_temp.setImageResource(R.mipmap.module_handle);
-//                tv_set_temp.setText(manualMatTemp + "℃");
-                tv_cur_temp.setText(curTemp + "℃");
-
-                semicBar.setModule("1");
-                Message msg = handler.obtainMessage();
-                msg.arg1 = 6;
-                msg.what = manualMatTemp;
-                handler.sendMessage(msg);
-//                handler.sendMessageDelayed(msg,1000);
-
-
-            } else if ("timer".equals(workMode)) {
-                image_hand_task.setImageResource(R.mipmap.module_task);
-
-                image_hand_task.setTag("定时");
-                semicBar.setCanTouch(false);
-                image_temp.setImageResource(R.mipmap.module_task);
-                tv_cur_temp.setText(curTemp + "℃");
-                semicBar.setModule("1");
-                Message msg = handler.obtainMessage();
-                msg.arg1 = 6;
-                msg.what = timerTemp;
-                handler.sendMessage(msg);
-//                handler.sendMessageDelayed(msg,1000);
-            }
+        if ("manual".equals(workMode)) {
+            if ("open".equals(deviceState))
+                semicBar.setCanTouch(true);
+            image_hand_task.setImageResource(R.mipmap.module_handle);
+            image_hand_task.setTag("手动");
+            image_temp.setImageResource(R.mipmap.module_handle);
+            tv_cur_temp.setText(curTemp + "℃");
+            semicBar.setModule("1");
+            Message msg = handler.obtainMessage();
+            msg.arg1 = 6;
+            msg.what = manualMatTemp;
+            handler.sendMessage(msg);
+        } else if ("timer".equals(workMode)) {
+            image_hand_task.setImageResource(R.mipmap.module_task);
+            image_hand_task.setTag("定时");
+            semicBar.setCanTouch(false);
+            image_temp.setImageResource(R.mipmap.module_task);
+            tv_cur_temp.setText(curTemp + "℃");
+            semicBar.setModule("1");
+            Message msg = handler.obtainMessage();
+            msg.arg1 = 6;
+            msg.what = timerTemp;
+            handler.sendMessage(msg);
         }
-
-
         if ("err".equals(tempState)) {
             tv_cur_temp.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
         }
@@ -1230,15 +1210,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 image_temp.setImageResource(R.mipmap.img_child_pro);
                 tv_set_temp.setText(protectSetTemp + "℃");
                 tv_cur_temp.setText(protectProTemp + "℃");
-                semicBar.setModule("2");
-                Message msg = handler.obtainMessage();
-                msg.arg1 = 6;
-                msg.what = protectSetTemp;
-                handler.sendMessage(msg);
                 if ("enable".equals(deviceChild.getTimerShutdown()) && "timer".equals(deviceChild.getWorkMode())) {
-//                                    tv_timeShutDown.setVisibility(View.VISIBLE);
-//                                    tv_outmode.setVisibility(View.GONE);
-//                    tv_outmode.setText("定时关加热");
                     animationDrawable.stop();
                 }
             }
@@ -1329,6 +1301,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 break;
             case 1:
                 if (deviceChild != null) {
+                    index=1;
                     boolean online = deviceChild.getOnLint();
                     if (online) {
                         String deviceState = deviceChild.getDeviceState();
@@ -1358,9 +1331,26 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                 startActivity(intent3);
                 break;
             case 4:
-                Intent intent4 = new Intent(this, ComProblemActivity.class);
-                intent4.putExtra("deviceId", childPosition);
-                startActivity(intent4);
+                if (deviceChild != null) {
+                    index=4;
+                    boolean online = deviceChild.getOnLint();
+                    if (online) {
+                        String deviceState = deviceChild.getDeviceState();
+                        String BackGroundLED = deviceChild.getOutputMod();
+                        if ("open".equals(deviceState)) {
+                            if ("childProtect".equals(BackGroundLED)) {
+                                popupWindow2();
+                            } else {
+                                Utils.showToast(DeviceListActivity.this, "请打开儿童保护");
+                            }
+                        } else {
+                            Utils.showToast(DeviceListActivity.this, "设备已关机");
+                        }
+                    }
+                }
+//                Intent intent4 = new Intent(this, ComProblemActivity.class);
+//                intent4.putExtra("deviceId", childPosition);
+//                startActivity(intent4);
                 break;
             case 5:
                 buildRestoreDialog();
@@ -1388,6 +1378,10 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             e.printStackTrace();
         }
     }
+
+    int progress;
+    private boolean onClick=false;
+
 
     class CountTimer extends CountDownTimer {
         public CountTimer(long millisInFuture, long countDownInterval) {
@@ -1650,6 +1644,11 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                 if (dialog2 != null && dialog2.isShowing()) {
                                     dialog2.dismiss();
                                 }
+                                if (popupWindow2 != null && popupWindow2.isShowing()) {
+                                    popupWindow2.dismiss();
+                                    enableClick();
+                                    backgroundAlpha(1.0f);
+                                }
                                 linearout.setVisibility(View.GONE);
                                 tv_offline.setVisibility(View.VISIBLE);
                                 tv_offline.setText("设备已倾倒");
@@ -1667,13 +1666,20 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
                                         if (deviceChild != null) {
                                             grade = deviceChild.getGrade();
                                         }
-                                        if (grade == 1) {
-                                            mySeekBar.setProgress(0);
-                                        } else {
-                                            mySeekBar.setProgress((int) 12.5 * grade);
-                                        }
+                                        mySeekBar.setProgress(grade);
                                     } else {
                                         popupWindow.dismiss();
+                                    }
+                                }
+                                String outputMode=deviceChild.getOutputMod();
+                                if (popupWindow2 != null && popupWindow2.isShowing()) {
+                                    if ("childProtect".equals(outputMode)) {
+                                        childProtectTemp=deviceChild.getProtectSetTemp();
+                                        int progress=childProtectTemp-48;
+                                        Log.i("DevlceListProgress","-->"+progress);
+                                        mySeekBar2.setProgress(progress);
+                                    } else {
+                                        popupWindow2.dismiss();
                                     }
                                 }
                                 setMode(deviceChild);
@@ -1738,6 +1744,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     TextView tv_clock;
     MySeekBar mySeekBar;
 
+
     //底部popupWindow
     public void popupWindow() {
         if (popupWindow != null && popupWindow.isShowing()) {
@@ -1749,11 +1756,8 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         if (deviceChild != null) {
             grade = deviceChild.getGrade();
         }
-        if (grade == 1) {
-            mySeekBar.setProgress(0);
-        } else {
-            mySeekBar.setProgress((int) 12.5 * grade);
-        }
+
+        mySeekBar.setProgress(grade);
 
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
@@ -1778,6 +1782,133 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
         });
     }
 
+    PopupWindow popupWindow2;
+    int childProtectTemp;
+    MySeekBar2 mySeekBar2 ;
+    Thread threadDecrease;
+    Thread threadAdd;
+    //底部popupWindow
+    public void popupWindow2() {
+        if (popupWindow2 != null && popupWindow2.isShowing()) {
+            return;
+        }
+        View view = View.inflate(this, R.layout.popup_protect, null);
+        mySeekBar2  = (MySeekBar2 ) view.findViewById(R.id.mySeekBarPro);
+        final ImageView temp_decrease= (ImageView) view.findViewById(R.id.temp_decrease);
+        temp_decrease.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    onClick = true;
+                    Log.i("MotionEvent Decrease","-->:DOWN");
+                    threadDecrease=new Thread() {
+                        @Override
+                        public void run() {
+                            while (onClick && threadDecrease!=null) {
+                                try {
+                                    if (childProtectTemp>48){
+                                        childProtectTemp--;
+                                    }else if (childProtectTemp<=48){
+                                        childProtectTemp=48;
+                                    }
+                                    Thread.sleep(200);
+                                    Message msg=handler.obtainMessage();
+                                    msg.arg1=8;
+                                    msg.what=childProtectTemp;
+                                    handler.sendMessage(msg);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    };
+                    threadDecrease.start();
+                } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction()==MotionEvent.ACTION_CANCEL) {
+                    Log.i("MotionEvent Decrease","-->:UP");
+                    onClick = false;
+                    deviceChild.setProtectSetTemp(childProtectTemp);
+                    send(deviceChild);
+                    threadDecrease=null;
+                }
+                return true;
+            }
+        });
+        ImageView temp_add= (ImageView) view.findViewById(R.id.temp_add);
+        temp_add.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.i("event","-->:"+event.getAction());
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    Log.i("MotionEvent ADD","-->:DOWN");
+                    onClick = true;
+                    threadAdd =new Thread() {
+                        @Override
+                        public void run() {
+                            while (onClick && threadAdd!=null) {
+                                try {
+                                    if (childProtectTemp>=48 && childProtectTemp<60){
+                                        childProtectTemp++;
+                                    }else if (childProtectTemp>=60){
+                                        childProtectTemp=60;
+                                    }
+                                    Thread.sleep(200);
+                                    Message msg=handler.obtainMessage();
+                                    msg.arg1=8;
+                                    msg.what=childProtectTemp;
+                                    handler.sendMessage(msg);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    };
+                    if (threadAdd!=null){
+                        threadAdd.start();
+                    }
+
+                } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction()==MotionEvent.ACTION_CANCEL) {
+                    Log.i("MotionEvent ADD","-->:UP");
+                    onClick = false;
+                    deviceChild.setProtectSetTemp(childProtectTemp);
+                    send(deviceChild);
+                    threadAdd=null;
+                }
+                return true;
+            }
+        });
+        mySeekBar2 .setOnSeekBarChangeListener(this);
+        if (deviceChild != null) {
+            childProtectTemp = deviceChild.getProtectSetTemp();
+        }
+        Log.i("childProtectTemp","-->"+childProtectTemp);
+        int progress= childProtectTemp-48;
+        Log.i("DevlceListProgress","-->"+progress);
+        mySeekBar2 .setProgress(progress);
+
+
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        popupWindow2 = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        //点击空白处时，隐藏掉pop窗口
+        popupWindow2.setFocusable(true);
+        popupWindow2.setOutsideTouchable(true);
+
+//        disableClick();
+        //添加弹出、弹入的动画
+//        gradView.setVisibility(View.GONE);
+        popupWindow2.setAnimationStyle(R.style.Popupwindow);
+        backgroundAlpha(0.4f);
+//        ColorDrawable dw = new ColorDrawable(0x30000000);
+//        popupWindow.setBackgroundDrawable(dw);
+        popupWindow2.showAsDropDown(linearout, 0, 20);
+        popupWindow2.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                backgroundAlpha(1.0f);
+            }
+        });
+    }
+
 
     private void disableClick() {
 //        semicBar.setCanTouch(false);
@@ -1792,31 +1923,18 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     }
 
     int grade = 0;
-
+    int index=-1;
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         Log.i("progress", "-->" + progress);
         float progress1 = progress;
-        float progress2 = progress1 / 100;
-        if (progress2 >= 0 && progress2 < 0.125) {
-            grade = 1;
-        } else if (progress2 >= 0.125 && progress2 < 0.25) {
-            grade = 2;
-        } else if (progress2 >= 0.25 && progress2 < 0.375) {
-            grade = 3;
-        } else if (progress2 >= 0.375 && progress2 < 0.5) {
-            grade = 4;
-        } else if (progress2 >= 0.5 && progress2 < 0.625) {
-            grade = 5;
-        } else if (progress2 >= 0.625 && progress2 < 0.75) {
-            grade = 6;
-        } else if (progress2 >= 0.75 && progress2 < 0.875) {
-            grade = 7;
-        } else if (progress2 >= 0.875 && progress2 < 1) {
-            grade = 8;
+        if (index==1){
+            grade=progress;
+            deviceChild.setGrade(grade);
+        }else if (index==4){
+            childProtectTemp=48+progress;
+            deviceChild.setProtectSetTemp(childProtectTemp);
         }
-        deviceChild.setGrade(grade);
-        Log.i("progress", "-->" + progress2);
     }
 
     @Override
@@ -1828,6 +1946,7 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
     public void onStopTrackingTouch(SeekBar seekBar) {
         Log.i("progress", "-->:onStopTrackingTouch");
         Log.i("gradesssss", "-->" + grade);
+        Log.i("childProtectProgress","-->"+childProtectTemp);
         send(deviceChild);
     }
 

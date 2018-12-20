@@ -9,7 +9,7 @@ repositories {
 }
 
 greendao {
-    schemaVersion 55
+    schemaVersion 57
     daoPackage 'com.xinrui.database.dao'
     targetGenDir 'src/main/java'
 }
@@ -80,4 +80,7 @@ dependencies {
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.2'
     implementation 'com.android.support:percent:24.2.0'
     implementation 'com.weigan:loopView:0.1.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.1.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
+    implementation 'pub.devrel:easypermissions:1.0.1'
 }

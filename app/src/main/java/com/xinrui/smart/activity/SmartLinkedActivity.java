@@ -300,7 +300,7 @@ public class SmartLinkedActivity extends AppCompatActivity {
         protected Integer doInBackground(Map<String, Object>... maps) {
             int code=0;
             Map<String,Object> params=maps[0];
-            String result=HttpUtils.postOkHpptRequest(chooseDevicesIp, params);
+            String result=HttpUtils.requestPost(chooseDevicesIp, params);
             if (!TextUtils.isEmpty(result)){
                 try {
                     JSONObject jsonObject=new JSONObject(result);
@@ -352,7 +352,7 @@ public class SmartLinkedActivity extends AppCompatActivity {
             int code = 0;
             List<DeviceChild> list2=new ArrayList<>();
             String url = "http://47.98.131.11:8082/warmer/v1.0/device/getDeviceLinked?sensorsId=" + sensorId + "&houseId=" + houseId;
-            String result = HttpUtils.getOkHpptRequest(url);
+            String result = HttpUtils.requestGet(url);
             if (!TextUtils.isEmpty(result)) {
                 Log.i("result", "-->" + result);
                 try {

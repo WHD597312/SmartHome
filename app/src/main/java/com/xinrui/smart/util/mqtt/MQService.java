@@ -17,6 +17,15 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.widget.TextClock;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -259,6 +268,8 @@ public class MQService extends Service {
 
     int[] imgs = {R.mipmap.image_unswitch, R.mipmap.image_switch, R.mipmap.image_switch2};
 
+    NotificationManager mNotificationManager;
+    String preMacAddress;
     class LoadAsyncTask extends AsyncTask<String, Void, Object> {
         @Override
         protected Object doInBackground(String... strings) {
@@ -505,6 +516,9 @@ public class MQService extends Service {
                         }
                         child = null;/**将该设备重置为null*/
                     } else if (topicName.equals("rango/" + macAddress + "/transfer") && Utils.isEmpty(reSet) && Utils.isEmpty(refresh)) {
+                        if ("rango/TP-LINK_xuxiao84f3eb7825b1/transfer".equals(topicName)){
+                            int a=0;
+                        }
                         if (!Utils.isEmpty(message) && message.startsWith("{") && message.endsWith("}")) {
                             device = new JSONObject(message);
                             if (device.has("wifiVersion")) {
@@ -756,13 +770,27 @@ public class MQService extends Service {
                                                 .setAutoCancel(true);
                                         builder.setContentIntent(notifyPendingIntent);
 
-                                        NotificationManager mNotificationManager =
+                                        mNotificationManager =
                                                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                                         mNotificationManager.notify(0, builder.build());
+
+                                        preMacAddress=macAddress;
+                                        Message msg=handler.obtainMessage();
+                                        msg.what=7;
+                                        String deviceName=child.getDeviceName();
+                                        msg.obj=deviceName;
+                                        handler.sendMessage(msg);
 
 //                                        VibratorUtil.Vibrate(MQService.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
                                     } else {
 //                                        VibratorUtil.StopVibrate(MQService.this);
+                                        if (!TextUtils.isEmpty(preMacAddress) && macAddress.equals(preMacAddress) && mNotificationManager!=null){
+                                            mNotificationManager.cancel(0);
+                                            Message msg=handler.obtainMessage();
+                                            msg.what=8;
+                                            msg.obj=macAddress;
+                                            handler.sendMessage(msg);
+                                        }
                                         MainActivity.falling = false;
                                         falling = 0;
                                         child.setMachineFall("nor");
@@ -1098,6 +1126,36 @@ public class MQService extends Service {
                     String deviceName = (String) msg.obj;
                     Utils.showToast(MQService.this, deviceName + "设备正在升级，屏幕将黑屏并停止被操作，请等待5分钟，切勿关闭电源!");
                     break;
+                case 7:
+                    String s= (String) msg.obj;
+                    VibratorUtil.Vibrate(MQService.this, new long[]{1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000},false);   //震动10s
+                    View layoutView =  LayoutInflater.from(getApplicationContext()).inflate(R.layout.top_toast, null);
+                    //设置文本的参数 设置加载文本文件的参数，必须通过LayoutView获取。
+                    TextClock tv_clock= (TextClock) layoutView.findViewById(R.id.tv_clock);
+                    TextView tv_device = (TextView) layoutView.findViewById(R.id.tv_device);
+                    tv_clock.setFormat24Hour("H:mm");
+                    String name= (String) msg.obj;
+                    tv_device.setText(name+"设备已倾倒");
+                    WindowManager wm = (WindowManager) MQService.this.getSystemService(Context.WINDOW_SERVICE);
+                    //获得屏幕的宽度
+                    int width = wm.getDefaultDisplay().getWidth();
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(width, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    //设置TextView的宽度为 屏幕宽度
+                    layoutParams.topMargin=150;
+                    layoutView.setLayoutParams(layoutParams);
+                    //获得屏幕的宽度
+                    //创建toast对象，
+                    Toast toast = new Toast(MQService.this);
+                    //把要Toast的布局文件放到toast的对象中
+                    toast.setView(layoutView);
+                    toast.setDuration(toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.TOP, 0, 0);
+                    toast.getView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);//设置Toast可以布局到系统状态栏的下面
+                    toast.show();
+                    break;
+                case 8:
+                    VibratorUtil.StopVibrate(MQService.this);
+                    break;
             }
         }
     };
@@ -1246,7 +1304,7 @@ public class MQService extends Service {
                         + "&houseId=" + URLEncoder.encode(deviceChild.getHouseId() + "", "UTF-8");
 //                String updateDeviceNameUrl="http://192.168.168.3:8082/warmer/v1.0/device/deleteDevice?deviceId=6&userId=1&houseId=1000";
 //                String updateDeviceNameUrl="http://192.168.168.10:8082/warmer/v1.0/device/deleteDevice?deviceId=1004&userId=1&&houseId=1001";
-                String result = HttpUtils.getOkHpptRequest(updateDeviceNameUrl);
+                String result = HttpUtils.requestGet(updateDeviceNameUrl);
                 JSONObject jsonObject = new JSONObject(result);
                 code = jsonObject.getInt("code");
                 if (code == 2000) {
@@ -1311,7 +1369,7 @@ public class MQService extends Service {
         protected Integer doInBackground(String... strings) {
             int code = 0;
             String url = strings[0];
-            String result = HttpUtils.getOkHpptRequest(url);
+            String result = HttpUtils.requestGet(url);
             try {
                 if (!Utils.isEmpty(result)) {
                     JSONObject jsonObject = new JSONObject(result);
@@ -1461,9 +1519,9 @@ public class MQService extends Service {
                 String url = strings[0];
                 String macAddress = strings[1];
                 Log.i("macAddress", "-->" + macAddress);
-                String result = HttpUtils.getOkHpptRequest(url);
+                String result = HttpUtils.requestGet(url);
                 if (TextUtils.isEmpty(result)) {
-                    HttpUtils.getOkHpptRequest(url);
+                    HttpUtils.requestGet(url);
                 } else {
                     JSONObject jsonObject = new JSONObject(result);
                     int code = jsonObject.getInt("code");
@@ -1568,6 +1626,10 @@ public class MQService extends Service {
         }catch (Exception e){
             e.printStackTrace();
         }
-
+    }
+    public void cancelNotition(){
+        if (mNotificationManager!=null){
+            mNotificationManager.cancel(0);
+        }
     }
 }

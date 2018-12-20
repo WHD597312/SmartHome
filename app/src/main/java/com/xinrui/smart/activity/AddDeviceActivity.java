@@ -1,6 +1,7 @@
 package com.xinrui.smart.activity;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -23,6 +24,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -112,8 +114,11 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
 
-public class AddDeviceActivity extends CheckPermissionsActivity {
+public class AddDeviceActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = null;
     MyApplication application;
@@ -171,7 +176,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
     float alpha = 0;
     private boolean isBound = false;
     private String mac = null;
-//    MessageReceiver receiver;
+    //    MessageReceiver receiver;
     public static boolean running = false;
     WindowManager.LayoutParams lp;
     DeviceChild deviceChild = null;
@@ -190,7 +195,9 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
      * 区
      */
 
+    String wifiAdd;
     private static final int REQUEST_PERMISSION = 0x01;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -224,6 +231,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         DeviceGroup deviceGroup = deviceGroupDao.findById(houseId);
         houseAddress = deviceGroup.getLocation();
         String wifi = intent.getStringExtra("wifi");
+        Log.i("wifissssssssss", "-->" + wifi);
+        wifiAdd = wifi;
 
         Intent service = new Intent(AddDeviceActivity.this, MQService.class);
 //        startService(service);
@@ -290,8 +299,6 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             btn_wifi.setVisibility(View.GONE);
             btn_scan.setVisibility(View.GONE);
         }
-        initLocation();
-        startLocation();//开始定位
     }
 
     private String sharedDeviceId;
@@ -395,6 +402,60 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         getWindow().setAttributes(lp);
     }
 
+    private static final int RC_CAMERA_AND_LOCATION = 0;
+    private boolean isNeedCheck = true;
+
+    @AfterPermissionGranted(RC_CAMERA_AND_LOCATION)
+    private void permissionGrantedSuccess() {
+        String[] perms = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+
+            initLocation();
+            startLocation();//开始定位
+            // 已经申请过权限，做想做的事
+
+        } else {
+//             没有申请过权限，现在去申请
+            if ("wifi".equals(wifiAdd)) {
+                if (isNeedCheck) {
+                    EasyPermissions.requestPermissions(this, getString(R.string.location),
+                            RC_CAMERA_AND_LOCATION, perms);
+                }
+            }
+        }
+    }
+
+    @TargetApi(23)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // 把执行结果的操作给EasyPermissions
+        System.out.println(requestCode);
+        if (isNeedCheck) {
+            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        }
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            new AppSettingsDialog
+                    .Builder(this)
+                    .setTitle("提示")
+                    .setRationale("请点击\"设置\"打开定位权限。")
+                    .setPositiveButton("设置")
+                    .setNegativeButton("取消")
+                    .build()
+                    .show();
+            isNeedCheck = false;
+        }
+    }
+
     class CountTimer2 extends CountDownTimer {
         public CountTimer2(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);
@@ -491,7 +552,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
     private int match = 0;
 
     private String wifiName;
-    private boolean isMatching=false;
+    private boolean isMatching = false;
+
     @OnClick({R.id.img_back, R.id.btn_wifi, R.id.btn_scan, R.id.btn_scan2, R.id.btn_match, R.id.layout_help})
     public void onClick(View view) {
         switch (view.getId()) {
@@ -520,8 +582,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     break;
                 }
                 if (popupWindow2 != null && popupWindow2.isShowing()) {
-                    isMatching=false;
-                    wifiName="";
+                    isMatching = false;
+                    wifiName = "";
                     if (gifDrawable != null && gifDrawable.isRunning()) {
                         gifDrawable.stop();
                     }
@@ -630,14 +692,14 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                             et_pswd.setEnabled(false);
                             btn_match.setEnabled(false);
                             popupmenuWindow3();
-                            wifiName=ssid;
-                            isMatching=true;
+                            wifiName = ssid;
+                            isMatching = true;
                             new EsptouchAsyncTask3().execute(ssid, apBssid, apPassword, taskResultCountStr);
                         }
                     } else {
                         Utils.showToast(AddDeviceActivity.this, "请检查网络");
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -736,7 +798,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         protected Integer doInBackground(Map<String, Object>... maps) {
             int code = 0;
             Map<String, Object> params = maps[0];
-            String result = HttpUtils.postOkHpptRequest(wifiConnectionUrl, params);
+            String result = HttpUtils.requestPost(wifiConnectionUrl, params);
             if (!Utils.isEmpty(result)) {
                 try {
                     JSONObject jsonObject = new JSONObject(result);
@@ -767,10 +829,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                                 city = city.substring(0, city.length() - 1);
                             }
                         }
-                        houseAddress=city;
+                        houseAddress = city;
                         deviceChild.setAddress(houseAddress);
                         deviceChild.setHouseAddress(houseAddress);
-                        if (!TextUtils.isEmpty(province)){
+                        if (!TextUtils.isEmpty(province)) {
                             deviceChild.setProvince(province);
                         }
 
@@ -798,7 +860,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                                 String topicName = "p99/" + macAddress + "/set";
                                 String payLoad = "getType";
                                 boolean step2 = mqService.publish(topicName, 1, payLoad);
-                                if (!step2){
+                                if (!step2) {
                                     step2 = mqService.publish(topicName, 1, payLoad);
                                 }
                             }
@@ -854,7 +916,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     Intent intent = new Intent();
                     intent.putExtra("deviceId", deviceId + "");
                     intent.putExtra("houseId", houseId);
-                    intent.putExtra("macAddress",macAddress);
+                    intent.putExtra("macAddress", macAddress);
                     setResult(6000, intent);
                     finish();
 //                    Intent intent2 = new Intent(AddDeviceActivity.this, MainActivity.class);
@@ -906,6 +968,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        permissionGrantedSuccess();
         // display the connected ap's ssid
 ////        String apSsid = mWifiAdmin.getWifiConnectedSsid();
 ////        Log.i("apSsid", "-->" + apSsid);
@@ -1241,8 +1304,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     }
                 } else {
                     if (popupWindow2 != null && popupWindow2.isShowing()) {
-                        isMatching=false;
-                        wifiName="";
+                        isMatching = false;
+                        wifiName = "";
                         if (gifDrawable != null && gifDrawable.isPlaying()) {
                             gifDrawable.stop();
 
@@ -1288,8 +1351,8 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                 countTimer3.cancel();
             }
             if (popupWindow2 != null && popupWindow2.isShowing()) {
-                isMatching=false;
-                wifiName="";
+                isMatching = false;
+                wifiName = "";
                 if (gifDrawable != null && gifDrawable.isRunning()) {
                     gifDrawable.stop();
                 }
@@ -1645,10 +1708,13 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             locationOption = null;
         }
     }
+
     private boolean mReceiverRegistered = false;
+
     private boolean isSDKAtLeastP() {
         return Build.VERSION.SDK_INT >= 28;
     }
+
     private void registerBroadcastReceiver() {
         IntentFilter filter = new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         if (isSDKAtLeastP()) {
@@ -1657,6 +1723,7 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         registerReceiver(mReceiver, filter);
         mReceiverRegistered = true;
     }
+
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -1684,12 +1751,13 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
         }
     };
     String bSsid;
+
     private void onWifiChanged(WifiInfo info) {
 
         if (info == null) {
             et_ssid.setText("");
             et_pswd.setText("");
-            Utils.showToast(AddDeviceActivity.this,"WiFi已中断，请连接WiFi重新配置");
+            Utils.showToast(AddDeviceActivity.this, "WiFi已中断，请连接WiFi重新配置");
             if (mEsptouchTask != null) {
                 mEsptouchTask.interrupt();
             }
@@ -1705,10 +1773,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             }
         } else {
             String apSsid = info.getSSID();
-            bSsid=info.getBSSID();
+            bSsid = info.getBSSID();
             if (apSsid.startsWith("\"") && apSsid.endsWith("\"")) {
                 apSsid = apSsid.substring(1, apSsid.length() - 1);
-                if ("<unknown ssid>".equals(apSsid)){
+                if ("<unknown ssid>".equals(apSsid)) {
                     et_ssid.setText("");
                     et_pswd.setText("");
                 }
@@ -1721,26 +1789,31 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
             } else {
                 et_ssid.setText(apSsid);
                 et_pswd.setText("");
-                if ("<unknown ssid>".equals(apSsid)){
+                if ("<unknown ssid>".equals(apSsid)) {
                     et_ssid.setText("");
                     et_pswd.setText("");
                 }
             }
             if (!TextUtils.isEmpty(apSsid)) {
-                char[] chars = apSsid.toCharArray();
-                et_ssid.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Utils.showToast(AddDeviceActivity.this, "WiFi名称不可编辑");
-                    }
-                });
+                if (apSsid.contains("+") || apSsid.contains("/") || apSsid.contains("#")) {
+                    et_ssid.setText("");
+                    Utils.showToast(AddDeviceActivity.this, "WiFi名称为不含有+/#特殊符号的英文");
+                } else {
+                    char[] chars = apSsid.toCharArray();
+                    et_ssid.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Utils.showToast(AddDeviceActivity.this, "WiFi名称不可编辑");
+                        }
+                    });
 
-                for (char c : chars) {
-                    if (IsChinese.isChinese(c)) {
-                        Utils.showToast(AddDeviceActivity.this, "WiFi名称不能是中文");
-                        et_ssid.setText("");
-                        et_pswd.setText("");
-                        break;
+                    for (char c : chars) {
+                        if (IsChinese.isChinese(c)) {
+                            Utils.showToast(AddDeviceActivity.this, "WiFi名称不能是中文");
+                            et_ssid.setText("");
+                            et_pswd.setText("");
+                            break;
+                        }
                     }
                 }
             } else {
@@ -1762,10 +1835,10 @@ public class AddDeviceActivity extends CheckPermissionsActivity {
                     et_pswd.setText("");
                 }
             }
-            if (isMatching && !TextUtils.isEmpty(wifiName) && !wifiName.equals(apSsid)){
-                isMatching=false;
-                wifiName="";
-                Utils.showToast(AddDeviceActivity.this,"WiFi已切换,请重新配置");
+            if (isMatching && !TextUtils.isEmpty(wifiName) && !wifiName.equals(apSsid)) {
+                isMatching = false;
+                wifiName = "";
+                Utils.showToast(AddDeviceActivity.this, "WiFi已切换,请重新配置");
                 if (mEsptouchTask != null) {
                     mEsptouchTask.interrupt();
                 }

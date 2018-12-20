@@ -278,7 +278,7 @@ public class PersonInfoActivity extends AppCompatActivity {
             Map<String, Object> map = maps[0];
             try {
                 String updateUrl = "http://47.98.131.11:8082/warmer/v1.0/user/modInfo";
-                String result = HttpUtils.postOkHpptRequest(updateUrl, map);
+                String result = HttpUtils.requestPost(updateUrl, map);
 
                 if (!Utils.isEmpty(result)) {
                     JSONObject jsonObject = new JSONObject(result);
@@ -549,10 +549,12 @@ public class PersonInfoActivity extends AppCompatActivity {
             int code = 0;
             File file = files[0];
             String userId = preferences.getString("userId", "");
-            String url = "http://47.98.131.11:8082/warmer/v1.0/user/" + userId + "/headImg";
+
+//            String url = "http://47.98.131.11:8082/warmer/v1.0/user/" + userId + "/headImg";
 //            String url="http://192.168.1.74:8080/Test2/user/fileLoad/user/2";
-            Log.i("sssssssssssssssss","url:"+url);
-            String result = HttpUtils.upLoadFile(url, "HeadPortrait2.jpg", file);
+//            Log.i("sssssssssssssssss","url:"+url);
+//            String result = HttpUtils.upLoadFile(url, "HeadPortrait2.jpg", file);
+            String result = HttpUtils.uploadFile(userId, file);
             if (!Utils.isEmpty(result)) {
                 code = Integer.parseInt(result);
             }

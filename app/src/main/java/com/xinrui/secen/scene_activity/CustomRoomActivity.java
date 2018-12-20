@@ -448,7 +448,7 @@ public class CustomRoomActivity extends AppCompatActivity {
             params.put("houseId", houseId);
             params.put("layer", layer);
             String url = getUrl.getRqstUrl("http://47.98.131.11:8082/warmer/v1.0/room/cleanRoom", params);
-            String result = HttpUtils.getOkHpptRequest(url);
+            String result = HttpUtils.requestGet(url);
 
             if (!Utils.isEmpty(result)) {
                 try {

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/back_toptoast"
+    >
+
+
+    <ImageView
+        android:id="@+id/image_app"
+        android:layout_width="@dimen/dp_30"
+        android:layout_height="@dimen/dp_30"
+        android:src="@mipmap/ic_launcher"
+        android:scaleType="centerCrop"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_10"
+        />
+
+    <TextView
+        android:id="@+id/tv_app"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Rango Pro"
+        android:gravity="center"
+        android:layout_alignTop="@+id/image_app"
+        android:layout_alignBottom="@+id/image_app"
+        android:layout_toRightOf="@+id/image_app"
+        android:textSize="@dimen/sp_20"
+        android:layout_marginLeft="@dimen/dp_5"
+        android:textColor="@color/black"
+        />
+
+    <TextClock
+        android:id="@+id/tv_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="sssss"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/dp_10"
+        android:layout_alignTop="@+id/image_app"
+        android:layout_alignBottom="@+id/image_app"
+        android:textSize="@dimen/sp_20"
+        android:textColor="@color/black"
+        />
+
+    <TextView
+        android:id="@+id/tv_device"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/image_app"
+        android:layout_below="@+id/image_app"
+        android:textColor="@color/black"
+        android:textSize="@dimen/sp_20"
+        android:text="办公室设备已倾倒"
+        android:layout_marginTop="@dimen/dp_5"
+        android:layout_marginBottom="@dimen/dp_5"
+        />
+
+</RelativeLayout>

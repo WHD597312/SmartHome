@@ -265,7 +265,7 @@ public class MainControlFragment extends Fragment {
             List<DeviceChild> list = new ArrayList<>();
             try {
                 String getAllMainControl = "http://47.98.131.11:8082/warmer/v1.0/device/getMasterControlledDevice?houseId=" + URLEncoder.encode(houseId, "utf-8");
-                String result = HttpUtils.getOkHpptRequest(getAllMainControl);
+                String result = HttpUtils.requestGet(getAllMainControl);
                 if (!Utils.isEmpty(result)) {
                     JSONObject jsonObject = new JSONObject(result);
                     DeviceChild deviceChild2 = null;
@@ -465,7 +465,7 @@ public class MainControlFragment extends Fragment {
             int code = 0;
             Map<String, Object> params = maps[0];
             long masterControllerDeviceId = (long) params.get("masterControllerDeviceId");
-            String result = HttpUtils.postOkHpptRequest(masterUrl, params);
+            String result = HttpUtils.requestPost(masterUrl, params);
             if (!Utils.isEmpty(result)) {
                 try {
                     JSONObject jsonObject = new JSONObject(result);

@@ -202,7 +202,7 @@ public class ShareDeviceActivity extends AppCompatActivity {
             }
             if (type!=-1){
                 String url="http://47.98.131.11:8082/warmer/v1.0/device/getVersions?type="+type;
-                String result=HttpUtils.getOkHpptRequest(url);
+                String result=HttpUtils.requestGet(url);
                 if (!Utils.isEmpty(result)){
                     try {
                         JSONObject jsonObject=new JSONObject(result);

@@ -519,7 +519,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
             try {
                 String updateDeviceNameUrl = "http://47.98.131.11:8082/warmer/v1.0/device/changeDeviceName?deviceId=" +
                         URLEncoder.encode(deviceChild.getId() + "", "UTF-8") + "&newName=" + URLEncoder.encode(deviceChild.getDeviceName(), "UTF-8");
-                String result = HttpUtils.getOkHpptRequest(updateDeviceNameUrl);
+                String result = HttpUtils.requestGet(updateDeviceNameUrl);
                 JSONObject jsonObject = new JSONObject(result);
                 code = jsonObject.getInt("code");
                 if (code == 2000) {
@@ -652,7 +652,7 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
         protected Integer doInBackground(Void... voids) {
             int code = 0;
             String url = "http://47.98.131.11:8082/warmer/v1.0/device/getDeviceLinked?sensorsId=" + sensorId + "&houseId=" + houseId;
-            String result = HttpUtils.getOkHpptRequest(url);
+            String result = HttpUtils.requestGet(url);
             SmartTerminalActivity.this.result=1;
             if (!TextUtils.isEmpty(result)) {
                 Log.i("result", "-->" + result);

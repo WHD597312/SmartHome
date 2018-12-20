@@ -67,16 +67,14 @@
             android:layout_centerVertical="true"
             android:layout_marginTop="@dimen/dp_3"
             >
-
             <ImageView
                 android:id="@+id/image_temp"
                 android:layout_width="@dimen/dp_40"
                 android:layout_height="@dimen/dp_40"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="@dimen/dp_30"
+                android:layout_marginLeft="@dimen/dp_25"
                 android:scaleType="centerCrop"
                 android:src="@mipmap/module_task" />
-
             <TextView
                 android:id="@+id/tv_cur"
                 android:layout_width="wrap_content"
@@ -94,12 +92,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_marginLeft="@dimen/dp_5"
                 android:layout_toRightOf="@+id/tv_cur"
                 android:gravity="center"
                 android:paddingBottom="@dimen/dp_5"
                 android:text="19℃"
-                android:textColor="@color/white"
+                android:textColor="@color/color_orange"
                 android:textSize="@dimen/sp_20" />
 
             <TextView
@@ -107,7 +105,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_marginLeft="@dimen/dp_15"
                 android:layout_toRightOf="@+id/tv_cur_temp"
                 android:gravity="center"
                 android:text="@string/set"
@@ -119,12 +117,37 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_marginLeft="@dimen/dp_5"
                 android:layout_toRightOf="@+id/tv_set"
                 android:gravity="center"
                 android:text="19℃"
                 android:textColor="@color/color_orange"
                 android:textSize="@dimen/sp_20" />
+
+            <TextView
+                android:id="@+id/tv_cur_protect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_toRightOf="@+id/tv_set_temp"
+                android:gravity="center"
+                android:text="外壳"
+                android:visibility="gone"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_16"/>
+            <TextView
+                android:id="@+id/tv_cur_protect_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/dp_5"
+                android:layout_toRightOf="@+id/tv_cur_protect"
+                android:gravity="center"
+                android:visibility="gone"
+                android:text="19℃"
+                android:textColor="@color/color_orange"
+                android:textSize="@dimen/sp_20"/>
 
         </RelativeLayout>
 
@@ -149,7 +172,7 @@
                 app:wheel_pointer_radius="20dp"
                 app:wheel_reached_width="0dp"
                 app:wheel_unreached_color="#1A1414"
-                app:wheel_unreached_width="20dp" />
+                app:wheel_unreached_width="@dimen/dp_20" />
 
             <ImageView
                 android:id="@+id/image_switch"

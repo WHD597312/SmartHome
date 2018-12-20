@@ -191,7 +191,7 @@ public class NoDeviceFragment extends Fragment{
             try {
                 String updateHomeUrl="http://47.98.131.11:8082/warmer/v1.0/house/changeHouseName?houseId="+
                         URLEncoder.encode(updateDeviceGroup.getId()+"","UTF-8")+"&houseName="+URLEncoder.encode(updateDeviceGroup.getHouseName(),"UTF-8");
-                String result=HttpUtils.getOkHpptRequest(updateHomeUrl);
+                String result=HttpUtils.requestGet(updateHomeUrl);
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");
@@ -224,7 +224,7 @@ public class NoDeviceFragment extends Fragment{
             try {
                 String updateHomeUrl="http://47.98.131.11:8082/warmer/v1.0/house/changeHouseLocation?houseId="+
                         URLEncoder.encode(updateDeviceGroup.getId()+"","UTF-8")+"&houseLocation="+URLEncoder.encode(updateDeviceGroup.getLocation(),"UTF-8");
-                String result=HttpUtils.getOkHpptRequest(updateHomeUrl);
+                String result=HttpUtils.requestGet(updateHomeUrl);
                 if (!Utils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
                     code=jsonObject.getInt("code");

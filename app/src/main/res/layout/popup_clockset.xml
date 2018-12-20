@@ -34,7 +34,7 @@
                 android:layout_height="@dimen/dp_30"
                 android:layout_marginRight="@dimen/dp_56"
                 android:layout_toRightOf="@+id/light_left"
-                android:max="100"
+                android:max="8"
                 android:progress="0"
                 android:progressDrawable="@drawable/bg_seekbar_progress_drawable"
                 android:thumb="@null"

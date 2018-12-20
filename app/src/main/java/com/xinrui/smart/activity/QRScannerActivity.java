@@ -1,6 +1,7 @@
 package com.xinrui.smart.activity;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -55,8 +57,11 @@ import java.util.Vector;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.AppSettingsDialog;
+import pub.devrel.easypermissions.EasyPermissions;
 
-public class QRScannerActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class QRScannerActivity extends AppCompatActivity implements SurfaceHolder.Callback,EasyPermissions.PermissionCallbacks {
 
     ViewfinderView viewfinderView;
 
@@ -97,11 +102,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
         unbinder = ButterKnife.bind(this);
         init();
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.CAMERA}, 1);
-            }
-        }
+
         SharedPreferences my = getSharedPreferences("my", MODE_PRIVATE);
         userId = my.getString("userId", "");
         Intent service = new Intent(QRScannerActivity.this, MQService.class);
@@ -129,6 +130,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
     @Override
     protected void onResume() {
         super.onResume();
+        permissionGrantedSuccess();
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
         if (hasSurface) {
@@ -253,7 +255,7 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
         protected Integer doInBackground(Map<String, Object>... maps) {
             int code = 0;
             Map<String, Object> params = maps[0];
-            String result = HttpUtils.postOkHpptRequest(qrCodeConnectionUrl, params);
+            String result = HttpUtils.requestPost(qrCodeConnectionUrl, params);
             if (!Utils.isEmpty(result)) {
                 try {
                     JSONObject jsonObject = new JSONObject(result);
@@ -463,4 +465,49 @@ public class QRScannerActivity extends AppCompatActivity implements SurfaceHolde
             mediaPlayer.seekTo(0);
         }
     };
+    private static final int RC_CAMERA_AND_LOCATION=0;
+    private boolean isNeedCheck=true;
+    @AfterPermissionGranted(RC_CAMERA_AND_LOCATION)
+    private void permissionGrantedSuccess(){
+        String[] perms = {Manifest.permission.CAMERA};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+
+        } else {
+//             没有申请过权限，现在去申请
+            if (isNeedCheck){
+                EasyPermissions.requestPermissions(this, getString(R.string.camer),
+                        RC_CAMERA_AND_LOCATION, perms);
+            }
+        }
+    }
+    @TargetApi(23)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // 把执行结果的操作给EasyPermissions
+        System.out.println(requestCode);
+        if (isNeedCheck){
+            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        }
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            new AppSettingsDialog
+                    .Builder(this)
+                    .setTitle("提示")
+                    .setRationale("请点击\"设置\"打开相机权限。")
+                    .setPositiveButton("设置")
+                    .setNegativeButton("取消")
+                    .build()
+                    .show();
+            isNeedCheck=false;
+        }
+    }
 }

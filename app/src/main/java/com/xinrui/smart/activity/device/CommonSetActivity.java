@@ -138,7 +138,7 @@ public class CommonSetActivity extends AppCompatActivity {
         protected Integer doInBackground(Void... voids) {
             int code=0;
             try {
-                String result=HttpUtils.getOkHpptRequest(appUrl);
+                String result=HttpUtils.requestGet(appUrl);
                 if (!TextUtils.isEmpty(result)){
                     JSONObject jsonObject=new JSONObject(result);
                     int resultCode=jsonObject.getInt("code");
