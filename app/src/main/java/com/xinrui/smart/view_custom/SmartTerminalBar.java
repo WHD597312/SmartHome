@@ -302,15 +302,15 @@ public class SmartTerminalBar extends View {
 //        mReachedPaint.setStrokeWidth(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()));
         mReachedPaint.setColor(getResources().getColor(R.color.color_light_blue));
 
-        canvas.drawArc(new RectF(left,top,right,bottom),135,100,false,mReachedPaint);
+        canvas.drawArc(new RectF(left,top,right,bottom),135,90,false,mReachedPaint);
 
 
         mReachedPaint.setColor(getResources().getColor(R.color.green2));
-        canvas.drawArc(new RectF(left,top,right,bottom),255,50,false,mReachedPaint);
+        canvas.drawArc(new RectF(left,top,right,bottom),240,65,false,mReachedPaint);
 
 
         mReachedPaint.setColor(getResources().getColor(R.color.color_orange_light));
-        canvas.drawArc(new RectF(left,top,right,bottom),325,80,false,mReachedPaint);
+        canvas.drawArc(new RectF(left,top,right,bottom),320,81,false,mReachedPaint);
         //画锚点
 //        mPointerPaint.setColor(getResources().getColor(R.color.color_black3));
 
@@ -359,7 +359,7 @@ public class SmartTerminalBar extends View {
 //        String[] strs2 = null;
 //        module = "1";
 
-        String[]  strs = new String[]{"舒","", "适", "", "", "", "","","","","","酷","","热","","","","","","","","","","","","","","","","","","","","","寒","","冷"};//绘制数字1-12  (数字角度不对  可以进行相关的处理)
+        String[]  strs = new String[]{"","", "", "", "", "", "","","","","酷","","","热","","","","","","","","","","","","","","","","","","","寒","","","冷","","","","","","","","","舒","", "","适", ""};//绘制数字1-12  (数字角度不对  可以进行相关的处理)
 
 
 

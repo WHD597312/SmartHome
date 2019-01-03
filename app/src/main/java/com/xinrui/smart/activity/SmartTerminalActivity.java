@@ -332,6 +332,9 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
         int extHum = deviceChild.getHum();
         if (extTemp>=0){
             tv_smart_temp.setText(extTemp+"℃");
+            if (extTemp>42){
+                tv_smart_temp.setText(42+"℃");
+            }
         }else {
             tv_smart_temp.setText(0+"℃");
         }
@@ -343,30 +346,52 @@ public class SmartTerminalActivity extends AppCompatActivity implements View.OnT
 
 
         if (extTemp<=0){
-            tempCurProgress=-11;
-        }else if (extTemp>0 && extTemp<5){
-            tempCurProgress=-6;
-        }else if (extTemp>=5 && extTemp<42){
-            tempCurProgress=extTemp-15;
-        }else if (extTemp>=42){
-            tempCurProgress=33;
+            tempCurProgress=-28;
+        }else if (extTemp>0 && extTemp<=42){
+            if (extTemp>0 && extTemp<18){
+                tempCurProgress=extTemp-30;
+            }else if (extTemp>=18 && extTemp<=42){
+//                tempCurProgress=2*extTemp-47;
+                if (extTemp<=18){
+                    tempCurProgress=extTemp-29;
+                }else if (extTemp==19){
+                    tempCurProgress=extTemp-28;
+                }else if (extTemp==20){
+                    tempCurProgress=extTemp-27;
+                }else if (extTemp==21){
+                    tempCurProgress=extTemp-26;
+                }else if (extTemp==22){
+                    tempCurProgress=extTemp-25;
+                }else if (extTemp>=23)
+                    tempCurProgress=extTemp-24;
+            }else if (extTemp>=26 && extTemp<=42){
+                if (extTemp>=26 && extTemp<=35)
+                    tempCurProgress=extTemp-23;
+                else if (extTemp>=36 && extTemp<=42){
+                    tempCurProgress=extTemp-25;
+                    Log.i("tempCurProgress","-->"+tempCurProgress);
+                }
+            }
+            Log.i("tempCurProgress","-->"+tempCurProgress);
+        }else if (extTemp>42){
+            tempCurProgress=17;
         }
 
         Message tempDecrease = handler.obtainMessage();
         tempDecrease.arg1 = 0;
         handler.sendMessage(tempDecrease);
-        if (extHum<=0){
-            humCurProgress=-11;
-        }else if (extHum>0 && extHum<5){
-            humCurProgress=-6;
-        }else if (extHum>=5 && extHum<42){
-            humCurProgress=extHum-15;
-        }else if (extHum>=42){
-            humCurProgress=33;
-        }
-        Message humMessage = handler.obtainMessage();
-        humMessage.arg1 = 2;
-        handler.sendMessage(humMessage);
+//        if (extHum<=0){
+//            humCurProgress=-30;
+//        }else if (extHum>0 && extHum<5){
+//            humCurProgress=-6;
+//        }else if (extHum>=5 && extHum<42){
+//            humCurProgress=extHum-15;
+//        }else if (extHum>=42){
+//            humCurProgress=33;
+//        }
+//        Message humMessage = handler.obtainMessage();
+//        humMessage.arg1 = 2;
+//        handler.sendMessage(humMessage);
     }
 
     /**

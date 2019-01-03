@@ -28,4 +28,6 @@ public interface HttpService {
     Call<ResponseBody> uploadFile(@Path("userId") String userId, @Part MultipartBody.Part file);
 
 
+
+
 }

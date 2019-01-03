@@ -17,6 +17,8 @@
         android:scaleType="centerInside"
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/dp_20"
-
+        android:singleLine="true"
+        android:maxEms="10"
+        android:ellipsize="end"
         />
 </RelativeLayout>

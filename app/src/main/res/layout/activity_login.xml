@@ -85,6 +85,7 @@
             android:background="@null"
             android:textColorHint="@color/white"
             android:textColor="@color/white"
+            android:textSize="@dimen/sp_18"
             />
 
         <ImageView

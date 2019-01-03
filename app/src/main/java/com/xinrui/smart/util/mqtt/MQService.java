@@ -843,14 +843,18 @@ public class MQService extends Service {
                                 sensorHcho = messageJsonArray.getInt(12) - 128;
                                 extTemp = sensorSimpleTemp;
                                 extHum = sensorSimpleHum;
+                                Log.i("extTemp","-->"+extTemp);
+                                if (extTemp>42){
+                                    extTemp=42;
+                                }
 
                                 if (child != null) {
                                     child.setSensorState(sensorState);
                                     child.setBusModel(busModel);
 //                                    child.setMcuVersion(mcuVersion);
 //                                    deviceChild.setWifiVersion(wifiVersion);
-                                    child.setSensorSimpleTemp(sensorSimpleTemp);
-                                    child.setSensorSimpleHum(sensorSimpleHum);
+                                    child.setSensorSimpleTemp(extTemp);
+                                    child.setSensorSimpleHum(extHum);
                                     child.setSorsorPm(sorsorPm);
                                     child.setSensorOx(sensorOx);
                                     child.setSensorHcho(sensorHcho);
