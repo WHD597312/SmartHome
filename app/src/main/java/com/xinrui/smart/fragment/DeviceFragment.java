@@ -241,6 +241,7 @@ public class DeviceFragment extends Fragment {
         getActivity().registerReceiver(receiver, intentFilter);
 
 
+
         timeDao = new TimeDaoImpl(getActivity());
 
 //        receiver = new
@@ -389,6 +390,7 @@ public class DeviceFragment extends Fragment {
 //
 //            }
 //        });
+
         return view;
     }
 

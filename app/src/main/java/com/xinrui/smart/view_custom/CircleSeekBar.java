@@ -139,9 +139,10 @@ public class CircleSeekBar extends View {
         mReachedPaint.setColor(mReachedColor);
         mReachedPaint.setStyle(Paint.Style.STROKE);
         mReachedPaint.setStrokeWidth(mReachedWidth);
-        if (isHasReachedCornerRound) {
-            mReachedPaint.setStrokeCap(Paint.Cap.ROUND);
-        }
+//        if (isHasReachedCornerRound) {
+//            mReachedPaint.setStrokeCap(Paint.Cap.ROUND);
+//            mReachedPaint.setStrokeCap();
+//        }
         /**
          * 锚点画笔
          */

@@ -238,21 +238,22 @@ public class AddDeviceActivity extends AppCompatActivity implements EasyPermissi
 //        startService(service);
         isBound = bindService(service, connection, Context.BIND_AUTO_CREATE);
 
-        if (isSDKAtLeastP()) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                String[] permissions = {
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                };
-
-                ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION);
-            } else {
-                registerBroadcastReceiver();
-            }
-
-        } else {
-            registerBroadcastReceiver();
-        }
+//        if (isSDKAtLeastP()) {
+//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//                String[] permissions = {
+//                        Manifest.permission.ACCESS_COARSE_LOCATION
+//                };
+//
+//                ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION);
+//            } else {
+//                registerBroadcastReceiver();
+//            }
+//
+//        } else {
+//
+//        }
+        registerBroadcastReceiver();
 
 //        IntentFilter intentFilter = new IntentFilter("AddDeviceActivity");
 //        receiver = new MessageReceiver();
@@ -414,6 +415,7 @@ public class AddDeviceActivity extends AppCompatActivity implements EasyPermissi
             startLocation();//开始定位
             // 已经申请过权限，做想做的事
 
+            MyApplication.location=1;
         } else {
 //             没有申请过权限，现在去申请
             if ("wifi".equals(wifiAdd)) {
@@ -453,6 +455,7 @@ public class AddDeviceActivity extends AppCompatActivity implements EasyPermissi
                     .build()
                     .show();
             isNeedCheck = false;
+            MyApplication.location=1;
         }
     }
 
@@ -968,7 +971,9 @@ public class AddDeviceActivity extends AppCompatActivity implements EasyPermissi
     @Override
     protected void onResume() {
         super.onResume();
-        permissionGrantedSuccess();
+        if (-1==MyApplication.location){
+            permissionGrantedSuccess();
+        }
         // display the connected ap's ssid
 ////        String apSsid = mWifiAdmin.getWifiConnectedSsid();
 ////        Log.i("apSsid", "-->" + apSsid);

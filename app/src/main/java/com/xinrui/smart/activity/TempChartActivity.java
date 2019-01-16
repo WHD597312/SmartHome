@@ -118,7 +118,7 @@ public class TempChartActivity extends AppCompatActivity {
                     }
                 }else if ("saveTemp".equals(outputMod)){
                     powerValue=0;
-                    ss=0.00+"";
+                    ss="0.00";
                 }
             }else {
                 powerValue=0;

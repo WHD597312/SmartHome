@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment;
 
 import com.squareup.picasso.Picasso;
 import com.xinrui.smart.util.ImageDownLoader;
+import com.zhy.autolayout.config.AutoLayoutConifg;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import okhttp3.Protocol;
 
 public class MyApplication extends Application {
     public static String update="cancel";
+    public static int location=-1;//定位权限，为-1表示没有打开过定位权限，1表示打开或者用户拒绝再次访问定位权限
     private int count = 0;
     private List<Activity> activities;
     private List<Fragment> fragments;
@@ -52,6 +54,8 @@ public class MyApplication extends Application {
         Picasso.setSingletonInstance(new Picasso.Builder(this).
                 downloader(new ImageDownLoader(client))
                 .build());
+
+        AutoLayoutConifg.getInstance().useDeviceSize();
         mContext = getApplicationContext();
         // android 7.0系统解决拍照的问题
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();

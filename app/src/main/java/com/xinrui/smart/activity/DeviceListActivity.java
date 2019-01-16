@@ -65,6 +65,7 @@ import com.xinrui.smart.view_custom.DeviceChildProjectDialog;
 import com.xinrui.smart.view_custom.MySeekBar2;
 import com.xinrui.smart.view_custom.RestoreSetDialog;
 import com.xinrui.smart.view_custom.SemicircleBar;
+import com.zhy.autolayout.AutoLayoutActivity;
 
 import org.json.JSONObject;
 
@@ -82,7 +83,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class DeviceListActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, SeekBar.OnSeekBarChangeListener {
+public class DeviceListActivity extends AutoLayoutActivity implements AdapterView.OnItemClickListener, SeekBar.OnSeekBarChangeListener {
 
     GestureDetector mDetector;
     private Unbinder unbinder;
@@ -605,10 +606,10 @@ public class DeviceListActivity extends AppCompatActivity implements AdapterView
             int width = wm.getDefaultDisplay().getWidth() - 200;
             Log.w("width", "width" + width);
 
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(width, width);
-            params.leftMargin = 100;
-
-            semicBar.setLayoutParams(params);
+//            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(width, width);
+//            params.leftMargin = 100;
+//
+//            semicBar.setLayoutParams(params);
 
             semicBar.setModule("1");
             semicBar.setCanTouch(false);

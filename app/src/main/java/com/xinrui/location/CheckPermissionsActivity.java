@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 
 
@@ -37,8 +38,6 @@ public class CheckPermissionsActivity extends AppCompatActivity {
 	 * 需要进行检测的权限数组
 	 */
 	protected String[] needPermissions ={
-			Manifest.permission.ACCESS_COARSE_LOCATION,
-			Manifest.permission.ACCESS_FINE_LOCATION,
 			Manifest.permission.CAMERA,
 			Manifest.permission.WRITE_EXTERNAL_STORAGE,
 			Manifest.permission.READ_EXTERNAL_STORAGE
@@ -137,6 +136,7 @@ public class CheckPermissionsActivity extends AppCompatActivity {
 		if (requestCode == PERMISSON_REQUESTCODE) {
 			if (!verifyPermissions(paramArrayOfInt)) {
 				showMissingPermissionDialog();
+
 				isNeedCheck = false;
 			}
 		}

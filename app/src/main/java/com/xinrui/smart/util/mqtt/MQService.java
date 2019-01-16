@@ -575,6 +575,7 @@ public class MQService extends Service {
                             }
                             if (device.has("machineFall")) {
                                 machineFall = device.getString("machineFall");
+                                machineFall="nor";//s设备倾倒信息去掉
                             }
                             if (device.has("protectSetTemp")) {
                                 protectSetTemp = device.getInt("protectSetTemp");
@@ -805,7 +806,6 @@ public class MQService extends Service {
                                 }
 
                                 if (child != null) {
-
                                     if (!Utils.isEmpty(deviceState)) {
                                         child.setOnLint(true);
                                     }

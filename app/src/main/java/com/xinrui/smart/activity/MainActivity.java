@@ -114,7 +114,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class MainActivity extends CheckPermissionsActivity {
+public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.tv_user)
     TextView tv_user;
