@@ -48,6 +48,7 @@ import com.xinrui.smart.util.NoFastClickUtils;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.view_custom.CircleSeekBar;
+import com.xinrui.smart.view_custom.DialogLoad;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -175,7 +176,7 @@ public class TimeTaskActivity extends AppCompatActivity {
     private TimeDaoImpl timeDao;
 
     private boolean isBound = false;
-    private ProgressDialog progressDialog;
+
     private TextView[] week = new TextView[7];
 
     List<String> hours=new ArrayList<>();
@@ -192,7 +193,7 @@ public class TimeTaskActivity extends AppCompatActivity {
         application.addActivity(this);
         preferences = getSharedPreferences("my", Context.MODE_PRIVATE);
 
-        progressDialog = new ProgressDialog(this);
+
 
 
         Intent intent2 = getIntent();
@@ -497,7 +498,6 @@ public class TimeTaskActivity extends AppCompatActivity {
                 String s = btn_copy.getText().toString();
                 if ("复制".equals(s)) {
                     btn_copy.setText("粘贴");
-                    progressDialog.dismiss();
                 } else if ("粘贴".equals(s)) {
                     if (pasterWeek.isEmpty()) {
                         Utils.showToast(this, "请选择要复制的星期");
@@ -760,7 +760,9 @@ public class TimeTaskActivity extends AppCompatActivity {
             if ("复制成功".equals(s)){
                 Utils.showToast(TimeTaskActivity.this,"复制成功");
             }
-            progressDialog.dismiss();
+            if (dialogLoad!=null && dialogLoad.isShowing()){
+                dialogLoad.dismiss();
+            }
             btn_copy.setText("复制");
         }
 
@@ -820,9 +822,7 @@ public class TimeTaskActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog.setMessage("请稍后...");
-            progressDialog.setCancelable(false);
-            progressDialog.show();
+            setLoadDialog();
         }
     }
 
@@ -1010,17 +1010,24 @@ public class TimeTaskActivity extends AppCompatActivity {
         }
     };
 
+    DialogLoad dialogLoad;
 
+    private void setLoadDialog() {
+        if (dialogLoad != null && dialogLoad.isShowing()) {
+            return;
+        }
+
+        dialogLoad = new DialogLoad(this);
+        dialogLoad.setCanceledOnTouchOutside(false);
+        dialogLoad.setLoad("正在加载,请稍后");
+        dialogLoad.show();
+    }
     class LoadData7Async extends AsyncTask<String,Void,Integer>{
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if (progressDialog!=null){
-                progressDialog.setMessage("正在加载数据,请稍后...");
-                progressDialog.setCancelable(false);
-                progressDialog.show();
-            }
+            setLoadDialog();
         }
 
         @Override
@@ -1051,7 +1058,7 @@ public class TimeTaskActivity extends AppCompatActivity {
                                 boolean success = false;
                                 String macAddress = deviceChild.getMacAddress();
                                 String topicName;
-                                topicName = "rango/" + macAddress + "/set";
+                                topicName = "rango/" + macAddress + "/transfer";
                                 success = mqService.publish(topicName, 1, jsonData);
                             }
                         }
@@ -1068,8 +1075,8 @@ public class TimeTaskActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Integer code) {
             super.onPostExecute(code);
-            if (progressDialog!=null){
-                progressDialog.dismiss();
+            if (dialogLoad!=null && dialogLoad.isShowing()){
+                dialogLoad.dismiss();
             }
         }
     }
@@ -1179,9 +1186,6 @@ public class TimeTaskActivity extends AppCompatActivity {
             if (connection != null) {
                 unbindService(connection);
             }
-        }
-        if (progressDialog!=null){
-            progressDialog.dismiss();
         }
         timeTaskDao.closeDaoSession();
         timeDao.closeDaoSession();

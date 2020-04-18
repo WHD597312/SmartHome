@@ -57,15 +57,18 @@ import com.xinrui.smart.fragment.HeaterFragment;
 import com.xinrui.smart.pojo.DeviceChild;
 import com.xinrui.smart.pojo.Timer;
 import com.xinrui.smart.util.ChineseNumber;
+import com.xinrui.smart.util.DensityUtils;
 import com.xinrui.smart.util.NoFastClickUtils;
+import com.xinrui.smart.util.ScreenUtil;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.util.mqtt.VibratorUtil;
 import com.xinrui.smart.view_custom.DeviceChildProjectDialog;
+import com.xinrui.smart.view_custom.DialogLoad;
 import com.xinrui.smart.view_custom.MySeekBar2;
 import com.xinrui.smart.view_custom.RestoreSetDialog;
 import com.xinrui.smart.view_custom.SemicircleBar;
-import com.zhy.autolayout.AutoLayoutActivity;
+
 
 import org.json.JSONObject;
 
@@ -83,7 +86,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class DeviceListActivity extends AutoLayoutActivity implements AdapterView.OnItemClickListener, SeekBar.OnSeekBarChangeListener {
+public class DeviceListActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, SeekBar.OnSeekBarChangeListener {
 
     GestureDetector mDetector;
     private Unbinder unbinder;
@@ -95,6 +98,8 @@ public class DeviceListActivity extends AutoLayoutActivity implements AdapterVie
     RelativeLayout relative;
     @BindView(R.id.gradView)
     GridView gradView;
+    @BindView(R.id.layout)
+    RelativeLayout layout;
     private int[] colors = {R.color.color_black, R.color.holo_orange_dark};
     private List<String> list;
     DeviceListAdapter adapter;
@@ -171,6 +176,7 @@ public class DeviceListActivity extends AutoLayoutActivity implements AdapterVie
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DensityUtils.setOrientation(this, ScreenUtil.HEIGHT);
         setContentView(R.layout.activity_device_list);
         unbinder = ButterKnife.bind(this);
         if (application == null) {
@@ -1380,7 +1386,7 @@ public class DeviceListActivity extends AutoLayoutActivity implements AdapterVie
         }
     }
 
-    int progress;
+
     private boolean onClick=false;
 
 
@@ -1889,7 +1895,7 @@ public class DeviceListActivity extends AutoLayoutActivity implements AdapterVie
 
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
-        popupWindow2 = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow2 = new PopupWindow(view, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         //点击空白处时，隐藏掉pop窗口
         popupWindow2.setFocusable(true);
         popupWindow2.setOutsideTouchable(true);
@@ -1901,7 +1907,8 @@ public class DeviceListActivity extends AutoLayoutActivity implements AdapterVie
         backgroundAlpha(0.4f);
 //        ColorDrawable dw = new ColorDrawable(0x30000000);
 //        popupWindow.setBackgroundDrawable(dw);
-        popupWindow2.showAsDropDown(linearout, 0, 20);
+        popupWindow2.showAsDropDown(linearout, 0, 40);
+//        popupWindow2.showAtLocation(layout,Gravity.BOTTOM, 0, 0);
         popupWindow2.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {

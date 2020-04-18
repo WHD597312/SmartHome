@@ -303,6 +303,8 @@
     <dimen name="dp_298">298dp</dimen>
     <dimen name="dp_299">299dp</dimen>
     <dimen name="dp_300">300dp</dimen>
+    <dimen name="dp_320">320dp</dimen>
+    <dimen name="dp_330">330dp</dimen>
     <dimen name="dp_387">387dp</dimen>
     <dimen name="dp_460">460dp</dimen>
     <dimen name="dp_470">470dp</dimen>

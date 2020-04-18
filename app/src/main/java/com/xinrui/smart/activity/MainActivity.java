@@ -82,14 +82,18 @@ import com.xinrui.smart.pojo.Function;
 import com.xinrui.smart.pojo.TimeTask;
 import com.xinrui.smart.pojo.Timer;
 import com.xinrui.smart.reveiver.MQTTMessageReveiver;
+import com.xinrui.smart.util.DensityUtil;
+import com.xinrui.smart.util.DensityUtils;
 import com.xinrui.smart.util.GlideCacheUtil;
 import com.xinrui.smart.util.GlideCircleTransform;
 import com.xinrui.smart.util.NoFastClickUtils;
+import com.xinrui.smart.util.ScreenUtil;
 import com.xinrui.smart.util.Utils;
 import com.xinrui.smart.util.mqtt.MQService;
 import com.xinrui.smart.util.mqtt.VibratorUtil;
 import com.xinrui.smart.view_custom.AppUpdateDialog;
 import com.xinrui.smart.view_custom.DeviceHomeDialog;
+import com.xinrui.smart.view_custom.DialogLoad;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -168,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         unbinder = ButterKnife.bind(this);
         setSupportActionBar(toolbar);
@@ -269,24 +274,24 @@ public class MainActivity extends AppCompatActivity {
 
         if (Utils.isEmpty(mainControl) && Utils.isEmpty(deviceList) && Utils.isEmpty(Activity_return) && Utils.isEmpty(live)) {
             login = intent.getStringExtra("login");
-            if (!TextUtils.isEmpty(login)){
-                if ("cancel".equals(MyApplication.update)){
-                    try {
-                        PackageManager packageManager=application.getPackageManager();
-                        try {
-                            PackageInfo packageInfo=packageManager.getPackageInfo(getPackageName(),0);
-                            versionName=packageInfo.versionName;
-                            versionCode=packageInfo.versionCode;
-                            System.out.println("pakageInfo:"+versionName+","+versionCode);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                        new UpdateAppAsync().execute().get(3,TimeUnit.SECONDS);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            }
+//            if (!TextUtils.isEmpty(login)){
+//                if ("cancel".equals(MyApplication.update)){
+//                    try {
+//                        PackageManager packageManager=application.getPackageManager();
+//                        try {
+//                            PackageInfo packageInfo=packageManager.getPackageInfo(getPackageName(),0);
+//                            versionName=packageInfo.versionName;
+//                            versionCode=packageInfo.versionCode;
+//                            System.out.println("pakageInfo:"+versionName+","+versionCode);
+//                        }catch (Exception e){
+//                            e.printStackTrace();
+//                        }
+//                        new UpdateAppAsync().execute().get(3,TimeUnit.SECONDS);
+//                    }catch (Exception e){
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
             if (!Utils.isEmpty(fall)) {
                 falling = true;
             }
@@ -304,10 +309,10 @@ public class MainActivity extends AppCompatActivity {
                     }catch (Exception e){
                         e.printStackTrace();
                     }
-                    if ("cancel".equals(MyApplication.update)){
-                        new UpdateAppAsync().execute().get(3,TimeUnit.SECONDS);
-                    }
-                    new LoadDeviceAsync().execute().get(5, TimeUnit.SECONDS);
+//                    if ("cancel".equals(MyApplication.update)){
+//                        new UpdateAppAsync().execute().get(3,TimeUnit.SECONDS);
+//                    }
+//                    new LoadDeviceAsync().execute().get(5, TimeUnit.SECONDS);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -368,7 +373,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+
         super.onStart();
+        DensityUtils.setOrientation(this, ScreenUtil.WIDTH);
         String fragmentS = fragmentPreferences.getString("fragment", "");
         if ("1".equals(fragmentS) && result2==0) {
             deviceGroups = deviceGroupDao.findAllDevices();
@@ -382,16 +389,11 @@ public class MainActivity extends AppCompatActivity {
                 deviceFragment.setArguments(bundle);
                 preferences.edit().putString("main", "1").commit();
 
-                if (!Utils.isEmpty(fall)) {
-                    MainActivity.falling = true;
-                    bundle.putString("load", "load");
-                } else {
-                    bundle.putString("load", "");
-                }
                 if (!Utils.isEmpty(deviceId)) {
 //                    bundle.putString("load","load");
                     bundle.putString("deviceId", deviceId);
                 } else {
+                    bundle.putString("load", "load");
                     bundle.putString("deviceId", "");
                 }
                 fragmentTransaction.replace(R.id.layout_body, deviceFragment).commit();
@@ -430,12 +432,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private LocationManager locationManager;
-    private String provider;
-
-
-    Intent service;
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -465,31 +461,6 @@ public class MainActivity extends AppCompatActivity {
     MQService mqService;
     private boolean bound = false;
 
-    class LoadDateTimer extends CountDownTimer {
-
-        /**
-         * @param millisInFuture    The number of millis in the future from the call
-         *                          to {@link #start()} until the countdown is done and {@link #onFinish()}
-         *                          is called.
-         * @param countDownInterval The interval along the way to receive
-         *                          {@link #onTick(long)} callbacks.
-         */
-        public LoadDateTimer(long millisInFuture, long countDownInterval) {
-            super(millisInFuture, countDownInterval);
-        }
-
-        @Override
-        public void onTick(long millisUntilFinished) {
-            Log.e("Tag", "倒计时=" + (millisUntilFinished / 1000));
-        }
-
-        @Override
-        public void onFinish() {
-            if (progressDialog != null) {
-                progressDialog.dismiss();
-            }
-        }
-    }
 
 
     @Override
